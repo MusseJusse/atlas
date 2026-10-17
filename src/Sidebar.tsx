@@ -210,7 +210,7 @@ export const Sidebar = memo(function Sidebar({
             <h3 className="flex-1 text-[12px] font-[550] mobile:text-[14px]">{section.name}</h3>
             {section.name !== 'Frontier' && section.items.length > 0 && (
               <button
-                className="text-[11.5px] text-fg-3 aria-pressed:text-accent mobile:min-h-8 mobile:text-[14px]"
+                className="-my-1 min-h-6 min-w-6 text-right text-[11.5px] text-fg-3 aria-pressed:text-accent mobile:my-0 mobile:min-h-8 mobile:text-[14px]"
                 onClick={() => toggleGroup(section.items.map((family) => family.family))}
               >
                 All
