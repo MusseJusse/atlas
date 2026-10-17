@@ -360,7 +360,7 @@ function Scatter({
               <text
                 x={right + 53}
                 y={series.y + 4}
-                fontSize="14"
+                fontSize="16"
                 fontWeight="650"
                 fill={modelColor(series.end)}
               >
