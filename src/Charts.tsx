@@ -438,8 +438,8 @@ function Bars({
     });
     return { left, right, top, bottom, y, positioned };
   }, [rows, metric, width, height, settings.grouped, settings.descending]);
-  const activeFamily =
-    interactions.pinned?.family ?? interactions.hovered?.family ?? interactions.highlighted;
+  const activeModel = interactions.pinned ?? interactions.hovered;
+  const activeFamily = activeModel?.family ?? interactions.highlighted;
 
   return (
     <>
@@ -468,7 +468,7 @@ function Bars({
               interactions.highlight(null);
             }}
           >
-            {/* Keep the model active through the gaps between its reasoning levels and label. */}
+            {/* Keep the last column active through the gaps between reasoning levels and label. */}
             <rect
               x={group.center - group.groupWidth / 2}
               y={top}
@@ -481,6 +481,7 @@ function Bars({
               return (
                 <g
                   key={row.id}
+                  opacity={activeModel?.family === row.family && activeModel.id !== row.id ? 0.2 : 1}
                   role="button"
                   tabIndex={0}
                   className="cursor-pointer focus-visible:[&>circle:last-child]:stroke-accent focus-visible:[&>circle:last-child]:stroke-[3] focus-visible:[&>rect:nth-child(2)]:stroke-accent focus-visible:[&>rect:nth-child(2)]:stroke-[3] mobile:focus-visible:[outline:none]"
