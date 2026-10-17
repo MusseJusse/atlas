@@ -368,6 +368,31 @@ function Bars({
   height: number;
   interactions: Interactions;
 }) {
+  const hoverTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  function cancelHover() {
+    if (hoverTimer.current !== null) {
+      clearTimeout(hoverTimer.current);
+      hoverTimer.current = null;
+    }
+  }
+
+  // Ignore brief passes over bars and labels, including when chart contents change.
+  useEffect(() => cancelHover, [rows, metric, settings.grouped, settings.descending]);
+
+  function delayHover(action: () => void) {
+    cancelHover();
+    hoverTimer.current = setTimeout(() => {
+      hoverTimer.current = null;
+      action();
+    }, 100);
+  }
+
+  function hover(model: Model | null) {
+    cancelHover();
+    interactions.hover(model);
+  }
+
   const { left, right, top, bottom, y, positioned } = useMemo(() => {
     const left = width < 600 ? 46 : 64;
     const right = width - 18;
@@ -442,11 +467,14 @@ function Bars({
                   className="cursor-pointer focus-visible:[&>circle:last-child]:stroke-accent focus-visible:[&>circle:last-child]:stroke-[3] focus-visible:[&>rect:nth-child(2)]:stroke-accent focus-visible:[&>rect:nth-child(2)]:stroke-[3] mobile:focus-visible:[outline:none]"
                   aria-label={`${row.name}, ${row.effortLabel}, ${format(row[metric], metric)}`}
                   aria-pressed={interactions.pinned?.id === row.id}
-                  onMouseEnter={() => interactions.hover(row)}
-                  onMouseLeave={() => interactions.hover(null)}
-                  onFocus={() => interactions.hover(row)}
-                  onBlur={() => interactions.hover(null)}
-                  onClick={() => interactions.pin(interactions.pinned?.id === row.id ? null : row)}
+                  onMouseEnter={() => delayHover(() => interactions.hover(row))}
+                  onMouseLeave={() => hover(null)}
+                  onFocus={() => hover(row)}
+                  onBlur={() => hover(null)}
+                  onClick={() => {
+                    cancelHover();
+                    interactions.pin(interactions.pinned?.id === row.id ? null : row);
+                  }}
                   onKeyDown={(event) => activate(event, () => interactions.pin(row))}
                 >
                   <rect x={barX} y={top} width={group.barWidth} height={bottom - top} fill="transparent" />
@@ -480,8 +508,11 @@ function Bars({
             })}
             {group.groupWidth > 33 && (
               <g
-                onMouseEnter={() => interactions.highlight(model.family)}
-                onMouseLeave={() => interactions.highlight(null)}
+                onMouseEnter={() => delayHover(() => interactions.highlight(model.family))}
+                onMouseLeave={() => {
+                  cancelHover();
+                  interactions.highlight(null);
+                }}
               >
                 <SvgLogo model={model} x={group.center - 7} y={bottom + 28} size={14} />
                 <text
