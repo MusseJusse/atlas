@@ -109,12 +109,17 @@ function Tooltip({ model, pinned, onClose }: { model: Model; pinned: boolean; on
       ))}
       <a
         className="mt-2.5 inline-block text-[11.5px] text-accent underline underline-offset-[3px] [&:hover]:text-fg mobile:col-span-full mobile:mt-1.5"
-        href={`https://artificialanalysis.ai/models/${model.family}`}
+        href={model.speedSource?.url ?? `https://artificialanalysis.ai/models/${model.family}`}
         target="_blank"
         rel="noreferrer"
       >
         View on Artificial Analysis
       </a>
+      {model.speedSource && (
+        <p className="mt-1 mb-0 text-[11.5px] text-fg-2 mobile:col-span-full">
+          Speed snapshot: {model.speedSource.fetchedAt.slice(0, 10)}
+        </p>
+      )}
     </div>
   );
 }

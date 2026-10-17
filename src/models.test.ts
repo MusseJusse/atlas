@@ -1,9 +1,19 @@
 import { describe, expect, it } from 'vitest';
-import { barGroups, fetchedAt, format, models, paretoFrontier, visibleModels, type Model } from './models';
+import {
+  barGroups,
+  defaultSelected,
+  fetchedAt,
+  format,
+  models,
+  paretoFrontier,
+  views,
+  visibleModels,
+  type Model,
+} from './models';
 import snapshot from './data/benchmarks.json';
 import { modelFields } from './data/schema';
-import { defaultSelected } from './models';
-import { readSettings, writeSettings } from './state';
+import { readSettings, readView, writeSettings } from './state';
+import { speedEndpoints } from './data/speed-endpoints';
 
 const fixture = (id: string, cost: number | null, intelligence: number | null): Model => ({
   ...models[0]!,
@@ -70,6 +80,35 @@ describe('benchmark comparisons', () => {
   it('sorts grouped bars by their largest measured value and preserves nulls', () => {
     const rows = [fixture('cheap', 1, 20), fixture('expensive', 3, 25), fixture('missing', null, 30)];
     expect(barGroups(rows, 'cost', true, true).map((group) => group.id)).toEqual(['expensive', 'cheap']);
+  });
+  it('prefers higher output speed when finding the intelligence frontier', () => {
+    const rows = [
+      { ...fixture('fast', 1, 20), speed: 300 },
+      { ...fixture('fast-tie', 1, 25), speed: 300 },
+      { ...fixture('dominated', 1, 24), speed: 200 },
+      { ...fixture('smart', 1, 30), speed: 100 },
+      { ...fixture('missing-speed', 1, 100), speed: null },
+    ];
+    expect(paretoFrontier(rows, 'speed').map((row) => row.id)).toEqual(['fast-tie', 'smart']);
+  });
+  it('keeps the speed-only endpoint separate from standard models and unmeasured charts', () => {
+    const [endpoint] = speedEndpoints;
+    const rows = visibleModels(['gpt-6-1-sol', endpoint.family], ['none', 'max']);
+    expect(rows).toContainEqual(endpoint);
+    const standardRows = rows.filter((row) => row.family === 'gpt-6-1-sol');
+    expect(standardRows.length).toBeGreaterThan(0);
+    expect(standardRows.every((row) => row.effort !== 'max')).toBe(true);
+    const groups = barGroups(rows, 'speed', true, true);
+    expect(groups[0]?.id).toBe(endpoint.family);
+    expect(groups[0]?.rows).toEqual([endpoint]);
+    for (const view of views.filter((view) => view.metric !== 'speed')) {
+      expect(barGroups([endpoint], view.metric, true, true)).toEqual([]);
+    }
+    expect(paretoFrontier([endpoint], 'speed')).toEqual([]);
+    expect(defaultSelected).toContain(endpoint.family);
+    const url = writeSettings({ ...readSettings(''), selected: [endpoint.family] }, 'output-speed');
+    expect(readView(url)).toBe('output-speed');
+    expect(readSettings(url).selected).toEqual([endpoint.family]);
   });
 });
 

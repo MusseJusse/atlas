@@ -5,6 +5,7 @@ import {
   efforts,
   families,
   familyMap,
+  endpointFamilies,
   frontierFamilies,
   modelColor,
   notableFamilies,
@@ -118,6 +119,7 @@ export const Sidebar = memo(function Sidebar({
     : [
         { name: 'Frontier', items: ordered(frontierFamilies) },
         { name: 'Notable', items: ordered(notableFamilies) },
+        { name: 'Endpoints', items: ordered(endpointFamilies) },
         ...(browse
           ? [
               {
@@ -125,7 +127,7 @@ export const Sidebar = memo(function Sidebar({
                 items: families
                   .filter(
                     (family) =>
-                      ![...frontierFamilies, ...notableFamilies].includes(family.family) &&
+                      ![...frontierFamilies, ...notableFamilies, ...endpointFamilies].includes(family.family) &&
                       filter(family),
                   )
                   .toSorted(
