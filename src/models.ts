@@ -97,12 +97,6 @@ export function modelColor(model: Model) {
 export function shortName(model: Model) {
   return model.name.replace(/^Claude /, '');
 }
-export function tier(family: string) {
-  if (['gpt-6-luna', 'claude-haiku-5-5'].includes(family)) return 'Small';
-  if (['gpt-6-1-sol', 'claude-sonnet-5-5', 'gemini-3-8-flash'].includes(family)) return 'Medium';
-  return 'Large';
-}
-
 /** Null measurements stay absent from charts; they are never plotted as zero. */
 export function visibleModels(selected: string[], excluded: string[]) {
   return models.filter((model) => selected.includes(model.family) && !excluded.includes(model.effort));
