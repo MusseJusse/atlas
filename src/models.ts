@@ -26,19 +26,15 @@ export const frontierFamilies = [
   'claude-opus-5-5',
   'claude-fable-5-1',
   'gemini-4-argon',
-  'gemini-3-8-flash',
   'grok-4-7',
   'muse-wonder-full',
-  'muse-wonder',
 ];
 export const notableFamilies = [
   'glm-5-3-flash',
   'deepseek-v4-1-flash',
   'qwen3-8-27b',
 ];
-export const defaultSelected = frontierFamilies.filter(
-  (id) => !['claude-sonnet-5-5', 'gemini-3-8-flash'].includes(id),
-);
+export const defaultSelected = frontierFamilies.filter((id) => id !== 'claude-sonnet-5-5');
 export const efforts = ['none', 'low', 'medium', 'high', 'xhigh', 'max'];
 
 const byFamily = new Map<string, Model[]>();
