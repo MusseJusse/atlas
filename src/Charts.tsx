@@ -139,6 +139,7 @@ function Scatter({
   const {
     left,
     right,
+    top,
     bottom,
     x,
     y,
@@ -199,6 +200,7 @@ function Scatter({
     return {
       left,
       right,
+      top,
       bottom,
       x,
       y,
@@ -211,8 +213,18 @@ function Scatter({
       path,
     };
   }, [rows, metric, width, height, settings.labels, linear]);
-  const activeFamily =
-    interactions.pinned?.family ?? interactions.hovered?.family ?? interactions.highlighted;
+  const activeModel = interactions.pinned ?? interactions.hovered;
+  const activeFamily = activeModel?.family ?? interactions.highlighted;
+  const activePoint = rows.find(
+    (row) =>
+      row.id === activeModel?.id &&
+      row[metric] !== null &&
+      row[metric]! > 0 &&
+      row.intelligence !== null,
+  );
+  const guide = activePoint
+    ? { x: x(activePoint[metric]!), y: y(activePoint.intelligence!), color: modelColor(activePoint) }
+    : null;
 
   return (
     <>
@@ -246,6 +258,18 @@ function Scatter({
           opacity="0.95"
           pointerEvents="none"
         />
+      )}
+      {guide && (
+        <g
+          stroke={guide.color}
+          strokeWidth={1.5}
+          strokeDasharray="6 4"
+          pointerEvents="none"
+          aria-hidden="true"
+        >
+          <line x1={left} x2={right} y1={guide.y} y2={guide.y} />
+          <line x1={guide.x} x2={guide.x} y1={top} y2={bottom} />
+        </g>
       )}
       {series.map((series) => (
         <g key={series.family} opacity={activeFamily && activeFamily !== series.family ? 0.15 : 1}>
