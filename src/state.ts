@@ -13,7 +13,7 @@ export type Settings = {
 export const defaults: Settings = {
   selected: defaultSelected,
   excluded: ['none', 'max'],
-  frontier: true,
+  frontier: false,
   labels: true,
   grouped: true,
   descending: false,
@@ -32,7 +32,7 @@ export function readSettings(search: string): Settings {
           .filter((id) => known.has(id))
       : defaults.selected,
     excluded: params.has('excluded') ? params.get('excluded')!.split(',').filter(Boolean) : defaults.excluded,
-    frontier: params.get('frontier') !== 'false',
+    frontier: params.get('frontier') === 'true',
     labels: params.get('labels') !== 'false',
     grouped: params.get('grouped') !== 'false',
     descending: params.get('sort') === 'desc',
@@ -56,7 +56,7 @@ export function writeSettings(settings: Settings, view: ViewId) {
     params.set('selected', settings.selected.join(','));
   if (settings.excluded.join(',') !== defaults.excluded.join(','))
     params.set('excluded', settings.excluded.join(','));
-  if (!settings.frontier) params.set('frontier', 'false');
+  if (settings.frontier) params.set('frontier', 'true');
   if (!settings.labels) params.set('labels', 'false');
   if (!settings.grouped) params.set('grouped', 'false');
   if (settings.descending) params.set('sort', 'desc');

@@ -73,6 +73,15 @@ describe('benchmark comparisons', () => {
   });
 });
 
+it('defaults the Pareto line to off and preserves an explicit URL choice', () => {
+  const settings = readSettings('');
+  expect(settings.frontier).toBe(false);
+  expect(writeSettings(settings, 'cost-intelligence')).toBe('/');
+  expect(readSettings('?frontier=false').frontier).toBe(false);
+  expect(readSettings('?frontier=true').frontier).toBe(true);
+  expect(writeSettings({ ...settings, frontier: true }, 'cost-intelligence')).toBe('?frontier=true');
+});
+
 it('round-trips an empty selection and view controls through the URL', () => {
   const settings = {
     ...readSettings(''),
