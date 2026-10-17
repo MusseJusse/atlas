@@ -257,6 +257,9 @@ export function App() {
                       {view.metric === 'speed' && (
                         <span className="text-[12px] text-fg-2">Higher is faster</span>
                       )}
+                      {view.metric === 'time' && (
+                        <span className="text-[12px] text-fg-2">Lower is faster</span>
+                      )}
                       {scatter && (
                         <button
                           className="inline-flex min-h-8 items-center gap-2 whitespace-nowrap text-[12px] text-fg aria-pressed:text-accent [&:hover]:text-accent mobile:min-h-11"
@@ -323,6 +326,11 @@ export function App() {
                     highlighted={active === view.id ? highlighted : null}
                     onHighlight={setHighlighted}
                   />
+                  {view.metric === 'time' && (
+                    <p className="mt-2 mb-0 shrink-0 text-[11.5px] text-fg-2">
+                      Decode time only. Excludes startup latency and tool waits. ~ marks the local Ultrafast estimate.
+                    </p>
+                  )}
                 </section>
               );
             })}
@@ -339,7 +347,7 @@ export function App() {
                 Artificial Analysis
               </a>
             </span>
-            {active === 'output-speed' && (
+            {(active === 'output-speed' || active === 'time-task') && (
               <span className="text-fg-2">
                 Standard snapshot: {fetchedAt.slice(0, 10)}
                 {speedEndpoints.map((endpoint) => (

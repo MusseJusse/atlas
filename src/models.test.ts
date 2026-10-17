@@ -5,6 +5,7 @@ import {
   families,
   fetchedAt,
   format,
+  formatModelValue,
   models,
   paretoFrontier,
   views,
@@ -93,7 +94,7 @@ describe('benchmark comparisons', () => {
     ];
     expect(paretoFrontier(rows, 'speed').map((row) => row.id)).toEqual(['fast-tie', 'smart']);
   });
-  it('keeps the speed-only endpoint separate from standard models and unmeasured charts', () => {
+  it('keeps the endpoint separate from standard models and unmeasured charts', () => {
     const [endpoint] = speedEndpoints;
     const rows = visibleModels([endpoint.parentFamily], ['none', 'max']);
     expect(rows).toContainEqual(endpoint);
@@ -103,7 +104,7 @@ describe('benchmark comparisons', () => {
     const groups = barGroups(rows, 'speed', true, true);
     expect(groups[0]?.id).toBe(endpoint.family);
     expect(groups[0]?.rows).toEqual([endpoint]);
-    for (const view of views.filter((view) => view.metric !== 'speed')) {
+    for (const view of views.filter((view) => view.metric !== 'speed' && view.metric !== 'time')) {
       expect(barGroups([endpoint], view.metric, true, true)).toEqual([]);
     }
     expect(paretoFrontier([endpoint], 'speed')).toEqual([]);
@@ -111,6 +112,30 @@ describe('benchmark comparisons', () => {
     const url = writeSettings({ ...readSettings(''), selected: [endpoint.parentFamily] }, 'output-speed');
     expect(readView(url)).toBe('output-speed');
     expect(readSettings(url).selected).toEqual([endpoint.parentFamily]);
+  });
+  it('estimates Ultrafast task time from the matching Max workload and labels only that estimate', () => {
+    const [endpoint] = speedEndpoints;
+    const baseline = models.find((model) => model.id === endpoint.timeEstimate?.baselineModelId);
+    expect(baseline?.family).toBe(endpoint.parentFamily);
+    expect(baseline?.effort).toBe('max');
+    expect(endpoint.time).toBeCloseTo(113.42802019097256, 8);
+    expect(endpoint.timeEstimate?.baselineFetchedAt).toBe(fetchedAt);
+    expect(formatModelValue(endpoint, 'time')).toBe('~1m 53s');
+    expect(formatModelValue(endpoint, 'time', true)).toBe('~1.9m');
+    expect(formatModelValue(endpoint, 'speed')).toBe('336.4');
+    expect(formatModelValue({ ...endpoint, time: null }, 'time')).toBe('Not measured');
+    expect(formatModelValue({ ...endpoint, timeEstimate: undefined }, 'time')).toBe('1m 53s');
+  });
+  it('includes task times and the Ultrafast estimate while omitting missing measurements', () => {
+    const [endpoint] = speedEndpoints;
+    const selected = [endpoint.parentFamily, 'gemini-4-argon', 'muse-wonder-full'];
+    const url = writeSettings({ ...readSettings(''), selected }, 'time-task');
+    expect(readView(url)).toBe('time-task');
+    const rows = visibleModels(readSettings(url).selected, ['none', 'max']);
+    const groups = barGroups(rows, 'time', true, false);
+    expect(groups.map((group) => group.id)).toEqual([endpoint.family, endpoint.parentFamily]);
+    expect(groups[0]?.rows).toEqual([endpoint]);
+    expect(groups[1]?.rows.every((row) => row.time !== null && row.effort !== 'max')).toBe(true);
   });
   it('uses one Sol picker entry to enable and disable both standard and Ultrafast bars', () => {
     const [endpoint] = speedEndpoints;

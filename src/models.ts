@@ -18,6 +18,7 @@ export const views = [
   { id: 'cost-task', label: 'Cost per task', metric: 'cost', scatter: false },
   { id: 'cost-total', label: 'Total cost', metric: 'costTotal', scatter: false },
   { id: 'output-speed', label: 'Output speed', metric: 'speed', scatter: false },
+  { id: 'time-task', label: 'Time per task', metric: 'time', scatter: false },
 ] as const;
 export type View = (typeof views)[number];
 export type ViewId = View['id'];
@@ -210,6 +211,12 @@ export function format(
   return formatNumber(value, metric === 'intelligence' || !compact ? 1 : 0);
 }
 
+/** Distinguish local estimates wherever model measurements appear, including exports. */
+export function formatModelValue(model: Model, metric: Metric, compact = false) {
+  const value = format(model[metric], metric, compact);
+  return metric === 'time' && model.time !== null && model.timeEstimate ? `~${value}` : value;
+}
+
 export const metricLabels: Record<Metric, string> = {
   cost: 'Cost per task',
   time: 'Time per task',
@@ -220,7 +227,7 @@ export const metricLabels: Record<Metric, string> = {
 };
 export const metricUnits: Record<Metric, string> = {
   cost: 'USD',
-  time: 'seconds',
+  time: 'decode time per task',
   tokens: 'output tokens',
   tokensTotal: 'output tokens, full index run',
   costTotal: 'USD, full index run',

@@ -25,5 +25,11 @@ export const modelFields = [
 export type Model = Omit<Pick<SnapshotModel, (typeof modelFields)[number]>, 'released'> & {
   released: string | null;
   speedSource?: { url: string; fetchedAt: string };
+  timeEstimate?: {
+    baselineModelId: string;
+    baselineTime: number;
+    baselineSpeed: number;
+    baselineFetchedAt: string;
+  };
 };
 export type Snapshot = { fetchedAt: string; models: Model[] };

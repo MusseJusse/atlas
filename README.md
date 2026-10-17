@@ -43,6 +43,7 @@ Components use Tailwind utilities. `src/styles.css` holds the font, theme tokens
 - Cost versus intelligence.
 - Tokens per task, total tokens, cost per task, and total cost.
 - Output speed in tokens per second, with grouped reasoning levels and a separate GPT-6.1 Sol Ultrafast endpoint.
+- Time per task, with grouped reasoning levels and a labeled Ultrafast estimate.
 - Model search and selection, reasoning filters, and the full model browser.
 - Pareto frontiers, linear/log scales, grouped bars, sorting, and label controls.
 - Hover details, click-to-pin details, PNG export, and light/dark themes.
@@ -55,7 +56,9 @@ This version uses the same public benchmark snapshot bundled by Slopalytics, cap
 
 Null measurements mean unmeasured or unavailable. They are omitted from the relevant charts, not treated as zero. Benchmark cost per task describes the benchmark workload, not a forecast of personal API spend.
 
-The output speed chart uses the snapshot's Artificial Analysis speed measurements. A separate [GPT-6.1 Sol Ultrafast measurement](https://artificialanalysis.ai/models/gpt-6-1-sol/providers), retrieved on 17 October 2026, adds 336.4 output tokens/s at Max effort. It lives in `src/data/speed-endpoints.ts`, keeps its own source and date, and has no task cost, token use, intelligence or task time measurements. The GPT-6.1 Sol model picker entry controls both standard and Ultrafast bars. The chart keeps Ultrafast as a separate group. Output speed excludes the wait before generation and does not measure complete task duration.
+The output speed chart uses the snapshot's Artificial Analysis speed measurements. A separate [GPT-6.1 Sol Ultrafast measurement](https://artificialanalysis.ai/models/gpt-6-1-sol/providers), retrieved on 17 October 2026, adds 336.4 output tokens/s at Max effort. It lives in `src/data/speed-endpoints.ts`, keeps its own source and date, and has no task cost, token use or intelligence measurements. The GPT-6.1 Sol model picker entry controls both standard and Ultrafast bars. The charts keep Ultrafast as a separate group. Output speed excludes the wait before generation and does not measure complete task duration.
+
+Time per task uses the snapshot's AA decode time estimates, not wall-clock benchmark run times. It excludes startup latency and tool waits. Ultrafast's local estimate scales standard Sol Max's task time by the ratio of standard to Ultrafast speed: `616.5154898365471 × 61.8916906732701 / 336.4 ≈ 113.4 seconds`. This assumes identical task token use across the two endpoints. The estimate derives from the existing snapshot at load time and remains unavailable if the baseline task time or positive speed is missing. Ultrafast's time values have a `~` prefix on charts, mobile details, tooltips and PNG exports. The tooltip shows the calculation and both snapshot dates appear in the footer.
 
 Benchmark data comes from [Artificial Analysis](https://artificialanalysis.ai/). Visual styling and model logos reproduce the public [Slopalytics](https://slopalytics.com/) benchmark interface. This is a personal local reproduction, not the official service. There is no analytics collection or usage telemetry in this project.
 
