@@ -8,7 +8,10 @@ import { readSettings, readView, writeSettings, type Settings } from './state';
 
 function Selection({ checked }: { checked: boolean }) {
   return (
-    <span className={`selection ${checked ? 'checked' : ''}`} aria-hidden="true">
+    <span
+      className={`inline-flex size-3 shrink-0 items-center justify-center rounded-[3px] border text-on-accent [&_svg]:size-2.5 ${checked ? 'border-accent bg-accent' : 'border-line-2'}`}
+      aria-hidden="true"
+    >
       {checked && <Check size={11} strokeWidth={3} />}
     </span>
   );
@@ -114,24 +117,43 @@ export function App() {
   }
 
   return (
-    <div className="app">
-      <header className="app-header">
-        <a href="/" className="brand" aria-label="Slopalytics home">
-          <strong>
-            <span>slop</span>alytics
+    <div className="grid h-dvh grid-rows-[var(--header-height)_minmax(0,1fr)] mobile:block mobile:h-auto">
+      <header className="flex items-center gap-6 border-b border-line px-7 compact:gap-4 compact:px-[18px] mobile:sticky mobile:top-0 mobile:z-[8] mobile:h-auto mobile:flex-wrap mobile:gap-0 mobile:bg-bg mobile:p-0">
+        <a
+          href="/"
+          className="shrink-0 whitespace-nowrap mobile:flex mobile:h-[52px] mobile:items-center mobile:pl-4"
+          aria-label="Slopalytics home"
+        >
+          <strong className="text-[24px] font-[450] tracking-[-1.2px] compact:text-[21px]">
+            <span className="text-accent">slop</span>alytics
           </strong>
         </a>
-        <nav className="section-tabs" aria-label="Sections">
-          <button className="active" aria-current="page" onClick={() => navigate(views[0].id)}>
+        <nav
+          className="flex shrink-0 items-center gap-3.5 border-r border-line-2 pr-[22px] compact:pr-4 mobile:ml-[22px] mobile:border-0 mobile:p-0"
+          aria-label="Sections"
+        >
+          <button
+            className="min-h-9 text-[12px] text-fg mobile:min-h-11"
+            aria-current="page"
+            onClick={() => navigate(views[0].id)}
+          >
             Benchmarks
           </button>
         </nav>
-        <nav className="view-tabs" aria-label="Chart views">
+        <nav
+          className="flex min-w-0 items-stretch self-stretch gap-[22px] overflow-x-auto [scrollbar-width:none] wide:gap-[26px] compact:gap-4 mobile:order-3 mobile:h-[42px] mobile:w-full mobile:shrink-0 mobile:gap-5 mobile:border-t mobile:border-line mobile:px-4"
+          aria-label="Chart views"
+        >
           {views.map((view) => (
-            <span className="tab-item" key={view.id}>
-              {view.id === 'tokens-task' && <span className="tab-divider" aria-hidden="true" />}
+            <span
+              className="flex shrink-0 items-stretch gap-[22px] compact:gap-4 mobile:gap-5"
+              key={view.id}
+            >
+              {view.id === 'tokens-task' && (
+                <span className="h-3.5 w-px shrink-0 self-center bg-line-2" aria-hidden="true" />
+              )}
               <button
-                className={active === view.id ? 'active' : ''}
+                className="relative flex items-center whitespace-nowrap text-[12.5px] text-fg-2 wide:text-[13px] compact:text-[12px] mobile:text-[13.5px] aria-[current=page]:text-fg aria-[current=page]:after:absolute aria-[current=page]:after:inset-x-0 aria-[current=page]:after:bottom-0 aria-[current=page]:after:h-0.5 aria-[current=page]:after:rounded-[2px] aria-[current=page]:after:bg-accent aria-[current=page]:after:content-['']"
                 aria-current={active === view.id ? 'page' : undefined}
                 onClick={() => navigate(view.id)}
               >
@@ -140,9 +162,9 @@ export function App() {
             </span>
           ))}
         </nav>
-        <div className="header-actions">
+        <div className="ml-auto flex shrink-0 items-center gap-0.5 mobile:h-[52px] mobile:pr-2.5">
           <button
-            className="icon-button"
+            className="flex size-8 items-center justify-center text-fg-2 [&:hover]:text-fg"
             aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
             title={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
             onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
@@ -150,37 +172,47 @@ export function App() {
             {theme === 'dark' ? <Sun size={16} /> : <Moon size={16} />}
           </button>
           <button
-            className="icon-button desktop-only"
+            className="flex size-8 items-center justify-center text-fg-2 [&:hover]:text-fg mobile:hidden!"
             aria-label="Download PNG"
             title="Download PNG"
             onClick={exportPng}
           >
             <Download size={15} />
           </button>
-          <details className="chart-settings desktop-only">
-            <summary aria-label="Chart settings" title="Chart settings">
+          <details className="group relative mobile:hidden!">
+            <summary
+              className="flex size-8 cursor-pointer list-none items-center justify-center text-fg-2 group-open:text-fg [&:hover]:text-fg focus-visible:outline-2 focus-visible:outline-solid focus-visible:outline-accent focus-visible:outline-offset-2 [&::-webkit-details-marker]:hidden"
+              aria-label="Chart settings"
+              title="Chart settings"
+            >
               <Ellipsis size={17} />
             </summary>
-            <div className="settings-popover" aria-label="Chart settings">
-              <span className="control-label">2D charts</span>
+            <div
+              className="absolute top-[calc(100%+10px)] right-0 z-20 flex w-[220px] max-w-[calc(100vw-32px)] flex-col items-start gap-3.5 rounded-lg border border-line-2 bg-surface p-4"
+              aria-label="Chart settings"
+            >
+              <span className="-mb-2 text-[11px] text-fg-3">2D charts</span>
               <button
-                className="check-button"
+                className="inline-flex items-center gap-2 whitespace-nowrap text-[12px] text-fg-2 [&:hover]:text-fg"
                 aria-pressed={settings.labels}
                 onClick={() => update({ labels: !settings.labels })}
               >
                 <Selection checked={settings.labels} />
                 Labels
               </button>
-              <span className="control-label">Bar charts</span>
+              <span className="-mb-2 text-[11px] text-fg-3">Bar charts</span>
               <button
-                className="check-button"
+                className="inline-flex items-center gap-2 whitespace-nowrap text-[12px] text-fg-2 [&:hover]:text-fg"
                 aria-pressed={settings.grouped}
                 onClick={() => update({ grouped: !settings.grouped })}
               >
                 <Selection checked={settings.grouped} />
                 Group by model
               </button>
-              <button className="check-button" onClick={() => update({ descending: !settings.descending })}>
+              <button
+                className="inline-flex items-center gap-2 whitespace-nowrap text-[12px] text-fg-2 [&:hover]:text-fg"
+                onClick={() => update({ descending: !settings.descending })}
+              >
                 <ArrowDown
                   size={13}
                   style={{ transform: settings.descending ? 'rotate(180deg)' : undefined }}
@@ -190,32 +222,42 @@ export function App() {
             </div>
           </details>
           <button
-            className="mobile-only mobile-filter-toggle"
+            className="hidden! mobile:inline-flex! mobile:items-center mobile:gap-1.5 mobile:h-10 mobile:px-1.5 mobile:text-[14px] mobile:text-fg"
             onClick={() => setMobileOpen(true)}
             aria-haspopup="dialog"
             aria-expanded={mobileOpen}
           >
             <SlidersHorizontal size={14} />
-            <span className="filter-label">Models</span>
-            <span>{settings.selected.length}</span>
+            <span className="mobile:text-[12px] mobile:text-fg-3">Models</span>
+            <span className="mobile:text-[12px] mobile:text-fg-3">{settings.selected.length}</span>
           </button>
         </div>
       </header>
-      <div className="body-layout">
-        <main>
+      <div className="grid min-h-0 grid-cols-[minmax(0,1fr)_var(--sidebar-width)] mobile:block">
+        <main className="grid min-h-0 min-w-0 grid-rows-[minmax(0,1fr)_auto] mobile:block">
           <h1 className="sr-only">Model benchmarks</h1>
-          <div className="chart-feed" ref={feed}>
+          <div
+            className="relative min-h-0 snap-y snap-proximity overflow-y-auto [scrollbar-width:thin] [scrollbar-color:var(--line-2)_var(--bg)] mobile:snap-none mobile:overflow-visible"
+            ref={feed}
+          >
             {views.map((view) => {
               const scatter = view.scatter || (view.id === 'tokens-task' && settings.scatter);
               const linear = settings.linear.includes(view.id);
               return (
-                <section className="chart-section" id={view.id} key={view.id} aria-label={view.label}>
-                  <div className="chart-heading">
-                    <h2>{view.label}</h2>
-                    <div className="chart-controls">
+                <section
+                  className="chart-section flex h-full snap-start flex-col px-7 pt-[18px] pb-2.5 [&+section]:border-t [&+section]:border-line compact:px-[18px] mobile:h-auto mobile:scroll-mt-[95px] mobile:px-4 mobile:pt-5 mobile:pb-6"
+                  id={view.id}
+                  key={view.id}
+                  aria-label={view.label}
+                >
+                  <div className="mb-1.5 flex shrink-0 items-center justify-between gap-4 mobile:flex-wrap mobile:gap-x-4 mobile:gap-y-1">
+                    <h2 className="m-0 shrink text-[16px] font-medium mobile:flex mobile:flex-1 mobile:items-baseline mobile:justify-between mobile:gap-3 mobile:text-[18px]">
+                      {view.label}
+                    </h2>
+                    <div className="flex shrink-0 items-center gap-6 mobile:flex-[1_0_100%] mobile:justify-between">
                       {scatter && (
                         <button
-                          className="pareto-toggle"
+                          className="inline-flex min-h-8 items-center gap-2 whitespace-nowrap text-[12px] text-fg aria-pressed:text-accent [&:hover]:text-accent mobile:min-h-11"
                           aria-pressed={settings.frontier}
                           title="Show configurations with no better and cheaper or faster alternative."
                           onClick={() => update({ frontier: !settings.frontier })}
@@ -225,26 +267,48 @@ export function App() {
                         </button>
                       )}
                       {view.id === 'tokens-task' && (
-                        <div className="chart-scale" role="group" aria-label="Tokens per task chart type">
-                          <button aria-pressed={!settings.scatter} onClick={() => update({ scatter: false })}>
+                        <div
+                          className="flex shrink-0 gap-3 mobile:gap-2.5"
+                          role="group"
+                          aria-label="Tokens per task chart type"
+                        >
+                          <button
+                            className="min-h-8 border-b border-b-transparent px-0.5 py-1 text-[12px] text-fg-3 aria-pressed:border-accent aria-pressed:text-accent [&:hover]:text-fg mobile:min-h-11"
+                            aria-pressed={!settings.scatter}
+                            onClick={() => update({ scatter: false })}
+                          >
                             Bars
                           </button>
-                          <button aria-pressed={settings.scatter} onClick={() => update({ scatter: true })}>
+                          <button
+                            className="min-h-8 border-b border-b-transparent px-0.5 py-1 text-[12px] text-fg-3 aria-pressed:border-accent aria-pressed:text-accent [&:hover]:text-fg mobile:min-h-11"
+                            aria-pressed={settings.scatter}
+                            onClick={() => update({ scatter: true })}
+                          >
                             Scatter
                           </button>
                         </div>
                       )}
                       {scatter && (
-                        <div className="chart-scale" role="group" aria-label={`${view.label} axis scale`}>
+                        <div
+                          className="flex shrink-0 gap-3 mobile:gap-2.5"
+                          role="group"
+                          aria-label={`${view.label} axis scale`}
+                        >
                           <button
+                            className="min-h-8 border-b border-b-transparent px-0.5 py-1 text-[12px] text-fg-3 aria-pressed:border-accent aria-pressed:text-accent [&:hover]:text-fg mobile:min-h-11"
                             aria-pressed={linear}
-                            onClick={() => update({ linear: [...new Set([...settings.linear, view.id])] })}
+                            onClick={() =>
+                              update({ linear: [...new Set([...settings.linear, view.id])] })
+                            }
                           >
                             Linear
                           </button>
                           <button
+                            className="min-h-8 border-b border-b-transparent px-0.5 py-1 text-[12px] text-fg-3 aria-pressed:border-accent aria-pressed:text-accent [&:hover]:text-fg mobile:min-h-11"
                             aria-pressed={!linear}
-                            onClick={() => update({ linear: settings.linear.filter((id) => id !== view.id) })}
+                            onClick={() =>
+                              update({ linear: settings.linear.filter((id) => id !== view.id) })
+                            }
                           >
                             Log
                           </button>
@@ -263,15 +327,20 @@ export function App() {
               );
             })}
           </div>
-          <footer>
+          <footer className="flex flex-wrap items-center justify-between gap-3 border-t border-line px-7 py-[9px] text-[11px] text-fg-3 compact:px-[18px] mobile:px-4 mobile:pt-[18px] mobile:pb-[calc(28px+env(safe-area-inset-bottom))]">
             <span title={`Local snapshot captured ${new Date(fetchedAt).toLocaleString()}`}>
               Data from{' '}
-              <a href="https://artificialanalysis.ai/" target="_blank" rel="noreferrer">
+              <a
+                className="text-fg-2 [&:hover]:text-fg"
+                href="https://artificialanalysis.ai/"
+                target="_blank"
+                rel="noreferrer"
+              >
                 Artificial Analysis
               </a>
             </span>
-            <div className="footer-links">
-              <a href="https://t3.codes/" target="_blank" rel="noreferrer">
+            <div className="flex gap-5 whitespace-nowrap">
+              <a className="text-accent" href="https://t3.codes/" target="_blank" rel="noreferrer">
                 Try T3 Code
               </a>
             </div>
@@ -287,9 +356,14 @@ export function App() {
         />
       </div>
       {exportError && (
-        <div className="export-error" role="alert">
+        <div
+          className="fixed bottom-12 left-7 z-30 flex max-w-[calc(100vw-56px)] gap-[18px] rounded-lg border border-line-2 bg-surface px-4 py-3.5 text-[12px]"
+          role="alert"
+        >
           {exportError}
-          <button onClick={() => setExportError('')}>Dismiss</button>
+          <button className="text-accent [&:hover]:text-fg" onClick={() => setExportError('')}>
+            Dismiss
+          </button>
         </div>
       )}
     </div>
