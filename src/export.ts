@@ -43,7 +43,7 @@ export async function downloadChart(id: string) {
     void fontResponse.blob().then((blob) => reader.readAsDataURL(blob), reject);
   });
   const style = document.createElementNS('http://www.w3.org/2000/svg', 'style');
-  style.textContent = `@font-face{font-family:'DM Sans';src:url('${font}');font-weight:100 1000}`;
+  style.textContent = `@font-face{font-family:'DM Sans UI';src:url('${font}');font-weight:100 1000}`;
   clone.prepend(style);
   const width = source.viewBox.baseVal.width;
   const height = source.viewBox.baseVal.height;

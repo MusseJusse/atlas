@@ -5,6 +5,13 @@
 /* Preserve browser defaults with the original minimal reset. */
 @layer base {
   @font-face {
+    font-family: 'DM Sans UI';
+    font-style: normal;
+    font-weight: 400 700;
+    font-display: swap;
+    src: url('./assets/dm-sans-ui.woff2') format('woff2');
+  }
+  @font-face {
     font-family: 'DM Sans';
     font-style: normal;
     font-weight: 100 1000;
@@ -24,7 +31,7 @@
     --logo-filter: none;
     --fg: var(--lightningcss-light, #20201e) var(--lightningcss-dark, #fff);
     --fg-2: var(--lightningcss-light, #625d57) var(--lightningcss-dark, #aaa39d);
-    --fg-3: #77716c;
+    --fg-3: var(--lightningcss-light, #77716c) var(--lightningcss-dark, #817b76);
     --line: var(--lightningcss-light, #e8e4df) var(--lightningcss-dark, #1c1a18);
     --line-2: var(--lightningcss-light, #ccc5be) var(--lightningcss-dark, #36312d);
     --surface: var(--lightningcss-light, #f8f6f3) var(--lightningcss-dark, #0d0b0a);
@@ -32,6 +39,7 @@
     --sidebar-width: 248px;
     --header-height: 60px;
     font-family:
+      'DM Sans UI',
       DM Sans,
       sans-serif;
   }
@@ -115,7 +123,7 @@
   --color-line-2: var(--line-2);
   --color-surface: var(--surface);
   --color-accent: var(--accent);
-  --font-sans: 'DM Sans', sans-serif;
+  --font-sans: 'DM Sans UI', 'DM Sans', sans-serif;
 }
 
 /* Match the original inclusive breakpoints, including short desktop windows. */
@@ -124,3 +132,4 @@
 @custom-variant compact (@media (width <= 1150px));
 @custom-variant mobile (@media (width <= 900px));
 @custom-variant phone (@media (width <= 600px));
+@custom-variant plot-mobile (@media (width < 632px));

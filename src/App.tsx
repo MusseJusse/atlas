@@ -19,8 +19,9 @@ function Selection({ checked }: { checked: boolean }) {
 }
 
 export function App() {
-  const [settings, setSettings] = useState(() => readSettings(location.search));
-  const [active, setActive] = useState(() => readView(location.search));
+  const search = typeof location === 'undefined' ? '' : location.search;
+  const [settings, setSettings] = useState(() => readSettings(search));
+  const [active, setActive] = useState(() => readView(search));
   const [theme, setTheme] = useState(() => {
     try {
       return localStorage.getItem('benchmark-theme') === 'light' ? 'light' : 'dark';
@@ -336,7 +337,7 @@ export function App() {
             })}
           </div>
           <footer className="flex flex-wrap items-center justify-between gap-3 border-t border-line px-7 py-[9px] text-[11px] text-fg-3 compact:px-[18px] mobile:px-4 mobile:pt-[18px] mobile:pb-[calc(28px+env(safe-area-inset-bottom))]">
-            <span title={`Local snapshot captured ${new Date(fetchedAt).toLocaleString()}`}>
+            <span title={`Local snapshot captured ${fetchedAt}`}>
               Data from{' '}
               <a
                 className="text-fg-2 [&:hover]:text-fg"

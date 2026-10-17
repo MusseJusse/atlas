@@ -8,8 +8,9 @@ import {
   type KeyboardEvent,
   type MouseEvent,
 } from 'react';
-import { scaleLinear, scaleLog } from 'd3-scale';
 import { extent } from 'd3-array';
+import { linearScale, logScale } from './scales';
+import { useHydrated } from './useHydrated';
 import { X } from 'lucide-react';
 import {
   barGroups,
@@ -175,19 +176,14 @@ function Scatter({
     );
     const [min = 0.01, max = 1] = extent(points, (model) => model[metric]!);
     const x = linear
-      ? scaleLinear()
-          .domain([0, max * 1.08])
-          .nice()
-          .range([left, right])
-      : scaleLog()
-          .domain([min * 0.7, max * 1.08])
-          .range([left, right]);
+      ? linearScale([0, max * 1.08], [left, right], { nice: true })
+      : logScale([min * 0.7, max * 1.08], [left, right]);
     const scoreMin = Math.max(
       0,
       Math.floor((Math.min(...points.map((row) => row.intelligence!), 30) - 4) / 10) * 10,
     );
     const scoreMax = Math.ceil((Math.max(...points.map((row) => row.intelligence!), 50) + 2) / 5) * 5;
-    const y = scaleLinear().domain([scoreMin, scoreMax]).range([bottom, top]);
+    const y = linearScale([scoreMin, scoreMax], [bottom, top]);
     const frontier = paretoFrontier(points, metric);
     const frontierIds = new Set(frontier.map((row) => row.id));
     const frontierFamilies = new Set(frontier.map((row) => row.family));
@@ -468,9 +464,10 @@ function Bars({
     const top = 30;
     const bottom = height - 96;
     const groups = barGroups(rows, metric, settings.grouped, settings.descending);
-    const y = scaleLinear()
-      .domain([0, Math.max(...groups.map((group) => group.maximum), 1) * 1.15])
-      .range([bottom, top]);
+    const y = linearScale(
+      [0, Math.max(...groups.map((group) => group.maximum), 1) * 1.15],
+      [bottom, top],
+    );
     const totalWeight = groups.reduce((total, group) => total + Math.max(3, group.rows.length), 0);
     let groupStart = left;
     const valueLabels: { x: number; y: number; width: number }[] = [];
@@ -545,6 +542,8 @@ function Bars({
             />
             {group.bars.map(({ row, x: barX, labelX, labelY, text }) => {
               const barY = y(row[metric]!);
+              const effortMark = row.effort === 'max' ? 'Mx' : row.effortLabel.charAt(0).toUpperCase();
+              const visibleLabel = group.barWidth > 8 ? `${effortMark}${text}, ` : '';
               return (
                 <g
                   key={row.id}
@@ -552,7 +551,7 @@ function Bars({
                   role="button"
                   tabIndex={0}
                   className="cursor-pointer focus-visible:[&>circle:last-child]:stroke-accent focus-visible:[&>circle:last-child]:stroke-[3] focus-visible:[&>rect:nth-child(2)]:stroke-accent focus-visible:[&>rect:nth-child(2)]:stroke-[3] mobile:focus-visible:[outline:none]"
-                  aria-label={`${row.name}, ${row.effortLabel}, ${metric === 'time' && row.timeEstimate ? 'estimated ' : ''}${format(row[metric], metric)}`}
+                  aria-label={`${visibleLabel}${row.name}, ${row.effortLabel} reasoning, ${metricLabels[metric]} ${metric === 'time' && row.timeEstimate ? 'estimated ' : ''}${formatModelValue(row, metric)}`}
                   aria-pressed={interactions.pinned?.id === row.id}
                   onMouseEnter={() => enterHover(row.family, () => interactions.hover(row))}
                   onMouseLeave={cancelEnter}
@@ -582,7 +581,7 @@ function Bars({
                       fill="var(--fg-3)"
                       fontSize={9}
                     >
-                      {row.effort === 'max' ? 'Mx' : row.effortLabel[0]?.toUpperCase()}
+                      {effortMark}
                     </text>
                   )}
                   {group.barWidth > 8 && (
@@ -749,7 +748,8 @@ export const Chart = memo(function Chart({
   onHighlight: (id: string | null) => void;
 }) {
   const [visited, setVisited] = useState(active);
-  const ready = active || visited;
+  const hydrated = useHydrated();
+  const ready = hydrated && (active || visited);
   const scatter = view.scatter || (view.id === 'tokens-task' && settings.scatter);
   const { ref, width, height } = useSize(ready && (scatter || !phone));
 
@@ -793,7 +793,6 @@ export const Chart = memo(function Chart({
   const tooltip = pinned ?? hovered;
   // Keep a pinned tooltip tied to a visible configuration after filters change.
   const visibleTooltip = tooltip && rows.some((row) => row.id === tooltip.id) ? tooltip : null;
-  const mobile = width < 600;
   const legend = [...new Map(validRows.map((row) => [row.family, row])).values()];
 
   function closeOnBackground(event: MouseEvent<SVGSVGElement>) {
@@ -864,8 +863,9 @@ export const Chart = memo(function Chart({
           />
         </div>
       )}
-      {ready && scatter && mobile && settings.labels && (
-        <div className="grid grid-cols-2 gap-x-3 gap-y-0.5 pt-2.5">
+      {/* Reserve the mobile legend's height in the initial HTML before hydration. */}
+      {scatter && settings.labels && (
+        <div className="hidden plot-mobile:grid grid-cols-2 gap-x-3 gap-y-0.5 pt-2.5">
           {legend.map((model) => (
             <button
               className="flex min-h-8 items-center gap-[7px] overflow-hidden text-left text-[13px] font-[550] whitespace-nowrap"

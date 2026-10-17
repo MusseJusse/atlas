@@ -64,7 +64,16 @@ Benchmark data comes from [Artificial Analysis](https://artificialanalysis.ai/).
 
 DM Sans is bundled locally under the SIL Open Font License, included in `public/fonts/OFL.txt`. Fonts, logos, and benchmark data load locally.
 
-The browser receives a lossless WOFF2 version of the full variable font. The Vite data plugin packs the snapshot into rows and includes only fields the app reads. The original JSON stays intact, and tests compare every consumed field in all 699 configurations, including full numeric precision.
+The initial page preloads a 22.6 KB font with the characters, weights 400 to 700, and optical sizes 9 to 24 used by the interface. It keeps normal text shaping and tabular numbers, and omits unused stylistic alternates. The full 88.8 KB variable font stays available for other characters and PNG export. Vite inlines the small stylesheet and renders the default page into the HTML so its text and controls can paint before React loads. React hydrates the default dark view. Saved light themes and URLs with query parameters render their own initial state. Chart contents mount after hydration, once the viewport and font are ready, so server rendering does not guess chart dimensions.
+
+The Vite data plugin packs the snapshot into columns and includes only fields the app reads. The original JSON stays intact, and tests compare every consumed field in all 699 configurations, including full numeric precision. Numeric chart scales avoid shipping D3's general formatting and interpolation code. A comparison test checks their coordinates and ticks against D3, which remains a development dependency.
+
+To regenerate the UI font, install `fonttools[woff]` in a Python environment, then run:
+
+```sh
+fonttools varLib.instancer src/assets/dm-sans.woff2 wght=400:700 opsz=9:24 --no-recalc-timestamp --output=/tmp/dm-sans-ui.woff2
+pyftsubset /tmp/dm-sans-ui.woff2 --output-file=src/assets/dm-sans-ui.woff2 --flavor=woff2 --unicodes='U+0020-007E,U+00A0-00BF,U+00D7,U+00F7,U+2013-2014,U+2018-201D,U+2026,U+2032-2033,U+20AC,U+2122,U+2212,U+FEFF,U+FFFD' --layout-features='ccmp,locl,rlig,liga,clig,calt,kern,mark,mkmk,tnum' --no-recalc-timestamp
+```
 
 ## Validation
 
@@ -104,3 +113,18 @@ Local Chromium results against `f2a4a2b`, with no CPU or network throttling:
 The first local page load recorded first contentful paint at 148 ms before and 68 ms after. A later cached reload recorded 60 ms and 40 ms. These are local samples, not a network or device performance guarantee.
 
 Desktop chart contents mount as sections approach the viewport and stay mounted after visiting, so pinned details survive navigation. Phones render the dot plots without also building hidden SVG bar charts. Chart geometry and number formatters are reused across hover updates, and PNG export code loads on demand.
+
+## PageSpeed validation
+
+On 17 October 2026, Lighthouse 13.5.0 scored the isolated production preview **100 for performance, accessibility, best practices, and SEO on both mobile and desktop**. Mobile used the default simulated slow 4G profile. It recorded 1.4 s FCP, 1.7 s LCP, 0 ms blocking time, and zero layout shift. Desktop recorded 0.3 s FCP and 0.4 s LCP. These are local lab results, not a measurement of a new Vercel deployment.
+
+Initial JavaScript is now 406.7 KB uncompressed, 115.8 KB gzip, compared with 426.0 KB and 127.0 KB before this pass. The initial font fell from 88.8 KB to 22.6 KB. The generated HTML includes the stylesheet and default page markup.
+
+After starting the isolated production preview above, run Lighthouse with a local Chrome or Chromium installation:
+
+```sh
+pnpm dlx lighthouse@13.5.0 http://127.0.0.1:4390 --only-categories=performance,accessibility,best-practices,seo
+pnpm dlx lighthouse@13.5.0 http://127.0.0.1:4390 --preset=desktop --only-categories=performance,accessibility,best-practices,seo
+```
+
+Set `CHROME_PATH` if Lighthouse cannot find the browser automatically.
