@@ -368,28 +368,54 @@ function Bars({
   height: number;
   interactions: Interactions;
 }) {
-  const hoverTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const enterTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const exitTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  // A delayed chart exit must not clear a newer highlight from the sidebar.
+  const [hoveredFamily, setHoveredFamily] = useState<string | null>(null);
+
+  function cancelEnter() {
+    if (enterTimer.current !== null) {
+      clearTimeout(enterTimer.current);
+      enterTimer.current = null;
+    }
+  }
+
+  function cancelExit() {
+    if (exitTimer.current !== null) {
+      clearTimeout(exitTimer.current);
+      exitTimer.current = null;
+    }
+  }
 
   function cancelHover() {
-    if (hoverTimer.current !== null) {
-      clearTimeout(hoverTimer.current);
-      hoverTimer.current = null;
-    }
+    cancelEnter();
+    cancelExit();
   }
 
   // Ignore brief passes over bars and labels, including when chart contents change.
   useEffect(() => cancelHover, [rows, metric, settings.grouped, settings.descending]);
 
   function enterHover(family: string, action: () => void) {
-    cancelHover();
+    cancelEnter();
     if (activeFamily === family) {
+      cancelExit();
       action();
       return;
     }
-    hoverTimer.current = setTimeout(() => {
-      hoverTimer.current = null;
+    enterTimer.current = setTimeout(() => {
+      enterTimer.current = null;
       action();
     }, 100);
+  }
+
+  function leaveHover() {
+    cancelEnter();
+    if (exitTimer.current !== null) return;
+    exitTimer.current = setTimeout(() => {
+      exitTimer.current = null;
+      interactions.hover(null);
+      setHoveredFamily(null);
+    }, 50);
   }
 
   function hover(model: Model | null) {
@@ -439,7 +465,7 @@ function Bars({
     return { left, right, top, bottom, y, positioned };
   }, [rows, metric, width, height, settings.grouped, settings.descending]);
   const activeModel = interactions.pinned ?? interactions.hovered;
-  const activeFamily = activeModel?.family ?? interactions.highlighted;
+  const activeFamily = activeModel?.family ?? hoveredFamily ?? interactions.highlighted;
 
   return (
     <>
@@ -463,10 +489,10 @@ function Bars({
           <g
             key={group.id}
             opacity={activeFamily && activeFamily !== model.family ? 0.2 : 1}
-            onMouseLeave={() => {
-              hover(null);
-              interactions.highlight(null);
+            onMouseEnter={() => {
+              if (activeFamily === model.family) cancelExit();
             }}
+            onMouseLeave={leaveHover}
           >
             {/* Keep the last column active through the gaps between reasoning levels and label. */}
             <rect
@@ -488,7 +514,7 @@ function Bars({
                   aria-label={`${row.name}, ${row.effortLabel}, ${format(row[metric], metric)}`}
                   aria-pressed={interactions.pinned?.id === row.id}
                   onMouseEnter={() => enterHover(row.family, () => interactions.hover(row))}
-                  onMouseLeave={cancelHover}
+                  onMouseLeave={cancelEnter}
                   onFocus={() => hover(row)}
                   onBlur={() => hover(null)}
                   onClick={() => {
@@ -530,11 +556,11 @@ function Bars({
               <g
                 onMouseEnter={() =>
                   enterHover(model.family, () => {
-                    interactions.highlight(model.family);
+                    setHoveredFamily(model.family);
                     interactions.hover(null);
                   })
                 }
-                onMouseLeave={cancelHover}
+                onMouseLeave={cancelEnter}
               >
                 <SvgLogo model={model} x={group.center - 7} y={bottom + 28} size={14} />
                 <text
