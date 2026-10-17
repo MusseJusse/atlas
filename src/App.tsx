@@ -5,7 +5,6 @@ import { Sidebar } from './Sidebar';
 import { useMediaQuery } from './useMediaQuery';
 import { fetchedAt, paretoFrontier, views, visibleModels, type ViewId } from './models';
 import { readSettings, readView, writeSettings, type Settings } from './state';
-import { speedEndpoints } from './data/speed-endpoints';
 import { useTheme } from './useTheme';
 
 const Changelog = lazy(() => import('./Changelog').then(({ Changelog }) => ({ default: Changelog })));
@@ -354,27 +353,6 @@ function Benchmarks() {
                 Artificial Analysis
               </a>
             </span>
-            {(active === 'output-speed' || active === 'time-task') && (
-              <span className="text-fg-2">
-                Standard snapshot: {fetchedAt.slice(0, 10)}
-                {speedEndpoints.map((endpoint) => (
-                  <a
-                    key={endpoint.id}
-                    className="ml-3 underline underline-offset-[3px]"
-                    href={endpoint.speedSource.url}
-                    target="_blank"
-                    rel="noreferrer"
-                  >
-                    Ultrafast: {endpoint.speedSource.fetchedAt.slice(0, 10)}
-                  </a>
-                ))}
-              </span>
-            )}
-            <div className="flex gap-5 whitespace-nowrap">
-              <a className="text-accent" href="https://t3.codes/" target="_blank" rel="noreferrer">
-                Try T3 Code
-              </a>
-            </div>
           </footer>
         </main>
         <Sidebar
