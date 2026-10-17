@@ -11,7 +11,7 @@ const filters = [
   { id: 'removed', label: 'Removed' },
 ] as const;
 const kindLabels: Record<ChangeKind, string> = { added: 'Added', updated: 'Updated', removed: 'Removed' };
-// The refresh job validates this JSON before committing it.
+// The sync command validates this JSON before committing it.
 const bundledHistory = historyData as ChangeHistory;
 const date = (value: string) =>
   new Date(value).toLocaleDateString('en-GB', {
@@ -204,7 +204,7 @@ export function Changelog({ history = bundledHistory }: { history?: ChangeHistor
           <a href={history.source} target="_blank" rel="noreferrer" className="underline underline-offset-4">
             Slopalytics
           </a>
-          . Checks run nightly at 02:23 UTC. This page shows published data updates.
+          . This page shows published data updates.
         </footer>
       </main>
     </div>

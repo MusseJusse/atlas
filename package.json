@@ -11,6 +11,7 @@
     "check": "tsc -b",
     "data:refresh": "node --experimental-strip-types scripts/refresh-benchmarks.ts",
     "data:check": "pnpm data:refresh --check",
+    "data:sync": "node --experimental-strip-types scripts/sync-data.ts",
     "local:start": "zsh scripts/local-service.sh start",
     "local:stop": "zsh scripts/local-service.sh stop",
     "local:status": "zsh scripts/local-service.sh status"

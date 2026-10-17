@@ -1,4 +1,4 @@
-import { appendFile, readFile, rename, writeFile } from 'node:fs/promises';
+import { readFile, rename, writeFile } from 'node:fs/promises';
 import { pathToFileURL } from 'node:url';
 import { compareSnapshots, fetchSnapshot, historySchema, snapshotSchema } from './model-updates.ts';
 
@@ -39,5 +39,4 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
     .join(', ');
   const summary = `Checked ${batch.checkedAt}\nUpstream snapshot: ${batch.fetchedAt}\n${counts}.\n`;
   console.log(summary);
-  if (process.env.GITHUB_STEP_SUMMARY) await appendFile(process.env.GITHUB_STEP_SUMMARY, summary);
 }
