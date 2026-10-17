@@ -360,7 +360,7 @@ function Scatter({
               <text
                 x={right + 53}
                 y={series.y + 4}
-                fontSize="13"
+                fontSize="14"
                 fontWeight="650"
                 fill={modelColor(series.end)}
               >
@@ -594,7 +594,7 @@ function Bars({
                   y={bottom + 57}
                   textAnchor="middle"
                   fill="var(--fg-2)"
-                  fontSize={11}
+                  fontSize={12}
                   fontWeight={500}
                 >
                   <tspan x={group.center}>{split > 0 ? name.slice(0, split) : name}</tspan>
