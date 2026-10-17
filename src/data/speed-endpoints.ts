@@ -6,6 +6,7 @@ export const speedEndpoints = [
   {
     id: 'gpt-6-1-sol-ultrafast',
     family: 'gpt-6-1-sol-ultrafast',
+    parentFamily: 'gpt-6-1-sol',
     name: 'GPT-6.1 Sol Ultrafast',
     lab: 'openai',
     labName: 'OpenAI',
@@ -27,4 +28,4 @@ export const speedEndpoints = [
       fetchedAt: '2026-10-17',
     },
   },
-] satisfies Model[];
+] satisfies (Model & { parentFamily: string })[];

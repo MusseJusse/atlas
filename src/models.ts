@@ -7,6 +7,9 @@ export type Family = { family: string; model: Model; variants: Model[] };
 
 export const models: Model[] = snapshot.models;
 const allModels: Model[] = [...models, ...speedEndpoints];
+const endpointParents = new Map(
+  speedEndpoints.map((endpoint) => [endpoint.family, endpoint.parentFamily]),
+);
 export const fetchedAt = snapshot.fetchedAt;
 export const views = [
   { id: 'cost-intelligence', label: 'Cost vs intelligence', metric: 'cost', scatter: true },
@@ -37,11 +40,7 @@ export const notableFamilies = [
   'qwen3-8-max-0902',
   'qwen3-8-27b',
 ];
-export const endpointFamilies = speedEndpoints.map((endpoint) => endpoint.family);
-export const defaultSelected = [
-  ...frontierFamilies.filter((id) => id !== 'claude-sonnet-5-5'),
-  ...endpointFamilies,
-];
+export const defaultSelected = frontierFamilies.filter((id) => id !== 'claude-sonnet-5-5');
 export const efforts = ['none', 'low', 'medium', 'high', 'xhigh', 'max'];
 
 const byFamily = new Map<string, Model[]>();
@@ -50,14 +49,16 @@ for (const model of allModels) {
   variants.push(model);
   byFamily.set(model.family, variants);
 }
-export const families: Family[] = [...byFamily].map(([family, variants]) => ({
+const allFamilies: Family[] = [...byFamily].map(([family, variants]) => ({
   family,
   model: variants.toSorted((a, b) => b.effortOrder - a.effortOrder)[0]!,
   variants: variants.toSorted((a, b) => a.effortOrder - b.effortOrder),
 }));
+// Endpoint bars follow their parent model's selection, so the picker has one control per model.
+export const families = allFamilies.filter(({ family }) => !endpointParents.has(family));
 export const familyMap = new Map(families.map((family) => [family.family, family]));
 const maxOnlyReasoningFamilies = new Set(
-  families
+  allFamilies
     .filter(
       ({ variants }) =>
         variants.some((model) => model.effort === 'max') &&
@@ -112,7 +113,7 @@ export function visibleModels(selected: string[], excluded: string[]) {
   const excludedEfforts = new Set(excluded);
   return allModels.filter(
     (model) =>
-      selectedFamilies.has(model.family) &&
+      selectedFamilies.has(endpointParents.get(model.family) ?? model.family) &&
       (!excludedEfforts.has(model.effort) ||
         // Keep the only reasoning tier visible, even if a non-reasoning variant exists.
         (model.effort === 'max' && maxOnlyReasoningFamilies.has(model.family))),
