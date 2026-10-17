@@ -466,6 +466,8 @@ function Bars({
   }, [rows, metric, width, height, settings.grouped, settings.descending]);
   const activeModel = interactions.pinned ?? interactions.hovered;
   const activeFamily = activeModel?.family ?? hoveredFamily ?? interactions.highlighted;
+  const activeValue = rows.find((row) => row.id === activeModel?.id)?.[metric];
+  const guideY = activeValue == null ? null : y(activeValue);
 
   return (
     <>
@@ -583,6 +585,20 @@ function Bars({
           </g>
         );
       })}
+      {activeModel && guideY !== null && (
+        <line
+          x1={left}
+          x2={right}
+          y1={guideY}
+          y2={guideY}
+          stroke={modelColor(activeModel)}
+          strokeWidth={1.5}
+          strokeDasharray="1 5"
+          strokeLinecap="round"
+          pointerEvents="none"
+          aria-hidden="true"
+        />
+      )}
     </>
   );
 }
