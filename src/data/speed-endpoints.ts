@@ -2,14 +2,13 @@ import type { Model } from './schema';
 import snapshot from 'virtual:benchmarks';
 
 const ultrafastSpeed = 336.4;
-const standardSolMax = snapshot.models.find((model) => model.id === 'gpt-6-1-sol');
-// Reuse the matching Max workload's token use, scaling its decode time by endpoint speed.
+const standardSolHigh = snapshot.models.find((model) => model.id === 'gpt-6-1-sol-high');
+// Estimate the High workload at the endpoint's Max-measured throughput.
 const timeEstimate =
-  standardSolMax?.time != null && standardSolMax.speed != null && standardSolMax.speed > 0
+  standardSolHigh?.tokens != null
     ? {
-        baselineModelId: standardSolMax.id,
-        baselineTime: standardSolMax.time,
-        baselineSpeed: standardSolMax.speed,
+        baselineModelId: standardSolHigh.id,
+        baselineTokens: standardSolHigh.tokens,
         baselineFetchedAt: snapshot.fetchedAt,
       }
     : undefined;
@@ -36,7 +35,7 @@ export const speedEndpoints = [
     tokens: null,
     tokensTotal: null,
     speed: ultrafastSpeed,
-    time: timeEstimate ? (timeEstimate.baselineTime * timeEstimate.baselineSpeed) / ultrafastSpeed : null,
+    time: timeEstimate ? timeEstimate.baselineTokens / ultrafastSpeed : null,
     timeEstimate,
     speedSource: {
       url: 'https://artificialanalysis.ai/models/gpt-6-1-sol/providers',

@@ -113,18 +113,19 @@ describe('benchmark comparisons', () => {
     expect(readView(url)).toBe('output-speed');
     expect(readSettings(url).selected).toEqual([endpoint.parentFamily]);
   });
-  it('estimates Ultrafast task time from the matching Max workload and labels only that estimate', () => {
+  it('estimates Ultrafast task time from High tokens and labels only that estimate', () => {
     const [endpoint] = speedEndpoints;
     const baseline = models.find((model) => model.id === endpoint.timeEstimate?.baselineModelId);
     expect(baseline?.family).toBe(endpoint.parentFamily);
-    expect(baseline?.effort).toBe('max');
-    expect(endpoint.time).toBeCloseTo(113.42802019097256, 8);
+    expect(baseline?.effort).toBe('high');
+    expect(endpoint.timeEstimate?.baselineTokens).toBe(baseline?.tokens);
+    expect(endpoint.time).toBeCloseTo(39.21483418496219, 8);
     expect(endpoint.timeEstimate?.baselineFetchedAt).toBe(fetchedAt);
-    expect(formatModelValue(endpoint, 'time')).toBe('~1m 53s');
-    expect(formatModelValue(endpoint, 'time', true)).toBe('~1.9m');
+    expect(formatModelValue(endpoint, 'time')).toBe('~39s');
+    expect(formatModelValue(endpoint, 'time', true)).toBe('~39s');
     expect(formatModelValue(endpoint, 'speed')).toBe('336.4');
     expect(formatModelValue({ ...endpoint, time: null }, 'time')).toBe('Not measured');
-    expect(formatModelValue({ ...endpoint, timeEstimate: undefined }, 'time')).toBe('1m 53s');
+    expect(formatModelValue({ ...endpoint, timeEstimate: undefined }, 'time')).toBe('39s');
   });
   it('includes task times and the Ultrafast estimate while omitting missing measurements', () => {
     const [endpoint] = speedEndpoints;

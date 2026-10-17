@@ -27,8 +27,7 @@ export type Model = Omit<Pick<SnapshotModel, (typeof modelFields)[number]>, 'rel
   speedSource?: { url: string; fetchedAt: string };
   timeEstimate?: {
     baselineModelId: string;
-    baselineTime: number;
-    baselineSpeed: number;
+    baselineTokens: number;
     baselineFetchedAt: string;
   };
 };

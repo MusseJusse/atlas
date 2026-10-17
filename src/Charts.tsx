@@ -123,10 +123,9 @@ function Tooltip({ model, pinned, onClose }: { model: Model; pinned: boolean; on
       )}
       {model.timeEstimate && (
         <p className="mt-2 mb-0 text-[11.5px] text-fg-2 mobile:col-span-full">
-          Local time estimate. Assumes standard Sol Max task token use.
+          Local time estimate. Uses standard Sol High task tokens at Max-measured throughput.
           <span className="block">
-            {model.timeEstimate.baselineTime.toFixed(1)}s ×{' '}
-            {format(model.timeEstimate.baselineSpeed, 'speed')} ÷ {format(model.speed, 'speed')}
+            {model.timeEstimate.baselineTokens.toFixed(1)} tokens ÷ {format(model.speed, 'speed')} tokens/s
           </span>
           Baseline: {model.timeEstimate.baselineFetchedAt.slice(0, 10)}
         </p>
