@@ -9,6 +9,8 @@
     "preview": "vite preview --host 127.0.0.1 --port 4387 --strictPort",
     "test": "vitest run",
     "check": "tsc -b",
+    "data:refresh": "node --experimental-strip-types scripts/refresh-benchmarks.ts",
+    "data:check": "pnpm data:refresh --check",
     "local:start": "zsh scripts/local-service.sh start",
     "local:stop": "zsh scripts/local-service.sh stop",
     "local:status": "zsh scripts/local-service.sh status"
@@ -28,10 +30,13 @@
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
     "@vitejs/plugin-react": "^6.1.2",
+    "acorn": "^8.19.0",
+    "acorn-walk": "^8.3.5",
     "d3-scale": "^4.0.2",
     "tailwindcss": "^4.3.3",
     "typescript": "^7.0.2",
     "vite": "^8.3.4",
-    "vitest": "^5.0.5"
+    "vitest": "^5.0.5",
+    "zod": "^4.6.7"
   }
 }

@@ -52,7 +52,7 @@ Components use Tailwind utilities. `src/styles.css` holds the font, theme tokens
 
 ## Data and attribution
 
-This version uses the same public benchmark snapshot bundled by Slopalytics, captured **13 October 2026 at 20:47 UTC**, with **699 model configurations**. The snapshot is in `src/data/benchmarks.json`. It is static and does not refresh from the Artificial Analysis API. No API key is needed.
+This version starts with the public benchmark snapshot bundled by Slopalytics, captured **13 October 2026 at 20:47 UTC**, with **699 model configurations**. The current snapshot is in `src/data/benchmarks.json`. A nightly job checks the public Slopalytics bundle for updates. It does not call the Artificial Analysis API, and no API key is needed.
 
 Null measurements mean unmeasured or unavailable. They are omitted from the relevant charts, not treated as zero. Benchmark cost per task describes the benchmark workload, not a forecast of personal API spend.
 
@@ -74,6 +74,34 @@ To regenerate the UI font, install `fonttools[woff]` in a Python environment, th
 fonttools varLib.instancer src/assets/dm-sans.woff2 wght=400:700 opsz=9:24 --no-recalc-timestamp --output=/tmp/dm-sans-ui.woff2
 pyftsubset /tmp/dm-sans-ui.woff2 --output-file=src/assets/dm-sans-ui.woff2 --flavor=woff2 --unicodes='U+0020-007E,U+00A0-00BF,U+00D7,U+00F7,U+2013-2014,U+2018-201D,U+2026,U+2032-2033,U+20AC,U+2122,U+2212,U+FEFF,U+FFFD' --layout-features='ccmp,locl,rlig,liga,clig,calt,kern,mark,mkmk,tnum' --no-recalc-timestamp
 ```
+
+## Nightly model updates
+
+The `Nightly model data` GitHub Actions workflow checks the upstream snapshot at **02:23 UTC** each night. GitHub may delay scheduled runs. You can also run it manually from the Actions tab after it lands on `main`.
+
+The importer discovers the current module filename from the upstream HTML and parses its embedded snapshot as data. It never executes downloaded JavaScript. It validates the complete snapshot, compares every known model field by ID, and records additions, removals, and before/after values in `src/data/changelog.json`. The changelog starts from the existing snapshot; it does not invent earlier history. Model IDs follow the upstream source, so an ID change appears as a removal and an addition.
+
+The workflow opens or updates one non-draft PR on `automation/model-data`. No data changes means no commit or new PR. Timestamp-only and ordering changes are ignored. Pending PRs consolidate changes against the last merged snapshot; history records published updates rather than every unmerged nightly observation. Local Ultrafast measurements stay separate. Fetch errors, invalid or duplicate models, older snapshots, and drops of more than 20% of models fail the check before writing data. Unexpected source-format changes require an importer update.
+
+Automated PR creation requires **Settings → Actions → General → Workflow permissions → Allow GitHub Actions to create and approve pull requests**. This setting is enabled for this repo. The workflow requests `contents: write` and `pull-requests: write`; it never approves or merges PRs. The job runs type checking, tests, and a build before opening the data PR, since PRs created with `GITHUB_TOKEN` do not trigger other Actions workflows.
+
+For a local read-only check:
+
+```sh
+pnpm data:check
+```
+
+To update the snapshot and changelog in your current checkout:
+
+```sh
+pnpm data:refresh
+```
+
+Use Node 22.18 or later. The site exposes the dedicated changelog at `/?page=changelog`, with filters for additions, updates, and removals. Its check time belongs to the published data update. The nightly workflow summary records checks that found no changes.
+
+Updates depend on when Slopalytics publishes new Artificial Analysis measurements. Provider announcements alone do not change the benchmark snapshot. Newly added families appear in the full model browser; the curated default and notable selections stay manual.
+
+The persistent local server serves `dist`, not the GitHub branch. After merging a data PR, pull `main`, run the validation commands below, rebuild, and restart the local service using the commands under **Open the site**. The nightly workflow does not restart the local server or deploy the site.
 
 ## Validation
 
