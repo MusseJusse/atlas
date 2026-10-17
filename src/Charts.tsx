@@ -594,12 +594,12 @@ function Bars({
                   y={bottom + 57}
                   textAnchor="middle"
                   fill="var(--fg-2)"
-                  fontSize={12}
+                  fontSize={16}
                   fontWeight={500}
                 >
                   <tspan x={group.center}>{split > 0 ? name.slice(0, split) : name}</tspan>
                   {split > 0 && (
-                    <tspan x={group.center} dy={14}>
+                    <tspan x={group.center} dy={20}>
                       {name.slice(split + 1)}
                     </tspan>
                   )}
