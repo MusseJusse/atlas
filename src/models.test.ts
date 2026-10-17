@@ -50,6 +50,23 @@ describe('benchmark comparisons', () => {
     expect(rows.some((row) => row.effort === 'max')).toBe(true);
     expect(rows.every((row) => defaultSelected.includes(row.family))).toBe(true);
   });
+  it('keeps max visible when it is the only reasoning tier, ignoring non-reasoning variants', () => {
+    const selected = ['glm-5-3-flash', 'deepseek-v4-1-flash', 'gpt-6-1-sol'];
+    const rows = visibleModels(selected, ['none', 'max']);
+    expect(rows.filter((row) => row.effort === 'max').map((row) => row.id)).toEqual([
+      'deepseek-v4-1-flash',
+      'glm-5-3-flash',
+    ]);
+    expect(rows.some((row) => row.effort === 'none')).toBe(false);
+    expect(rows.every((row) => selected.includes(row.family))).toBe(true);
+    expect(visibleModels([], ['none', 'max'])).toEqual([]);
+  });
+  it('still lets non-reasoning variants follow their own filter', () => {
+    expect(visibleModels(['deepseek-v4-1-flash'], ['max']).map((row) => row.id)).toEqual([
+      'deepseek-v4-1-flash',
+      'deepseek-v4-1-flash-non-reasoning',
+    ]);
+  });
   it('sorts grouped bars by their largest measured value and preserves nulls', () => {
     const rows = [fixture('cheap', 1, 20), fixture('expensive', 3, 25), fixture('missing', null, 30)];
     expect(barGroups(rows, 'cost', true, true).map((group) => group.id)).toEqual(['expensive', 'cheap']);

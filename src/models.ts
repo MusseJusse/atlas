@@ -48,6 +48,15 @@ export const families: Family[] = [...byFamily].map(([family, variants]) => ({
   variants: variants.toSorted((a, b) => a.effortOrder - b.effortOrder),
 }));
 export const familyMap = new Map(families.map((family) => [family.family, family]));
+const maxOnlyReasoningFamilies = new Set(
+  families
+    .filter(
+      ({ variants }) =>
+        variants.some((model) => model.effort === 'max') &&
+        variants.every((model) => model.effort === 'max' || model.effort === 'none'),
+    )
+    .map(({ family }) => family),
+);
 
 const colors: Record<string, [string, string]> = {
   'gpt-6-astra': ['#303840', '#f1f3f5'],
@@ -92,7 +101,13 @@ export function shortName(model: Model) {
 export function visibleModels(selected: string[], excluded: string[]) {
   const selectedFamilies = new Set(selected);
   const excludedEfforts = new Set(excluded);
-  return models.filter((model) => selectedFamilies.has(model.family) && !excludedEfforts.has(model.effort));
+  return models.filter(
+    (model) =>
+      selectedFamilies.has(model.family) &&
+      (!excludedEfforts.has(model.effort) ||
+        // Keep the only reasoning tier visible, even if a non-reasoning variant exists.
+        (model.effort === 'max' && maxOnlyReasoningFamilies.has(model.family))),
+  );
 }
 
 /** Keep only configurations with a higher score than every cheaper/faster one. */
