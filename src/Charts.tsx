@@ -139,6 +139,7 @@ function Scatter({
   const {
     left,
     right,
+    top,
     bottom,
     x,
     y,
@@ -199,6 +200,7 @@ function Scatter({
     return {
       left,
       right,
+      top,
       bottom,
       x,
       y,
@@ -211,8 +213,18 @@ function Scatter({
       path,
     };
   }, [rows, metric, width, height, settings.labels, linear]);
-  const activeFamily =
-    interactions.pinned?.family ?? interactions.hovered?.family ?? interactions.highlighted;
+  const activeModel = interactions.pinned ?? interactions.hovered;
+  const activeFamily = activeModel?.family ?? interactions.highlighted;
+  const activePoint = rows.find(
+    (row) =>
+      row.id === activeModel?.id &&
+      row[metric] !== null &&
+      row[metric]! > 0 &&
+      row.intelligence !== null,
+  );
+  const guide = activePoint
+    ? { x: x(activePoint[metric]!), y: y(activePoint.intelligence!), color: modelColor(activePoint) }
+    : null;
 
   return (
     <>
@@ -246,6 +258,18 @@ function Scatter({
           opacity="0.95"
           pointerEvents="none"
         />
+      )}
+      {guide && (
+        <g
+          stroke={guide.color}
+          strokeWidth={1}
+          strokeDasharray="6 4"
+          pointerEvents="none"
+          aria-hidden="true"
+        >
+          <line x1={left} x2={right} y1={guide.y} y2={guide.y} />
+          <line x1={guide.x} x2={guide.x} y1={top} y2={bottom} />
+        </g>
       )}
       {series.map((series) => (
         <g key={series.family} opacity={activeFamily && activeFamily !== series.family ? 0.15 : 1}>
@@ -368,6 +392,61 @@ function Bars({
   height: number;
   interactions: Interactions;
 }) {
+  const enterTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const exitTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  // A delayed chart exit must not clear a newer highlight from the sidebar.
+  const [hoveredFamily, setHoveredFamily] = useState<string | null>(null);
+
+  function cancelEnter() {
+    if (enterTimer.current !== null) {
+      clearTimeout(enterTimer.current);
+      enterTimer.current = null;
+    }
+  }
+
+  function cancelExit() {
+    if (exitTimer.current !== null) {
+      clearTimeout(exitTimer.current);
+      exitTimer.current = null;
+    }
+  }
+
+  function cancelHover() {
+    cancelEnter();
+    cancelExit();
+  }
+
+  // Ignore brief passes over bars and labels, including when chart contents change.
+  useEffect(() => cancelHover, [rows, metric, settings.grouped, settings.descending]);
+
+  function enterHover(family: string, action: () => void) {
+    cancelEnter();
+    if (activeFamily === family) {
+      cancelExit();
+      action();
+      return;
+    }
+    enterTimer.current = setTimeout(() => {
+      enterTimer.current = null;
+      action();
+    }, 100);
+  }
+
+  function leaveHover() {
+    cancelEnter();
+    if (exitTimer.current !== null) return;
+    exitTimer.current = setTimeout(() => {
+      exitTimer.current = null;
+      interactions.hover(null);
+      setHoveredFamily(null);
+    }, 50);
+  }
+
+  function hover(model: Model | null) {
+    cancelHover();
+    interactions.hover(model);
+  }
+
   const { left, right, top, bottom, y, positioned } = useMemo(() => {
     const left = width < 600 ? 46 : 64;
     const right = width - 18;
@@ -409,8 +488,10 @@ function Bars({
     });
     return { left, right, top, bottom, y, positioned };
   }, [rows, metric, width, height, settings.grouped, settings.descending]);
-  const activeFamily =
-    interactions.pinned?.family ?? interactions.hovered?.family ?? interactions.highlighted;
+  const activeModel = interactions.pinned ?? interactions.hovered;
+  const activeFamily = activeModel?.family ?? hoveredFamily ?? interactions.highlighted;
+  const activeValue = rows.find((row) => row.id === activeModel?.id)?.[metric];
+  const guideY = activeValue == null ? null : y(activeValue);
 
   return (
     <>
@@ -431,22 +512,41 @@ function Bars({
         const name = shortName(model);
         const split = name.lastIndexOf(' ');
         return (
-          <g key={group.id} opacity={activeFamily && activeFamily !== model.family ? 0.2 : 1}>
+          <g
+            key={group.id}
+            opacity={activeFamily && activeFamily !== model.family ? 0.2 : 1}
+            onMouseEnter={() => {
+              if (activeFamily === model.family) cancelExit();
+            }}
+            onMouseLeave={leaveHover}
+          >
+            {/* Keep the last column active through the gaps between reasoning levels and label. */}
+            <rect
+              x={group.center - group.groupWidth / 2}
+              y={top}
+              width={group.groupWidth}
+              height={height - top}
+              fill="transparent"
+            />
             {group.bars.map(({ row, x: barX, labelX, labelY, text }) => {
               const barY = y(row[metric]!);
               return (
                 <g
                   key={row.id}
+                  opacity={activeModel?.family === row.family && activeModel.id !== row.id ? 0.2 : 1}
                   role="button"
                   tabIndex={0}
                   className="cursor-pointer focus-visible:[&>circle:last-child]:stroke-accent focus-visible:[&>circle:last-child]:stroke-[3] focus-visible:[&>rect:nth-child(2)]:stroke-accent focus-visible:[&>rect:nth-child(2)]:stroke-[3] mobile:focus-visible:[outline:none]"
                   aria-label={`${row.name}, ${row.effortLabel}, ${format(row[metric], metric)}`}
                   aria-pressed={interactions.pinned?.id === row.id}
-                  onMouseEnter={() => interactions.hover(row)}
-                  onMouseLeave={() => interactions.hover(null)}
-                  onFocus={() => interactions.hover(row)}
-                  onBlur={() => interactions.hover(null)}
-                  onClick={() => interactions.pin(interactions.pinned?.id === row.id ? null : row)}
+                  onMouseEnter={() => enterHover(row.family, () => interactions.hover(row))}
+                  onMouseLeave={cancelEnter}
+                  onFocus={() => hover(row)}
+                  onBlur={() => hover(null)}
+                  onClick={() => {
+                    cancelHover();
+                    interactions.pin(interactions.pinned?.id === row.id ? null : row);
+                  }}
                   onKeyDown={(event) => activate(event, () => interactions.pin(row))}
                 >
                   <rect x={barX} y={top} width={group.barWidth} height={bottom - top} fill="transparent" />
@@ -480,8 +580,13 @@ function Bars({
             })}
             {group.groupWidth > 33 && (
               <g
-                onMouseEnter={() => interactions.highlight(model.family)}
-                onMouseLeave={() => interactions.highlight(null)}
+                onMouseEnter={() =>
+                  enterHover(model.family, () => {
+                    setHoveredFamily(model.family);
+                    interactions.hover(null);
+                  })
+                }
+                onMouseLeave={cancelEnter}
               >
                 <SvgLogo model={model} x={group.center - 7} y={bottom + 28} size={14} />
                 <text
@@ -504,6 +609,19 @@ function Bars({
           </g>
         );
       })}
+      {activeModel && guideY !== null && (
+        <line
+          x1={left}
+          x2={right}
+          y1={guideY}
+          y2={guideY}
+          stroke={modelColor(activeModel)}
+          strokeWidth={1}
+          strokeDasharray="6 4"
+          pointerEvents="none"
+          aria-hidden="true"
+        />
+      )}
     </>
   );
 }
