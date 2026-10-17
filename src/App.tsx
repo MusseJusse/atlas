@@ -370,11 +370,6 @@ function Benchmarks() {
                 ))}
               </span>
             )}
-            <div className="flex gap-5 whitespace-nowrap">
-              <a className="text-accent" href="https://t3.codes/" target="_blank" rel="noreferrer">
-                Try T3 Code
-              </a>
-            </div>
           </footer>
         </main>
         <Sidebar
