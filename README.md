@@ -42,6 +42,8 @@ Components use Tailwind utilities. `src/styles.css` holds the font, theme tokens
 
 - Cost versus intelligence.
 - Tokens per task, total tokens, cost per task, and total cost.
+- Output speed in tokens per second, with grouped reasoning levels and a separate GPT-6.1 Sol Ultrafast endpoint.
+- Time per task, with grouped reasoning levels and a labeled Ultrafast estimate.
 - Model search and selection, reasoning filters, and the full model browser.
 - Pareto frontiers, linear/log scales, grouped bars, sorting, and label controls.
 - Hover details, click-to-pin details, PNG export, and light/dark themes.
@@ -53,6 +55,10 @@ Components use Tailwind utilities. `src/styles.css` holds the font, theme tokens
 This version uses the same public benchmark snapshot bundled by Slopalytics, captured **13 October 2026 at 20:47 UTC**, with **699 model configurations**. The snapshot is in `src/data/benchmarks.json`. It is static and does not refresh from the Artificial Analysis API. No API key is needed.
 
 Null measurements mean unmeasured or unavailable. They are omitted from the relevant charts, not treated as zero. Benchmark cost per task describes the benchmark workload, not a forecast of personal API spend.
+
+The output speed chart uses the snapshot's Artificial Analysis speed measurements. A separate [GPT-6.1 Sol Ultrafast measurement](https://artificialanalysis.ai/models/gpt-6-1-sol/providers), retrieved on 17 October 2026, adds 336.4 output tokens/s at Max effort. It lives in `src/data/speed-endpoints.ts`, keeps its own source and date, and has no task cost, token use or intelligence measurements. The GPT-6.1 Sol model picker entry controls both standard and Ultrafast bars. The charts keep Ultrafast as a separate group. Output speed excludes the wait before generation and does not measure complete task duration.
+
+Time per task uses the snapshot's AA decode time estimates, not wall-clock benchmark run times. It excludes startup latency and tool waits. Ultrafast's local estimate uses standard Sol High's task tokens divided by the Ultrafast speed: `13,191.9 tokens / 336.4 tokens/s ≈ 39.2 seconds`. This assumes the Max-measured Ultrafast throughput applies to a High-effort workload. The estimate derives from the existing snapshot at load time and remains unavailable if the baseline token count is missing. Ultrafast's time values have a `~` prefix on charts, mobile details, tooltips and PNG exports. The tooltip shows the calculation and both snapshot dates appear in the footer.
 
 Benchmark data comes from [Artificial Analysis](https://artificialanalysis.ai/). Visual styling and model logos reproduce the public [Slopalytics](https://slopalytics.com/) benchmark interface. This is a personal local reproduction, not the official service. There is no analytics collection or usage telemetry in this project.
 
@@ -80,7 +86,7 @@ pnpm exec vite build --outDir /tmp/slopalytics-perf --emptyOutDir
 pnpm exec vite preview --outDir /tmp/slopalytics-perf --host 127.0.0.1 --port 4390 --strictPort
 ```
 
-Open that preview at 1280 by 800 and paste `scripts/measure-performance.js` into the browser console. It warms all five charts, takes 24 navigation and model-toggle samples, then restores the starting URL and filters. Update timings include React's microtask flush and synchronous layout. They exclude paint and are not end-to-end interaction latency.
+Open that preview at 1280 by 800 and paste `scripts/measure-performance.js` into the browser console. It warms all charts, takes 24 navigation and model-toggle samples, then restores the starting URL and filters. Update timings include React's microtask flush and synchronous layout. They exclude paint and are not end-to-end interaction latency.
 
 Local Chromium results against `f2a4a2b`, with no CPU or network throttling:
 

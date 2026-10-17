@@ -14,6 +14,7 @@ import { X } from 'lucide-react';
 import {
   barGroups,
   format,
+  formatModelValue,
   metricLabels,
   metricUnits,
   modelColor,
@@ -94,7 +95,7 @@ function Tooltip({ model, pinned, onClose }: { model: Model; pinned: boolean; on
         [
           ['Intelligence index', format(model.intelligence, 'intelligence')],
           ['Cost per task', format(model.cost, 'cost')],
-          ['Time per task', format(model.time, 'time')],
+          ['Time per task', formatModelValue(model, 'time')],
           ['Tokens per task', format(model.tokens, 'tokens')],
           [
             'Output speed',
@@ -109,12 +110,26 @@ function Tooltip({ model, pinned, onClose }: { model: Model; pinned: boolean; on
       ))}
       <a
         className="mt-2.5 inline-block text-[11.5px] text-accent underline underline-offset-[3px] [&:hover]:text-fg mobile:col-span-full mobile:mt-1.5"
-        href={`https://artificialanalysis.ai/models/${model.family}`}
+        href={model.speedSource?.url ?? `https://artificialanalysis.ai/models/${model.family}`}
         target="_blank"
         rel="noreferrer"
       >
         View on Artificial Analysis
       </a>
+      {model.speedSource && (
+        <p className="mt-1 mb-0 text-[11.5px] text-fg-2 mobile:col-span-full">
+          Speed snapshot: {model.speedSource.fetchedAt.slice(0, 10)}
+        </p>
+      )}
+      {model.timeEstimate && (
+        <p className="mt-2 mb-0 text-[11.5px] text-fg-2 mobile:col-span-full">
+          Local time estimate. Uses standard Sol High task tokens at Max-measured throughput.
+          <span className="block">
+            {model.timeEstimate.baselineTokens.toFixed(1)} tokens ÷ {format(model.speed, 'speed')} tokens/s
+          </span>
+          Baseline: {model.timeEstimate.baselineFetchedAt.slice(0, 10)}
+        </p>
+      )}
     </div>
   );
 }
@@ -468,7 +483,7 @@ function Bars({
       const start = center - (group.rows.length * (barWidth + gap) - gap) / 2;
       const bars = group.rows.map((row, index) => {
         const x = start + index * (barWidth + gap);
-        const text = barWidth > 8 ? format(row[metric], metric, true) : '';
+        const text = barWidth > 8 ? formatModelValue(row, metric, true) : '';
         const textWidth = text.length * 6.4;
         const labelX = Math.max(left + textWidth / 2, Math.min(right - textWidth / 2, x + barWidth / 2));
         let labelY = y(row[metric]!) - 8;
@@ -537,7 +552,7 @@ function Bars({
                   role="button"
                   tabIndex={0}
                   className="cursor-pointer focus-visible:[&>circle:last-child]:stroke-accent focus-visible:[&>circle:last-child]:stroke-[3] focus-visible:[&>rect:nth-child(2)]:stroke-accent focus-visible:[&>rect:nth-child(2)]:stroke-[3] mobile:focus-visible:[outline:none]"
-                  aria-label={`${row.name}, ${row.effortLabel}, ${format(row[metric], metric)}`}
+                  aria-label={`${row.name}, ${row.effortLabel}, ${metric === 'time' && row.timeEstimate ? 'estimated ' : ''}${format(row[metric], metric)}`}
                   aria-pressed={interactions.pinned?.id === row.id}
                   onMouseEnter={() => enterHover(row.family, () => interactions.hover(row))}
                   onMouseLeave={cancelEnter}
@@ -667,6 +682,7 @@ const DotPlot = memo(function DotPlot({
                 <span className="overflow-hidden text-ellipsis whitespace-nowrap">{shortName(model)}</span>
               </span>
               <span className="text-[13px] text-fg-2 tabular-nums">
+                {metric === 'time' && model.timeEstimate && '~'}
                 {format(minimum, metric)}
                 {minimum !== group.maximum && ` to ${format(group.maximum, metric)}`}
               </span>
@@ -703,7 +719,7 @@ const DotPlot = memo(function DotPlot({
                 {group.rows.map((row) => (
                   <div className="flex justify-between gap-3" key={row.id}>
                     <span className="text-fg-2">{row.effortLabel}</span>
-                    <b className="text-right font-medium tabular-nums">{format(row[metric], metric)}</b>
+                    <b className="text-right font-medium tabular-nums">{formatModelValue(row, metric)}</b>
                   </div>
                 ))}
               </div>

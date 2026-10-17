@@ -22,5 +22,13 @@ export const modelFields = [
   'time',
 ] as const satisfies readonly (keyof SnapshotModel)[];
 
-export type Model = Pick<SnapshotModel, (typeof modelFields)[number]>;
+export type Model = Omit<Pick<SnapshotModel, (typeof modelFields)[number]>, 'released'> & {
+  released: string | null;
+  speedSource?: { url: string; fetchedAt: string };
+  timeEstimate?: {
+    baselineModelId: string;
+    baselineTokens: number;
+    baselineFetchedAt: string;
+  };
+};
 export type Snapshot = { fetchedAt: string; models: Model[] };

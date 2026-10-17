@@ -1,10 +1,15 @@
 import snapshot from 'virtual:benchmarks';
 import type { Model } from './data/schema';
+import { speedEndpoints } from './data/speed-endpoints';
 export type { Model } from './data/schema';
-export type Metric = 'cost' | 'time' | 'tokens' | 'tokensTotal' | 'costTotal';
+export type Metric = 'cost' | 'time' | 'tokens' | 'tokensTotal' | 'costTotal' | 'speed';
 export type Family = { family: string; model: Model; variants: Model[] };
 
 export const models: Model[] = snapshot.models;
+const allModels: Model[] = [...models, ...speedEndpoints];
+const endpointParents = new Map(
+  speedEndpoints.map((endpoint) => [endpoint.family, endpoint.parentFamily]),
+);
 export const fetchedAt = snapshot.fetchedAt;
 export const views = [
   { id: 'cost-intelligence', label: 'Cost vs intelligence', metric: 'cost', scatter: true },
@@ -12,6 +17,8 @@ export const views = [
   { id: 'tokens-total', label: 'Total tokens', metric: 'tokensTotal', scatter: false },
   { id: 'cost-task', label: 'Cost per task', metric: 'cost', scatter: false },
   { id: 'cost-total', label: 'Total cost', metric: 'costTotal', scatter: false },
+  { id: 'output-speed', label: 'Output speed', metric: 'speed', scatter: false },
+  { id: 'time-task', label: 'Time per task', metric: 'time', scatter: false },
 ] as const;
 export type View = (typeof views)[number];
 export type ViewId = View['id'];
@@ -38,19 +45,21 @@ export const defaultSelected = frontierFamilies.filter((id) => id !== 'claude-so
 export const efforts = ['none', 'low', 'medium', 'high', 'xhigh', 'max'];
 
 const byFamily = new Map<string, Model[]>();
-for (const model of models) {
+for (const model of allModels) {
   const variants = byFamily.get(model.family) ?? [];
   variants.push(model);
   byFamily.set(model.family, variants);
 }
-export const families: Family[] = [...byFamily].map(([family, variants]) => ({
+const allFamilies: Family[] = [...byFamily].map(([family, variants]) => ({
   family,
   model: variants.toSorted((a, b) => b.effortOrder - a.effortOrder)[0]!,
   variants: variants.toSorted((a, b) => a.effortOrder - b.effortOrder),
 }));
+// Endpoint bars follow their parent model's selection, so the picker has one control per model.
+export const families = allFamilies.filter(({ family }) => !endpointParents.has(family));
 export const familyMap = new Map(families.map((family) => [family.family, family]));
 const maxOnlyReasoningFamilies = new Set(
-  families
+  allFamilies
     .filter(
       ({ variants }) =>
         variants.some((model) => model.effort === 'max') &&
@@ -62,6 +71,7 @@ const maxOnlyReasoningFamilies = new Set(
 const colors: Record<string, [string, string]> = {
   'gpt-6-astra': ['#303840', '#f1f3f5'],
   'gpt-6-1-sol': ['#586878', '#c5cbd3'],
+  'gpt-6-1-sol-ultrafast': ['#586878', '#c5cbd3'],
   'gpt-6-luna': ['#748292', '#939daa'],
   'claude-opus-5-5': ['#ae5235', '#df9477'],
   'claude-fable-5-1': ['#903e2b', '#cc785c'],
@@ -102,20 +112,24 @@ export function shortName(model: Model) {
 export function visibleModels(selected: string[], excluded: string[]) {
   const selectedFamilies = new Set(selected);
   const excludedEfforts = new Set(excluded);
-  return models.filter(
+  return allModels.filter(
     (model) =>
-      selectedFamilies.has(model.family) &&
+      selectedFamilies.has(endpointParents.get(model.family) ?? model.family) &&
       (!excludedEfforts.has(model.effort) ||
         // Keep the only reasoning tier visible, even if a non-reasoning variant exists.
         (model.effort === 'max' && maxOnlyReasoningFamilies.has(model.family))),
   );
 }
 
-/** Keep only configurations with a higher score than every cheaper/faster one. */
+/** Keep configurations with a higher score than every better-priced or faster one. */
 export function paretoFrontier(rows: Model[], metric: Metric) {
   const ordered = rows
     .filter((model) => model[metric] !== null && model.intelligence !== null)
-    .toSorted((a, b) => a[metric]! - b[metric]! || b.intelligence! - a.intelligence!);
+    .toSorted(
+      (a, b) =>
+        (a[metric]! - b[metric]!) * (metric === 'speed' ? -1 : 1) ||
+        b.intelligence! - a.intelligence!,
+    );
   let best = -Infinity;
   return ordered.filter((model) => {
     if (model.intelligence! <= best) return false;
@@ -156,7 +170,7 @@ function formatNumber(value: number, maximumFractionDigits: number, minimumFract
 
 export function format(
   value: number | null,
-  metric: Metric | 'intelligence' | 'speed',
+  metric: Metric | 'intelligence',
   compact = false,
 ): string {
   if (value === null) return 'Not measured';
@@ -197,17 +211,25 @@ export function format(
   return formatNumber(value, metric === 'intelligence' || !compact ? 1 : 0);
 }
 
+/** Distinguish local estimates wherever model measurements appear, including exports. */
+export function formatModelValue(model: Model, metric: Metric, compact = false) {
+  const value = format(model[metric], metric, compact);
+  return metric === 'time' && model.time !== null && model.timeEstimate ? `~${value}` : value;
+}
+
 export const metricLabels: Record<Metric, string> = {
   cost: 'Cost per task',
   time: 'Time per task',
   tokens: 'Tokens per task',
   tokensTotal: 'Total tokens',
   costTotal: 'Total cost',
+  speed: 'Output speed',
 };
 export const metricUnits: Record<Metric, string> = {
   cost: 'USD',
-  time: 'seconds',
+  time: 'decode time per task',
   tokens: 'output tokens',
   tokensTotal: 'output tokens, full index run',
   costTotal: 'USD, full index run',
+  speed: 'output tokens/s',
 };
