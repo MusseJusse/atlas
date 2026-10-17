@@ -1,5 +1,7 @@
 import { describe, expect, it } from 'vitest';
-import { barGroups, models, paretoFrontier, visibleModels, type Model } from './models';
+import { barGroups, fetchedAt, format, models, paretoFrontier, visibleModels, type Model } from './models';
+import snapshot from './data/benchmarks.json';
+import { modelFields } from './data/schema';
 import { defaultSelected } from './models';
 import { readSettings, writeSettings } from './state';
 
@@ -9,6 +11,23 @@ const fixture = (id: string, cost: number | null, intelligence: number | null): 
   family: id,
   cost,
   intelligence,
+});
+
+it('packs every configuration without changing consumed fields or numeric precision', () => {
+  expect(fetchedAt).toBe(snapshot.fetchedAt);
+  expect(models).toEqual(
+    snapshot.models.map((model) => Object.fromEntries(modelFields.map((field) => [field, model[field]]))),
+  );
+});
+
+it('keeps number precision when reusing formatters across chart metrics', () => {
+  expect(format(0.12345, 'cost')).toBe('$0.123');
+  expect(format(2, 'cost')).toBe('$2.00');
+  expect(format(2, 'cost', true)).toBe('$2');
+  expect(format(1234.5, 'costTotal')).toBe('$1,235');
+  expect(format(52.35, 'intelligence')).toBe('52.4');
+  expect(format(52.35, 'tokens', true)).toBe('52');
+  expect(format(null, 'cost')).toBe('Not measured');
 });
 
 describe('benchmark comparisons', () => {

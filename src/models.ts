@@ -1,7 +1,6 @@
-import snapshot from './data/benchmarks.json';
-
-type SnapshotModel = (typeof snapshot.models)[number];
-export type Model = { [Key in keyof SnapshotModel]: SnapshotModel[Key] };
+import snapshot from 'virtual:benchmarks';
+import type { Model } from './data/schema';
+export type { Model } from './data/schema';
 export type Metric = 'cost' | 'time' | 'tokens' | 'tokensTotal' | 'costTotal';
 export type Family = { family: string; model: Model; variants: Model[] };
 
@@ -91,7 +90,9 @@ export function shortName(model: Model) {
 }
 /** Null measurements stay absent from charts; they are never plotted as zero. */
 export function visibleModels(selected: string[], excluded: string[]) {
-  return models.filter((model) => selected.includes(model.family) && !excluded.includes(model.effort));
+  const selectedFamilies = new Set(selected);
+  const excludedEfforts = new Set(excluded);
+  return models.filter((model) => selectedFamilies.has(model.family) && !excludedEfforts.has(model.effort));
 }
 
 /** Keep only configurations with a higher score than every cheaper/faster one. */
@@ -125,6 +126,18 @@ export function barGroups(rows: Model[], metric: Metric, grouped: boolean, desce
     .sort((a, b) => (a.maximum - b.maximum) * (descending ? -1 : 1));
 }
 
+// Intl construction dominates repeated chart formatting. There are only a few precision pairs.
+const numberFormats = new Map<number, Intl.NumberFormat>();
+function formatNumber(value: number, maximumFractionDigits: number, minimumFractionDigits = 0) {
+  const key = maximumFractionDigits * 10 + minimumFractionDigits;
+  let formatter = numberFormats.get(key);
+  if (!formatter) {
+    formatter = new Intl.NumberFormat('en-US', { maximumFractionDigits, minimumFractionDigits });
+    numberFormats.set(key, formatter);
+  }
+  return formatter.format(value);
+}
+
 export function format(
   value: number | null,
   metric: Metric | 'intelligence' | 'speed',
@@ -149,10 +162,11 @@ export function format(
     if (compact && value >= 1000) return `$${+(value / 1000).toFixed(1)}k`;
     return (
       '$' +
-      value.toLocaleString('en-US', {
-        maximumFractionDigits: metric === 'costTotal' ? 0 : value < 1 ? 3 : 2,
-        minimumFractionDigits: metric === 'cost' && !compact ? 2 : 0,
-      })
+      formatNumber(
+        value,
+        metric === 'costTotal' ? 0 : value < 1 ? 3 : 2,
+        metric === 'cost' && !compact ? 2 : 0,
+      )
     );
   }
   const unit =
@@ -164,9 +178,7 @@ export function format(
           ? ([1e3, 'k'] as const)
           : null;
   if (unit) return `${+(value / unit[0]).toFixed(compact ? 0 : 1)}${unit[1]}`;
-  return value.toLocaleString('en-US', {
-    maximumFractionDigits: metric === 'intelligence' || !compact ? 1 : 0,
-  });
+  return formatNumber(value, metric === 'intelligence' || !compact ? 1 : 0);
 }
 
 export const metricLabels: Record<Metric, string> = {
