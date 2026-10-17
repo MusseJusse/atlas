@@ -1,0 +1,169 @@
+import { execFileSync } from 'node:child_process';
+import { randomUUID } from 'node:crypto';
+import { existsSync } from 'node:fs';
+import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+import { pathToFileURL } from 'node:url';
+import { z } from 'zod';
+import { compareSnapshots, snapshotSchema } from './model-updates.ts';
+import { refreshBenchmarks } from './refresh-benchmarks.ts';
+
+const dataPaths = ['src/data/benchmarks.json', 'src/data/changelog.json'];
+const title = 'chore: sync model benchmark data';
+const syncBranch = /^data\/model-sync-[a-f0-9]{8}$/;
+const pullRequestsSchema = z.array(
+  z.object({
+    url: z.url(),
+    headRefName: z.string(),
+    headRefOid: z.string().regex(/^[a-f0-9]{40}$/),
+  }),
+);
+
+/** Pass arguments directly to each executable, without interpreting them as shell code. */
+export function runCommand(command: string, args: string[], cwd: string, inherit = false) {
+  return (
+    execFileSync(command, args, { cwd, encoding: 'utf8', stdio: inherit ? 'inherit' : 'pipe' })?.trim() ?? ''
+  );
+}
+
+/** Refresh from main in a disposable checkout, leaving the caller's branch and files alone. */
+export async function syncData({ cwd = process.cwd(), run = runCommand, fetcher = fetch } = {}) {
+  const root = run('git', ['rev-parse', '--show-toplevel'], cwd);
+  run('git', ['fetch', 'origin'], root, true);
+  const temporary = await mkdtemp(join(tmpdir(), 'slopalytics-data-sync-'));
+  const workspace = join(temporary, 'checkout');
+  let attached = false;
+  try {
+    run('git', ['worktree', 'add', '--detach', workspace, 'origin/main'], root);
+    attached = true;
+    const snapshotPath = pathToFileURL(join(workspace, dataPaths[0]!));
+    const historyPath = pathToFileURL(join(workspace, dataPaths[1]!));
+    if (!existsSync(historyPath))
+      throw new Error('origin/main does not have data sync support yet. Merge the feature PR first.');
+    const batch = await refreshBenchmarks({ snapshotPath, historyPath, fetcher });
+    if (!batch.changes.length) {
+      console.log('No data changes against main. No PR created or updated.');
+      return null;
+    }
+    const counts = ['added', 'updated', 'removed']
+      .map((kind) => `${batch.changes.filter((change) => change.kind === kind).length} ${kind}`)
+      .join(', ');
+    console.log(`Changes against main: ${counts}.`);
+
+    run('gh', ['auth', 'status'], root);
+    const origin = run('git', ['remote', 'get-url', 'origin'], root).replace(/^git@([^:]+):/, 'https://$1/');
+    const { nameWithOwner: repository } = z
+      .object({ nameWithOwner: z.string().min(1) })
+      .parse(JSON.parse(run('gh', ['repo', 'view', origin, '--json', 'nameWithOwner'], root)));
+    const requests = pullRequestsSchema
+      .parse(
+        JSON.parse(
+          run(
+            'gh',
+            [
+              'pr',
+              'list',
+              '--repo',
+              repository,
+              '--base',
+              'main',
+              '--state',
+              'open',
+              '--limit',
+              '100',
+              '--json',
+              'url,headRefName,headRefOid',
+            ],
+            root,
+          ),
+        ),
+      )
+      .filter((pr) => syncBranch.test(pr.headRefName));
+    if (requests.length > 1)
+      throw new Error('Multiple data sync PRs are open. Close the extras before syncing.');
+    const existing = requests[0];
+    const branch = existing?.headRefName ?? `data/model-sync-${randomUUID().slice(0, 8)}`;
+
+    if (existing) {
+      run('git', ['fetch', 'origin', branch], root);
+      const paths = run('git', ['diff', '--name-only', `origin/main...${existing.headRefOid}`], root)
+        .split('\n')
+        .filter(Boolean);
+      if (paths.some((path) => !dataPaths.includes(path)))
+        throw new Error(`The sync PR contains non-data changes. Refusing to replace ${branch}.`);
+      const pending = snapshotSchema.parse(
+        JSON.parse(run('git', ['show', `${existing.headRefOid}:${dataPaths[0]}`], root)),
+      );
+      const next = snapshotSchema.parse(JSON.parse(await readFile(snapshotPath, 'utf8')));
+      if (!compareSnapshots(pending, next, batch.checkedAt).changes.length) {
+        console.log(`The latest data is already in ${existing.url}`);
+        return existing.url;
+      }
+    }
+
+    for (const args of [['install', '--frozen-lockfile'], ['check'], ['test'], ['exec', 'vite', 'build']])
+      run('pnpm', args, workspace, true);
+
+    const bodyPath = join(temporary, 'pull-request.md');
+    await writeFile(
+      bodyPath,
+      `New or changed model data is available from the upstream Slopalytics snapshot.\n\n` +
+        `${counts}. Updates the benchmark snapshot and records the differences in the changelog.\n\n` +
+        `Passed type checking, tests, and a production build before pushing.\n\n` +
+        `After merging, rebuild the local site to publish the update.\n\n` +
+        `Generated by pnpm data:sync. No model generated these data changes.\n`,
+    );
+    run('git', ['add', '--', ...dataPaths], workspace);
+    run('git', ['commit', '-m', title], workspace, true);
+    // Replace only the managed data branch, and fail if anyone updated it since our check.
+    run(
+      'git',
+      [
+        'push',
+        `--force-with-lease=refs/heads/${branch}:${existing?.headRefOid ?? ''}`,
+        'origin',
+        `HEAD:refs/heads/${branch}`,
+      ],
+      workspace,
+      true,
+    );
+    if (existing) {
+      run(
+        'gh',
+        ['pr', 'edit', existing.url, '--repo', repository, '--title', title, '--body-file', bodyPath],
+        root,
+      );
+      console.log(existing.url);
+      return existing.url;
+    }
+    const url = run(
+      'gh',
+      [
+        'pr',
+        'create',
+        '--repo',
+        repository,
+        '--base',
+        'main',
+        '--head',
+        branch,
+        '--title',
+        title,
+        '--body-file',
+        bodyPath,
+      ],
+      root,
+    );
+    console.log(url);
+    return url;
+  } finally {
+    try {
+      if (attached) run('git', ['worktree', 'remove', '--force', workspace], root);
+    } finally {
+      await rm(temporary, { recursive: true, force: true });
+    }
+  }
+}
+
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) await syncData();

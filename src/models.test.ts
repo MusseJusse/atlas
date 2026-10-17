@@ -119,13 +119,14 @@ describe('benchmark comparisons', () => {
     expect(baseline?.family).toBe(endpoint.parentFamily);
     expect(baseline?.effort).toBe('high');
     expect(endpoint.timeEstimate?.baselineTokens).toBe(baseline?.tokens);
-    expect(endpoint.time).toBeCloseTo(39.21483418496219, 8);
+    expect(endpoint.time).toBeCloseTo(baseline!.tokens! / endpoint.speed!, 8);
     expect(endpoint.timeEstimate?.baselineFetchedAt).toBe(fetchedAt);
-    expect(formatModelValue(endpoint, 'time')).toBe('~39s');
-    expect(formatModelValue(endpoint, 'time', true)).toBe('~39s');
+    const measuredExample = { ...endpoint, time: 39.21483418496219 };
+    expect(formatModelValue(measuredExample, 'time')).toBe('~39s');
+    expect(formatModelValue(measuredExample, 'time', true)).toBe('~39s');
     expect(formatModelValue(endpoint, 'speed')).toBe('336.4');
     expect(formatModelValue({ ...endpoint, time: null }, 'time')).toBe('Not measured');
-    expect(formatModelValue({ ...endpoint, timeEstimate: undefined }, 'time')).toBe('39s');
+    expect(formatModelValue({ ...measuredExample, timeEstimate: undefined }, 'time')).toBe('39s');
   });
   it('includes task times and the Ultrafast estimate while omitting missing measurements', () => {
     const [endpoint] = speedEndpoints;

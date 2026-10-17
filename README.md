@@ -52,7 +52,7 @@ Components use Tailwind utilities. `src/styles.css` holds the font, theme tokens
 
 ## Data and attribution
 
-This version uses the same public benchmark snapshot bundled by Slopalytics, captured **13 October 2026 at 20:47 UTC**, with **699 model configurations**. The snapshot is in `src/data/benchmarks.json`. It is static and does not refresh from the Artificial Analysis API. No API key is needed.
+This version starts with the public benchmark snapshot bundled by Slopalytics, captured **13 October 2026 at 20:47 UTC**, with **699 model configurations**. The current snapshot is in `src/data/benchmarks.json`. `pnpm data:sync` checks the public Slopalytics bundle for updates when you run it. It does not call the Artificial Analysis API, and no API key is needed.
 
 Null measurements mean unmeasured or unavailable. They are omitted from the relevant charts, not treated as zero. Benchmark cost per task describes the benchmark workload, not a forecast of personal API spend.
 
@@ -74,6 +74,40 @@ To regenerate the UI font, install `fonttools[woff]` in a Python environment, th
 fonttools varLib.instancer src/assets/dm-sans.woff2 wght=400:700 opsz=9:24 --no-recalc-timestamp --output=/tmp/dm-sans-ui.woff2
 pyftsubset /tmp/dm-sans-ui.woff2 --output-file=src/assets/dm-sans-ui.woff2 --flavor=woff2 --unicodes='U+0020-007E,U+00A0-00BF,U+00D7,U+00F7,U+2013-2014,U+2018-201D,U+2026,U+2032-2033,U+20AC,U+2122,U+2212,U+FEFF,U+FFFD' --layout-features='ccmp,locl,rlig,liga,clig,calt,kern,mark,mkmk,tnum' --no-recalc-timestamp
 ```
+
+## Sync model data
+
+Run a manual sync when you want to check for new models or changed measurements:
+
+```sh
+pnpm data:sync
+```
+
+Use Node 22.18 or later, pnpm, Git, and the GitHub CLI. Run `gh auth login` once if needed. The command uses your Git and GitHub credentials. No scheduled job or special GitHub Actions PR permissions are needed.
+
+The command fetches `origin` and starts from the latest `origin/main` in a temporary worktree. It imports the upstream snapshot, updates the changelog, installs dependencies, runs type checking, tests, and a production build, then pushes only the two data files and opens a non-draft PR. Your current branch, uncommitted files, and local site's build stay untouched. Temporary worktrees are removed on success or failure. This command becomes available after the feature PR is merged into `main`.
+
+No changes against `main` means no commit or PR. If an open data sync PR already contains the latest measurements, the command prints its URL without pushing again. New changes update that same PR against the latest `main`. Merged updates start a new PR. Data branches use `data/model-sync-<id>` names. The command replaces an existing data branch with an explicit Git lease, so concurrent pushes cause a failure instead of being overwritten. It refuses to replace a PR containing non-data changes. Pending history consolidates against the last merged snapshot.
+
+The importer discovers the current module filename from the upstream HTML and parses its embedded snapshot as data. It never executes downloaded JavaScript. It validates every known model field and compares configurations by ID. The changelog records additions, removals, and before/after values. An ID change appears as a removal and an addition. The original snapshot is the history baseline; earlier additions are not invented.
+
+Timestamp-only and ordering changes are ignored. Local Ultrafast measurements stay separate. Fetch errors, invalid or duplicate models, older snapshots, and drops of more than 20% of models fail before writing the candidate data. Failed validation prevents a push or PR. Unexpected source-format changes require an importer update.
+
+To check upstream data without changing files:
+
+```sh
+pnpm data:check
+```
+
+For a lower-level refresh that writes the snapshot and changelog in your current checkout without creating a PR:
+
+```sh
+pnpm data:refresh
+```
+
+The dedicated changelog is at `/?page=changelog`, with filters for additions, updates, and removals. Its check time belongs to the published data update. Updates depend on when Slopalytics publishes new Artificial Analysis measurements. Provider announcements alone do not change the benchmark snapshot. Newly added families appear in the full model browser; the curated default and notable selections stay manual.
+
+Review and merge the generated PR to publish the data through the normal deployment. The persistent local server serves `dist`, so pull the merged changes, validate and rebuild, then restart the local service to update the local site. The sync command does not merge, deploy, or restart that service.
 
 ## Validation
 

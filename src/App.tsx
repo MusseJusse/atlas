@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { ArrowDown, Check, Download, Ellipsis, Moon, SlidersHorizontal, Sun } from 'lucide-react';
 import { Chart } from './Charts';
 import { Sidebar } from './Sidebar';
@@ -6,6 +6,9 @@ import { useMediaQuery } from './useMediaQuery';
 import { fetchedAt, paretoFrontier, views, visibleModels, type ViewId } from './models';
 import { readSettings, readView, writeSettings, type Settings } from './state';
 import { speedEndpoints } from './data/speed-endpoints';
+import { useTheme } from './useTheme';
+
+const Changelog = lazy(() => import('./Changelog').then(({ Changelog }) => ({ default: Changelog })));
 
 function Selection({ checked }: { checked: boolean }) {
   return (
@@ -19,16 +22,27 @@ function Selection({ checked }: { checked: boolean }) {
 }
 
 export function App() {
+  return typeof location !== 'undefined' &&
+    new URLSearchParams(location.search).get('page') === 'changelog' ? (
+    <Suspense
+      fallback={
+        <p className="p-7 text-[14px] text-fg-2" role="status">
+          Loading changelog…
+        </p>
+      }
+    >
+      <Changelog />
+    </Suspense>
+  ) : (
+    <Benchmarks />
+  );
+}
+
+function Benchmarks() {
   const search = typeof location === 'undefined' ? '' : location.search;
   const [settings, setSettings] = useState(() => readSettings(search));
   const [active, setActive] = useState(() => readView(search));
-  const [theme, setTheme] = useState(() => {
-    try {
-      return localStorage.getItem('benchmark-theme') === 'light' ? 'light' : 'dark';
-    } catch {
-      return 'dark';
-    }
-  });
+  const [theme, setTheme] = useTheme();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [highlighted, setHighlighted] = useState<string | null>(null);
   const [exportError, setExportError] = useState('');
@@ -50,18 +64,6 @@ export function App() {
     () => new Set(paretoFrontier(rows, view.metric).map((model) => model.family)),
     [rows, view.metric],
   );
-
-  useEffect(() => {
-    document.documentElement.dataset.theme = theme;
-    document
-      .querySelector('meta[name="theme-color"]')
-      ?.setAttribute('content', theme === 'dark' ? '#000000' : '#ffffff');
-    try {
-      localStorage.setItem('benchmark-theme', theme);
-    } catch {
-      /* The theme still works when storage is unavailable. */
-    }
-  }, [theme]);
 
   useEffect(() => {
     history.replaceState(null, '', writeSettings(settings, active));
@@ -136,12 +138,15 @@ export function App() {
           aria-label="Sections"
         >
           <button
-            className="min-h-9 text-[12px] text-fg mobile:min-h-11"
+            className="min-h-9 text-[12px] text-fg mobile:hidden"
             aria-current="page"
             onClick={() => navigate(views[0].id)}
           >
             Benchmarks
           </button>
+          <a href="?page=changelog" className="flex min-h-11 items-center text-[12px] text-fg-2">
+            Changelog
+          </a>
         </nav>
         <nav
           className="flex min-w-0 items-stretch self-stretch gap-[22px] overflow-x-auto [scrollbar-width:none] wide:gap-[26px] compact:gap-4 mobile:order-3 mobile:h-[42px] mobile:w-full mobile:shrink-0 mobile:gap-5 mobile:border-t mobile:border-line mobile:px-4"
@@ -329,7 +334,8 @@ export function App() {
                   />
                   {view.metric === 'time' && (
                     <p className="mt-2 mb-0 shrink-0 text-[11.5px] text-fg-2">
-                      Decode time only. Excludes startup latency and tool waits. ~ marks the local Ultrafast estimate.
+                      Decode time only. Excludes startup latency and tool waits. ~ marks the local Ultrafast
+                      estimate.
                     </p>
                   )}
                 </section>
