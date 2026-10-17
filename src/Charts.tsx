@@ -262,7 +262,7 @@ function Scatter({
       {guide && (
         <g
           stroke={guide.color}
-          strokeWidth={1.5}
+          strokeWidth={1}
           strokeDasharray="6 4"
           pointerEvents="none"
           aria-hidden="true"
@@ -616,7 +616,7 @@ function Bars({
           y1={guideY}
           y2={guideY}
           stroke={modelColor(activeModel)}
-          strokeWidth={1.5}
+          strokeWidth={1}
           strokeDasharray="6 4"
           pointerEvents="none"
           aria-hidden="true"
