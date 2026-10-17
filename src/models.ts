@@ -32,10 +32,8 @@ export const frontierFamilies = [
   'muse-wonder',
 ];
 export const notableFamilies = [
-  'muse-spark-1-3',
   'glm-5-3-flash',
   'deepseek-v4-1-flash',
-  'deepseek-v4-pro',
   'qwen3-8-27b',
 ];
 export const defaultSelected = frontierFamilies.filter(
