@@ -1,4 +1,13 @@
-import { useEffect, useRef, useState, type KeyboardEvent, type MouseEvent } from 'react';
+import {
+  memo,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+  type KeyboardEvent,
+  type MouseEvent,
+} from 'react';
 import { scaleLinear, scaleLog } from 'd3-scale';
 import { extent } from 'd3-array';
 import { X } from 'lucide-react';
@@ -17,22 +26,27 @@ import {
 import type { Settings } from './state';
 import { Logo, SvgLogo } from './Logo';
 
-function useSize() {
+function useSize(enabled: boolean) {
   const ref = useRef<HTMLDivElement>(null);
   const [size, setSize] = useState({ width: 960, height: 640 });
-  useEffect(() => {
+  useLayoutEffect(() => {
+    if (!enabled) return;
     const element = ref.current;
     if (!element) return;
+    const resize = (width: number, height: number) => {
+      width = Math.round(width);
+      height = Math.round(height);
+      setSize((previous) =>
+        previous.width === width && previous.height === height ? previous : { width, height },
+      );
+    };
+    resize(element.clientWidth, element.clientHeight);
     const observer = new ResizeObserver(([entry]) => {
-      if (entry)
-        setSize({
-          width: Math.round(entry.contentRect.width),
-          height: Math.round(entry.contentRect.height),
-        });
+      if (entry) resize(entry.contentRect.width, entry.contentRect.height);
     });
     observer.observe(element);
     return () => observer.disconnect();
-  }, []);
+  }, [enabled]);
   return { ref, ...size };
 }
 
@@ -52,15 +66,7 @@ function activate(event: KeyboardEvent<SVGGElement>, action: () => void) {
   }
 }
 
-function Tooltip({
-  model,
-  pinned,
-  onClose,
-}: {
-  model: Model;
-  pinned: boolean;
-  onClose: () => void;
-}) {
+function Tooltip({ model, pinned, onClose }: { model: Model; pinned: boolean; onClose: () => void }) {
   return (
     <div
       className={`absolute right-2 bottom-[72px] z-[3] pointer-events-none w-[272px] max-w-[calc(100vw-48px)] rounded-lg border border-line-2 bg-surface px-4 py-3.5 mobile:sticky mobile:inset-x-auto mobile:bottom-[calc(10px+env(safe-area-inset-bottom))] mobile:z-[7] mobile:mt-3.5 mobile:grid mobile:w-auto mobile:max-w-none mobile:grid-cols-2 mobile:gap-x-5 mobile:px-3.5 mobile:py-3 ${pinned ? '[&_button]:pointer-events-auto [&_a]:pointer-events-auto' : ''}`}
@@ -129,57 +135,82 @@ function Scatter({
   interactions: Interactions;
 }) {
   const mobile = width < 600;
-  const left = mobile ? 46 : 64;
-  const right = width - (settings.labels && !mobile ? 235 : 24);
-  const top = 30;
-  const bottom = Math.max(130, height - 60);
-  const points = rows.filter(
-    (row) => row[metric] !== null && row[metric]! > 0 && row.intelligence !== null,
-  );
-  const [min = 0.01, max = 1] = extent(points, (model) => model[metric]!);
-  const linear = settings.linear.includes(
-    metric === 'tokens' ? 'tokens-task' : 'cost-intelligence',
-  );
-  const x = linear
-    ? scaleLinear()
-        .domain([0, max * 1.08])
-        .nice()
-        .range([left, right])
-    : scaleLog()
-        .domain([min * 0.7, max * 1.08])
-        .range([left, right]);
-  const scoreMin = Math.max(
-    0,
-    Math.floor((Math.min(...points.map((row) => row.intelligence!), 30) - 4) / 10) * 10,
-  );
-  const scoreMax = Math.ceil((Math.max(...points.map((row) => row.intelligence!), 50) + 2) / 5) * 5;
-  const y = scaleLinear().domain([scoreMin, scoreMax]).range([bottom, top]);
-  const frontier = paretoFrontier(points, metric);
-  const frontierIds = new Set(frontier.map((row) => row.id));
-  const frontierFamilies = new Set(frontier.map((row) => row.family));
-  const series = [...new Set(points.map((row) => row.family))].map((family) => ({
-    family,
-    rows: points
-      .filter((row) => row.family === family)
-      .toSorted((a, b) => a.effortOrder - b.effortOrder),
-  }));
-  const labelPositions = series
-    .map((series) => ({ ...series, end: series.rows.at(-1)! }))
-    .sort((a, b) => y(a.end.intelligence!) - y(b.end.intelligence!));
-  let lastY = top - 24;
-  const labels = labelPositions.map((series) => {
-    lastY = Math.max(y(series.end.intelligence!), lastY + 24);
-    return { ...series, y: Math.min(lastY, bottom - 10) };
-  });
-  const logTicks = x.ticks(mobile ? 4 : 10).filter((value) => {
-    if (linear) return true;
-    const significant = value / 10 ** Math.floor(Math.log10(value));
-    return (mobile ? [1, 3] : [1, 2, 5]).some((target) => Math.abs(significant - target) < 0.001);
-  });
-  const path = (data: Model[]) =>
-    data
-      .map((model, index) => `${index ? 'L' : 'M'}${x(model[metric]!)},${y(model.intelligence!)}`)
-      .join('');
+  const linear = settings.linear.includes(metric === 'tokens' ? 'tokens-task' : 'cost-intelligence');
+  const {
+    left,
+    right,
+    bottom,
+    x,
+    y,
+    frontier,
+    frontierIds,
+    frontierFamilies,
+    series,
+    labels,
+    logTicks,
+    path,
+  } = useMemo(() => {
+    const left = mobile ? 46 : 64;
+    const right = width - (settings.labels && !mobile ? 235 : 24);
+    const top = 30;
+    const bottom = Math.max(130, height - 60);
+    const points = rows.filter(
+      (row) => row[metric] !== null && row[metric]! > 0 && row.intelligence !== null,
+    );
+    const [min = 0.01, max = 1] = extent(points, (model) => model[metric]!);
+    const x = linear
+      ? scaleLinear()
+          .domain([0, max * 1.08])
+          .nice()
+          .range([left, right])
+      : scaleLog()
+          .domain([min * 0.7, max * 1.08])
+          .range([left, right]);
+    const scoreMin = Math.max(
+      0,
+      Math.floor((Math.min(...points.map((row) => row.intelligence!), 30) - 4) / 10) * 10,
+    );
+    const scoreMax = Math.ceil((Math.max(...points.map((row) => row.intelligence!), 50) + 2) / 5) * 5;
+    const y = scaleLinear().domain([scoreMin, scoreMax]).range([bottom, top]);
+    const frontier = paretoFrontier(points, metric);
+    const frontierIds = new Set(frontier.map((row) => row.id));
+    const frontierFamilies = new Set(frontier.map((row) => row.family));
+    const series = [...new Set(points.map((row) => row.family))].map((family) => ({
+      family,
+      rows: points.filter((row) => row.family === family).toSorted((a, b) => a.effortOrder - b.effortOrder),
+    }));
+    const labelPositions = series
+      .map((series) => ({ ...series, end: series.rows.at(-1)! }))
+      .sort((a, b) => y(a.end.intelligence!) - y(b.end.intelligence!));
+    let lastY = top - 24;
+    const labels = labelPositions.map((series) => {
+      lastY = Math.max(y(series.end.intelligence!), lastY + 24);
+      return { ...series, y: Math.min(lastY, bottom - 10) };
+    });
+    const logTicks = x.ticks(mobile ? 4 : 10).filter((value) => {
+      if (linear) return true;
+      const significant = value / 10 ** Math.floor(Math.log10(value));
+      return (mobile ? [1, 3] : [1, 2, 5]).some((target) => Math.abs(significant - target) < 0.001);
+    });
+    const path = (data: Model[]) =>
+      data
+        .map((model, index) => `${index ? 'L' : 'M'}${x(model[metric]!)},${y(model.intelligence!)}`)
+        .join('');
+    return {
+      left,
+      right,
+      bottom,
+      x,
+      y,
+      frontier,
+      frontierIds,
+      frontierFamilies,
+      series,
+      labels,
+      logTicks,
+      path,
+    };
+  }, [rows, metric, width, height, settings.labels, linear]);
   const activeFamily =
     interactions.pinned?.family ?? interactions.hovered?.family ?? interactions.highlighted;
 
@@ -227,8 +258,7 @@ function Scatter({
           />
           {series.rows.map((model) => {
             const onFrontier = frontierIds.has(model.id);
-            const active =
-              interactions.pinned?.id === model.id || interactions.hovered?.id === model.id;
+            const active = interactions.pinned?.id === model.id || interactions.hovered?.id === model.id;
             return (
               <g
                 key={model.id}
@@ -242,17 +272,10 @@ function Scatter({
                 onMouseLeave={() => interactions.hover(null)}
                 onFocus={() => interactions.hover(model)}
                 onBlur={() => interactions.hover(null)}
-                onClick={() =>
-                  interactions.pin(interactions.pinned?.id === model.id ? null : model)
-                }
+                onClick={() => interactions.pin(interactions.pinned?.id === model.id ? null : model)}
                 onKeyDown={(event) => activate(event, () => interactions.pin(model))}
               >
-                <circle
-                  cx={x(model[metric]!)}
-                  cy={y(model.intelligence!)}
-                  r={13}
-                  fill="transparent"
-                />
+                <circle cx={x(model[metric]!)} cy={y(model.intelligence!)} r={13} fill="transparent" />
                 {active && (
                   <circle
                     cx={x(model[metric]!)}
@@ -345,46 +368,47 @@ function Bars({
   height: number;
   interactions: Interactions;
 }) {
-  const left = width < 600 ? 46 : 64;
-  const right = width - 18;
-  const top = 30;
-  const bottom = height - 96;
-  const groups = barGroups(rows, metric, settings.grouped, settings.descending);
-  const y = scaleLinear()
-    .domain([0, Math.max(...groups.map((group) => group.maximum), 1) * 1.15])
-    .range([bottom, top]);
-  const totalWeight = groups.reduce((total, group) => total + Math.max(3, group.rows.length), 0);
-  let groupStart = left;
-  const valueLabels: { x: number; y: number; width: number }[] = [];
-  const positioned = groups.map((group) => {
-    const groupWidth = ((right - left) * Math.max(3, group.rows.length)) / totalWeight;
-    const center = groupStart + groupWidth / 2;
-    groupStart += groupWidth;
-    const gap = Math.min(4, groupWidth * 0.025);
-    const barWidth = Math.max(1, Math.min(38, (groupWidth - 16) / group.rows.length - gap));
-    const start = center - (group.rows.length * (barWidth + gap) - gap) / 2;
-    const bars = group.rows.map((row, index) => {
-      const x = start + index * (barWidth + gap);
-      const text = format(row[metric], metric, true);
-      const textWidth = text.length * 6.4;
-      const labelX = Math.max(
-        left + textWidth / 2,
-        Math.min(right - textWidth / 2, x + barWidth / 2),
-      );
-      let labelY = y(row[metric]!) - 8;
-      while (
-        valueLabels.some(
-          (label) =>
-            Math.abs(label.x - labelX) < (label.width + textWidth) / 2 + 4 &&
-            Math.abs(label.y - labelY) < 17,
+  const { left, right, top, bottom, y, positioned } = useMemo(() => {
+    const left = width < 600 ? 46 : 64;
+    const right = width - 18;
+    const top = 30;
+    const bottom = height - 96;
+    const groups = barGroups(rows, metric, settings.grouped, settings.descending);
+    const y = scaleLinear()
+      .domain([0, Math.max(...groups.map((group) => group.maximum), 1) * 1.15])
+      .range([bottom, top]);
+    const totalWeight = groups.reduce((total, group) => total + Math.max(3, group.rows.length), 0);
+    let groupStart = left;
+    const valueLabels: { x: number; y: number; width: number }[] = [];
+    const positioned = groups.map((group) => {
+      const groupWidth = ((right - left) * Math.max(3, group.rows.length)) / totalWeight;
+      const center = groupStart + groupWidth / 2;
+      groupStart += groupWidth;
+      const gap = Math.min(4, groupWidth * 0.025);
+      const barWidth = Math.max(1, Math.min(38, (groupWidth - 16) / group.rows.length - gap));
+      const start = center - (group.rows.length * (barWidth + gap) - gap) / 2;
+      const bars = group.rows.map((row, index) => {
+        const x = start + index * (barWidth + gap);
+        const text = barWidth > 8 ? format(row[metric], metric, true) : '';
+        const textWidth = text.length * 6.4;
+        const labelX = Math.max(left + textWidth / 2, Math.min(right - textWidth / 2, x + barWidth / 2));
+        let labelY = y(row[metric]!) - 8;
+        while (
+          barWidth > 8 &&
+          valueLabels.some(
+            (label) =>
+              Math.abs(label.x - labelX) < (label.width + textWidth) / 2 + 4 &&
+              Math.abs(label.y - labelY) < 17,
+          )
         )
-      )
-        labelY -= 17;
-      valueLabels.push({ x: labelX, y: labelY, width: textWidth });
-      return { row, x, labelX, labelY, text };
+          labelY -= 17;
+        if (barWidth > 8) valueLabels.push({ x: labelX, y: labelY, width: textWidth });
+        return { row, x, labelX, labelY, text };
+      });
+      return { ...group, center, groupWidth, barWidth, bars };
     });
-    return { ...group, center, groupWidth, barWidth, bars };
-  });
+    return { left, right, top, bottom, y, positioned };
+  }, [rows, metric, width, height, settings.grouped, settings.descending]);
   const activeFamily =
     interactions.pinned?.family ?? interactions.hovered?.family ?? interactions.highlighted;
 
@@ -425,13 +449,7 @@ function Bars({
                   onClick={() => interactions.pin(interactions.pinned?.id === row.id ? null : row)}
                   onKeyDown={(event) => activate(event, () => interactions.pin(row))}
                 >
-                  <rect
-                    x={barX}
-                    y={top}
-                    width={group.barWidth}
-                    height={bottom - top}
-                    fill="transparent"
-                  />
+                  <rect x={barX} y={top} width={group.barWidth} height={bottom - top} fill="transparent" />
                   <rect
                     x={barX}
                     y={barY}
@@ -453,13 +471,7 @@ function Bars({
                     </text>
                   )}
                   {group.barWidth > 8 && (
-                    <text
-                      x={labelX}
-                      y={labelY}
-                      textAnchor="middle"
-                      fill="var(--fg-2)"
-                      fontSize={11}
-                    >
+                    <text x={labelX} y={labelY} textAnchor="middle" fill="var(--fg-2)" fontSize={11}>
                       {text}
                     </text>
                   )}
@@ -496,17 +508,23 @@ function Bars({
   );
 }
 
-function DotPlot({
+const DotPlot = memo(function DotPlot({
   rows,
   metric,
   settings,
+  expanded,
+  onExpand,
 }: {
   rows: Model[];
   metric: Metric;
   settings: Settings;
+  expanded: string | null;
+  onExpand: (id: string | null) => void;
 }) {
-  const [expanded, setExpanded] = useState<string | null>(null);
-  const groups = barGroups(rows, metric, true, settings.descending);
+  const groups = useMemo(
+    () => barGroups(rows, metric, true, settings.descending),
+    [rows, metric, settings.descending],
+  );
   const max = Math.max(...groups.map((group) => group.maximum), 1);
   return (
     <div className="flex flex-col">
@@ -524,13 +542,11 @@ function DotPlot({
               className="grid w-full grid-cols-[minmax(0,1fr)_auto] gap-x-3 gap-y-2 pt-[11px] pb-3 text-left"
               aria-expanded={open}
               aria-controls={`variants-${metric}-${group.id}`}
-              onClick={() => setExpanded(open ? null : group.id)}
+              onClick={() => onExpand(open ? null : group.id)}
             >
               <span className="flex min-w-0 items-center gap-[7px] text-[14px] font-[550]">
                 <Logo model={model} />
-                <span className="overflow-hidden text-ellipsis whitespace-nowrap">
-                  {shortName(model)}
-                </span>
+                <span className="overflow-hidden text-ellipsis whitespace-nowrap">{shortName(model)}</span>
               </span>
               <span className="text-[13px] text-fg-2 tabular-nums">
                 {format(minimum, metric)}
@@ -569,9 +585,7 @@ function DotPlot({
                 {group.rows.map((row) => (
                   <div className="flex justify-between gap-3" key={row.id}>
                     <span className="text-fg-2">{row.effortLabel}</span>
-                    <b className="text-right font-medium tabular-nums">
-                      {format(row[metric], metric)}
-                    </b>
+                    <b className="text-right font-medium tabular-nums">{format(row[metric], metric)}</b>
                   </div>
                 ))}
               </div>
@@ -581,25 +595,55 @@ function DotPlot({
       })}
     </div>
   );
-}
+});
 
-export function Chart({
+export const Chart = memo(function Chart({
+  active,
+  phone,
   view,
   rows,
   settings,
   highlighted,
   onHighlight,
 }: {
+  active: boolean;
+  phone: boolean;
   view: View;
   rows: Model[];
   settings: Settings;
   highlighted: string | null;
   onHighlight: (id: string | null) => void;
 }) {
-  const { ref, width, height } = useSize();
+  const [visited, setVisited] = useState(active);
+  const ready = active || visited;
+  const scatter = view.scatter || (view.id === 'tokens-task' && settings.scatter);
+  const { ref, width, height } = useSize(ready && (scatter || !phone));
+
+  // Desktop sections have a fixed height, so charts can mount just before scrolling into view.
+  // Keep visited charts mounted to preserve pinned details and avoid navigation fetches.
+  useEffect(() => {
+    if (visited) return;
+    if (active) {
+      setVisited(true);
+      return;
+    }
+    const section = ref.current?.closest('section');
+    if (!section) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((entry) => entry.isIntersecting)) {
+          setVisited(true);
+          observer.disconnect();
+        }
+      },
+      { rootMargin: '100px' },
+    );
+    observer.observe(section);
+    return () => observer.disconnect();
+  }, [active, visited]);
   const [hovered, setHovered] = useState<Model | null>(null);
   const [pinned, setPinned] = useState<Model | null>(null);
-  const scatter = view.scatter || (view.id === 'tokens-task' && settings.scatter);
+  const [expanded, setExpanded] = useState<string | null>(null);
   const interactions: Interactions = {
     hovered,
     pinned,
@@ -608,8 +652,9 @@ export function Chart({
     pin: setPinned,
     highlight: onHighlight,
   };
-  const validRows = rows.filter(
-    (row) => row[view.metric] !== null && (!scatter || row.intelligence !== null),
+  const validRows = useMemo(
+    () => rows.filter((row) => row[view.metric] !== null && (!scatter || row.intelligence !== null)),
+    [rows, view.metric, scatter],
   );
   const tooltip = pinned ?? hovered;
   // Keep a pinned tooltip tied to a visible configuration after filters change.
@@ -618,10 +663,7 @@ export function Chart({
   const legend = [...new Map(validRows.map((row) => [row.family, row])).values()];
 
   function closeOnBackground(event: MouseEvent<SVGSVGElement>) {
-    if (
-      event.target instanceof SVGRectElement &&
-      event.target.classList.contains('chart-background')
-    )
+    if (event.target instanceof SVGRectElement && event.target.classList.contains('chart-background'))
       setPinned(null);
   }
 
@@ -631,58 +673,64 @@ export function Chart({
         className={`relative min-h-0 flex-1 mobile:aspect-[1/1.2] mobile:flex-none ${!scatter ? 'phone:pointer-events-none phone:invisible phone:absolute phone:h-px phone:w-full phone:aspect-auto' : ''}`}
         ref={ref}
       >
-        {validRows.length ? (
-          <svg
-            id={`chart-${view.id}`}
-            className="absolute inset-0 block size-full font-sans [&_g[role=button]:focus]:[outline:none]"
-            viewBox={`0 0 ${width} ${height}`}
-            role="group"
-            aria-label={
-              scatter
-                ? `${metricLabels[view.metric]} versus Intelligence Index`
-                : `${view.label} by model`
-            }
-            onClick={closeOnBackground}
-            onKeyDown={(event) => {
-              if (event.key === 'Escape') setPinned(null);
-            }}
-          >
-            <rect className="chart-background" width={width} height={height} fill="var(--bg)" />
-            {scatter ? (
-              <Scatter
-                rows={validRows}
-                metric={view.metric}
-                settings={settings}
-                width={width}
-                height={height}
-                interactions={interactions}
-              />
-            ) : (
-              <Bars
-                rows={validRows}
-                metric={view.metric}
-                settings={settings}
-                width={width}
-                height={height}
-                interactions={interactions}
-              />
-            )}
-          </svg>
-        ) : (
-          <div className="flex h-full flex-col items-center justify-center gap-2.5">
-            <strong className="text-[17px] font-medium">No models to display</strong>
-            <span className="m-0 text-[12px] text-fg-2">
-              Select a model with measurements for this view.
-            </span>
-          </div>
-        )}
+        {ready &&
+          (scatter || !phone) &&
+          (validRows.length ? (
+            <svg
+              id={`chart-${view.id}`}
+              className="absolute inset-0 block size-full font-sans [&_g[role=button]:focus]:[outline:none]"
+              viewBox={`0 0 ${width} ${height}`}
+              role="group"
+              aria-label={
+                scatter ? `${metricLabels[view.metric]} versus Intelligence Index` : `${view.label} by model`
+              }
+              onClick={closeOnBackground}
+              onKeyDown={(event) => {
+                if (event.key === 'Escape') setPinned(null);
+              }}
+            >
+              <rect className="chart-background" width={width} height={height} fill="var(--bg)" />
+              {scatter ? (
+                <Scatter
+                  rows={validRows}
+                  metric={view.metric}
+                  settings={settings}
+                  width={width}
+                  height={height}
+                  interactions={interactions}
+                />
+              ) : (
+                <Bars
+                  rows={validRows}
+                  metric={view.metric}
+                  settings={settings}
+                  width={width}
+                  height={height}
+                  interactions={interactions}
+                />
+              )}
+            </svg>
+          ) : (
+            <div className="flex h-full flex-col items-center justify-center gap-2.5">
+              <strong className="text-[17px] font-medium">No models to display</strong>
+              <span className="m-0 text-[12px] text-fg-2">
+                Select a model with measurements for this view.
+              </span>
+            </div>
+          ))}
       </div>
-      {!scatter && (
+      {ready && !scatter && phone && (
         <div className="hidden phone:block">
-          <DotPlot rows={validRows} metric={view.metric} settings={settings} />
+          <DotPlot
+            rows={validRows}
+            metric={view.metric}
+            settings={settings}
+            expanded={expanded}
+            onExpand={setExpanded}
+          />
         </div>
       )}
-      {scatter && mobile && settings.labels && (
+      {ready && scatter && mobile && settings.labels && (
         <div className="grid grid-cols-2 gap-x-3 gap-y-0.5 pt-2.5">
           {legend.map((model) => (
             <button
@@ -709,4 +757,4 @@ export function Chart({
       )}
     </div>
   );
-}
+});

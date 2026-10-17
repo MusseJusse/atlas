@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { memo, useEffect, useRef, useState } from 'react';
 import { RotateCcw, Search } from 'lucide-react';
 import { defaults, type Settings } from './state';
 import {
@@ -13,7 +13,7 @@ import {
 } from './models';
 import { Logo } from './Logo';
 
-export function Sidebar({
+export const Sidebar = memo(function Sidebar({
   settings,
   update,
   open,
@@ -270,4 +270,4 @@ export function Sidebar({
       </div>
     </aside>
   );
-}
+});

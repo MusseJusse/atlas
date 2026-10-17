@@ -1,3 +1,5 @@
+import fontUrl from './assets/dm-sans.woff2?url';
+
 /** Inline the chart's colors, logos, and font so the PNG works without external assets. */
 export async function downloadChart(id: string) {
   const source = document.getElementById(`chart-${id}`);
@@ -13,19 +15,23 @@ export async function downloadChart(id: string) {
     const style = getComputedStyle(original);
     for (const property of properties) copy.setAttribute(property, style.getPropertyValue(property));
   });
+  const logos = new Map<string, Promise<string>>();
   await Promise.all(
     [...clone.querySelectorAll('image')].map(async (image) => {
       const href = image.getAttribute('href');
       if (!href) return;
-      const response = await fetch(href);
-      if (!response.ok) throw new Error('A chart logo could not be loaded.');
-      image.setAttribute(
-        'href',
-        `data:image/svg+xml;charset=utf-8,${encodeURIComponent(await response.text())}`,
-      );
+      let logo = logos.get(href);
+      if (!logo) {
+        logo = fetch(href).then(async (response) => {
+          if (!response.ok) throw new Error('A chart logo could not be loaded.');
+          return response.text();
+        });
+        logos.set(href, logo);
+      }
+      image.setAttribute('href', `data:image/svg+xml;charset=utf-8,${encodeURIComponent(await logo)}`);
     }),
   );
-  const fontResponse = await fetch('/fonts/dm-sans.ttf');
+  const fontResponse = await fetch(fontUrl);
   if (!fontResponse.ok) throw new Error('The chart font could not be loaded.');
   const font = await new Promise<string>((resolve, reject) => {
     const reader = new FileReader();

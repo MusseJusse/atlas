@@ -58,6 +58,8 @@ Benchmark data comes from [Artificial Analysis](https://artificialanalysis.ai/).
 
 DM Sans is bundled locally under the SIL Open Font License, included in `public/fonts/OFL.txt`. Fonts, logos, and benchmark data load locally.
 
+The browser receives a lossless WOFF2 version of the full variable font. The Vite data plugin packs the snapshot into rows and includes only fields the app reads. The original JSON stays intact, and tests compare every consumed field in all 699 configurations, including full numeric precision.
+
 ## Validation
 
 ```sh
@@ -67,3 +69,32 @@ pnpm build
 ```
 
 Focused tests cover frontier dominance, ties and missing measurements, reasoning filters, grouped bar ordering, and URL state round-tripping.
+
+## Performance measurements
+
+Build and serve a separate production preview without replacing the persistent site's `dist` directory or using its port:
+
+```sh
+pnpm check
+pnpm exec vite build --outDir /tmp/slopalytics-perf --emptyOutDir
+pnpm exec vite preview --outDir /tmp/slopalytics-perf --host 127.0.0.1 --port 4390 --strictPort
+```
+
+Open that preview at 1280 by 800 and paste `scripts/measure-performance.js` into the browser console. It warms all five charts, takes 24 navigation and model-toggle samples, then restores the starting URL and filters. Update timings include React's microtask flush and synchronous layout. They exclude paint and are not end-to-end interaction latency.
+
+Local Chromium results against `f2a4a2b`, with no CPU or network throttling:
+
+| Measurement | Before | After |
+| --- | ---: | ---: |
+| Initial JavaScript, uncompressed | 576.8 KB | 422.1 KB |
+| Initial JavaScript, gzip | 133.7 KB | 125.7 KB |
+| Font | 240.2 KB | 88.8 KB |
+| Initial desktop DOM nodes, default selection | 1,624 | 613 |
+| Navigation update, default selection, median | 3.0 ms | 0.8 ms |
+| Model toggle, default selection, median | 6.1 ms | 4.3 ms |
+| Navigation update, all 699 configurations ungrouped, median | 17.9 ms | 2.1 ms |
+| Model toggle, all 699 configurations ungrouped, median | 22.5 ms | 8.8 ms |
+
+The first local page load recorded first contentful paint at 148 ms before and 68 ms after. A later cached reload recorded 60 ms and 40 ms. These are local samples, not a network or device performance guarantee.
+
+Desktop chart contents mount as sections approach the viewport and stay mounted after visiting, so pinned details survive navigation. Phones render the dot plots without also building hidden SVG bar charts. Chart geometry and number formatters are reused across hover updates, and PNG export code loads on demand.

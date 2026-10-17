@@ -1,8 +1,8 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { ArrowDown, Check, Download, Ellipsis, Moon, SlidersHorizontal, Sun } from 'lucide-react';
 import { Chart } from './Charts';
 import { Sidebar } from './Sidebar';
-import { downloadChart } from './export';
+import { useMediaQuery } from './useMediaQuery';
 import { fetchedAt, paretoFrontier, views, visibleModels, type ViewId } from './models';
 import { readSettings, readView, writeSettings, type Settings } from './state';
 
@@ -30,7 +30,8 @@ export function App() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [highlighted, setHighlighted] = useState<string | null>(null);
   const [exportError, setExportError] = useState('');
-  const [mobile, setMobile] = useState(() => matchMedia('(max-width: 900px)').matches);
+  const mobile = useMediaQuery('(max-width: 900px)');
+  const phone = useMediaQuery('(max-width: 600px)');
   const feed = useRef<HTMLDivElement>(null);
   const navigationTarget = useRef<{ id: ViewId; until: number } | null>(null);
   const update = useCallback(
@@ -38,16 +39,15 @@ export function App() {
     [],
   );
   const closeMobile = useCallback(() => setMobileOpen(false), []);
-  const rows = visibleModels(settings.selected, settings.excluded);
+  const rows = useMemo(
+    () => visibleModels(settings.selected, settings.excluded),
+    [settings.selected, settings.excluded],
+  );
   const view = views.find((view) => view.id === active) ?? views[0];
-  const frontier = new Set(paretoFrontier(rows, view.metric).map((model) => model.family));
-
-  useEffect(() => {
-    const media = matchMedia('(max-width: 900px)');
-    const change = () => setMobile(media.matches);
-    media.addEventListener('change', change);
-    return () => media.removeEventListener('change', change);
-  }, []);
+  const frontier = useMemo(
+    () => new Set(paretoFrontier(rows, view.metric).map((model) => model.family)),
+    [rows, view.metric],
+  );
 
   useEffect(() => {
     document.documentElement.dataset.theme = theme;
@@ -110,6 +110,7 @@ export function App() {
   async function exportPng() {
     setExportError('');
     try {
+      const { downloadChart } = await import('./export');
       await downloadChart(active);
     } catch (error) {
       setExportError(error instanceof Error ? error.message : 'Could not export the chart.');
@@ -145,10 +146,7 @@ export function App() {
           aria-label="Chart views"
         >
           {views.map((view) => (
-            <span
-              className="flex shrink-0 items-stretch gap-[22px] compact:gap-4 mobile:gap-5"
-              key={view.id}
-            >
+            <span className="flex shrink-0 items-stretch gap-[22px] compact:gap-4 mobile:gap-5" key={view.id}>
               {view.id === 'tokens-task' && (
                 <span className="h-3.5 w-px shrink-0 self-center bg-line-2" aria-hidden="true" />
               )}
@@ -297,18 +295,14 @@ export function App() {
                           <button
                             className="min-h-8 border-b border-b-transparent px-0.5 py-1 text-[12px] text-fg-3 aria-pressed:border-accent aria-pressed:text-accent [&:hover]:text-fg mobile:min-h-11"
                             aria-pressed={linear}
-                            onClick={() =>
-                              update({ linear: [...new Set([...settings.linear, view.id])] })
-                            }
+                            onClick={() => update({ linear: [...new Set([...settings.linear, view.id])] })}
                           >
                             Linear
                           </button>
                           <button
                             className="min-h-8 border-b border-b-transparent px-0.5 py-1 text-[12px] text-fg-3 aria-pressed:border-accent aria-pressed:text-accent [&:hover]:text-fg mobile:min-h-11"
                             aria-pressed={!linear}
-                            onClick={() =>
-                              update({ linear: settings.linear.filter((id) => id !== view.id) })
-                            }
+                            onClick={() => update({ linear: settings.linear.filter((id) => id !== view.id) })}
                           >
                             Log
                           </button>
@@ -317,10 +311,12 @@ export function App() {
                     </div>
                   </div>
                   <Chart
+                    active={mobile || active === view.id}
+                    phone={phone}
                     view={view}
                     rows={rows}
                     settings={settings}
-                    highlighted={highlighted}
+                    highlighted={active === view.id ? highlighted : null}
                     onHighlight={setHighlighted}
                   />
                 </section>
