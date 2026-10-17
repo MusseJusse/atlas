@@ -1,6 +1,6 @@
 # Slopalytics benchmarks
 
-A local reproduction of the benchmark section of [Slopalytics](https://slopalytics.com/?frontier=true). Built with React, TypeScript, and Vite. The usage dashboard is outside this project.
+A local reproduction of the benchmark section of [Slopalytics](https://slopalytics.com/?frontier=true). Built with React, TypeScript, Tailwind CSS, and Vite. The usage dashboard is outside this project.
 
 ## Open the site
 
@@ -33,6 +33,10 @@ pnpm local:start
 ```
 
 The development and persistent servers use port 4387. Run one at a time.
+
+## Styling
+
+Components use Tailwind utilities. `src/styles.css` holds the font, theme tokens, minimal browser defaults, and the original inclusive responsive breakpoints. Tailwind Preflight is disabled to preserve the existing rendering.
 
 ## Included
 

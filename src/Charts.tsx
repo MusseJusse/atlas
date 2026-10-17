@@ -25,7 +25,10 @@ function useSize() {
     if (!element) return;
     const observer = new ResizeObserver(([entry]) => {
       if (entry)
-        setSize({ width: Math.round(entry.contentRect.width), height: Math.round(entry.contentRect.height) });
+        setSize({
+          width: Math.round(entry.contentRect.width),
+          height: Math.round(entry.contentRect.height),
+        });
     });
     observer.observe(element);
     return () => observer.disconnect();
@@ -49,21 +52,36 @@ function activate(event: KeyboardEvent<SVGGElement>, action: () => void) {
   }
 }
 
-function Tooltip({ model, pinned, onClose }: { model: Model; pinned: boolean; onClose: () => void }) {
+function Tooltip({
+  model,
+  pinned,
+  onClose,
+}: {
+  model: Model;
+  pinned: boolean;
+  onClose: () => void;
+}) {
   return (
-    <div className={`chart-tooltip scatter-tooltip ${pinned ? 'pinned' : ''}`} role="status">
-      <div className="tooltip-head">
-        <strong>
+    <div
+      className={`absolute right-2 bottom-[72px] z-[3] pointer-events-none w-[272px] max-w-[calc(100vw-48px)] rounded-lg border border-line-2 bg-surface px-4 py-3.5 mobile:sticky mobile:inset-x-auto mobile:bottom-[calc(10px+env(safe-area-inset-bottom))] mobile:z-[7] mobile:mt-3.5 mobile:grid mobile:w-auto mobile:max-w-none mobile:grid-cols-2 mobile:gap-x-5 mobile:px-3.5 mobile:py-3 ${pinned ? '[&_button]:pointer-events-auto [&_a]:pointer-events-auto' : ''}`}
+      role="status"
+    >
+      <div className="flex items-center justify-between gap-3 text-[13px] mobile:col-span-full">
+        <strong className="inline-flex items-center gap-2 font-[550]">
           <Logo model={model} />
           {shortName(model)}
         </strong>
         {pinned && (
-          <button onClick={onClose} aria-label="Close model details">
+          <button
+            className="flex size-5 items-center justify-center text-[20px] text-fg-3 [&:hover]:text-fg"
+            onClick={onClose}
+            aria-label="Close model details"
+          >
             <X size={14} />
           </button>
         )}
       </div>
-      <p>
+      <p className="mt-1 mb-3 text-[11.5px] text-fg-2 mobile:col-span-full mobile:mb-1.5">
         {model.effortLabel} reasoning · {model.labName}
       </p>
       {(
@@ -78,12 +96,17 @@ function Tooltip({ model, pinned, onClose }: { model: Model; pinned: boolean; on
           ],
         ] as const
       ).map(([label, value]) => (
-        <div className="tooltip-value" key={label}>
-          <span>{label}</span>
-          <b>{value}</b>
+        <div className="flex justify-between gap-5 py-1 text-[12px]" key={label}>
+          <span className="text-fg-2">{label}</span>
+          <b className="font-medium tabular-nums">{value}</b>
         </div>
       ))}
-      <a href={`https://artificialanalysis.ai/models/${model.family}`} target="_blank" rel="noreferrer">
+      <a
+        className="mt-2.5 inline-block text-[11.5px] text-accent underline underline-offset-[3px] [&:hover]:text-fg mobile:col-span-full mobile:mt-1.5"
+        href={`https://artificialanalysis.ai/models/${model.family}`}
+        target="_blank"
+        rel="noreferrer"
+      >
         View on Artificial Analysis
       </a>
     </div>
@@ -110,9 +133,13 @@ function Scatter({
   const right = width - (settings.labels && !mobile ? 235 : 24);
   const top = 30;
   const bottom = Math.max(130, height - 60);
-  const points = rows.filter((row) => row[metric] !== null && row[metric]! > 0 && row.intelligence !== null);
+  const points = rows.filter(
+    (row) => row[metric] !== null && row[metric]! > 0 && row.intelligence !== null,
+  );
   const [min = 0.01, max = 1] = extent(points, (model) => model[metric]!);
-  const linear = settings.linear.includes(metric === 'tokens' ? 'tokens-task' : 'cost-intelligence');
+  const linear = settings.linear.includes(
+    metric === 'tokens' ? 'tokens-task' : 'cost-intelligence',
+  );
   const x = linear
     ? scaleLinear()
         .domain([0, max * 1.08])
@@ -132,7 +159,9 @@ function Scatter({
   const frontierFamilies = new Set(frontier.map((row) => row.family));
   const series = [...new Set(points.map((row) => row.family))].map((family) => ({
     family,
-    rows: points.filter((row) => row.family === family).toSorted((a, b) => a.effortOrder - b.effortOrder),
+    rows: points
+      .filter((row) => row.family === family)
+      .toSorted((a, b) => a.effortOrder - b.effortOrder),
   }));
   const labelPositions = series
     .map((series) => ({ ...series, end: series.rows.at(-1)! }))
@@ -148,7 +177,9 @@ function Scatter({
     return (mobile ? [1, 3] : [1, 2, 5]).some((target) => Math.abs(significant - target) < 0.001);
   });
   const path = (data: Model[]) =>
-    data.map((model, index) => `${index ? 'L' : 'M'}${x(model[metric]!)},${y(model.intelligence!)}`).join('');
+    data
+      .map((model, index) => `${index ? 'L' : 'M'}${x(model[metric]!)},${y(model.intelligence!)}`)
+      .join('');
   const activeFamily =
     interactions.pinned?.family ?? interactions.hovered?.family ?? interactions.highlighted;
 
@@ -196,7 +227,8 @@ function Scatter({
           />
           {series.rows.map((model) => {
             const onFrontier = frontierIds.has(model.id);
-            const active = interactions.pinned?.id === model.id || interactions.hovered?.id === model.id;
+            const active =
+              interactions.pinned?.id === model.id || interactions.hovered?.id === model.id;
             return (
               <g
                 key={model.id}
@@ -204,16 +236,23 @@ function Scatter({
                 tabIndex={0}
                 aria-label={`${model.name}, ${model.effortLabel}, ${metricLabels[metric]} ${format(model[metric], metric)}, intelligence ${format(model.intelligence, 'intelligence')}`}
                 aria-pressed={interactions.pinned?.id === model.id}
-                className="chart-point"
+                className="cursor-pointer focus-visible:[&>circle:last-child]:stroke-accent focus-visible:[&>circle:last-child]:stroke-[3] focus-visible:[&>rect:nth-child(2)]:stroke-accent focus-visible:[&>rect:nth-child(2)]:stroke-[3] mobile:focus-visible:[outline:none]"
                 opacity={settings.frontier && !onFrontier && !active && !activeFamily ? 0.15 : 1}
                 onMouseEnter={() => interactions.hover(model)}
                 onMouseLeave={() => interactions.hover(null)}
                 onFocus={() => interactions.hover(model)}
                 onBlur={() => interactions.hover(null)}
-                onClick={() => interactions.pin(interactions.pinned?.id === model.id ? null : model)}
+                onClick={() =>
+                  interactions.pin(interactions.pinned?.id === model.id ? null : model)
+                }
                 onKeyDown={(event) => activate(event, () => interactions.pin(model))}
               >
-                <circle cx={x(model[metric]!)} cy={y(model.intelligence!)} r={13} fill="transparent" />
+                <circle
+                  cx={x(model[metric]!)}
+                  cy={y(model.intelligence!)}
+                  r={13}
+                  fill="transparent"
+                />
                 {active && (
                   <circle
                     cx={x(model[metric]!)}
@@ -246,7 +285,7 @@ function Scatter({
           return (
             <g
               key={series.family}
-              className="series-label"
+              className="cursor-pointer"
               opacity={dim ? 0.2 : 1}
               role="button"
               tabIndex={0}
@@ -328,12 +367,16 @@ function Bars({
       const x = start + index * (barWidth + gap);
       const text = format(row[metric], metric, true);
       const textWidth = text.length * 6.4;
-      const labelX = Math.max(left + textWidth / 2, Math.min(right - textWidth / 2, x + barWidth / 2));
+      const labelX = Math.max(
+        left + textWidth / 2,
+        Math.min(right - textWidth / 2, x + barWidth / 2),
+      );
       let labelY = y(row[metric]!) - 8;
       while (
         valueLabels.some(
           (label) =>
-            Math.abs(label.x - labelX) < (label.width + textWidth) / 2 + 4 && Math.abs(label.y - labelY) < 17,
+            Math.abs(label.x - labelX) < (label.width + textWidth) / 2 + 4 &&
+            Math.abs(label.y - labelY) < 17,
         )
       )
         labelY -= 17;
@@ -372,7 +415,7 @@ function Bars({
                   key={row.id}
                   role="button"
                   tabIndex={0}
-                  className="chart-point"
+                  className="cursor-pointer focus-visible:[&>circle:last-child]:stroke-accent focus-visible:[&>circle:last-child]:stroke-[3] focus-visible:[&>rect:nth-child(2)]:stroke-accent focus-visible:[&>rect:nth-child(2)]:stroke-[3] mobile:focus-visible:[outline:none]"
                   aria-label={`${row.name}, ${row.effortLabel}, ${format(row[metric], metric)}`}
                   aria-pressed={interactions.pinned?.id === row.id}
                   onMouseEnter={() => interactions.hover(row)}
@@ -382,7 +425,13 @@ function Bars({
                   onClick={() => interactions.pin(interactions.pinned?.id === row.id ? null : row)}
                   onKeyDown={(event) => activate(event, () => interactions.pin(row))}
                 >
-                  <rect x={barX} y={top} width={group.barWidth} height={bottom - top} fill="transparent" />
+                  <rect
+                    x={barX}
+                    y={top}
+                    width={group.barWidth}
+                    height={bottom - top}
+                    fill="transparent"
+                  />
                   <rect
                     x={barX}
                     y={barY}
@@ -404,7 +453,13 @@ function Bars({
                     </text>
                   )}
                   {group.barWidth > 8 && (
-                    <text x={labelX} y={labelY} textAnchor="middle" fill="var(--fg-2)" fontSize={11}>
+                    <text
+                      x={labelX}
+                      y={labelY}
+                      textAnchor="middle"
+                      fill="var(--fg-2)"
+                      fontSize={11}
+                    >
                       {text}
                     </text>
                   )}
@@ -441,13 +496,21 @@ function Bars({
   );
 }
 
-function DotPlot({ rows, metric, settings }: { rows: Model[]; metric: Metric; settings: Settings }) {
+function DotPlot({
+  rows,
+  metric,
+  settings,
+}: {
+  rows: Model[];
+  metric: Metric;
+  settings: Settings;
+}) {
   const [expanded, setExpanded] = useState<string | null>(null);
   const groups = barGroups(rows, metric, true, settings.descending);
   const max = Math.max(...groups.map((group) => group.maximum), 1);
   return (
-    <div className="dot-plot">
-      <div className="dot-axis">
+    <div className="flex flex-col">
+      <div className="flex justify-between border-b border-line pt-0.5 pb-1.5 text-[11px] text-fg-3 tabular-nums">
         <span>0</span>
         <span>{format(max, metric, true)}</span>
       </div>
@@ -456,24 +519,29 @@ function DotPlot({ rows, metric, settings }: { rows: Model[]; metric: Metric; se
         const minimum = Math.min(...group.rows.map((row) => row[metric]!));
         const open = group.id === expanded;
         return (
-          <div className="dot-item" key={group.id}>
+          <div className="border-b border-line" key={group.id}>
             <button
-              className="dot-row"
+              className="grid w-full grid-cols-[minmax(0,1fr)_auto] gap-x-3 gap-y-2 pt-[11px] pb-3 text-left"
               aria-expanded={open}
               aria-controls={`variants-${metric}-${group.id}`}
               onClick={() => setExpanded(open ? null : group.id)}
             >
-              <span className="dot-name">
+              <span className="flex min-w-0 items-center gap-[7px] text-[14px] font-[550]">
                 <Logo model={model} />
-                <span>{shortName(model)}</span>
+                <span className="overflow-hidden text-ellipsis whitespace-nowrap">
+                  {shortName(model)}
+                </span>
               </span>
-              <span className="dot-range">
+              <span className="text-[13px] text-fg-2 tabular-nums">
                 {format(minimum, metric)}
                 {minimum !== group.maximum && ` to ${format(group.maximum, metric)}`}
               </span>
-              <span className="dot-track" aria-hidden="true">
+              <span
+                className="relative col-span-full mx-[5px] h-3 [background:linear-gradient(var(--line-2),var(--line-2))_center/100%_1px_no-repeat]"
+                aria-hidden="true"
+              >
                 <span
-                  className="dot-span"
+                  className="absolute top-[5px] h-0.5 opacity-45"
                   style={{
                     left: `${(minimum / max) * 100}%`,
                     width: `${((group.maximum - minimum) / max) * 100}%`,
@@ -482,7 +550,7 @@ function DotPlot({ rows, metric, settings }: { rows: Model[]; metric: Metric; se
                 />
                 {group.rows.map((row) => (
                   <span
-                    className="dot"
+                    className="absolute top-px -ml-[5px] size-2.5 rounded-[50%] [box-shadow:0_0_0_1.5px_var(--bg)]"
                     key={row.id}
                     style={{
                       left: `${(row[metric]! / max) * 100}%`,
@@ -494,11 +562,16 @@ function DotPlot({ rows, metric, settings }: { rows: Model[]; metric: Metric; se
               </span>
             </button>
             {open && (
-              <div className="dot-detail" id={`variants-${metric}-${group.id}`}>
+              <div
+                className="flex flex-col gap-1.5 pb-3.5 pl-[21px] text-[13px]"
+                id={`variants-${metric}-${group.id}`}
+              >
                 {group.rows.map((row) => (
-                  <div key={row.id}>
-                    <span>{row.effortLabel}</span>
-                    <b>{format(row[metric], metric)}</b>
+                  <div className="flex justify-between gap-3" key={row.id}>
+                    <span className="text-fg-2">{row.effortLabel}</span>
+                    <b className="text-right font-medium tabular-nums">
+                      {format(row[metric], metric)}
+                    </b>
                   </div>
                 ))}
               </div>
@@ -545,21 +618,29 @@ export function Chart({
   const legend = [...new Map(validRows.map((row) => [row.family, row])).values()];
 
   function closeOnBackground(event: MouseEvent<SVGSVGElement>) {
-    if (event.target instanceof SVGRectElement && event.target.classList.contains('chart-background'))
+    if (
+      event.target instanceof SVGRectElement &&
+      event.target.classList.contains('chart-background')
+    )
       setPinned(null);
   }
 
   return (
-    <div className={`chart-wrap ${!scatter ? 'bar-chart-wrap' : ''}`}>
-      <div className="chart-canvas" ref={ref}>
+    <div className="relative flex min-h-0 min-w-0 flex-1 flex-col">
+      <div
+        className={`relative min-h-0 flex-1 mobile:aspect-[1/1.2] mobile:flex-none ${!scatter ? 'phone:pointer-events-none phone:invisible phone:absolute phone:h-px phone:w-full phone:aspect-auto' : ''}`}
+        ref={ref}
+      >
         {validRows.length ? (
           <svg
             id={`chart-${view.id}`}
-            className="chart-svg"
+            className="absolute inset-0 block size-full font-sans [&_g[role=button]:focus]:[outline:none]"
             viewBox={`0 0 ${width} ${height}`}
             role="group"
             aria-label={
-              scatter ? `${metricLabels[view.metric]} versus Intelligence Index` : `${view.label} by model`
+              scatter
+                ? `${metricLabels[view.metric]} versus Intelligence Index`
+                : `${view.label} by model`
             }
             onClick={closeOnBackground}
             onKeyDown={(event) => {
@@ -588,21 +669,28 @@ export function Chart({
             )}
           </svg>
         ) : (
-          <div className="empty">
-            <strong>No models to display</strong>
-            <span className="side-note">Select a model with measurements for this view.</span>
+          <div className="flex h-full flex-col items-center justify-center gap-2.5">
+            <strong className="text-[17px] font-medium">No models to display</strong>
+            <span className="m-0 text-[12px] text-fg-2">
+              Select a model with measurements for this view.
+            </span>
           </div>
         )}
       </div>
       {!scatter && (
-        <div className="mobile-dot-plot">
+        <div className="hidden phone:block">
           <DotPlot rows={validRows} metric={view.metric} settings={settings} />
         </div>
       )}
       {scatter && mobile && settings.labels && (
-        <div className="chart-legend">
+        <div className="grid grid-cols-2 gap-x-3 gap-y-0.5 pt-2.5">
           {legend.map((model) => (
-            <button key={model.family} style={{ color: modelColor(model) }} onClick={() => setPinned(model)}>
+            <button
+              className="flex min-h-8 items-center gap-[7px] overflow-hidden text-left text-[13px] font-[550] whitespace-nowrap"
+              key={model.family}
+              style={{ color: modelColor(model) }}
+              onClick={() => setPinned(model)}
+            >
               <Logo model={model} />
               {shortName(model)}
             </button>
