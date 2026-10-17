@@ -12,7 +12,7 @@ export type Settings = {
 };
 export const defaults: Settings = {
   selected: defaultSelected,
-  excluded: ['none'],
+  excluded: ['none', 'max'],
   frontier: true,
   labels: true,
   grouped: true,

@@ -26,23 +26,15 @@ export const frontierFamilies = [
   'claude-opus-5-5',
   'claude-fable-5-1',
   'gemini-4-argon',
-  'gemini-3-8-flash',
   'grok-4-7',
   'muse-wonder-full',
-  'muse-wonder',
 ];
 export const notableFamilies = [
-  'muse-spark-1-3',
-  'kimi-k3',
   'glm-5-3-flash',
-  'glm-5-3',
   'deepseek-v4-1-flash',
-  'deepseek-v4-pro',
-  'mimo-v2-6-pro',
+  'qwen3-8-27b',
 ];
-export const defaultSelected = frontierFamilies.filter(
-  (id) => !['claude-sonnet-5-5', 'gemini-3-8-flash'].includes(id),
-);
+export const defaultSelected = frontierFamilies.filter((id) => id !== 'claude-sonnet-5-5');
 export const efforts = ['none', 'low', 'medium', 'high', 'xhigh', 'max'];
 
 const byFamily = new Map<string, Model[]>();
@@ -97,12 +89,6 @@ export function modelColor(model: Model) {
 export function shortName(model: Model) {
   return model.name.replace(/^Claude /, '');
 }
-export function tier(family: string) {
-  if (['gpt-6-luna', 'claude-haiku-5-5'].includes(family)) return 'Small';
-  if (['gpt-6-1-sol', 'claude-sonnet-5-5', 'gemini-3-8-flash'].includes(family)) return 'Medium';
-  return 'Large';
-}
-
 /** Null measurements stay absent from charts; they are never plotted as zero. */
 export function visibleModels(selected: string[], excluded: string[]) {
   return models.filter((model) => selected.includes(model.family) && !excluded.includes(model.effort));

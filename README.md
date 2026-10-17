@@ -42,7 +42,7 @@ Components use Tailwind utilities. `src/styles.css` holds the font, theme tokens
 
 - Cost versus intelligence.
 - Tokens per task, total tokens, cost per task, and total cost.
-- Model search and selection, reasoning filters, size groups, and the full model browser.
+- Model search and selection, reasoning filters, and the full model browser.
 - Pareto frontiers, linear/log scales, grouped bars, sorting, and label controls.
 - Hover details, click-to-pin details, PNG export, and light/dark themes.
 - Responsive charts and a keyboard-accessible model picker on small screens.

@@ -9,7 +9,6 @@ import {
   modelColor,
   notableFamilies,
   shortName,
-  tier,
   type Family,
 } from './models';
 import { Logo } from './Logo';
@@ -209,28 +208,14 @@ export function Sidebar({
         <div key={section.name}>
           <div className="mb-1 flex items-baseline gap-2.5">
             <h3 className="flex-1 text-[12px] font-[550] mobile:text-[14px]">{section.name}</h3>
-            {section.name === 'Frontier'
-              ? ['Small', 'Medium', 'Large'].map((size) => {
-                  const ids = frontierFamilies.filter((id) => tier(id) === size);
-                  return (
-                    <button
-                      className="text-[11.5px] text-fg-3 aria-pressed:text-accent mobile:min-h-8 mobile:text-[14px]"
-                      key={size}
-                      aria-pressed={ids.every((id) => settings.selected.includes(id))}
-                      onClick={() => toggleGroup(ids)}
-                    >
-                      {size}
-                    </button>
-                  );
-                })
-              : section.items.length > 0 && (
-                  <button
-                    className="text-[11.5px] text-fg-3 aria-pressed:text-accent mobile:min-h-8 mobile:text-[14px]"
-                    onClick={() => toggleGroup(section.items.map((family) => family.family))}
-                  >
-                    All
-                  </button>
-                )}
+            {section.name !== 'Frontier' && section.items.length > 0 && (
+              <button
+                className="text-[11.5px] text-fg-3 aria-pressed:text-accent mobile:min-h-8 mobile:text-[14px]"
+                onClick={() => toggleGroup(section.items.map((family) => family.family))}
+              >
+                All
+              </button>
+            )}
           </div>
           {section.items.map((family) => (
             <button
