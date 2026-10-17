@@ -593,8 +593,7 @@ function Bars({
           y2={guideY}
           stroke={modelColor(activeModel)}
           strokeWidth={1.5}
-          strokeDasharray="1 5"
-          strokeLinecap="round"
+          strokeDasharray="6 4"
           pointerEvents="none"
           aria-hidden="true"
         />
