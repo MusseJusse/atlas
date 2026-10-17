@@ -127,9 +127,9 @@ export function App() {
           </button>
         </nav>
         <nav className="view-tabs" aria-label="Chart views">
-          {views.map((view, index) => (
+          {views.map((view) => (
             <span className="tab-item" key={view.id}>
-              {index === 2 && <span className="tab-divider" aria-hidden="true" />}
+              {view.id === 'tokens-task' && <span className="tab-divider" aria-hidden="true" />}
               <button
                 className={active === view.id ? 'active' : ''}
                 aria-current={active === view.id ? 'page' : undefined}

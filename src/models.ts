@@ -9,7 +9,6 @@ export const models: Model[] = snapshot.models;
 export const fetchedAt = snapshot.fetchedAt;
 export const views = [
   { id: 'cost-intelligence', label: 'Cost vs intelligence', metric: 'cost', scatter: true },
-  { id: 'speed-intelligence', label: 'Time per task vs intelligence', metric: 'time', scatter: true },
   { id: 'tokens-task', label: 'Tokens per task', metric: 'tokens', scatter: false },
   { id: 'tokens-total', label: 'Total tokens', metric: 'tokensTotal', scatter: false },
   { id: 'cost-task', label: 'Cost per task', metric: 'cost', scatter: false },

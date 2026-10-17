@@ -112,9 +112,7 @@ function Scatter({
   const bottom = Math.max(130, height - 60);
   const points = rows.filter((row) => row[metric] !== null && row[metric]! > 0 && row.intelligence !== null);
   const [min = 0.01, max = 1] = extent(points, (model) => model[metric]!);
-  const linear = settings.linear.includes(
-    metric === 'time' ? 'speed-intelligence' : metric === 'tokens' ? 'tokens-task' : 'cost-intelligence',
-  );
+  const linear = settings.linear.includes(metric === 'tokens' ? 'tokens-task' : 'cost-intelligence');
   const x = linear
     ? scaleLinear()
         .domain([0, max * 1.08])

@@ -36,7 +36,7 @@ The development and persistent servers use port 4387. Run one at a time.
 
 ## Included
 
-- Cost versus intelligence and time per task versus intelligence.
+- Cost versus intelligence.
 - Tokens per task, total tokens, cost per task, and total cost.
 - Model search and selection, reasoning filters, size groups, and the full model browser.
 - Pareto frontiers, linear/log scales, grouped bars, sorting, and label controls.
