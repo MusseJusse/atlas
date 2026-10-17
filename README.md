@@ -46,6 +46,7 @@ Components use Tailwind utilities. `src/styles.css` holds the font, theme tokens
 - Pareto frontiers, linear/log scales, grouped bars, sorting, and label controls.
 - Hover details, click-to-pin details, PNG export, and light/dark themes.
 - Responsive charts and a keyboard-accessible model picker on small screens.
+- Bars / Ranges controls on desktop reuse the expandable mobile range plots, with a shared layout choice in the URL. PNG export is available in Bars and Scatter views.
 - Filter and view settings in the URL. Theme preference stored locally.
 
 ## Data and attribution

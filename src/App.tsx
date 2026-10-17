@@ -44,6 +44,10 @@ export function App() {
     [settings.selected, settings.excluded],
   );
   const view = views.find((view) => view.id === active) ?? views[0];
+  const rangeView =
+    !view.scatter &&
+    !(view.id === 'tokens-task' && settings.scatter) &&
+    settings.barLayout === 'ranges';
   const frontier = useMemo(
     () => new Set(paretoFrontier(rows, view.metric).map((model) => model.family)),
     [rows, view.metric],
@@ -172,7 +176,8 @@ export function App() {
           <button
             className="flex size-8 items-center justify-center text-fg-2 [&:hover]:text-fg mobile:hidden!"
             aria-label="Download PNG"
-            title="Download PNG"
+            title={rangeView ? 'Switch to Bars or Scatter to download a PNG' : 'Download PNG'}
+            disabled={rangeView}
             onClick={exportPng}
           >
             <Download size={15} />
@@ -202,6 +207,12 @@ export function App() {
               <button
                 className="inline-flex items-center gap-2 whitespace-nowrap text-[12px] text-fg-2 [&:hover]:text-fg"
                 aria-pressed={settings.grouped}
+                disabled={settings.barLayout === 'ranges'}
+                title={
+                  settings.barLayout === 'ranges'
+                    ? 'Ranges always group reasoning levels by model'
+                    : undefined
+                }
                 onClick={() => update({ grouped: !settings.grouped })}
               >
                 <Selection checked={settings.grouped} />
@@ -264,26 +275,45 @@ export function App() {
                           Pareto line
                         </button>
                       )}
-                      {view.id === 'tokens-task' && (
+                      {!view.scatter && (
                         <div
-                          className="flex shrink-0 gap-3 mobile:gap-2.5"
+                          className={`flex shrink-0 gap-3 mobile:gap-2.5 ${view.id !== 'tokens-task' ? 'phone:hidden' : ''}`}
                           role="group"
-                          aria-label="Tokens per task chart type"
+                          aria-label={`${view.label} chart type`}
                         >
                           <button
-                            className="min-h-8 border-b border-b-transparent px-0.5 py-1 text-[12px] text-fg-3 aria-pressed:border-accent aria-pressed:text-accent [&:hover]:text-fg mobile:min-h-11"
-                            aria-pressed={!settings.scatter}
-                            onClick={() => update({ scatter: false })}
+                            className="min-h-10 min-w-10 border-b border-b-transparent px-0.5 py-1 text-[12px] text-fg-2 aria-pressed:border-accent aria-pressed:text-accent [&:hover]:text-fg mobile:min-h-11"
+                            aria-pressed={!scatter && (phone || settings.barLayout === 'bars')}
+                            onClick={() =>
+                              update({
+                                barLayout: 'bars',
+                                scatter: view.id === 'tokens-task' ? false : settings.scatter,
+                              })
+                            }
                           >
                             Bars
                           </button>
                           <button
-                            className="min-h-8 border-b border-b-transparent px-0.5 py-1 text-[12px] text-fg-3 aria-pressed:border-accent aria-pressed:text-accent [&:hover]:text-fg mobile:min-h-11"
-                            aria-pressed={settings.scatter}
-                            onClick={() => update({ scatter: true })}
+                            className="min-h-10 min-w-10 border-b border-b-transparent px-0.5 py-1 text-[12px] text-fg-2 aria-pressed:border-accent aria-pressed:text-accent [&:hover]:text-fg mobile:min-h-11 phone:hidden"
+                            aria-pressed={!scatter && settings.barLayout === 'ranges'}
+                            onClick={() =>
+                              update({
+                                barLayout: 'ranges',
+                                scatter: view.id === 'tokens-task' ? false : settings.scatter,
+                              })
+                            }
                           >
-                            Scatter
+                            Ranges
                           </button>
+                          {view.id === 'tokens-task' && (
+                            <button
+                              className="min-h-10 min-w-10 border-b border-b-transparent px-0.5 py-1 text-[12px] text-fg-2 aria-pressed:border-accent aria-pressed:text-accent [&:hover]:text-fg mobile:min-h-11"
+                              aria-pressed={settings.scatter}
+                              onClick={() => update({ scatter: true })}
+                            >
+                              Scatter
+                            </button>
+                          )}
                         </div>
                       )}
                       {scatter && (

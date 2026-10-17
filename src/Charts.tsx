@@ -735,7 +735,8 @@ export const Chart = memo(function Chart({
   const [visited, setVisited] = useState(active);
   const ready = active || visited;
   const scatter = view.scatter || (view.id === 'tokens-task' && settings.scatter);
-  const { ref, width, height } = useSize(ready && (scatter || !phone));
+  const ranges = !scatter && (phone || settings.barLayout === 'ranges');
+  const { ref, width, height } = useSize(ready && !ranges);
 
   // Desktop sections have a fixed height, so charts can mount just before scrolling into view.
   // Keep visited charts mounted to preserve pinned details and avoid navigation fetches.
@@ -762,6 +763,7 @@ export const Chart = memo(function Chart({
   const [hovered, setHovered] = useState<Model | null>(null);
   const [pinned, setPinned] = useState<Model | null>(null);
   const [expanded, setExpanded] = useState<string | null>(null);
+  useEffect(() => setHovered(null), [ranges]);
   const interactions: Interactions = {
     hovered,
     pinned,
@@ -788,11 +790,11 @@ export const Chart = memo(function Chart({
   return (
     <div className="relative flex min-h-0 min-w-0 flex-1 flex-col">
       <div
-        className={`relative min-h-0 flex-1 mobile:aspect-[1/1.2] mobile:flex-none ${!scatter ? 'phone:pointer-events-none phone:invisible phone:absolute phone:h-px phone:w-full phone:aspect-auto' : ''}`}
+        className={ranges ? 'hidden' : 'relative min-h-0 flex-1 mobile:aspect-[1/1.2] mobile:flex-none'}
         ref={ref}
       >
         {ready &&
-          (scatter || !phone) &&
+          !ranges &&
           (validRows.length ? (
             <svg
               id={`chart-${view.id}`}
@@ -837,15 +839,24 @@ export const Chart = memo(function Chart({
             </div>
           ))}
       </div>
-      {ready && !scatter && phone && (
-        <div className="hidden phone:block">
-          <DotPlot
-            rows={validRows}
-            metric={view.metric}
-            settings={settings}
-            expanded={expanded}
-            onExpand={setExpanded}
-          />
+      {ready && ranges && (
+        <div className="min-h-0 flex-1 overflow-y-auto [scrollbar-width:thin] [scrollbar-color:var(--line-2)_var(--bg)] mobile:flex-none mobile:overflow-visible">
+          {validRows.length ? (
+            <DotPlot
+              rows={validRows}
+              metric={view.metric}
+              settings={settings}
+              expanded={expanded}
+              onExpand={setExpanded}
+            />
+          ) : (
+            <div className="flex h-full flex-col items-center justify-center gap-2.5 py-8">
+              <strong className="text-[17px] font-medium">No models to display</strong>
+              <span className="m-0 text-[12px] text-fg-2">
+                Select a model with measurements for this view.
+              </span>
+            </div>
+          )}
         </div>
       )}
       {ready && scatter && mobile && settings.labels && (
@@ -863,7 +874,7 @@ export const Chart = memo(function Chart({
           ))}
         </div>
       )}
-      {visibleTooltip && (
+      {!ranges && visibleTooltip && (
         <Tooltip
           model={visibleTooltip}
           pinned={Boolean(pinned)}

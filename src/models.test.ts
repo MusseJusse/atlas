@@ -93,6 +93,16 @@ it('round-trips an empty selection and view controls through the URL', () => {
     linear: ['cost-intelligence'],
     descending: true,
     scatter: true,
+    barLayout: 'ranges' as const,
   };
   expect(readSettings(writeSettings(settings, 'cost-total'))).toEqual(settings);
+});
+
+it('defaults to bars and preserves a shared range layout through the URL', () => {
+  expect(readSettings('').barLayout).toBe('bars');
+  expect(readSettings('?layout=unknown').barLayout).toBe('bars');
+  const settings = readSettings('?layout=ranges');
+  expect(settings.barLayout).toBe('ranges');
+  expect(writeSettings(settings, 'cost-total')).toBe('?layout=ranges&chart=cost-total');
+  expect(writeSettings({ ...settings, barLayout: 'bars' }, 'cost-intelligence')).toBe('/');
 });

@@ -9,6 +9,7 @@ export type Settings = {
   descending: boolean;
   linear: string[];
   scatter: boolean;
+  barLayout: 'bars' | 'ranges';
 };
 export const defaults: Settings = {
   selected: defaultSelected,
@@ -19,6 +20,7 @@ export const defaults: Settings = {
   descending: false,
   linear: [],
   scatter: false,
+  barLayout: 'bars',
 };
 
 export function readSettings(search: string): Settings {
@@ -42,6 +44,7 @@ export function readSettings(search: string): Settings {
         ?.split(',')
         .filter((id) => views.some((view) => view.id === id)) ?? [],
     scatter: params.get('scatter') === 'tokens-task',
+    barLayout: params.get('layout') === 'ranges' ? 'ranges' : 'bars',
   };
 }
 
@@ -62,6 +65,7 @@ export function writeSettings(settings: Settings, view: ViewId) {
   if (settings.descending) params.set('sort', 'desc');
   if (settings.linear.length) params.set('linear', settings.linear.join(','));
   if (settings.scatter) params.set('scatter', 'tokens-task');
+  if (settings.barLayout === 'ranges') params.set('layout', 'ranges');
   if (view !== views[0].id) params.set('chart', view);
   return params.size ? `?${params}` : '/';
 }
