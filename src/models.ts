@@ -33,12 +33,10 @@ export const frontierFamilies = [
 ];
 export const notableFamilies = [
   'muse-spark-1-3',
-  'kimi-k3',
   'glm-5-3-flash',
-  'glm-5-3',
   'deepseek-v4-1-flash',
   'deepseek-v4-pro',
-  'mimo-v2-6-pro',
+  'qwen3-8-27b',
 ];
 export const defaultSelected = frontierFamilies.filter(
   (id) => !['claude-sonnet-5-5', 'gemini-3-8-flash'].includes(id),
