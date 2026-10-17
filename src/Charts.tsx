@@ -380,8 +380,12 @@ function Bars({
   // Ignore brief passes over bars and labels, including when chart contents change.
   useEffect(() => cancelHover, [rows, metric, settings.grouped, settings.descending]);
 
-  function delayHover(action: () => void) {
+  function enterHover(family: string, action: () => void) {
     cancelHover();
+    if (activeFamily === family) {
+      action();
+      return;
+    }
     hoverTimer.current = setTimeout(() => {
       hoverTimer.current = null;
       action();
@@ -456,7 +460,22 @@ function Bars({
         const name = shortName(model);
         const split = name.lastIndexOf(' ');
         return (
-          <g key={group.id} opacity={activeFamily && activeFamily !== model.family ? 0.2 : 1}>
+          <g
+            key={group.id}
+            opacity={activeFamily && activeFamily !== model.family ? 0.2 : 1}
+            onMouseLeave={() => {
+              hover(null);
+              interactions.highlight(null);
+            }}
+          >
+            {/* Keep the model active through the gaps between its reasoning levels and label. */}
+            <rect
+              x={group.center - group.groupWidth / 2}
+              y={top}
+              width={group.groupWidth}
+              height={height - top}
+              fill="transparent"
+            />
             {group.bars.map(({ row, x: barX, labelX, labelY, text }) => {
               const barY = y(row[metric]!);
               return (
@@ -467,8 +486,8 @@ function Bars({
                   className="cursor-pointer focus-visible:[&>circle:last-child]:stroke-accent focus-visible:[&>circle:last-child]:stroke-[3] focus-visible:[&>rect:nth-child(2)]:stroke-accent focus-visible:[&>rect:nth-child(2)]:stroke-[3] mobile:focus-visible:[outline:none]"
                   aria-label={`${row.name}, ${row.effortLabel}, ${format(row[metric], metric)}`}
                   aria-pressed={interactions.pinned?.id === row.id}
-                  onMouseEnter={() => delayHover(() => interactions.hover(row))}
-                  onMouseLeave={() => hover(null)}
+                  onMouseEnter={() => enterHover(row.family, () => interactions.hover(row))}
+                  onMouseLeave={cancelHover}
                   onFocus={() => hover(row)}
                   onBlur={() => hover(null)}
                   onClick={() => {
@@ -508,11 +527,13 @@ function Bars({
             })}
             {group.groupWidth > 33 && (
               <g
-                onMouseEnter={() => delayHover(() => interactions.highlight(model.family))}
-                onMouseLeave={() => {
-                  cancelHover();
-                  interactions.highlight(null);
-                }}
+                onMouseEnter={() =>
+                  enterHover(model.family, () => {
+                    interactions.highlight(model.family);
+                    interactions.hover(null);
+                  })
+                }
+                onMouseLeave={cancelHover}
               >
                 <SvgLogo model={model} x={group.center - 7} y={bottom + 28} size={14} />
                 <text
