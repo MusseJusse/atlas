@@ -16,7 +16,7 @@ const monochrome = new Set(['openai', 'anthropic', 'xai', 'zai']);
 export function Logo({ model, size = 15 }: { model: Model; size?: number }) {
   return logos.has(model.lab) ? (
     <img
-      className={`shrink-0 object-contain align-middle group-[:not([aria-pressed=true])]:opacity-40 group-aria-pressed:opacity-100 group-[:hover]:opacity-100 ${monochrome.has(model.lab) ? '[filter:var(--logo-filter)]' : ''}`}
+      className={`shrink-0 object-contain align-middle group-[:not([aria-pressed=true])]:opacity-40 group-aria-pressed:opacity-100 group-hover:opacity-100 ${monochrome.has(model.lab) ? '[filter:var(--logo-filter)]' : ''}`}
       src={`/logos/${model.lab}.svg`}
       width={size}
       height={size}
@@ -24,7 +24,7 @@ export function Logo({ model, size = 15 }: { model: Model; size?: number }) {
     />
   ) : (
     <span
-      className="shrink-0 object-contain align-middle group-[:not([aria-pressed=true])]:opacity-40 group-aria-pressed:opacity-100 group-[:hover]:opacity-100 inline-flex items-center justify-center rounded-[3px] bg-hover font-semibold text-fg-2 leading-none"
+      className="shrink-0 object-contain align-middle group-[:not([aria-pressed=true])]:opacity-40 group-aria-pressed:opacity-100 group-hover:opacity-100 inline-flex items-center justify-center rounded-[3px] bg-hover font-semibold text-fg-2 leading-none"
       style={{ width: size, height: size, fontSize: size * 0.65 }}
       aria-hidden="true"
     >
