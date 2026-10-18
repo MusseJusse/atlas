@@ -108,7 +108,7 @@ export async function syncData({ cwd = process.cwd(), run = runCommand, fetcher 
     const bodyPath = join(temporary, 'pull-request.md');
     await writeFile(
       bodyPath,
-      `New or changed model data is available from the upstream Slopalytics snapshot.\n\n` +
+      `New or changed model data is available from the public Artificial Analysis dataset.\n\n` +
         `${counts}. Updates the benchmark snapshot and records the differences in the changelog.\n\n` +
         `Passed type checking, tests, and a production build before pushing.\n\n` +
         `After merging, rebuild the local site to publish the update.\n\n` +

@@ -52,7 +52,7 @@ Components use Tailwind utilities. `src/styles.css` holds the font, theme tokens
 
 ## Data and attribution
 
-This version starts with the public benchmark snapshot bundled by Slopalytics, captured **13 October 2026 at 20:47 UTC**, with **699 model configurations**. The current snapshot is in `src/data/benchmarks.json`. `pnpm data:sync` checks the public Slopalytics bundle for updates when you run it. It does not call the Artificial Analysis API, and no API key is needed.
+The original baseline was a Slopalytics snapshot captured **13 October 2026 at 20:47 UTC**, with **699 model configurations**. Updates now come directly from the public [Artificial Analysis models page](https://artificialanalysis.ai/models). The current snapshot is in `src/data/benchmarks.json`. `pnpm data:sync` fetches the complete dataset used by AA's public charts, including task costs and token counts. No API key is needed. It does not use Slopalytics or AA's authenticated Data API.
 
 Null measurements mean unmeasured or unavailable. They are omitted from the relevant charts, not treated as zero. Benchmark cost per task describes the benchmark workload, not a forecast of personal API spend.
 
@@ -85,13 +85,13 @@ pnpm data:sync
 
 Use Node 22.18 or later, pnpm, Git, and the GitHub CLI. Run `gh auth login` once if needed. The command uses your Git and GitHub credentials. No scheduled job or special GitHub Actions PR permissions are needed.
 
-The command fetches `origin` and starts from the latest `origin/main` in a temporary worktree. It imports the upstream snapshot, updates the changelog, installs dependencies, runs type checking, tests, and a production build, then pushes only the two data files and opens a non-draft PR. Your current branch, uncommitted files, and local site's build stay untouched. Temporary worktrees are removed on success or failure. This command becomes available after the feature PR is merged into `main`.
+The command fetches `origin` and starts from the latest `origin/main` in a temporary worktree. It imports the upstream snapshot, updates the changelog, installs dependencies, runs type checking, tests, and a production build, then pushes only the two data files and opens a non-draft PR. Your current branch, uncommitted files, and local site's build stay untouched. Temporary worktrees are removed on success or failure.
 
 No changes against `main` means no commit or PR. If an open data sync PR already contains the latest measurements, the command prints its URL without pushing again. New changes update that same PR against the latest `main`. Merged updates start a new PR. Data branches use `data/model-sync-<id>` names. The command replaces an existing data branch with an explicit Git lease, so concurrent pushes cause a failure instead of being overwritten. It refuses to replace a PR containing non-data changes. Pending history consolidates against the last merged snapshot.
 
-The importer discovers the current module filename from the upstream HTML and parses its embedded snapshot as data. It never executes downloaded JavaScript. It validates every known model field and compares configurations by ID. The changelog records additions, removals, and before/after values. An ID change appears as a removal and an addition. The original snapshot is the history baseline; earlier additions are not invented.
+The importer reads the current chart-data manifest from AA's public models page. It decodes the payload with the same AES-GCM and gzip format as AA's browser client, using the key published in that page. It never executes downloaded JavaScript. It checks the payload against AA's full model catalogue so a default selection cannot replace the full dataset. It validates imported fields and compares configurations by AA model slug. Family names, reasoning tiers, costs, token counts, output speed, and decode time come from AA's fields without rounding or recalculation. The changelog records additions, removals, and before/after values. An ID change appears as a removal and an addition. The original snapshot is the history baseline; earlier additions are not invented.
 
-Timestamp-only and ordering changes are ignored. Local Ultrafast measurements stay separate. Fetch errors, invalid or duplicate models, older snapshots, and drops of more than 20% of models fail before writing the candidate data. Failed validation prevents a push or PR. Unexpected source-format changes require an importer update.
+Timestamp-only and ordering changes are ignored. Local Ultrafast measurements stay separate. Fetch errors, invalid or duplicate models, incomplete catalogues, missing measurement groups, and drops of more than 20% of models fail before writing the candidate data. Failed validation prevents a push or PR. This public chart format is not a documented API. Unexpected source-format changes require an importer update.
 
 To check upstream data without changing files:
 
@@ -105,7 +105,7 @@ For a lower-level refresh that writes the snapshot and changelog in your current
 pnpm data:refresh
 ```
 
-The dedicated changelog is at `/?page=changelog`, with filters for additions, updates, and removals. Its check time belongs to the published data update. Updates depend on when Slopalytics publishes new Artificial Analysis measurements. Provider announcements alone do not change the benchmark snapshot. Newly added families appear in the full model browser; the curated default and notable selections stay manual.
+The dedicated changelog is at `/?page=changelog`, with filters for additions, updates, and removals. Its check time belongs to the published data update. The snapshot timestamp records when we fetched AA, not when AA last measured each model. Updates depend on when Artificial Analysis publishes new measurements. Provider announcements alone do not change the benchmark snapshot. Newly added families appear in the full model browser; the curated default and notable selections stay manual.
 
 Review and merge the generated PR to publish the data through the normal deployment. The persistent local server serves `dist`, so pull the merged changes, validate and rebuild, then restart the local service to update the local site. The sync command does not merge, deploy, or restart that service.
 

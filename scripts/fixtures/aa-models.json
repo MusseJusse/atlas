@@ -1,0 +1,134 @@
+[
+  {
+    "slug": "deepseek-v4-1-flash",
+    "shortName": "DeepSeek V4.1 Flash (max)",
+    "release": {
+      "slug": "deepseek-v4-1-flash",
+      "name": "DeepSeek V4.1 Flash",
+      "deprecatedTo": null
+    },
+    "creator": {
+      "id": "58b835bf-4c87-4f87-a846-df4b692c6e7d",
+      "slug": "deepseek",
+      "name": "DeepSeek",
+      "logo": "/img/logos/deepseek.svg",
+      "color": "#2243e6",
+      "country": "cn"
+    },
+    "releaseDate": "2026-09-10",
+    "isOpenWeights": true,
+    "deprecated": false,
+    "isReasoning": true,
+    "effort": {
+      "slug": "max",
+      "label": "max",
+      "level": 60
+    },
+    "intelligenceIndex": 39.456167472527,
+    "intelligenceIndexIsEstimated": false,
+    "intelligenceIndexCost": {
+      "total": 476.89044593693893,
+      "output": 303.7362672
+    },
+    "intelligenceIndexCostPerTask": {
+      "cost": {
+        "total": 0.26522527009606844
+      }
+    },
+    "canonicalIntelligenceIndexTokenCount": {
+      "output": 253113556
+    },
+    "intelligenceIndexOutputTokensPerTask": {
+      "output": 88573.99849468909
+    },
+    "intelligenceIndexTimePerTask": 361.81506607584737,
+    "timescaleData": {
+      "medianOutputSpeed": 175.852558774099,
+      "medianTimeToFirstChunk": 1.23437171299997
+    },
+    "price1mInputTokens": 0.3,
+    "price1mOutputTokens": 1.2,
+    "contextWindowTokens": 1000000
+  },
+  {
+    "slug": "glm-4-5v",
+    "shortName": "GLM-4.5V (non-reasoning)",
+    "release": {
+      "slug": "glm-4-5v",
+      "name": "GLM-4.5V",
+      "deprecatedTo": "glm-4-6v"
+    },
+    "creator": {
+      "id": "67437eb6-7dc1-4e93-befd-22c8b8ec2065",
+      "slug": "zai",
+      "name": "Z AI",
+      "logo": "/img/logos/zai.svg",
+      "color": "#1c7ff8",
+      "country": "cn"
+    },
+    "releaseDate": "2025-08-11",
+    "isOpenWeights": true,
+    "deprecated": true,
+    "isReasoning": false,
+    "intelligenceIndex": 6.69669796944385,
+    "intelligenceIndexIsEstimated": true,
+    "timescaleData": {
+      "medianOutputSpeed": 51.790790075056,
+      "medianTimeToFirstChunk": 2.97946403999999
+    },
+    "price1mInputTokens": 0.6,
+    "price1mOutputTokens": 1.8,
+    "contextWindowTokens": 64000
+  },
+  {
+    "slug": "mercury-2",
+    "shortName": "Mercury 2",
+    "release": {
+      "slug": "mercury-2",
+      "name": "Mercury 2",
+      "deprecatedTo": "mercury-2-5"
+    },
+    "creator": {
+      "id": "e8fe48d4-d420-48a5-87db-fcd5f5b14d5c",
+      "slug": "inception",
+      "name": "Inception",
+      "logo": "/img/logos/inceptionlabs.svg",
+      "color": "#021B30",
+      "country": "us"
+    },
+    "releaseDate": "2026-02-20",
+    "isOpenWeights": false,
+    "deprecated": true,
+    "isReasoning": true,
+    "effort": {
+      "slug": "high",
+      "label": "high",
+      "level": 40
+    },
+    "intelligenceIndex": 10.7770340974661,
+    "intelligenceIndexIsEstimated": false,
+    "intelligenceIndexCost": {
+      "total": 104.943852661284,
+      "output": 75.77022149999999
+    },
+    "intelligenceIndexCostPerTask": {
+      "cost": {
+        "total": 0.03862922542636743
+      }
+    },
+    "canonicalIntelligenceIndexTokenCount": {
+      "output": 101026962
+    },
+    "intelligenceIndexOutputTokensPerTask": {
+      "output": 26155.726977249793
+    },
+    "intelligenceIndexTimePerTask": 58.509642803636325,
+    "timescaleData": {
+      "medianOutputSpeed": 448.952932795582,
+      "medianTimeToFirstChunk": 7.47917194699994
+    },
+    "price1mInputTokens": 0.25,
+    "price1mOutputTokens": 0.75,
+    "contextWindowTokens": 128000
+  }
+]

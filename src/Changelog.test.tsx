@@ -4,7 +4,7 @@ import { Changelog } from './Changelog';
 import type { ChangeHistory } from './data/changelog';
 
 const history: ChangeHistory = {
-  source: 'https://slopalytics.com/',
+  source: 'https://artificialanalysis.ai/models',
   baselineFetchedAt: '2026-10-13T20:47:14.735Z',
   updates: [
     {

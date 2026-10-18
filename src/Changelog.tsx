@@ -192,17 +192,8 @@ export function Changelog({ history = bundledHistory }: { history?: ChangeHistor
         ))}
         <footer className="mt-10 border-t border-line pt-4 text-[12px] leading-6 text-fg-2">
           Data from{' '}
-          <a
-            href="https://artificialanalysis.ai/"
-            target="_blank"
-            rel="noreferrer"
-            className="underline underline-offset-4"
-          >
-            Artificial Analysis
-          </a>{' '}
-          via{' '}
           <a href={history.source} target="_blank" rel="noreferrer" className="underline underline-offset-4">
-            Slopalytics
+            Artificial Analysis
           </a>
           . This page shows published data updates.
         </footer>
