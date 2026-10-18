@@ -3,6 +3,7 @@ import { Moon, Sun } from 'lucide-react';
 import historyData from './data/changelog.json';
 import { fieldLabels, type ChangeHistory, type ChangeKind, type FieldChange } from './data/changelog';
 import { useTheme } from './useTheme';
+import { Brand } from './Brand';
 
 const filters = [
   { id: 'all', label: 'All changes' },
@@ -51,17 +52,13 @@ export function Changelog({ history = bundledHistory }: { history?: ChangeHistor
 
   return (
     <div className="min-h-dvh select-text">
-      <header className="flex min-h-[60px] items-center gap-6 border-b border-line px-7 phone:gap-3 phone:px-4">
-        <a href="/" aria-label="Slopalytics home" className="shrink-0">
-          <strong className="text-[24px] font-[450] tracking-[-1.2px] phone:text-[20px]">
-            <span className="text-accent">slop</span>alytics
-          </strong>
-        </a>
+      <header className="flex min-h-[var(--header-height)] items-center gap-8 border-b border-line px-7 phone:gap-4 phone:px-4">
+        <Brand />
         <nav
           aria-label="Sections"
           className="flex items-center gap-5 text-[12px] phone:gap-3 phone:text-[11px]"
         >
-          <a href="/" className="flex min-h-11 items-center text-fg-2">
+          <a href="/" className="flex min-h-11 items-center text-fg-2 phone:hidden">
             Benchmarks
           </a>
           <a
@@ -80,7 +77,7 @@ export function Changelog({ history = bundledHistory }: { history?: ChangeHistor
           {theme === 'dark' ? <Sun size={16} aria-hidden="true" /> : <Moon size={16} aria-hidden="true" />}
         </button>
       </header>
-      <main className="mx-auto max-w-[1000px] px-7 pt-10 pb-12 phone:px-4 phone:pt-7">
+      <main className="mx-auto my-6 max-w-[1000px] rounded-xl bg-panel px-8 pt-8 pb-10 phone:mx-4 phone:px-4 phone:pt-6">
         <div className="flex flex-wrap items-baseline justify-between gap-x-5 gap-y-2">
           <h1 className="m-0 text-[25px] font-medium tracking-[-0.7px] phone:text-[23px]">Model changes</h1>
           <span className="text-[12px] text-fg-2">

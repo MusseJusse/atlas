@@ -19,10 +19,10 @@ const app = (
   </StrictMode>
 );
 
-// The generated HTML contains the default dark view. Other saved views render normally.
+// The generated HTML contains the default light view. Other saved views render normally.
 let defaultTheme = true;
 try {
-  defaultTheme = localStorage.getItem('benchmark-theme') !== 'light';
+  defaultTheme = localStorage.getItem('benchmark-theme') !== 'dark';
 } catch {
   /* Storage is optional. */
 }

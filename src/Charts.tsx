@@ -68,68 +68,117 @@ function activate(event: KeyboardEvent<SVGGElement>, action: () => void) {
   }
 }
 
-function Tooltip({ model, pinned, onClose }: { model: Model; pinned: boolean; onClose: () => void }) {
+/** A fixed place to inspect a configuration without covering the chart. */
+function ConfigurationDetails({
+  model,
+  pinned,
+  onClose,
+}: {
+  model: Model | null;
+  pinned: boolean;
+  onClose: () => void;
+}) {
   return (
     <div
-      className={`absolute right-2 bottom-[72px] z-[3] pointer-events-none w-[272px] max-w-[calc(100vw-48px)] rounded-lg border border-line-2 bg-surface px-4 py-3.5 mobile:sticky mobile:inset-x-auto mobile:bottom-[calc(10px+env(safe-area-inset-bottom))] mobile:z-[7] mobile:mt-3.5 mobile:grid mobile:w-auto mobile:max-w-none mobile:grid-cols-2 mobile:gap-x-5 mobile:px-3.5 mobile:py-3 ${pinned ? '[&_button]:pointer-events-auto [&_a]:pointer-events-auto' : ''}`}
-      role="status"
+      className="mt-3 min-h-[112px] short:min-h-24 shrink-0 rounded-lg bg-surface px-4 py-3 phone:px-3"
+      aria-live={pinned ? 'polite' : 'off'}
+      onKeyDown={(event) => {
+        if (event.key === 'Escape') onClose();
+      }}
     >
-      <div className="flex items-center justify-between gap-3 text-[13px] mobile:col-span-full">
-        <strong className="inline-flex items-center gap-2 font-[550]">
-          <Logo model={model} />
-          {shortName(model)}
-        </strong>
-        {pinned && (
-          <button
-            className="flex size-5 items-center justify-center text-[20px] text-fg-3 [&:hover]:text-fg"
-            onClick={onClose}
-            aria-label="Close model details"
-          >
-            <X size={14} />
-          </button>
-        )}
-      </div>
-      <p className="mt-1 mb-3 text-[11.5px] text-fg-2 mobile:col-span-full mobile:mb-1.5">
-        {model.effortLabel} reasoning · {model.labName}
-      </p>
-      {(
-        [
-          ['Intelligence index', format(model.intelligence, 'intelligence')],
-          ['Cost per task', format(model.cost, 'cost')],
-          ['Time per task', formatModelValue(model, 'time')],
-          ['Tokens per task', format(model.tokens, 'tokens')],
-          [
-            'Output speed',
-            model.speed === null ? 'Not measured' : `${format(model.speed, 'speed')} tokens/s`,
-          ],
-        ] as const
-      ).map(([label, value]) => (
-        <div className="flex justify-between gap-5 py-1 text-[12px]" key={label}>
-          <span className="text-fg-2">{label}</span>
-          <b className="font-medium tabular-nums">{value}</b>
-        </div>
-      ))}
-      <a
-        className="mt-2.5 inline-block text-[11.5px] text-accent underline underline-offset-[3px] [&:hover]:text-fg mobile:col-span-full mobile:mt-1.5"
-        href={model.speedSource?.url ?? `https://artificialanalysis.ai/models/${model.family}`}
-        target="_blank"
-        rel="noreferrer"
-      >
-        View on Artificial Analysis
-      </a>
-      {model.speedSource && (
-        <p className="mt-1 mb-0 text-[11.5px] text-fg-2 mobile:col-span-full">
-          Speed snapshot: {model.speedSource.fetchedAt.slice(0, 10)}
-        </p>
-      )}
-      {model.timeEstimate && (
-        <p className="mt-2 mb-0 text-[11.5px] text-fg-2 mobile:col-span-full">
-          Local time estimate. Uses standard Sol High task tokens at Max-measured throughput.
-          <span className="block">
-            {model.timeEstimate.baselineTokens.toFixed(1)} tokens ÷ {format(model.speed, 'speed')} tokens/s
+      {model ? (
+        <>
+          <div className="flex min-h-6 flex-wrap items-center justify-between gap-3">
+            <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1 text-[12px]">
+              <strong className="inline-flex items-center gap-2 font-[550]">
+                <Logo model={model} size={13} />
+                {shortName(model)}
+              </strong>
+              <span className="text-[11px] text-fg-2">
+                {model.effort === 'none' ? 'No reasoning' : `${model.effortLabel} reasoning`},{' '}
+                {model.labName}
+              </span>
+              <span className="text-[10px] text-accent">{pinned ? 'Pinned' : 'Preview'}</span>
+            </div>
+            {pinned && (
+              <a
+                className="ml-auto shrink-0 text-[11px] text-accent underline underline-offset-4"
+                href={
+                  model.speedSource?.url ?? `https://artificialanalysis.ai/models/${model.family}`
+                }
+                target="_blank"
+                rel="noreferrer"
+                aria-label={`View ${model.name} on Artificial Analysis`}
+              >
+                View source
+              </a>
+            )}
+            {pinned && (model.speedSource || model.timeEstimate) && (
+              <details className="group relative shrink-0">
+                <summary
+                  className="flex min-h-8 cursor-pointer list-none items-center rounded-md px-2 text-[11px] text-accent hover:bg-hover focus-visible:outline-2 focus-visible:outline-accent focus-visible:outline-offset-2 [&::-webkit-details-marker]:hidden"
+                  aria-label="Measurement notes"
+                >
+                  Notes
+                </summary>
+                <div className="absolute right-0 bottom-[calc(100%+10px)] z-10 w-[300px] max-w-[calc(100vw-80px)] rounded-lg border border-line bg-panel px-4 py-3 shadow-lg">
+                  {model.speedSource && (
+                    <p className="mt-2 mb-0 text-[11px] text-fg-2">
+                      Speed snapshot: {model.speedSource.fetchedAt.slice(0, 10)}
+                    </p>
+                  )}
+                  {model.timeEstimate && (
+                    <p className="mt-2 mb-0 text-[11px] leading-5 text-fg-2">
+                      Local time estimate. Uses standard Sol High task tokens at Max-measured
+                      throughput.
+                      <br />
+                      {model.timeEstimate.baselineTokens.toFixed(1)} tokens ÷{' '}
+                      {format(model.speed, 'speed')} tokens/s. Baseline:{' '}
+                      {model.timeEstimate.baselineFetchedAt.slice(0, 10)}
+                    </p>
+                  )}
+                </div>
+              </details>
+            )}
+            {pinned && (
+              <button
+                className="-my-2 -mr-2 flex size-10 shrink-0 items-center justify-center rounded-md text-fg-2 hover:bg-hover hover:text-accent"
+                onClick={onClose}
+                aria-label="Close model details"
+              >
+                <X size={15} aria-hidden="true" />
+              </button>
+            )}
+          </div>
+          <dl className="mt-2 mb-0 grid grid-cols-5 gap-x-3 gap-y-3 phone:grid-cols-2">
+            {(
+              [
+                ['Intelligence index', format(model.intelligence, 'intelligence')],
+                ['Cost per task', format(model.cost, 'cost')],
+                ['Time per task', formatModelValue(model, 'time')],
+                ['Tokens per task', format(model.tokens, 'tokens')],
+                ['Output tokens / s', format(model.speed, 'speed')],
+              ] as const
+            ).map(([label, value]) => (
+              <div key={label} className="min-w-0">
+                <dt className="text-[10px] text-fg-2">{label}</dt>
+                <dd className="m-0 mt-0.5 text-[17px] font-medium tracking-[-0.4px] phone:text-[16px]">
+                  {value}
+                </dd>
+              </div>
+            ))}
+          </dl>
+        </>
+      ) : (
+        <div className="flex min-h-[88px] short:min-h-[72px] flex-col justify-center gap-1">
+          <strong className="text-[12px] font-medium">Configuration details</strong>
+          <span className="text-[12px] text-fg-2 phone:hidden">
+            Hover or focus a configuration to preview it. Click to pin its measurements.
           </span>
-          Baseline: {model.timeEstimate.baselineFetchedAt.slice(0, 10)}
-        </p>
+          <span className="hidden text-[12px] text-fg-2 phone:inline">
+            Tap a point or model label to pin its measurements.
+          </span>
+        </div>
       )}
     </div>
   );
@@ -151,7 +200,9 @@ function Scatter({
   interactions: Interactions;
 }) {
   const mobile = width < 600;
-  const linear = settings.linear.includes(metric === 'tokens' ? 'tokens-task' : 'cost-intelligence');
+  const linear = settings.linear.includes(
+    metric === 'tokens' ? 'tokens-task' : 'cost-intelligence',
+  );
   const {
     left,
     right,
@@ -182,23 +233,32 @@ function Scatter({
       0,
       Math.floor((Math.min(...points.map((row) => row.intelligence!), 30) - 4) / 10) * 10,
     );
-    const scoreMax = Math.ceil((Math.max(...points.map((row) => row.intelligence!), 50) + 2) / 5) * 5;
+    const scoreMax =
+      Math.ceil((Math.max(...points.map((row) => row.intelligence!), 50) + 2) / 5) * 5;
     const y = linearScale([scoreMin, scoreMax], [bottom, top]);
     const frontier = paretoFrontier(points, metric);
     const frontierIds = new Set(frontier.map((row) => row.id));
     const frontierFamilies = new Set(frontier.map((row) => row.family));
     const series = [...new Set(points.map((row) => row.family))].map((family) => ({
       family,
-      rows: points.filter((row) => row.family === family).toSorted((a, b) => a.effortOrder - b.effortOrder),
+      rows: points
+        .filter((row) => row.family === family)
+        .toSorted((a, b) => a.effortOrder - b.effortOrder),
     }));
     const labelPositions = series
       .map((series) => ({ ...series, end: series.rows.at(-1)! }))
       .sort((a, b) => y(a.end.intelligence!) - y(b.end.intelligence!));
-    let lastY = top - 24;
+    const labelSpacing = Math.min(24, (bottom - top) / Math.max(1, labelPositions.length - 1));
+    let lastY = top - labelSpacing;
     const labels = labelPositions.map((series) => {
-      lastY = Math.max(y(series.end.intelligence!), lastY + 24);
-      return { ...series, y: Math.min(lastY, bottom - 10) };
+      lastY = Math.max(y(series.end.intelligence!), lastY + labelSpacing);
+      return { ...series, y: lastY };
     });
+    let nextY = bottom + labelSpacing;
+    for (const label of labels.toReversed()) {
+      label.y = Math.min(label.y, nextY - labelSpacing);
+      nextY = label.y;
+    }
     const logTicks = x.ticks(mobile ? 4 : 10).filter((value) => {
       if (linear) return true;
       const significant = value / 10 ** Math.floor(Math.log10(value));
@@ -234,7 +294,11 @@ function Scatter({
       row.intelligence !== null,
   );
   const guide = activePoint
-    ? { x: x(activePoint[metric]!), y: y(activePoint.intelligence!), color: modelColor(activePoint) }
+    ? {
+        x: x(activePoint[metric]!),
+        y: y(activePoint.intelligence!),
+        color: modelColor(activePoint),
+      }
     : null;
 
   return (
@@ -263,10 +327,10 @@ function Scatter({
         <path
           d={path(frontier)}
           fill="none"
-          stroke="var(--fg)"
-          strokeWidth="2.5"
+          stroke="var(--accent)"
+          strokeWidth="1.8"
           strokeDasharray="6 5"
-          opacity="0.95"
+          opacity="0.65"
           pointerEvents="none"
         />
       )}
@@ -293,7 +357,8 @@ function Scatter({
           />
           {series.rows.map((model) => {
             const onFrontier = frontierIds.has(model.id);
-            const active = interactions.pinned?.id === model.id || interactions.hovered?.id === model.id;
+            const active =
+              interactions.pinned?.id === model.id || interactions.hovered?.id === model.id;
             return (
               <g
                 key={model.id}
@@ -307,10 +372,17 @@ function Scatter({
                 onMouseLeave={() => interactions.hover(null)}
                 onFocus={() => interactions.hover(model)}
                 onBlur={() => interactions.hover(null)}
-                onClick={() => interactions.pin(interactions.pinned?.id === model.id ? null : model)}
+                onClick={() =>
+                  interactions.pin(interactions.pinned?.id === model.id ? null : model)
+                }
                 onKeyDown={(event) => activate(event, () => interactions.pin(model))}
               >
-                <circle cx={x(model[metric]!)} cy={y(model.intelligence!)} r={13} fill="transparent" />
+                <circle
+                  cx={x(model[metric]!)}
+                  cy={y(model.intelligence!)}
+                  r={13}
+                  fill="transparent"
+                />
                 {active && (
                   <circle
                     cx={x(model[metric]!)}
@@ -326,7 +398,7 @@ function Scatter({
                   cy={y(model.intelligence!)}
                   r={onFrontier && settings.frontier ? 6 : 4.5}
                   fill={modelColor(model)}
-                  stroke={onFrontier && settings.frontier ? 'var(--fg)' : 'var(--bg)'}
+                  stroke={onFrontier && settings.frontier ? 'var(--accent)' : 'var(--panel)'}
                   strokeWidth={onFrontier && settings.frontier ? 1.5 : 1.8}
                 />
               </g>
@@ -371,8 +443,8 @@ function Scatter({
               <text
                 x={right + 53}
                 y={series.y + 4}
-                fontSize="16"
-                fontWeight="650"
+                fontSize="14"
+                fontWeight="550"
                 fill={modelColor(series.end)}
               >
                 {shortName(series.end)}
@@ -380,9 +452,15 @@ function Scatter({
             </g>
           );
         })}
-      <text x={(left + right) / 2} y={height - 4} textAnchor="middle" fill="var(--fg-2)" fontSize="12">
-        {metricLabels[metric]} ({metric === 'cost' ? 'USD' : metricUnits[metric]}, {linear ? 'linear' : 'log'}{' '}
-        scale)
+      <text
+        x={(left + right) / 2}
+        y={height - 4}
+        textAnchor="middle"
+        fill="var(--fg-2)"
+        fontSize="12"
+      >
+        {metricLabels[metric]} ({metric === 'cost' ? 'USD' : metricUnits[metric]},{' '}
+        {linear ? 'linear' : 'log'} scale)
       </text>
     </>
   );
@@ -482,7 +560,10 @@ function Bars({
         const x = start + index * (barWidth + gap);
         const text = barWidth > 8 ? formatModelValue(row, metric, true) : '';
         const textWidth = text.length * 6.4;
-        const labelX = Math.max(left + textWidth / 2, Math.min(right - textWidth / 2, x + barWidth / 2));
+        const labelX = Math.max(
+          left + textWidth / 2,
+          Math.min(right - textWidth / 2, x + barWidth / 2),
+        );
         let labelY = y(row[metric]!) - 8;
         while (
           barWidth > 8 &&
@@ -542,12 +623,15 @@ function Bars({
             />
             {group.bars.map(({ row, x: barX, labelX, labelY, text }) => {
               const barY = y(row[metric]!);
-              const effortMark = row.effort === 'max' ? 'Mx' : row.effortLabel.charAt(0).toUpperCase();
+              const effortMark =
+                row.effort === 'max' ? 'Mx' : row.effortLabel.charAt(0).toUpperCase();
               const visibleLabel = group.barWidth > 8 ? `${effortMark}${text}, ` : '';
               return (
                 <g
                   key={row.id}
-                  opacity={activeModel?.family === row.family && activeModel.id !== row.id ? 0.2 : 1}
+                  opacity={
+                    activeModel?.family === row.family && activeModel.id !== row.id ? 0.2 : 1
+                  }
                   role="button"
                   tabIndex={0}
                   className="cursor-pointer focus-visible:[&>circle:last-child]:stroke-accent focus-visible:[&>circle:last-child]:stroke-[3] focus-visible:[&>rect:nth-child(2)]:stroke-accent focus-visible:[&>rect:nth-child(2)]:stroke-[3] mobile:focus-visible:[outline:none]"
@@ -563,7 +647,13 @@ function Bars({
                   }}
                   onKeyDown={(event) => activate(event, () => interactions.pin(row))}
                 >
-                  <rect x={barX} y={top} width={group.barWidth} height={bottom - top} fill="transparent" />
+                  <rect
+                    x={barX}
+                    y={top}
+                    width={group.barWidth}
+                    height={bottom - top}
+                    fill="transparent"
+                  />
                   <rect
                     x={barX}
                     y={barY}
@@ -585,7 +675,13 @@ function Bars({
                     </text>
                   )}
                   {group.barWidth > 8 && (
-                    <text x={labelX} y={labelY} textAnchor="middle" fill="var(--fg-2)" fontSize={11}>
+                    <text
+                      x={labelX}
+                      y={labelY}
+                      textAnchor="middle"
+                      fill="var(--fg-2)"
+                      fontSize={11}
+                    >
                       {text}
                     </text>
                   )}
@@ -678,7 +774,9 @@ const DotPlot = memo(function DotPlot({
             >
               <span className="flex min-w-0 items-center gap-[7px] text-[14px] font-[550]">
                 <Logo model={model} />
-                <span className="overflow-hidden text-ellipsis whitespace-nowrap">{shortName(model)}</span>
+                <span className="overflow-hidden text-ellipsis whitespace-nowrap">
+                  {shortName(model)}
+                </span>
               </span>
               <span className="text-[13px] text-fg-2 tabular-nums">
                 {metric === 'time' && model.timeEstimate && '~'}
@@ -699,7 +797,7 @@ const DotPlot = memo(function DotPlot({
                 />
                 {group.rows.map((row) => (
                   <span
-                    className="absolute top-px -ml-[5px] size-2.5 rounded-[50%] [box-shadow:0_0_0_1.5px_var(--bg)]"
+                    className="absolute top-px -ml-[5px] size-2.5 rounded-[50%] [box-shadow:0_0_0_1.5px_var(--panel)]"
                     key={row.id}
                     style={{
                       left: `${(row[metric]! / max) * 100}%`,
@@ -718,7 +816,9 @@ const DotPlot = memo(function DotPlot({
                 {group.rows.map((row) => (
                   <div className="flex justify-between gap-3" key={row.id}>
                     <span className="text-fg-2">{row.effortLabel}</span>
-                    <b className="text-right font-medium tabular-nums">{formatModelValue(row, metric)}</b>
+                    <b className="text-right font-medium tabular-nums">
+                      {formatModelValue(row, metric)}
+                    </b>
                   </div>
                 ))}
               </div>
@@ -787,7 +887,8 @@ export const Chart = memo(function Chart({
     highlight: onHighlight,
   };
   const validRows = useMemo(
-    () => rows.filter((row) => row[view.metric] !== null && (!scatter || row.intelligence !== null)),
+    () =>
+      rows.filter((row) => row[view.metric] !== null && (!scatter || row.intelligence !== null)),
     [rows, view.metric, scatter],
   );
   const tooltip = pinned ?? hovered;
@@ -796,7 +897,10 @@ export const Chart = memo(function Chart({
   const legend = [...new Map(validRows.map((row) => [row.family, row])).values()];
 
   function closeOnBackground(event: MouseEvent<SVGSVGElement>) {
-    if (event.target instanceof SVGRectElement && event.target.classList.contains('chart-background'))
+    if (
+      event.target instanceof SVGRectElement &&
+      event.target.classList.contains('chart-background')
+    )
       setPinned(null);
   }
 
@@ -815,14 +919,21 @@ export const Chart = memo(function Chart({
               viewBox={`0 0 ${width} ${height}`}
               role="group"
               aria-label={
-                scatter ? `${metricLabels[view.metric]} versus Intelligence Index` : `${view.label} by model`
+                scatter
+                  ? `${metricLabels[view.metric]} versus Intelligence Index`
+                  : `${view.label} by model`
               }
               onClick={closeOnBackground}
               onKeyDown={(event) => {
                 if (event.key === 'Escape') setPinned(null);
               }}
             >
-              <rect className="chart-background" width={width} height={height} fill="var(--bg)" />
+              <rect
+                className="chart-background"
+                width={width}
+                height={height}
+                fill="var(--panel)"
+              />
               {scatter ? (
                 <Scatter
                   rows={validRows}
@@ -879,10 +990,10 @@ export const Chart = memo(function Chart({
           ))}
         </div>
       )}
-      {visibleTooltip && (
-        <Tooltip
+      {(scatter || !phone) && (
+        <ConfigurationDetails
           model={visibleTooltip}
-          pinned={Boolean(pinned)}
+          pinned={Boolean(pinned && visibleTooltip)}
           onClose={() => {
             setPinned(null);
             setHovered(null);

@@ -140,21 +140,22 @@ export const Sidebar = memo(function Sidebar({
 
   return (
     <aside
-      className={`flex h-full min-h-0 flex-col gap-[18px] overflow-auto border-l border-line px-[18px] py-4 [scrollbar-width:thin] [scrollbar-color:var(--line-2)_var(--bg)] [&>*]:shrink-0 short:gap-3.5 short:pt-3 mobile:fixed mobile:inset-0 mobile:z-10 mobile:h-dvh mobile:border-l-0 mobile:bg-bg mobile:px-4 mobile:pt-0 mobile:pb-[calc(24px+env(safe-area-inset-bottom))] ${open ? 'mobile:flex' : 'mobile:hidden'}`}
+      id="model-filters"
+      className={`flex h-full min-h-0 flex-col gap-4 overflow-hidden pr-1 pb-3 [scrollbar-width:thin] [scrollbar-color:var(--line-2)_var(--bg)] [&>:not(.model-catalog)]:shrink-0 mobile:fixed mobile:inset-0 mobile:z-10 mobile:h-dvh mobile:overflow-auto mobile:bg-bg mobile:px-4 mobile:pt-0 mobile:pb-[calc(24px+env(safe-area-inset-bottom))] ${open ? 'mobile:flex' : 'mobile:hidden'}`}
       ref={panel}
       aria-label="Model filters"
       role={open ? 'dialog' : undefined}
       aria-modal={open ? true : undefined}
     >
-      <div className="-mb-1.5 flex items-center gap-2 mobile:sticky mobile:top-0 mobile:z-[1] mobile:-mx-4 mobile:h-14 mobile:border-b mobile:border-line mobile:bg-bg mobile:px-4">
+      <div className="flex min-h-8 items-center gap-2 mobile:sticky mobile:top-0 mobile:z-[1] mobile:-mx-4 mobile:h-14 mobile:border-b mobile:border-line mobile:bg-bg mobile:px-4">
         <h2 className="flex-1 text-[15px] font-medium mobile:text-[17px]">
           Models{' '}
           <span className="ml-1.5 text-[11px] font-normal text-fg-3 tabular-nums">
-            {settings.selected.length}
+            {settings.selected.length} selected
           </span>
         </h2>
         <button
-          className="flex size-6 items-center justify-center text-fg-3 hover:text-fg"
+          className="flex size-8 items-center justify-center rounded-md text-fg-2 hover:bg-hover hover:text-accent mobile:size-10"
           aria-label="Reset model filters"
           title="Reset model filters"
           onClick={() => {
@@ -162,7 +163,7 @@ export const Sidebar = memo(function Sidebar({
             setSearch('');
           }}
         >
-          <RotateCcw size={14} />
+          <RotateCcw size={14} aria-hidden="true" />
         </button>
         <button
           className="hidden! mobile:inline-flex! mobile:items-center mobile:gap-1.5 sheet-done justify-center mobile:w-auto mobile:h-10 mobile:py-0 mobile:pr-1 mobile:pl-3 mobile:text-[15px] mobile:font-[550] mobile:text-accent"
@@ -171,10 +172,10 @@ export const Sidebar = memo(function Sidebar({
           Done
         </button>
       </div>
-      <label className="flex h-8 items-center gap-2 border-b border-line-2 text-fg-3 focus-within:border-accent mobile:h-[42px]">
-        <Search size={14} />
+      <label className="flex h-10 items-center gap-2 rounded-md border border-line-2 bg-panel px-3 text-fg-2 focus-within:border-accent focus-within:ring-1 focus-within:ring-accent mobile:h-11">
+        <Search size={14} aria-hidden="true" />
         <input
-          className="min-w-0 flex-1 border-0 bg-transparent text-[12.5px] text-fg [outline:none] placeholder:text-fg-3 mobile:text-[16px]"
+          className="min-w-0 flex-1 border-0 bg-transparent text-[12.5px] text-fg [outline:none] placeholder:text-fg-2 mobile:text-[16px]"
           ref={input}
           value={search}
           onChange={(event) => setSearch(event.target.value)}
@@ -183,12 +184,82 @@ export const Sidebar = memo(function Sidebar({
         />
         <kbd className="font-sans text-[11px] mobile:hidden">/</kbd>
       </label>
+      <div
+        role="group"
+        aria-label="Model selection"
+        className="flex gap-1 rounded-md bg-surface p-1"
+      >
+        <button
+          className="min-h-8 flex-1 rounded-sm text-[11px] text-fg-2 aria-pressed:bg-panel aria-pressed:font-medium aria-pressed:text-accent mobile:min-h-11 mobile:text-[13px]"
+          aria-pressed={
+            settings.selected.length === defaults.selected.length &&
+            defaults.selected.every((id) => settings.selected.includes(id))
+          }
+          onClick={() => update({ selected: defaults.selected })}
+        >
+          Default
+        </button>
+        <button
+          className="min-h-8 flex-1 rounded-sm text-[11px] text-fg-2 aria-pressed:bg-panel aria-pressed:font-medium aria-pressed:text-accent mobile:min-h-11 mobile:text-[13px]"
+          aria-pressed={settings.selected.length === families.length}
+          onClick={() => update({ selected: families.map((family) => family.family) })}
+        >
+          All
+        </button>
+        <button
+          className="min-h-8 flex-1 rounded-sm text-[11px] text-fg-2 aria-pressed:bg-panel aria-pressed:font-medium aria-pressed:text-accent mobile:min-h-11 mobile:text-[13px]"
+          aria-pressed={settings.selected.length === 0}
+          onClick={() => update({ selected: [] })}
+        >
+          Clear
+        </button>
+      </div>
+      <div className="model-catalog min-h-0 flex-1 overflow-y-auto pr-1 mobile:flex-none mobile:overflow-visible">
+        {sections.map((section) => (
+          <div className="mb-4 last:mb-0" key={section.name}>
+            <div className="mb-1 flex items-baseline gap-2.5">
+              <h3 className="flex-1 text-[12px] font-[550] mobile:text-[14px]">{section.name}</h3>
+              {section.name !== 'Frontier' && section.items.length > 0 && (
+                <button
+                  className="-my-1 min-h-6 min-w-6 text-right text-[11.5px] text-fg-3 aria-pressed:text-accent mobile:my-0 mobile:min-h-8 mobile:text-[14px]"
+                  onClick={() => toggleGroup(section.items.map((family) => family.family))}
+                >
+                  All
+                </button>
+              )}
+            </div>
+            {section.items.map((family) => (
+              <button
+                key={family.family}
+                className={`group flex min-h-8 w-full items-center gap-2 rounded-md px-1 text-left text-[12px] text-fg-2 hover:bg-hover hover:text-fg aria-pressed:text-fg mobile:min-h-11 mobile:text-[15px] ${settings.frontier && settings.selected.includes(family.family) ? (frontier.has(family.family) ? 'font-[550]' : 'opacity-50 hover:opacity-100 focus-visible:opacity-100') : ''}`}
+                aria-pressed={settings.selected.includes(family.family)}
+                onClick={() => toggle(family.family)}
+                onMouseEnter={() => onHighlight(family.family)}
+                onMouseLeave={() => onHighlight(null)}
+                title={`${family.model.name} · ${family.variants.length} configurations`}
+              >
+                <Logo model={family.model} size={13} />
+                <span className="flex-1 overflow-hidden text-ellipsis whitespace-nowrap">
+                  {shortName(family.model)}
+                </span>
+                <span
+                  className="size-[7px] shrink-0 rounded-[50%] opacity-50 [box-shadow:inset_0_0_0_1px] group-aria-pressed:bg-current group-aria-pressed:opacity-100"
+                  style={{ color: modelColor(family.model) }}
+                />
+              </button>
+            ))}
+            {section.items.length === 0 && (
+              <p className="m-0 text-[12px] text-fg-2">No matching models.</p>
+            )}
+          </div>
+        ))}
+      </div>
       <div>
         <h3 className="text-[12px] font-[550] mobile:text-[14px]">Reasoning</h3>
-        <div className="mt-2 flex flex-wrap gap-x-2 gap-y-1 mobile:gap-x-4 mobile:gap-y-0">
+        <div className="mt-2 flex flex-wrap gap-1">
           {efforts.map((effort) => (
             <button
-              className="text-[11.5px] text-fg aria-[pressed=false]:text-fg-3 aria-[pressed=false]:line-through mobile:min-h-8 mobile:text-[14px]"
+              className="min-h-8 rounded-md px-2 text-[11.5px] text-fg-2 aria-pressed:bg-accent-soft aria-pressed:font-medium aria-pressed:text-accent hover:bg-hover mobile:min-h-11 mobile:px-3 mobile:text-[14px]"
               key={effort}
               aria-pressed={!settings.excluded.includes(effort)}
               onClick={() =>
@@ -204,47 +275,10 @@ export const Sidebar = memo(function Sidebar({
           ))}
         </div>
       </div>
-      {sections.map((section) => (
-        <div key={section.name}>
-          <div className="mb-1 flex items-baseline gap-2.5">
-            <h3 className="flex-1 text-[12px] font-[550] mobile:text-[14px]">{section.name}</h3>
-            {section.name !== 'Frontier' && section.items.length > 0 && (
-              <button
-                className="-my-1 min-h-6 min-w-6 text-right text-[11.5px] text-fg-3 aria-pressed:text-accent mobile:my-0 mobile:min-h-8 mobile:text-[14px]"
-                onClick={() => toggleGroup(section.items.map((family) => family.family))}
-              >
-                All
-              </button>
-            )}
-          </div>
-          {section.items.map((family) => (
-            <button
-              key={family.family}
-              className={`group -mx-1.5 flex min-h-[26px] w-[calc(100%+12px)] items-center gap-[9px] rounded-[5px] px-1.5 text-left text-[12.5px] text-fg-3 hover:bg-hover hover:text-fg aria-pressed:text-fg wide:min-h-[29px] wide:text-[13px] short:min-h-6 mobile:min-h-11 mobile:text-[15px] ${settings.frontier && settings.selected.includes(family.family) ? (frontier.has(family.family) ? 'font-[550]' : 'opacity-35 hover:opacity-100 focus-visible:opacity-100') : ''}`}
-              aria-pressed={settings.selected.includes(family.family)}
-              onClick={() => toggle(family.family)}
-              onMouseEnter={() => onHighlight(family.family)}
-              onMouseLeave={() => onHighlight(null)}
-              title={`${family.model.name} · ${family.variants.length} configurations`}
-            >
-              <Logo model={family.model} />
-              <span className="flex-1 overflow-hidden text-ellipsis whitespace-nowrap">
-                {shortName(family.model)}
-              </span>
-              <span
-                className="size-[7px] shrink-0 rounded-[50%] opacity-50 [box-shadow:inset_0_0_0_1px] group-aria-pressed:bg-current group-aria-pressed:opacity-100"
-                style={{ color: modelColor(family.model) }}
-              />
-            </button>
-          ))}
-          {section.items.length === 0 && (
-            <p className="m-0 text-[12px] text-fg-2">No matching models.</p>
-          )}
-        </div>
-      ))}
       <div className="flex flex-col gap-2.5 border-t border-line pt-3.5">
         <button
-          className="text-left text-[12px] text-fg-2 hover:text-fg mobile:min-h-8 mobile:text-[14px]"
+          className="min-h-10 text-left text-[12px] font-medium text-accent hover:underline mobile:min-h-11 mobile:text-[14px]"
+          aria-expanded={browse}
           onClick={() => setBrowse(!browse)}
         >
           {browse ? 'Show fewer models' : 'Show all models'}

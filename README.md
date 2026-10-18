@@ -1,6 +1,6 @@
 # Slopalytics benchmarks
 
-A local reproduction of the benchmark section of [Slopalytics](https://slopalytics.com/?frontier=true). Built with React, TypeScript, Tailwind CSS, and Vite. The usage dashboard is outside this project.
+A benchmark explorer based on the benchmark section of [Slopalytics](https://slopalytics.com/?frontier=true). Built with React, TypeScript, Tailwind CSS, and Vite. The usage dashboard is outside this project.
 
 ## Open the site
 
@@ -36,7 +36,7 @@ The development and persistent servers use port 4387. Run one at a time.
 
 ## Styling
 
-Components use Tailwind utilities. `src/styles.css` holds the font, theme tokens, minimal browser defaults, and the original inclusive responsive breakpoints. Tailwind Preflight is disabled to preserve the existing rendering.
+Components use Tailwind utilities. `src/styles.css` holds the font, theme tokens, minimal browser defaults, and responsive breakpoints. Tailwind Preflight is disabled. The base layer defines the reset.
 
 ## Included
 
@@ -60,11 +60,11 @@ The output speed chart uses the snapshot's Artificial Analysis speed measurement
 
 Time per task uses the snapshot's AA decode time estimates, not wall-clock benchmark run times. It excludes startup latency and tool waits. Ultrafast's local estimate uses standard Sol High's task tokens divided by the Ultrafast speed: `13,191.9 tokens / 336.4 tokens/s ≈ 39.2 seconds`. This assumes the Max-measured Ultrafast throughput applies to a High-effort workload. The estimate derives from the existing snapshot at load time and remains unavailable if the baseline token count is missing. Ultrafast's time values have a `~` prefix on charts, mobile details, tooltips and PNG exports. The tooltip shows the calculation.
 
-Benchmark data comes from [Artificial Analysis](https://artificialanalysis.ai/). Visual styling and model logos reproduce the public [Slopalytics](https://slopalytics.com/) benchmark interface. This is a personal local reproduction, not the official service. There is no analytics collection or usage telemetry in this project.
+Benchmark data comes from [Artificial Analysis](https://artificialanalysis.ai/). The Workbench interface uses a left model picker, chart workspace, and configuration detail strip. Model logos originate from the public [Slopalytics](https://slopalytics.com/) interface. This is a personal local reproduction, not the official service. There is no analytics collection or usage telemetry in this project.
 
 DM Sans is bundled locally under the SIL Open Font License, included in `public/fonts/OFL.txt`. Fonts, logos, and benchmark data load locally.
 
-The initial page preloads a 22.6 KB font with the characters, weights 400 to 700, and optical sizes 9 to 24 used by the interface. It keeps normal text shaping and tabular numbers, and omits unused stylistic alternates. The full 88.8 KB variable font stays available for other characters and PNG export. Vite inlines the small stylesheet and renders the default page into the HTML so its text and controls can paint before React loads. React hydrates the default dark view. Saved light themes and URLs with query parameters render their own initial state. Chart contents mount after hydration, once the viewport and font are ready, so server rendering does not guess chart dimensions.
+The initial page preloads a 22.6 KB font with the characters, weights 400 to 700, and optical sizes 9 to 24 used by the interface. It keeps normal text shaping and tabular numbers, and omits unused stylistic alternates. The full 88.8 KB variable font stays available for other characters and PNG export. Vite inlines the small stylesheet and renders the default page into the HTML so its text and controls can paint before React loads. React hydrates the default light view. Saved dark themes and URLs with query parameters render their own initial state. Chart contents mount after hydration, once the viewport and font are ready, so server rendering does not guess chart dimensions.
 
 The Vite data plugin packs the snapshot into columns and includes only fields the app reads. The original JSON stays intact, and tests compare every consumed field in all 699 configurations, including full numeric precision. Numeric chart scales avoid shipping D3's general formatting and interpolation code. A comparison test checks their coordinates and ticks against D3, which remains a development dependency.
 

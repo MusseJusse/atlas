@@ -20,34 +20,33 @@
   }
   :root {
     font-synthesis: none;
-    --lightningcss-light: ;
-    --lightningcss-dark: initial;
-    color-scheme: dark;
-    color: var(--fg);
-    background: var(--bg);
-    --bg: var(--lightningcss-light, #fff) var(--lightningcss-dark, #000);
-    --hover: var(--lightningcss-light, #f1eeea) var(--lightningcss-dark, #141210);
-    --on-accent: var(--lightningcss-light, #fff) var(--lightningcss-dark, #000);
-    --logo-filter: none;
-    --fg: var(--lightningcss-light, #20201e) var(--lightningcss-dark, #fff);
-    --fg-2: var(--lightningcss-light, #625d57) var(--lightningcss-dark, #aaa39d);
-    --fg-3: var(--lightningcss-light, #77716c) var(--lightningcss-dark, #817b76);
-    --line: var(--lightningcss-light, #e8e4df) var(--lightningcss-dark, #1c1a18);
-    --line-2: var(--lightningcss-light, #ccc5be) var(--lightningcss-dark, #36312d);
-    --surface: var(--lightningcss-light, #f8f6f3) var(--lightningcss-dark, #0d0b0a);
-    --accent: var(--lightningcss-light, #806047) var(--lightningcss-dark, #c5ac98);
-    --sidebar-width: 248px;
-    --header-height: 60px;
-    font-family:
-      'DM Sans UI',
-      DM Sans,
-      sans-serif;
-  }
-  :root[data-theme='light'] {
     --lightningcss-light: initial;
     --lightningcss-dark: ;
     color-scheme: light;
+    color: var(--fg);
+    background: var(--bg);
+    --bg: var(--lightningcss-light, #f1f4fa) var(--lightningcss-dark, #131c2b);
+    --panel: var(--lightningcss-light, #fff) var(--lightningcss-dark, #1b273b);
+    --hover: var(--lightningcss-light, #e5ebf6) var(--lightningcss-dark, #293852);
+    --on-accent: var(--lightningcss-light, #fff) var(--lightningcss-dark, #15213c);
     --logo-filter: invert(1);
+    --fg: var(--lightningcss-light, #17213a) var(--lightningcss-dark, #f0f3fa);
+    --fg-2: var(--lightningcss-light, #596982) var(--lightningcss-dark, #b3bfd3);
+    --fg-3: var(--lightningcss-light, #64718a) var(--lightningcss-dark, #a2afc5);
+    --line: var(--lightningcss-light, #dfe5ee) var(--lightningcss-dark, #334159);
+    --line-2: var(--lightningcss-light, #c3cdde) var(--lightningcss-dark, #52617b);
+    --surface: var(--lightningcss-light, #f1f4fa) var(--lightningcss-dark, #243149);
+    --accent: var(--lightningcss-light, #3456d8) var(--lightningcss-dark, #a4b8ff);
+    --accent-soft: var(--lightningcss-light, #e0e7fd) var(--lightningcss-dark, #304374);
+    --sidebar-width: 216px;
+    --header-height: 72px;
+    font-family: 'DM Sans UI', 'DM Sans', sans-serif;
+  }
+  :root[data-theme='dark'] {
+    --lightningcss-light: ;
+    --lightningcss-dark: initial;
+    color-scheme: dark;
+    --logo-filter: none;
   }
   * {
     box-sizing: border-box;
@@ -107,6 +106,16 @@
   h3 {
     margin: 0;
   }
+  @media (width > 900px) and (height <= 740px) {
+    :root {
+      --header-height: 64px;
+    }
+  }
+  @media (width <= 900px) {
+    :root {
+      --header-height: 64px;
+    }
+  }
   @media (prefers-reduced-motion: reduce) {
     * {
       scroll-behavior: auto !important;
@@ -116,6 +125,8 @@
 
 @theme inline {
   --color-bg: var(--bg);
+  --color-panel: var(--panel);
+  --color-accent-soft: var(--accent-soft);
   --color-hover: var(--hover);
   --color-on-accent: var(--on-accent);
   --color-fg: var(--fg);
@@ -128,9 +139,9 @@
   --font-sans: 'DM Sans UI', 'DM Sans', sans-serif;
 }
 
-/* Match the original inclusive breakpoints, including short desktop windows. */
+/* Workspace breakpoints, including short desktop windows. */
 @custom-variant wide (@media (width >= 1600px));
-@custom-variant short (@media (width >= 761px) and (height <= 820px));
+@custom-variant short (@media (width > 900px) and (height <= 740px));
 @custom-variant compact (@media (width <= 1150px));
 @custom-variant mobile (@media (width <= 900px));
 @custom-variant phone (@media (width <= 600px));
