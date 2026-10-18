@@ -6,8 +6,21 @@ import { useMediaQuery } from './useMediaQuery';
 import { fetchedAt, paretoFrontier, views, visibleModels, type ViewId } from './models';
 import { readSettings, readView, writeSettings, type Settings } from './state';
 import { useTheme } from './useTheme';
+import { Brand } from './Brand';
 
-const Changelog = lazy(() => import('./Changelog').then(({ Changelog }) => ({ default: Changelog })));
+const viewDescriptions = {
+  'cost-intelligence': 'Compare capability at the cost of a benchmark task.',
+  'tokens-task': 'Token consumption for a benchmark task, across reasoning levels.',
+  'tokens-total': 'Total token consumption across the benchmark workload.',
+  'cost-task': 'The cost of a benchmark task. Lower costs less.',
+  'cost-total': 'Total cost across the benchmark workload.',
+  'output-speed': 'Output tokens per second. Higher is faster.',
+  'time-task': 'Estimated decode time per task. Lower is faster.',
+} satisfies Record<ViewId, string>;
+
+const Changelog = lazy(() =>
+  import('./Changelog').then(({ Changelog }) => ({ default: Changelog })),
+);
 
 function Selection({ checked }: { checked: boolean }) {
   return (
@@ -54,6 +67,9 @@ function Benchmarks() {
     [],
   );
   const closeMobile = useCallback(() => setMobileOpen(false), []);
+  useEffect(() => {
+    if (!mobile) setMobileOpen(false);
+  }, [mobile]);
   const rows = useMemo(
     () => visibleModels(settings.selected, settings.excluded),
     [settings.selected, settings.excluded],
@@ -121,127 +137,99 @@ function Benchmarks() {
   }
 
   return (
-    <div className="grid h-dvh grid-rows-[var(--header-height)_minmax(0,1fr)] mobile:block mobile:h-auto">
-      <header className="flex items-center gap-6 border-b border-line px-7 compact:gap-4 compact:px-[18px] mobile:sticky mobile:top-0 mobile:z-[8] mobile:h-auto mobile:flex-wrap mobile:gap-0 mobile:bg-bg mobile:p-0">
-        <a
-          href="/"
-          className="shrink-0 whitespace-nowrap mobile:flex mobile:h-[52px] mobile:items-center mobile:pl-4"
-          aria-label="Slopalytics home"
-        >
-          <strong className="text-[24px] font-[450] tracking-[-1.2px] compact:text-[21px]">
-            <span className="text-accent">slop</span>alytics
-          </strong>
-        </a>
-        <nav
-          className="flex shrink-0 items-center gap-3.5 border-r border-line-2 pr-[22px] compact:pr-4 mobile:ml-[22px] mobile:border-0 mobile:p-0"
-          aria-label="Sections"
-        >
+    <div className="grid h-dvh grid-rows-[var(--header-height)_minmax(0,1fr)_auto] mobile:block mobile:h-auto">
+      <a
+        href="#benchmark-workspace"
+        className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-30 focus:rounded-md focus:bg-panel focus:p-3"
+      >
+        Skip to benchmarks
+      </a>
+      <header className="flex items-center gap-8 border-b border-line px-7 compact:gap-6 mobile:sticky mobile:top-0 mobile:z-[8] mobile:h-[var(--header-height)] mobile:gap-4 mobile:bg-bg mobile:px-4">
+        <Brand />
+        <nav className="flex items-center gap-6 phone:gap-3" aria-label="Sections">
           <button
-            className="min-h-9 text-[12px] text-fg mobile:hidden"
+            className="min-h-11 text-[12px] font-semibold text-fg phone:hidden"
             aria-current="page"
             onClick={() => navigate(views[0].id)}
           >
             Benchmarks
           </button>
-          <a href="?page=changelog" className="flex min-h-11 items-center text-[12px] text-fg-2">
+          <a
+            href="?page=changelog"
+            className="flex min-h-11 items-center text-[12px] text-fg-2 hover:text-accent"
+          >
             Changelog
           </a>
         </nav>
-        <nav
-          className="flex min-w-0 items-stretch self-stretch gap-[22px] overflow-x-auto [scrollbar-width:none] wide:gap-[26px] compact:gap-4 mobile:order-3 mobile:h-[42px] mobile:w-full mobile:shrink-0 mobile:gap-5 mobile:border-t mobile:border-line mobile:px-4"
-          aria-label="Chart views"
-        >
-          {views.map((view) => (
-            <span className="flex shrink-0 items-stretch gap-[22px] compact:gap-4 mobile:gap-5" key={view.id}>
-              {view.id === 'tokens-task' && (
-                <span className="h-3.5 w-px shrink-0 self-center bg-line-2" aria-hidden="true" />
-              )}
-              <button
-                className="relative flex items-center whitespace-nowrap text-[12.5px] text-fg-2 wide:text-[13px] compact:text-[12px] mobile:text-[13.5px] aria-[current=page]:text-fg aria-[current=page]:after:absolute aria-[current=page]:after:inset-x-0 aria-[current=page]:after:bottom-0 aria-[current=page]:after:h-0.5 aria-[current=page]:after:rounded-[2px] aria-[current=page]:after:bg-accent aria-[current=page]:after:content-['']"
-                aria-current={active === view.id ? 'page' : undefined}
-                onClick={() => navigate(view.id)}
-              >
-                {view.label}
-              </button>
-            </span>
-          ))}
-        </nav>
-        <div className="ml-auto flex shrink-0 items-center gap-0.5 mobile:h-[52px] mobile:pr-2.5">
+        <div className="ml-auto flex items-center gap-3 phone:gap-0">
           <button
-            className="flex size-8 items-center justify-center text-fg-2 [&:hover]:text-fg"
+            className="flex size-10 items-center justify-center rounded-md text-fg-2 hover:bg-hover hover:text-accent"
             aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
             title={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
             onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
           >
-            {theme === 'dark' ? <Sun size={16} /> : <Moon size={16} />}
+            {theme === 'dark' ? (
+              <Sun size={16} aria-hidden="true" />
+            ) : (
+              <Moon size={16} aria-hidden="true" />
+            )}
           </button>
           <button
-            className="flex size-8 items-center justify-center text-fg-2 [&:hover]:text-fg mobile:hidden!"
+            className="inline-flex min-h-10 items-center justify-center gap-2 rounded-md px-3 text-[12px] text-fg-2 hover:bg-hover hover:text-accent phone:hidden!"
             aria-label="Download PNG"
-            title="Download PNG"
             onClick={exportPng}
           >
-            <Download size={15} />
-          </button>
-          <details className="group relative mobile:hidden!">
-            <summary
-              className="flex size-8 cursor-pointer list-none items-center justify-center text-fg-2 group-open:text-fg [&:hover]:text-fg focus-visible:outline-2 focus-visible:outline-solid focus-visible:outline-accent focus-visible:outline-offset-2 [&::-webkit-details-marker]:hidden"
-              aria-label="Chart settings"
-              title="Chart settings"
-            >
-              <Ellipsis size={17} />
-            </summary>
-            <div
-              className="absolute top-[calc(100%+10px)] right-0 z-20 flex w-[220px] max-w-[calc(100vw-32px)] flex-col items-start gap-3.5 rounded-lg border border-line-2 bg-surface p-4"
-              aria-label="Chart settings"
-            >
-              <span className="-mb-2 text-[11px] text-fg-3">2D charts</span>
-              <button
-                className="inline-flex items-center gap-2 whitespace-nowrap text-[12px] text-fg-2 [&:hover]:text-fg"
-                aria-pressed={settings.labels}
-                onClick={() => update({ labels: !settings.labels })}
-              >
-                <Selection checked={settings.labels} />
-                Labels
-              </button>
-              <span className="-mb-2 text-[11px] text-fg-3">Bar charts</span>
-              <button
-                className="inline-flex items-center gap-2 whitespace-nowrap text-[12px] text-fg-2 [&:hover]:text-fg"
-                aria-pressed={settings.grouped}
-                onClick={() => update({ grouped: !settings.grouped })}
-              >
-                <Selection checked={settings.grouped} />
-                Group by model
-              </button>
-              <button
-                className="inline-flex items-center gap-2 whitespace-nowrap text-[12px] text-fg-2 [&:hover]:text-fg"
-                onClick={() => update({ descending: !settings.descending })}
-              >
-                <ArrowDown
-                  size={13}
-                  style={{ transform: settings.descending ? 'rotate(180deg)' : undefined }}
-                />
-                {settings.descending ? 'Highest first' : 'Highest last'}
-              </button>
-            </div>
-          </details>
-          <button
-            className="hidden! mobile:inline-flex! mobile:items-center mobile:gap-1.5 mobile:h-10 mobile:px-1.5 mobile:text-[14px] mobile:text-fg"
-            onClick={() => setMobileOpen(true)}
-            aria-haspopup="dialog"
-            aria-expanded={mobileOpen}
-          >
-            <SlidersHorizontal size={14} />
-            <span className="mobile:text-[12px] mobile:text-fg-3">Models</span>
-            <span className="mobile:text-[12px] mobile:text-fg-3">{settings.selected.length}</span>
+            <Download size={15} aria-hidden="true" />
+            <span className="phone:hidden">Export chart</span>
           </button>
         </div>
       </header>
-      <div className="grid min-h-0 grid-cols-[minmax(0,1fr)_var(--sidebar-width)] mobile:block">
-        <main className="grid min-h-0 min-w-0 grid-rows-[minmax(0,1fr)_auto] mobile:block">
+      <div className="grid min-h-0 grid-cols-[var(--sidebar-width)_minmax(0,1fr)] gap-6 px-7 pt-6 pb-2 short:pt-4 compact:gap-5 compact:px-5 mobile:block mobile:px-4 mobile:pt-4 mobile:pb-0">
+        <Sidebar
+          settings={settings}
+          update={update}
+          open={mobileOpen}
+          close={closeMobile}
+          frontier={frontier}
+          onHighlight={setHighlighted}
+        />
+        <main
+          id="benchmark-workspace"
+          tabIndex={-1}
+          className="grid min-h-0 min-w-0 grid-rows-[auto_minmax(0,1fr)] rounded-xl bg-panel [outline:none] mobile:block"
+        >
           <h1 className="sr-only">Model benchmarks</h1>
+          <div className="min-w-0 px-6 mobile:sticky mobile:top-[var(--header-height)] mobile:z-[6] mobile:rounded-t-xl mobile:bg-panel mobile:px-4">
+            <button
+              className="hidden w-full items-center gap-2 border-b border-line py-3 text-left text-[12px] text-fg-2 mobile:flex!"
+              onClick={() => setMobileOpen(true)}
+              aria-haspopup="dialog"
+              aria-controls="model-filters"
+              aria-expanded={mobileOpen}
+            >
+              <SlidersHorizontal size={15} aria-hidden="true" />
+              <span className="font-medium text-fg">Models</span>
+              <span>{settings.selected.length} selected</span>
+              <span className="ml-auto text-accent">Edit selection</span>
+            </button>
+            <nav
+              className="flex min-w-0 gap-6 overflow-x-auto border-b border-line [scrollbar-width:thin] [scrollbar-color:var(--line-2)_transparent] compact:gap-5"
+              aria-label="Chart views"
+            >
+              {views.map((view) => (
+                <button
+                  key={view.id}
+                  className="min-h-[50px] shrink-0 short:min-h-11 border-b-2 border-transparent text-[12px] text-fg-2 aria-[current=page]:border-accent aria-[current=page]:font-semibold aria-[current=page]:text-accent hover:text-accent"
+                  aria-current={active === view.id ? 'page' : undefined}
+                  onClick={() => navigate(view.id)}
+                >
+                  {view.label}
+                </button>
+              ))}
+            </nav>
+          </div>
           <div
-            className="relative min-h-0 snap-y snap-proximity overflow-y-auto [scrollbar-width:thin] [scrollbar-color:var(--line-2)_var(--bg)] mobile:snap-none mobile:overflow-visible"
+            className="relative min-h-0 snap-y snap-proximity overflow-y-auto rounded-b-xl [scrollbar-width:thin] [scrollbar-color:var(--line-2)_var(--panel)] mobile:snap-none mobile:overflow-visible"
             ref={feed}
           >
             {views.map((view) => {
@@ -249,48 +237,54 @@ function Benchmarks() {
               const linear = settings.linear.includes(view.id);
               return (
                 <section
-                  className="chart-section flex h-full snap-start flex-col px-7 pt-[18px] pb-2.5 [&+section]:border-t [&+section]:border-line compact:px-[18px] mobile:h-auto mobile:scroll-mt-[95px] mobile:px-4 mobile:pt-5 mobile:pb-6"
+                  className="chart-section flex h-full snap-start flex-col px-6 pt-5 pb-4 short:pt-4 short:pb-3 [&+section]:border-t [&+section]:border-line mobile:h-auto mobile:scroll-mt-[180px] mobile:px-4 mobile:pb-6"
                   id={view.id}
                   key={view.id}
                   aria-label={view.label}
                 >
-                  <div className="mb-1.5 flex shrink-0 items-center justify-between gap-4 mobile:flex-wrap mobile:gap-x-4 mobile:gap-y-1">
-                    <h2 className="m-0 shrink text-[16px] font-medium mobile:flex mobile:flex-1 mobile:items-baseline mobile:justify-between mobile:gap-3 mobile:text-[18px]">
-                      {view.label}
-                    </h2>
-                    <div className="flex shrink-0 items-center gap-6 mobile:flex-[1_0_100%] mobile:justify-between">
-                      {view.metric === 'speed' && (
-                        <span className="text-[12px] text-fg-2">Higher is faster</span>
-                      )}
-                      {view.metric === 'time' && (
-                        <span className="text-[12px] text-fg-2">Lower is faster</span>
-                      )}
-                      {scatter && (
-                        <button
-                          className="inline-flex min-h-8 items-center gap-2 whitespace-nowrap text-[12px] text-fg aria-pressed:text-accent [&:hover]:text-accent mobile:min-h-11"
-                          aria-pressed={settings.frontier}
-                          title="Show configurations with no better and cheaper or faster alternative."
-                          onClick={() => update({ frontier: !settings.frontier })}
-                        >
-                          <Selection checked={settings.frontier} />
-                          Pareto line
-                        </button>
-                      )}
+                  <div className="flex shrink-0 items-start justify-between gap-3">
+                    <div>
+                      <h2 className="m-0 text-[25px] leading-tight font-[550] tracking-[-0.8px] phone:text-[22px]">
+                        {view.label}
+                      </h2>
+                      <p className="mt-1.5 mb-0 text-[12px] leading-5 text-fg-2 short:hidden">
+                        {viewDescriptions[view.id]}
+                      </p>
+                    </div>
+                    <ChartOptions settings={settings} update={update} />
+                  </div>
+                  <div className="flex min-h-[58px] shrink-0 short:min-h-12 short:py-1 flex-wrap items-center justify-between gap-x-4 gap-y-1 py-2 text-[12px]">
+                    {scatter ? (
+                      <button
+                        className="inline-flex min-h-10 items-center gap-2 text-fg aria-pressed:text-accent hover:text-accent"
+                        aria-pressed={settings.frontier}
+                        title="Show configurations with no better and cheaper alternative."
+                        onClick={() => update({ frontier: !settings.frontier })}
+                      >
+                        <Selection checked={settings.frontier} />
+                        Pareto frontier
+                      </button>
+                    ) : (
+                      <span className="text-fg-2">
+                        {settings.grouped ? 'Grouped by model' : 'All configurations'}
+                      </span>
+                    )}
+                    <div className="ml-auto flex items-center gap-5 phone:gap-3">
                       {view.id === 'tokens-task' && (
                         <div
-                          className="flex shrink-0 gap-3 mobile:gap-2.5"
+                          className="flex gap-1 rounded-md bg-surface p-1"
                           role="group"
                           aria-label="Tokens per task chart type"
                         >
                           <button
-                            className="min-h-8 border-b border-b-transparent px-0.5 py-1 text-[12px] text-fg-3 aria-pressed:border-accent aria-pressed:text-accent [&:hover]:text-fg mobile:min-h-11"
+                            className="min-h-8 rounded-sm px-2.5 text-[12px] text-fg-2 aria-pressed:bg-panel aria-pressed:font-medium aria-pressed:text-accent"
                             aria-pressed={!settings.scatter}
                             onClick={() => update({ scatter: false })}
                           >
                             Bars
                           </button>
                           <button
-                            className="min-h-8 border-b border-b-transparent px-0.5 py-1 text-[12px] text-fg-3 aria-pressed:border-accent aria-pressed:text-accent [&:hover]:text-fg mobile:min-h-11"
+                            className="min-h-8 rounded-sm px-2.5 text-[12px] text-fg-2 aria-pressed:bg-panel aria-pressed:font-medium aria-pressed:text-accent"
                             aria-pressed={settings.scatter}
                             onClick={() => update({ scatter: true })}
                           >
@@ -300,24 +294,31 @@ function Benchmarks() {
                       )}
                       {scatter && (
                         <div
-                          className="flex shrink-0 gap-3 mobile:gap-2.5"
+                          className="flex items-center gap-2"
                           role="group"
                           aria-label={`${view.label} axis scale`}
                         >
-                          <button
-                            className="min-h-8 border-b border-b-transparent px-0.5 py-1 text-[12px] text-fg-3 aria-pressed:border-accent aria-pressed:text-accent [&:hover]:text-fg mobile:min-h-11"
-                            aria-pressed={linear}
-                            onClick={() => update({ linear: [...new Set([...settings.linear, view.id])] })}
-                          >
-                            Linear
-                          </button>
-                          <button
-                            className="min-h-8 border-b border-b-transparent px-0.5 py-1 text-[12px] text-fg-3 aria-pressed:border-accent aria-pressed:text-accent [&:hover]:text-fg mobile:min-h-11"
-                            aria-pressed={!linear}
-                            onClick={() => update({ linear: settings.linear.filter((id) => id !== view.id) })}
-                          >
-                            Log
-                          </button>
+                          <span className="text-[11px] text-fg-2 phone:hidden">Scale</span>
+                          <div className="flex gap-1 rounded-md bg-surface p-1">
+                            <button
+                              className="min-h-8 rounded-sm px-2.5 text-[12px] text-fg-2 aria-pressed:bg-panel aria-pressed:font-medium aria-pressed:text-accent"
+                              aria-pressed={linear}
+                              onClick={() =>
+                                update({ linear: [...new Set([...settings.linear, view.id])] })
+                              }
+                            >
+                              Linear
+                            </button>
+                            <button
+                              className="min-h-8 rounded-sm px-2.5 text-[12px] text-fg-2 aria-pressed:bg-panel aria-pressed:font-medium aria-pressed:text-accent"
+                              aria-pressed={!linear}
+                              onClick={() =>
+                                update({ linear: settings.linear.filter((id) => id !== view.id) })
+                              }
+                            >
+                              Log
+                            </button>
+                          </div>
                         </div>
                       )}
                     </div>
@@ -332,49 +333,106 @@ function Benchmarks() {
                     onHighlight={setHighlighted}
                   />
                   {view.metric === 'time' && (
-                    <p className="mt-2 mb-0 shrink-0 text-[11.5px] text-fg-2">
-                      Decode time only. Excludes startup latency and tool waits. ~ marks the local Ultrafast
-                      estimate.
+                    <p className="mt-3 mb-0 shrink-0 text-[11px] leading-4 text-fg-2">
+                      Decode time only. Excludes startup latency and tool waits. ~ marks the local
+                      Ultrafast estimate.
                     </p>
                   )}
                 </section>
               );
             })}
           </div>
-          <footer className="flex flex-wrap items-center justify-between gap-3 border-t border-line px-7 py-[9px] text-[11px] text-fg-3 compact:px-[18px] mobile:px-4 mobile:pt-[18px] mobile:pb-[calc(28px+env(safe-area-inset-bottom))]">
-            <span title={`Local snapshot captured ${fetchedAt}`}>
-              Data from{' '}
-              <a
-                className="text-fg-2 [&:hover]:text-fg"
-                href="https://artificialanalysis.ai/"
-                target="_blank"
-                rel="noreferrer"
-              >
-                Artificial Analysis
-              </a>
-            </span>
-          </footer>
         </main>
-        <Sidebar
-          settings={settings}
-          update={update}
-          open={mobileOpen}
-          close={closeMobile}
-          frontier={frontier}
-          onHighlight={setHighlighted}
-        />
       </div>
+      <footer className="flex flex-wrap items-center justify-between gap-x-5 gap-y-1 px-7 py-3 short:py-2 text-[11px] leading-5 text-fg-2 compact:px-5 mobile:px-4 mobile:pt-5 mobile:pb-[calc(20px+env(safe-area-inset-bottom))]">
+        <span>
+          Data from{' '}
+          <a
+            className="underline-offset-4 hover:text-accent hover:underline"
+            href="https://artificialanalysis.ai/"
+            target="_blank"
+            rel="noreferrer"
+          >
+            Artificial Analysis
+          </a>
+        </span>
+        <span title={`Local snapshot captured ${fetchedAt}`}>
+          Snapshot captured{' '}
+          <time dateTime={fetchedAt}>
+            {new Date(fetchedAt).toLocaleDateString('en-GB', {
+              day: 'numeric',
+              month: 'short',
+              year: 'numeric',
+              timeZone: 'UTC',
+            })}
+          </time>
+        </span>
+      </footer>
       {exportError && (
         <div
-          className="fixed bottom-12 left-7 z-30 flex max-w-[calc(100vw-56px)] gap-[18px] rounded-lg border border-line-2 bg-surface px-4 py-3.5 text-[12px]"
+          className="fixed bottom-12 left-7 z-30 flex max-w-[calc(100vw-56px)] gap-[18px] rounded-lg border border-line-2 bg-panel px-4 py-3.5 text-[12px]"
           role="alert"
         >
           {exportError}
-          <button className="text-accent [&:hover]:text-fg" onClick={() => setExportError('')}>
+          <button className="text-accent hover:underline" onClick={() => setExportError('')}>
             Dismiss
           </button>
         </div>
       )}
     </div>
+  );
+}
+
+function ChartOptions({
+  settings,
+  update,
+}: {
+  settings: Settings;
+  update: (patch: Partial<Settings>) => void;
+}) {
+  return (
+    <details className="group relative shrink-0">
+      <summary
+        className="flex size-10 cursor-pointer list-none items-center justify-center rounded-md text-fg-2 group-open:bg-surface group-open:text-accent hover:bg-surface hover:text-accent focus-visible:outline-2 focus-visible:outline-accent focus-visible:outline-offset-2 [&::-webkit-details-marker]:hidden"
+        aria-label="Chart settings"
+        title="Chart settings"
+      >
+        <Ellipsis size={19} aria-hidden="true" />
+      </summary>
+      <div
+        className="absolute top-[calc(100%+6px)] right-0 z-20 flex w-[220px] max-w-[calc(100vw-48px)] flex-col items-start gap-1 rounded-lg border border-line bg-panel p-3 shadow-lg"
+        aria-label="Chart settings"
+      >
+        <span className="px-1 pt-1 text-[11px] text-fg-2">Scatter charts</span>
+        <button
+          className="inline-flex min-h-10 items-center gap-2 px-1 text-[12px] text-fg hover:text-accent"
+          aria-pressed={settings.labels}
+          onClick={() => update({ labels: !settings.labels })}
+        >
+          <Selection checked={settings.labels} />
+          Labels
+        </button>
+        <span className="mt-2 px-1 text-[11px] text-fg-2">Bar charts</span>
+        <button
+          className="inline-flex min-h-10 items-center gap-2 px-1 text-[12px] text-fg hover:text-accent"
+          aria-pressed={settings.grouped}
+          onClick={() => update({ grouped: !settings.grouped })}
+        >
+          <Selection checked={settings.grouped} />
+          Group by model
+        </button>
+        <button
+          className="inline-flex min-h-10 items-center gap-2 px-1 text-[12px] text-fg hover:text-accent"
+          onClick={() => update({ descending: !settings.descending })}
+        >
+          <ArrowDown
+            size={14}
+            style={{ transform: settings.descending ? 'rotate(180deg)' : undefined }}
+            aria-hidden="true"
+          />
+          {settings.descending ? 'Highest first' : 'Highest last'}
+        </button>
+      </div>
+    </details>
   );
 }

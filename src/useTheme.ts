@@ -3,16 +3,16 @@ import { useEffect, useState } from 'react';
 export function useTheme() {
   const [theme, setTheme] = useState(() => {
     try {
-      return localStorage.getItem('benchmark-theme') === 'light' ? 'light' : 'dark';
+      return localStorage.getItem('benchmark-theme') === 'dark' ? 'dark' : 'light';
     } catch {
-      return 'dark';
+      return 'light';
     }
   });
   useEffect(() => {
     document.documentElement.dataset.theme = theme;
     document
       .querySelector('meta[name="theme-color"]')
-      ?.setAttribute('content', theme === 'dark' ? '#000000' : '#ffffff');
+      ?.setAttribute('content', theme === 'dark' ? '#131c2b' : '#f1f4fa');
     try {
       localStorage.setItem('benchmark-theme', theme);
     } catch {
