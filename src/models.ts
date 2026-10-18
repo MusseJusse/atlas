@@ -68,42 +68,20 @@ const maxOnlyReasoningFamilies = new Set(
     .map(({ family }) => family),
 );
 
-const colors: Record<string, [string, string]> = {
-  'gpt-6-astra': ['#5f6a91', '#c3cbed'],
-  'gpt-6-1-sol': ['#3456d8', '#a4b8ff'],
-  'gpt-6-1-sol-ultrafast': ['#3456d8', '#a4b8ff'],
-  'gpt-6-luna': ['#447b8f', '#88bcca'],
-  'claude-opus-5-5': ['#ae5235', '#df9477'],
-  'claude-fable-5-1': ['#903e2b', '#cc785c'],
-  'claude-sonnet-5-5': ['#ad5f40', '#f0b99f'],
-  'claude-haiku-5-5': ['#a56848', '#b98a74'],
-  'gemini-4-argon': ['#218347', '#56ca80'],
-  'gemini-3-8-flash': ['#247a3c', '#34a853'],
-  'grok-4-7': ['#6d55bd', '#9b94ee'],
-  'muse-wonder-full': ['#1d5aa8', '#4b96ff'],
-  'muse-wonder': ['#3875bc', '#94c4ff'],
-  'muse-spark-1-3': ['#236bbd', '#5ea4ff'],
-  'kimi-k3': ['#ab3f83', '#ee86c4'],
-  'glm-5-3': ['#8e7318', '#ecd36e'],
-  'glm-5-3-flash': ['#7c6b2e', '#b9a453'],
-  'deepseek-v4-pro': ['#157d83', '#52cdd2'],
-  'deepseek-v4-1-flash': ['#216b70', '#3ba0a5'],
-  'mimo-v2-6-pro': ['#b85212', '#ff8b45'],
-};
-const labColors: Record<string, [string, string]> = {
-  openai: ['#303840', '#f1f3f5'],
-  anthropic: ['#ae5235', '#df9477'],
-  google: ['#218347', '#56ca80'],
-  xai: ['#6d55bd', '#9b94ee'],
-  meta: ['#236bbd', '#5ea4ff'],
-  kimi: ['#ab3f83', '#ee86c4'],
-  zai: ['#8e7318', '#ecd36e'],
-  deepseek: ['#157d83', '#52cdd2'],
-  xiaomi: ['#b85212', '#ff8b45'],
+// Provider colors follow the bundled logos; Claude uses its clay brand accent.
+const labColors: Record<string, string> = {
+  openai: 'light-dark(#000000, #ffffff)',
+  anthropic: '#d97757',
+  google: '#3086ff',
+  xai: 'light-dark(#000000, #ffffff)',
+  meta: '#0081fb',
+  kimi: '#027aff',
+  zai: 'light-dark(#000000, #ffffff)',
+  deepseek: '#4d6bfe',
+  xiaomi: '#ff6900',
 };
 export function modelColor(model: Model) {
-  const [light, dark] = colors[model.family] ?? labColors[model.lab] ?? ['#637082', '#a4adb9'];
-  return `light-dark(${light}, ${dark})`;
+  return labColors[model.lab] ?? 'light-dark(#525252, #d4d4d4)';
 }
 export function shortName(model: Model) {
   return model.name.replace(/^Claude /, '');
