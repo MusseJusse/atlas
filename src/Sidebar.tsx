@@ -1,5 +1,5 @@
 import { memo, useEffect, useRef, useState } from 'react';
-import { Check, RotateCcw, Search } from 'lucide-react';
+import { RotateCcw, Search } from 'lucide-react';
 import { defaults, type Settings } from './state';
 import {
   efforts,
@@ -238,12 +238,6 @@ export const Sidebar = memo(function Sidebar({
                 onMouseLeave={() => onHighlight(null)}
                 title={`${family.model.name} · ${family.variants.length} configurations`}
               >
-                <span
-                  className="inline-flex size-3.5 shrink-0 items-center justify-center rounded-[3px] border border-line-2 text-on-accent group-aria-pressed:border-accent group-aria-pressed:bg-accent"
-                  aria-hidden="true"
-                >
-                  {settings.selected.includes(family.family) && <Check size={11} strokeWidth={3} />}
-                </span>
                 <Logo model={family.model} size={13} />
                 <span className="flex-1 overflow-hidden text-ellipsis whitespace-nowrap">
                   {shortName(family.model)}
