@@ -139,7 +139,7 @@
   --font-sans: 'DM Sans UI', 'DM Sans', sans-serif;
 }
 
-/* Match the original inclusive breakpoints, including short desktop windows. */
+/* Workspace breakpoints, including short desktop windows. */
 @custom-variant wide (@media (width >= 1600px));
 @custom-variant short (@media (width > 900px) and (height <= 740px));
 @custom-variant compact (@media (width <= 1150px));

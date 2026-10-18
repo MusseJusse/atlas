@@ -36,7 +36,7 @@ The development and persistent servers use port 4387. Run one at a time.
 
 ## Styling
 
-Components use Tailwind utilities. `src/styles.css` holds the font, theme tokens, minimal browser defaults, and responsive breakpoints. Tailwind Preflight is disabled for the minimal reset.
+Components use Tailwind utilities. `src/styles.css` holds the font, theme tokens, minimal browser defaults, and responsive breakpoints. Tailwind Preflight is disabled. The base layer defines the reset.
 
 ## Included
 

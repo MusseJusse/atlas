@@ -58,7 +58,7 @@ export function Changelog({ history = bundledHistory }: { history?: ChangeHistor
           aria-label="Sections"
           className="flex items-center gap-5 text-[12px] phone:gap-3 phone:text-[11px]"
         >
-          <a href="/" className="flex min-h-11 items-center text-fg-2">
+          <a href="/" className="flex min-h-11 items-center text-fg-2 phone:hidden">
             Benchmarks
           </a>
           <a
