@@ -2,9 +2,9 @@ import { mkdtemp, mkdir, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { afterEach, expect, it, vi } from 'vitest';
-import original from '../src/data/benchmarks.json';
 import { runCommand, syncData } from './sync-data';
-import { historySchema, snapshotSchema } from './model-updates';
+import { historySchema, snapshotSchema, fetchSnapshot } from './model-updates';
+import { aaModels, sourceFixture } from './fixtures/aa-source';
 
 const directories: string[] = [];
 afterEach(async () => {
@@ -24,10 +24,9 @@ async function fixture() {
   git('config', 'user.email', 'sync@example.com');
   git('config', 'commit.gpgsign', 'false');
   git('remote', 'add', 'origin', remote);
-  const baseline = {
-    fetchedAt: '2026-10-13T20:47:14.735Z',
-    models: [{ ...original.models[0]!, name: 'Baseline' }],
-  };
+  const { rows: next, fetcher } = sourceFixture([structuredClone(aaModels[0]!)]);
+  next[0]!.release.name = 'Baseline';
+  const baseline = { ...await fetchSnapshot(fetcher), fetchedAt: '2026-10-13T20:47:14.735Z' };
   await writeFile(join(cwd, 'src/data/benchmarks.json'), JSON.stringify(baseline));
   await writeFile(
     join(cwd, 'src/data/changelog.json'),
@@ -47,7 +46,6 @@ async function fixture() {
   const originalHead = git('rev-parse', 'HEAD');
   const originalStatus = git('status', '--porcelain');
   const originalWorktrees = git('worktree', 'list', '--porcelain');
-  const next = structuredClone(baseline);
   let request: { url: string; headRefName: string; headRefOid: string } | undefined;
   let failValidation = false;
   let racePush = false;
@@ -79,16 +77,6 @@ async function fixture() {
     if (args[1] === 'edit') return url;
     throw new Error(`Unexpected gh command: ${args.join(' ')}`);
   });
-  const fetcher = vi
-    .fn<typeof fetch>()
-    .mockImplementation(
-      async (address) =>
-        new Response(
-          String(address).endsWith('.js')
-            ? `const data=${JSON.stringify(next)}`
-            : '<script type="module" src="/index.js"></script>',
-        ),
-    );
   async function expectCallerUntouched() {
     expect(git('branch', '--show-current')).toBe('my-work');
     expect(git('rev-parse', 'HEAD')).toBe(originalHead);
@@ -128,8 +116,7 @@ it('skips PRs and validation commands when the source matches main', async () =>
 
 it('creates and updates one data PR, while repeated identical syncs do not push again', async () => {
   const test = await fixture();
-  test.next.fetchedAt = '2026-10-17T12:00:00.000Z';
-  test.next.models[0]!.name = 'First update';
+  test.next[0]!.release.name = 'First update';
   expect(await syncData(test)).toBe(test.url);
   const branch = test.request().headRefName;
   const first = test.git('--git-dir', test.remote, 'rev-parse', `refs/heads/${branch}`);
@@ -140,8 +127,7 @@ it('creates and updates one data PR, while repeated identical syncs do not push 
   ).toHaveLength(1);
   expect(test.run.mock.calls.filter(([command]) => command === 'pnpm')).toHaveLength(4);
 
-  test.next.fetchedAt = '2026-10-18T12:00:00.000Z';
-  test.next.models[0]!.name = 'Second update';
+  test.next[0]!.release.name = 'Second update';
   expect(await syncData(test)).toBe(test.url);
   const show = (path: string) => test.git('--git-dir', test.remote, 'show', `refs/heads/${branch}:${path}`);
   expect(snapshotSchema.parse(JSON.parse(show('src/data/benchmarks.json'))).models[0]!.name).toBe(
@@ -160,7 +146,7 @@ it('creates and updates one data PR, while repeated identical syncs do not push 
 
 it('does not push or open a PR if validation fails, and cleans up its worktree', async () => {
   const test = await fixture();
-  test.next.models[0]!.name = 'Updated';
+  test.next[0]!.release.name = 'Updated';
   test.failValidation();
   await expect(syncData(test)).rejects.toThrow('Validation failed');
   expect(test.git('--git-dir', test.remote, 'for-each-ref', '--format=%(refname)', 'refs/heads')).toBe(
@@ -172,9 +158,9 @@ it('does not push or open a PR if validation fails, and cleans up its worktree',
 
 it('refuses to overwrite a sync branch if another push arrives during validation', async () => {
   const test = await fixture();
-  test.next.models[0]!.name = 'First update';
+  test.next[0]!.release.name = 'First update';
   await syncData(test);
-  test.next.models[0]!.name = 'Second update';
+  test.next[0]!.release.name = 'Second update';
   test.racePush();
   await expect(syncData(test)).rejects.toThrow();
   expect(test.git('--git-dir', test.remote, 'rev-parse', `refs/heads/${test.request().headRefName}`)).toBe(
@@ -186,7 +172,7 @@ it('refuses to overwrite a sync branch if another push arrives during validation
 
 it('preserves non-data edits that someone adds to the managed PR branch', async () => {
   const test = await fixture();
-  test.next.models[0]!.name = 'First update';
+  test.next[0]!.release.name = 'First update';
   await syncData(test);
   const branch = test.request().headRefName;
   const external = join(test.directory, 'external');
@@ -200,7 +186,7 @@ it('preserves non-data edits that someone adds to the managed PR branch', async 
     test.git('worktree', 'remove', '--force', external);
   }
   const head = test.git('--git-dir', test.remote, 'rev-parse', `refs/heads/${branch}`);
-  test.next.models[0]!.name = 'Second update';
+  test.next[0]!.release.name = 'Second update';
   await expect(syncData(test)).rejects.toThrow('non-data changes');
   expect(test.git('--git-dir', test.remote, 'rev-parse', `refs/heads/${branch}`)).toBe(head);
   expect(test.run.mock.calls.filter(([command]) => command === 'pnpm')).toHaveLength(4);

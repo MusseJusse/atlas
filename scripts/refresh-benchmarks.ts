@@ -1,6 +1,12 @@
 import { readFile, rename, writeFile } from 'node:fs/promises';
 import { pathToFileURL } from 'node:url';
-import { compareSnapshots, fetchSnapshot, historySchema, snapshotSchema } from './model-updates.ts';
+import {
+  compareSnapshots,
+  fetchSnapshot,
+  historySchema,
+  snapshotSchema,
+  upstreamUrl,
+} from './model-updates.ts';
 
 const serialize = (value: unknown) => `${JSON.stringify(value, null, 2)}\n`;
 
@@ -21,7 +27,11 @@ export async function refreshBenchmarks({
   const latestHistory = history.updates[0]?.fetchedAt ?? history.baselineFetchedAt;
   if (latestHistory !== previous.fetchedAt)
     throw new Error('The changelog does not match the current snapshot.');
-  const updatedHistory = historySchema.parse({ ...history, updates: [batch, ...history.updates] });
+  const updatedHistory = historySchema.parse({
+    ...history,
+    source: upstreamUrl,
+    updates: [batch, ...history.updates],
+  });
   next.models.sort((a, b) => a.id.localeCompare(b.id, 'en'));
   const snapshotTemp = new URL(`${snapshotPath.href}.tmp`);
   const historyTemp = new URL(`${historyPath.href}.tmp`);

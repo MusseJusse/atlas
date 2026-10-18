@@ -3,33 +3,22 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { expect, it, vi } from 'vitest';
-import snapshot from '../src/data/benchmarks.json';
 import { refreshBenchmarks } from './refresh-benchmarks';
-import { historySchema, snapshotSchema } from './model-updates';
+import { historySchema, snapshotSchema, fetchSnapshot } from './model-updates';
+import { aaModels, sourceFixture } from './fixtures/aa-source';
 
 it('writes paired data and history once, leaves dry runs and failures untouched, and keeps prior history', async () => {
   const directory = await mkdtemp(join(tmpdir(), 'model-refresh-'));
   const snapshotPath = pathToFileURL(join(directory, 'benchmarks.json'));
   const historyPath = pathToFileURL(join(directory, 'changelog.json'));
-  const initialSnapshot = { ...snapshot, fetchedAt: '2026-10-13T20:47:14.735Z' };
+  const { rows: next, fetcher } = sourceFixture([structuredClone(aaModels[0]!)]);
+  const initialSnapshot = { ...await fetchSnapshot(fetcher), fetchedAt: '2026-10-13T20:47:14.735Z' };
   const history = {
     source: 'https://slopalytics.com/',
     baselineFetchedAt: initialSnapshot.fetchedAt,
     updates: [],
   };
-  const next = structuredClone(initialSnapshot);
-  next.fetchedAt = '2026-10-17T02:17:00.000Z';
-  next.models[0]!.name = 'First update';
-  const fetcher = vi
-    .fn<typeof fetch>()
-    .mockImplementation(
-      async (url) =>
-        new Response(
-          String(url).endsWith('.js')
-            ? `const data=${JSON.stringify(next)}`
-            : '<script type="module" src="/index.js"></script>',
-        ),
-    );
+  next[0]!.release.name = 'First update';
   const options = { snapshotPath, historyPath, fetcher };
   const contents = async () => [await readFile(snapshotPath, 'utf8'), await readFile(historyPath, 'utf8')];
   try {
@@ -42,11 +31,11 @@ it('writes paired data and history once, leaves dry runs and failures untouched,
     const first = await contents();
     expect(snapshotSchema.parse(JSON.parse(first[0]!)).models[0]!.name).toBe('First update');
     expect(historySchema.parse(JSON.parse(first[1]!)).updates).toHaveLength(1);
+    expect(historySchema.parse(JSON.parse(first[1]!)).source).toBe('https://artificialanalysis.ai/models');
     await refreshBenchmarks(options);
     expect(await contents()).toEqual(first);
 
-    next.fetchedAt = '2026-10-18T02:17:00.000Z';
-    next.models[0]!.name = 'Second update';
+    next[0]!.release.name = 'Second update';
     await refreshBenchmarks(options);
     const second = await contents();
     expect(
@@ -60,7 +49,7 @@ it('writes paired data and history once, leaves dry runs and failures untouched,
       }),
     ).rejects.toThrow('503');
     expect(await contents()).toEqual(second);
-    next.models = [];
+    next.splice(0);
     await expect(refreshBenchmarks(options)).rejects.toThrow();
     expect(await contents()).toEqual(second);
   } finally {
