@@ -332,12 +332,6 @@ function Benchmarks() {
                     highlighted={active === view.id ? highlighted : null}
                     onHighlight={setHighlighted}
                   />
-                  {view.metric === 'time' && (
-                    <p className="mt-3 mb-0 shrink-0 text-[11px] leading-4 text-fg-2">
-                      Decode time only. Excludes startup latency and tool waits. ~ marks the local
-                      Ultrafast estimate.
-                    </p>
-                  )}
                 </section>
               );
             })}
