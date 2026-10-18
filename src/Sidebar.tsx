@@ -154,7 +154,7 @@ export const Sidebar = memo(function Sidebar({
           </span>
         </h2>
         <button
-          className="flex size-6 items-center justify-center text-fg-3 [&:hover]:text-fg"
+          className="flex size-6 items-center justify-center text-fg-3 hover:text-fg"
           aria-label="Reset model filters"
           title="Reset model filters"
           onClick={() => {
@@ -220,7 +220,7 @@ export const Sidebar = memo(function Sidebar({
           {section.items.map((family) => (
             <button
               key={family.family}
-              className={`group -mx-1.5 flex min-h-[26px] w-[calc(100%+12px)] items-center gap-[9px] rounded-[5px] px-1.5 text-left text-[12.5px] text-fg-3 hover:bg-hover [&:hover]:text-fg aria-pressed:text-fg wide:min-h-[29px] wide:text-[13px] short:min-h-6 mobile:min-h-11 mobile:text-[15px] ${settings.frontier && settings.selected.includes(family.family) ? (frontier.has(family.family) ? 'font-[550]' : 'opacity-35 [&:hover]:opacity-100 focus-visible:opacity-100') : ''}`}
+              className={`group -mx-1.5 flex min-h-[26px] w-[calc(100%+12px)] items-center gap-[9px] rounded-[5px] px-1.5 text-left text-[12.5px] text-fg-3 hover:bg-hover hover:text-fg aria-pressed:text-fg wide:min-h-[29px] wide:text-[13px] short:min-h-6 mobile:min-h-11 mobile:text-[15px] ${settings.frontier && settings.selected.includes(family.family) ? (frontier.has(family.family) ? 'font-[550]' : 'opacity-35 hover:opacity-100 focus-visible:opacity-100') : ''}`}
               aria-pressed={settings.selected.includes(family.family)}
               onClick={() => toggle(family.family)}
               onMouseEnter={() => onHighlight(family.family)}
@@ -244,7 +244,7 @@ export const Sidebar = memo(function Sidebar({
       ))}
       <div className="flex flex-col gap-2.5 border-t border-line pt-3.5">
         <button
-          className="text-left text-[12px] text-fg-2 [&:hover]:text-fg mobile:min-h-8 mobile:text-[14px]"
+          className="text-left text-[12px] text-fg-2 hover:text-fg mobile:min-h-8 mobile:text-[14px]"
           onClick={() => setBrowse(!browse)}
         >
           {browse ? 'Show fewer models' : 'Show all models'}
