@@ -1,4 +1,4 @@
-import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
+import { mkdtemp, readFile, readdir, rename, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { pathToFileURL } from 'node:url';
@@ -52,6 +52,91 @@ it('writes paired data and history once, leaves dry runs and failures untouched,
     next.splice(0);
     await expect(refreshBenchmarks(options)).rejects.toThrow();
     expect(await contents()).toEqual(second);
+  } finally {
+    await rm(directory, { recursive: true, force: true });
+  }
+});
+
+it.each([1, 2])('restores the original pair and cleans staging files when replacement %i fails', async (failure) => {
+  const directory = await mkdtemp(join(tmpdir(), 'model-refresh-rollback-'));
+  const snapshotPath = pathToFileURL(join(directory, 'benchmarks.json'));
+  const historyPath = pathToFileURL(join(directory, 'changelog.json'));
+  const { rows, fetcher } = sourceFixture([structuredClone(aaModels[0]!)]);
+  const snapshot = await fetchSnapshot(fetcher);
+  const originalSnapshot = JSON.stringify(snapshot);
+  const originalHistory = JSON.stringify({
+    source: snapshot.source,
+    baselineFetchedAt: snapshot.fetchedAt,
+    updates: [],
+  });
+  rows[0]!.release.name = 'Replacement update';
+  const replacementError = new Error('Injected replacement failure');
+  const renameFile = vi.fn<typeof rename>().mockImplementation(async (from, to) => {
+    if (renameFile.mock.calls.length === failure) throw replacementError;
+    await rename(from, to);
+  });
+  try {
+    await writeFile(snapshotPath, originalSnapshot);
+    await writeFile(historyPath, originalHistory);
+    // A stale file from another invocation must not be overwritten or cleaned up.
+    await writeFile(new URL(`${snapshotPath.href}.tmp`), 'unrelated staging file');
+    const originalFiles = (await readdir(directory)).sort();
+    const options = { snapshotPath, historyPath, fetcher, renameFile };
+
+    await expect(refreshBenchmarks(options)).rejects.toBe(replacementError);
+    expect(await readFile(snapshotPath, 'utf8')).toBe(originalSnapshot);
+    expect(await readFile(historyPath, 'utf8')).toBe(originalHistory);
+    expect((await readdir(directory)).sort()).toEqual(originalFiles);
+    expect(await readFile(new URL(`${snapshotPath.href}.tmp`), 'utf8')).toBe('unrelated staging file');
+    expect(renameFile).toHaveBeenCalledTimes(failure === 2 ? 3 : 1);
+
+    const firstTemp = renameFile.mock.calls[0]![0];
+    renameFile.mockClear();
+    renameFile.mockImplementation(rename);
+    await refreshBenchmarks(options);
+    expect(renameFile.mock.calls[0]![0]).not.toEqual(firstTemp);
+    expect(snapshotSchema.parse(JSON.parse(await readFile(snapshotPath, 'utf8'))).models[0]!.name)
+      .toBe('Replacement update');
+    expect(historySchema.parse(JSON.parse(await readFile(historyPath, 'utf8'))).updates).toHaveLength(1);
+    expect((await readdir(directory)).sort()).toEqual(originalFiles);
+  } finally {
+    await rm(directory, { recursive: true, force: true });
+  }
+});
+
+it('retains the original snapshot backup and reports both errors if rollback also fails', async () => {
+  const directory = await mkdtemp(join(tmpdir(), 'model-refresh-recovery-'));
+  const snapshotPath = pathToFileURL(join(directory, 'benchmarks.json'));
+  const historyPath = pathToFileURL(join(directory, 'changelog.json'));
+  const { rows, fetcher } = sourceFixture([structuredClone(aaModels[0]!)]);
+  const snapshot = await fetchSnapshot(fetcher);
+  const originalSnapshot = JSON.stringify(snapshot);
+  const originalHistory = JSON.stringify({
+    source: snapshot.source,
+    baselineFetchedAt: snapshot.fetchedAt,
+    updates: [],
+  });
+  rows[0]!.release.name = 'Replacement update';
+  const replacementError = new Error('Injected replacement failure');
+  const rollbackError = new Error('Injected rollback failure');
+  const renameFile = vi.fn<typeof rename>().mockImplementation(async (from, to) => {
+    if (renameFile.mock.calls.length === 2) throw replacementError;
+    if (renameFile.mock.calls.length === 3) throw rollbackError;
+    await rename(from, to);
+  });
+  try {
+    await writeFile(snapshotPath, originalSnapshot);
+    await writeFile(historyPath, originalHistory);
+    await expect(refreshBenchmarks({ snapshotPath, historyPath, fetcher, renameFile }))
+      .rejects.toMatchObject({
+        errors: [replacementError, rollbackError],
+        message: expect.stringContaining('Original snapshot retained at'),
+      });
+    const backups = (await readdir(directory)).filter((file) => file.endsWith('.backup'));
+    expect(backups).toHaveLength(1);
+    expect(await readFile(join(directory, backups[0]!), 'utf8')).toBe(originalSnapshot);
+    expect(await readFile(historyPath, 'utf8')).toBe(originalHistory);
+    expect((await readdir(directory)).filter((file) => file.endsWith('.tmp'))).toEqual([]);
   } finally {
     await rm(directory, { recursive: true, force: true });
   }

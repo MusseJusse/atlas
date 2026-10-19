@@ -1,4 +1,5 @@
-import { readFile, rename, writeFile } from 'node:fs/promises';
+import { randomUUID } from 'node:crypto';
+import { readFile, rename, rm, writeFile } from 'node:fs/promises';
 import { pathToFileURL } from 'node:url';
 import {
   compareSnapshots,
@@ -16,9 +17,17 @@ export async function refreshBenchmarks({
   historyPath = new URL('../src/data/changelog.json', import.meta.url),
   checkOnly = false,
   fetcher = fetch,
-}: { snapshotPath?: URL; historyPath?: URL; checkOnly?: boolean; fetcher?: typeof fetch } = {}) {
+  renameFile = rename,
+}: {
+  snapshotPath?: URL;
+  historyPath?: URL;
+  checkOnly?: boolean;
+  fetcher?: typeof fetch;
+  renameFile?: typeof rename;
+} = {}) {
   const checkedAt = new Date().toISOString();
-  const previous = snapshotSchema.parse(JSON.parse(await readFile(snapshotPath, 'utf8')));
+  const originalSnapshot = await readFile(snapshotPath, 'utf8');
+  const previous = snapshotSchema.parse(JSON.parse(originalSnapshot));
   const history = historySchema.parse(JSON.parse(await readFile(historyPath, 'utf8')));
   const next = await fetchSnapshot(fetcher);
   const batch = compareSnapshots(previous, next, checkedAt);
@@ -33,12 +42,40 @@ export async function refreshBenchmarks({
     updates: [batch, ...history.updates],
   });
   next.models.sort((a, b) => a.id.localeCompare(b.id, 'en'));
-  const snapshotTemp = new URL(`${snapshotPath.href}.tmp`);
-  const historyTemp = new URL(`${historyPath.href}.tmp`);
-  await writeFile(snapshotTemp, serialize(next));
-  await writeFile(historyTemp, serialize(updatedHistory));
-  await rename(snapshotTemp, snapshotPath);
-  await rename(historyTemp, historyPath);
+  const suffix = randomUUID();
+  const snapshotTemp = new URL(`${snapshotPath.href}.${suffix}.tmp`);
+  const historyTemp = new URL(`${historyPath.href}.${suffix}.tmp`);
+  const snapshotBackup = new URL(`${snapshotPath.href}.${suffix}.backup`);
+  let snapshotReplaced = false;
+  let retainBackup = false;
+  try {
+    await writeFile(snapshotTemp, serialize(next), { flag: 'wx' });
+    await writeFile(historyTemp, serialize(updatedHistory), { flag: 'wx' });
+    await writeFile(snapshotBackup, originalSnapshot, { flag: 'wx' });
+    // Recover from a rejected replacement. These two renames are not crash-atomic.
+    await renameFile(snapshotTemp, snapshotPath);
+    snapshotReplaced = true;
+    await renameFile(historyTemp, historyPath);
+  } catch (error) {
+    if (snapshotReplaced) {
+      try {
+        await renameFile(snapshotBackup, snapshotPath);
+      } catch (rollbackError) {
+        retainBackup = true;
+        throw new AggregateError(
+          [error, rollbackError],
+          `Could not restore the snapshot. Original snapshot retained at ${snapshotBackup.href}`,
+        );
+      }
+    }
+    throw error;
+  } finally {
+    await Promise.all(
+      [snapshotTemp, historyTemp, ...(retainBackup ? [] : [snapshotBackup])].map((path) =>
+        rm(path, { force: true }),
+      ),
+    );
+  }
   return batch;
 }
 
