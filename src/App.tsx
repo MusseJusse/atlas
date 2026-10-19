@@ -8,18 +8,6 @@ import { chartDescending, readSettings, readView, writeSettings, type Settings }
 import { useTheme } from './useTheme';
 import { Brand } from './Brand';
 
-const viewDescriptions = {
-  'cost-intelligence': 'Compare capability at the cost of a benchmark task.',
-  intelligence: 'Intelligence index across reasoning levels. Higher is better.',
-  omniscience: 'Factual reliability across reasoning levels. Higher is better; scores can be negative.',
-  'tokens-task': 'Token consumption for a benchmark task, across reasoning levels.',
-  'tokens-total': 'Total token consumption across the benchmark workload.',
-  'cost-task': 'The cost of a benchmark task. Lower costs less.',
-  'cost-total': 'Total cost across the benchmark workload.',
-  'output-speed': 'Output tokens per second. Higher is faster.',
-  'time-task': 'Estimated decode time per task. Lower is faster.',
-} satisfies Record<ViewId, string>;
-
 const Changelog = lazy(() =>
   import('./Changelog').then(({ Changelog }) => ({ default: Changelog })),
 );
@@ -270,14 +258,9 @@ function Benchmarks() {
                   aria-label={view.label}
                 >
                   <div className="flex shrink-0 items-start justify-between gap-3">
-                    <div>
-                      <h2 className="m-0 text-[25px] leading-tight font-[550] tracking-[-0.8px] phone:text-[22px]">
-                        {view.label}
-                      </h2>
-                      <p className="mt-1.5 mb-0 text-[12px] leading-5 text-fg-2 short:hidden">
-                        {viewDescriptions[view.id]}
-                      </p>
-                    </div>
+                    <h2 className="m-0 text-[25px] leading-tight font-[550] tracking-[-0.8px] phone:text-[22px]">
+                      {view.label}
+                    </h2>
                     <ChartOptions
                       settings={settings}
                       update={update}
