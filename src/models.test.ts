@@ -15,7 +15,7 @@ import {
 } from './models';
 import snapshot from './data/benchmarks.json';
 import { modelFields } from './data/schema';
-import { chartDescending, readSettings, readView, writeSettings } from './state';
+import { chartDescending, readSettings, readView, writeSettings, type Settings } from './state';
 import { speedEndpoints } from './data/speed-endpoints';
 
 const fixture = (id: string, cost: number | null, intelligence: number | null): Model => ({
@@ -286,7 +286,7 @@ it('defaults tokens per task to scatter and preserves a bar chart choice through
 });
 
 it('round-trips an empty selection and view controls through the URL', () => {
-  const settings = {
+  const settings: Settings = {
     ...readSettings(''),
     selected: [],
     excluded: [],
