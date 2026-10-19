@@ -2,7 +2,7 @@ import snapshot from 'virtual:benchmarks';
 import type { Model } from './data/schema';
 import { speedEndpoints } from './data/speed-endpoints';
 export type { Model } from './data/schema';
-export type Metric = 'cost' | 'time' | 'tokens' | 'tokensTotal' | 'costTotal' | 'speed';
+export type Metric = 'cost' | 'intelligence' | 'time' | 'tokens' | 'tokensTotal' | 'costTotal' | 'speed';
 export type Family = { family: string; model: Model; variants: Model[] };
 
 export const models: Model[] = snapshot.models;
@@ -13,6 +13,7 @@ const endpointParents = new Map(
 export const fetchedAt = snapshot.fetchedAt;
 export const views = [
   { id: 'cost-intelligence', label: 'Cost vs intelligence', metric: 'cost', scatter: true },
+  { id: 'intelligence', label: 'Intelligence index', metric: 'intelligence', scatter: false },
   { id: 'tokens-task', label: 'Tokens per task', metric: 'tokens', scatter: false },
   { id: 'tokens-total', label: 'Total tokens', metric: 'tokensTotal', scatter: false },
   { id: 'cost-task', label: 'Cost per task', metric: 'cost', scatter: false },
@@ -121,13 +122,13 @@ export function visibleModels(selected: string[], excluded: string[]) {
   );
 }
 
-/** Keep configurations with a higher score than every better-priced or faster one. */
+/** Keep configurations with a higher score than every better alternative for the metric. */
 export function paretoFrontier(rows: Model[], metric: Metric) {
   const ordered = rows
     .filter((model) => model[metric] !== null && model.intelligence !== null)
     .toSorted(
       (a, b) =>
-        (a[metric]! - b[metric]!) * (metric === 'speed' ? -1 : 1) ||
+        (a[metric]! - b[metric]!) * (metric === 'speed' || metric === 'intelligence' ? -1 : 1) ||
         b.intelligence! - a.intelligence!,
     );
   let best = -Infinity;
@@ -170,7 +171,7 @@ function formatNumber(value: number, maximumFractionDigits: number, minimumFract
 
 export function format(
   value: number | null,
-  metric: Metric | 'intelligence',
+  metric: Metric,
   compact = false,
 ): string {
   if (value === null) return 'Not measured';
@@ -219,6 +220,7 @@ export function formatModelValue(model: Model, metric: Metric, compact = false) 
 
 export const metricLabels: Record<Metric, string> = {
   cost: 'Cost per task',
+  intelligence: 'Intelligence index',
   time: 'Time per task',
   tokens: 'Tokens per task',
   tokensTotal: 'Total tokens',
@@ -227,6 +229,7 @@ export const metricLabels: Record<Metric, string> = {
 };
 export const metricUnits: Record<Metric, string> = {
   cost: 'USD',
+  intelligence: 'Intelligence index',
   time: 'decode time per task',
   tokens: 'output tokens',
   tokensTotal: 'output tokens, full index run',
