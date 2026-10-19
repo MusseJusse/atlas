@@ -1,12 +1,13 @@
 import { lazy, Suspense, useCallback, useEffect, useMemo, useState } from 'react';
-import { ArrowDown, Check, Download, Ellipsis, Moon, SlidersHorizontal, Sun } from 'lucide-react';
+import { ArrowDown, Check, Download, Ellipsis, SlidersHorizontal } from 'lucide-react';
 import { Chart } from './Charts';
 import { Sidebar } from './Sidebar';
 import { useMediaQuery } from './useMediaQuery';
 import { useChartNavigation } from './useChartNavigation';
 import { fetchedAt, paretoFrontier, views, visibleModels } from './models';
 import { chartDescending, readSettings, readView, writeSettings, type Settings } from './state';
-import { useTheme } from './useTheme';
+import { ThemeToggle } from './ThemeToggle';
+import { formatUtcDate } from './formatDate';
 import { Brand } from './Brand';
 
 const Changelog = lazy(() =>
@@ -44,7 +45,6 @@ export function App() {
 function Benchmarks() {
   const search = typeof location === 'undefined' ? '' : location.search;
   const [settings, setSettings] = useState(() => readSettings(search));
-  const [theme, setTheme] = useTheme();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [highlighted, setHighlighted] = useState<string | null>(null);
   const [exportError, setExportError] = useState('');
@@ -117,18 +117,10 @@ function Benchmarks() {
           </a>
         </nav>
         <div className="ml-auto flex items-center gap-3 phone:gap-0">
-          <button
+          <ThemeToggle
             className="flex size-10 items-center justify-center rounded-md text-fg-2 hover:bg-hover hover:text-accent"
-            aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
-            title={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
-            onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-          >
-            {theme === 'dark' ? (
-              <Sun size={16} aria-hidden="true" />
-            ) : (
-              <Moon size={16} aria-hidden="true" />
-            )}
-          </button>
+            showTitle
+          />
           <button
             className="inline-flex min-h-10 items-center justify-center gap-2 rounded-md px-3 text-[12px] text-fg-2 hover:bg-hover hover:text-accent phone:hidden!"
             aria-label="Download PNG"
@@ -310,12 +302,7 @@ function Benchmarks() {
         <span title={`Local snapshot captured ${fetchedAt}`}>
           Snapshot captured{' '}
           <time dateTime={fetchedAt}>
-            {new Date(fetchedAt).toLocaleDateString('en-GB', {
-              day: 'numeric',
-              month: 'short',
-              year: 'numeric',
-              timeZone: 'UTC',
-            })}
+            {formatUtcDate(fetchedAt, 'short')}
           </time>
         </span>
       </footer>

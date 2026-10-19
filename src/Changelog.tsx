@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
-import { Moon, Sun } from 'lucide-react';
 import bundledHistory from 'virtual:changelog';
 import { fieldLabels, type ChangeHistory, type ChangeKind, type FieldChange } from './data/changelog';
-import { useTheme } from './useTheme';
+import { ThemeToggle } from './ThemeToggle';
+import { formatUtcDate, formatUtcDateTime } from './formatDate';
 import { Brand } from './Brand';
 
 const filters = [
@@ -12,14 +12,6 @@ const filters = [
   { id: 'removed', label: 'Removed' },
 ] as const;
 const kindLabels: Record<ChangeKind, string> = { added: 'Added', updated: 'Updated', removed: 'Removed' };
-const date = (value: string) =>
-  new Date(value).toLocaleDateString('en-GB', {
-    day: 'numeric',
-    month: 'long',
-    year: 'numeric',
-    timeZone: 'UTC',
-  });
-const checkedTime = (value: string) => `${date(value)}, ${new Date(value).toISOString().slice(11, 16)} UTC`;
 
 function formatValue(value: FieldChange['before'], field: FieldChange['field']) {
   if (value === null) return 'Not available';
@@ -35,7 +27,6 @@ function formatValue(value: FieldChange['before'], field: FieldChange['field']) 
 
 export function Changelog({ history = bundledHistory }: { history?: ChangeHistory }) {
   const [filter, setFilter] = useState<(typeof filters)[number]['id']>('added');
-  const [theme, setTheme] = useTheme();
   useEffect(() => {
     document.title = 'Atlas · Changelog';
   }, []);
@@ -67,21 +58,17 @@ export function Changelog({ history = bundledHistory }: { history?: ChangeHistor
             Changelog
           </a>
         </nav>
-        <button
+        <ThemeToggle
           className="ml-auto flex size-11 shrink-0 items-center justify-center text-fg-2 [&:hover]:text-fg"
-          aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
-          onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-        >
-          {theme === 'dark' ? <Sun size={16} aria-hidden="true" /> : <Moon size={16} aria-hidden="true" />}
-        </button>
+        />
       </header>
       <main className="mx-auto my-6 max-w-[1000px] rounded-xl bg-panel px-8 pt-8 pb-10 phone:mx-4 phone:px-4 phone:pt-6">
         <div className="flex flex-wrap items-baseline justify-between gap-x-5 gap-y-2">
           <h1 className="m-0 text-[25px] font-medium tracking-[-0.7px] phone:text-[23px]">Model changes</h1>
           <span className="text-[12px] text-fg-2">
             {latest
-              ? `Data checked ${checkedTime(latest.checkedAt)}`
-              : `Baseline snapshot ${date(history.baselineFetchedAt)}`}
+              ? `Data checked ${formatUtcDateTime(latest.checkedAt)}`
+              : `Baseline snapshot ${formatUtcDate(history.baselineFetchedAt)}`}
           </span>
         </div>
         <div
@@ -107,17 +94,17 @@ export function Changelog({ history = bundledHistory }: { history?: ChangeHistor
           <p className="my-10 max-w-[65ch] text-[14px] leading-7 text-fg-2">
             {history.updates.length
               ? 'No changes match this filter.'
-              : `No changes recorded yet. History starts with the ${date(history.baselineFetchedAt)} snapshot. New entries appear when a data update is published.`}
+              : `No changes recorded yet. History starts with the ${formatUtcDate(history.baselineFetchedAt)} snapshot. New entries appear when a data update is published.`}
           </p>
         )}
         {updates.map((batch) => (
           <section
             key={batch.checkedAt}
             className="mt-8"
-            aria-label={`Changes checked ${checkedTime(batch.checkedAt)}`}
+            aria-label={`Changes checked ${formatUtcDateTime(batch.checkedAt)}`}
           >
             <h2 className="mb-3 text-[14px] font-medium">
-              <time dateTime={batch.checkedAt}>{checkedTime(batch.checkedAt)}</time>{' '}
+              <time dateTime={batch.checkedAt}>{formatUtcDateTime(batch.checkedAt)}</time>{' '}
               <span className="ml-3 font-normal text-fg-2">
                 {(['added', 'updated', 'removed'] as const)
                   .flatMap((kind) => {
@@ -181,7 +168,7 @@ export function Changelog({ history = bundledHistory }: { history?: ChangeHistor
               </article>
             ))}
             <p className="mt-2 mb-0 text-[11px] leading-5 text-fg-3">
-              Source snapshot {checkedTime(batch.fetchedAt)}
+              Source snapshot {formatUtcDateTime(batch.fetchedAt)}
             </p>
           </section>
         ))}
