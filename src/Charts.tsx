@@ -9,7 +9,7 @@ import {
 } from 'react';
 import { resolveChartInteraction } from './chart-interactions';
 import { useHydrated } from './useHydrated';
-import { modelColor, shortName, type Model } from './models';
+import { shortName, type Model } from './models';
 import { metrics, resolveView, type View } from './chart-definitions';
 import type { Settings } from './state';
 import { Logo } from './Logo';
@@ -194,9 +194,8 @@ export const Chart = memo(function Chart({
         <div className="hidden plot-mobile:grid grid-cols-2 gap-x-3 gap-y-0.5 pt-2.5">
           {legend.map((model) => (
             <button
-              className="flex min-h-8 items-center gap-[7px] overflow-hidden text-left text-[13px] font-[550] whitespace-nowrap"
+              className="flex min-h-8 items-center gap-[7px] overflow-hidden text-left text-[13px] font-[550] whitespace-nowrap text-fg"
               key={model.family}
-              style={{ color: modelColor(model) }}
               onClick={() => interactions.togglePin(model)}
             >
               <Logo model={model} />

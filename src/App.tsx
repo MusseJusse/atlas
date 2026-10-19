@@ -124,7 +124,7 @@ function Benchmarks() {
           />
           <button
             className="inline-flex min-h-10 items-center justify-center gap-2 rounded-md px-3 text-[12px] text-fg-2 hover:bg-hover hover:text-accent phone:hidden!"
-            aria-label="Download PNG"
+            aria-label="Export chart as PNG"
             onClick={exportPng}
           >
             <Download size={15} aria-hidden="true" />
