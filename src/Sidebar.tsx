@@ -1,17 +1,9 @@
 import { memo, useEffect, useRef, useState } from 'react';
 import { RotateCcw, Search } from 'lucide-react';
 import { defaults, type Settings } from './state';
-import {
-  efforts,
-  families,
-  familyMap,
-  frontierFamilies,
-  modelColor,
-  notableFamilies,
-  shortName,
-  type Family,
-} from './models';
+import { efforts, families, modelColor, shortName } from './models';
 import { Logo } from './Logo';
+import { browseFamilies, curatedSections } from './sidebar-catalogue';
 
 export const Sidebar = memo(function Sidebar({
   settings,
@@ -94,45 +86,23 @@ export const Sidebar = memo(function Sidebar({
         : [...new Set([...settings.selected, ...ids])],
     });
   }
-  const filter = (family: Family) =>
-    (!showOpen && family.model.open && !settings.selected.includes(family.family) ? false : true) &&
-    (!showOlder && family.model.deprecated && !settings.selected.includes(family.family)
-      ? false
-      : true);
-  const ordered = (ids: string[]) =>
-    ids.flatMap((id) => {
-      const family = familyMap.get(id);
-      return family ? [family] : [];
-    });
-  const sections = search.trim()
+  const query = search.trim().toLowerCase();
+  const sections = query
     ? [
         {
           name: 'Results',
           items: families.filter((family) =>
-            `${family.model.name} ${family.model.labName}`
-              .toLowerCase()
-              .includes(search.trim().toLowerCase()),
+            `${family.model.name} ${family.model.labName}`.toLowerCase().includes(query),
           ),
         },
       ]
     : [
-        { name: 'Frontier', items: ordered(frontierFamilies) },
-        { name: 'Notable', items: ordered(notableFamilies) },
+        ...curatedSections,
         ...(browse
           ? [
               {
                 name: 'Other',
-                items: families
-                  .filter(
-                    (family) =>
-                      ![...frontierFamilies, ...notableFamilies].includes(family.family) &&
-                      filter(family),
-                  )
-                  .toSorted(
-                    (a, b) =>
-                      a.model.labName.localeCompare(b.model.labName) ||
-                      (b.model.released ?? '').localeCompare(a.model.released ?? ''),
-                  ),
+                items: browseFamilies(settings.selected, showOpen, showOlder),
               },
             ]
           : []),
