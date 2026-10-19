@@ -758,7 +758,11 @@ const DotPlot = memo(function DotPlot({
   onExpand: (id: string | null) => void;
 }) {
   const groups = useMemo(
-    () => barGroups(rows, metric, true, chartDescending(metric, true, settings.descending)),
+    () => {
+      const descending = chartDescending(metric, true, settings.descending);
+      // Rank ranges by the end the user asked to see first.
+      return barGroups(rows, metric, true, descending, descending ? 'maximum' : 'minimum');
+    },
     [rows, metric, settings.descending],
   );
   const [min, max] = barDomain(groups.flatMap((group) => group.rows.map((row) => row[metric]!)));
@@ -776,7 +780,7 @@ const DotPlot = memo(function DotPlot({
       </div>
       {groups.map((group) => {
         const model = group.rows[0]!;
-        const minimum = Math.min(...group.rows.map((row) => row[metric]!));
+        const { minimum } = group;
         const open = group.id === expanded;
         return (
           <div className="border-b border-line" key={group.id}>

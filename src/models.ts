@@ -149,7 +149,13 @@ export function paretoFrontier(rows: Model[], metric: Metric) {
   });
 }
 
-export function barGroups(rows: Model[], metric: Metric, grouped: boolean, descending: boolean) {
+export function barGroups(
+  rows: Model[],
+  metric: Metric,
+  grouped: boolean,
+  descending: boolean,
+  sortBy: 'minimum' | 'maximum' = 'maximum',
+) {
   const groups = new Map<string, Model[]>();
   for (const row of rows) {
     if (row[metric] === null) continue;
@@ -162,9 +168,10 @@ export function barGroups(rows: Model[], metric: Metric, grouped: boolean, desce
     .map(([id, variants]) => ({
       id,
       rows: variants.toSorted((a, b) => a.effortOrder - b.effortOrder),
+      minimum: Math.min(...variants.map((model) => model[metric]!)),
       maximum: Math.max(...variants.map((model) => model[metric]!)),
     }))
-    .sort((a, b) => (a.maximum - b.maximum) * (descending ? -1 : 1));
+    .sort((a, b) => (a[sortBy] - b[sortBy]) * (descending ? -1 : 1));
 }
 
 // Intl construction dominates repeated chart formatting. There are only a few precision pairs.
