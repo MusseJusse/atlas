@@ -18,7 +18,7 @@ export const defaults: Settings = {
   grouped: true,
   descending: null,
   linear: [],
-  scatter: false,
+  scatter: true,
 };
 
 export function readSettings(search: string): Settings {
@@ -41,7 +41,7 @@ export function readSettings(search: string): Settings {
         .get('linear')
         ?.split(',')
         .filter((id) => views.some((view) => view.id === id)) ?? [],
-    scatter: params.get('scatter') === 'tokens-task',
+    scatter: params.get('scatter') !== 'false',
   };
 }
 
@@ -68,7 +68,7 @@ export function writeSettings(settings: Settings, view: ViewId) {
   if (!settings.grouped) params.set('grouped', 'false');
   if (settings.descending !== null) params.set('sort', settings.descending ? 'desc' : 'asc');
   if (settings.linear.length) params.set('linear', settings.linear.join(','));
-  if (settings.scatter) params.set('scatter', 'tokens-task');
+  if (!settings.scatter) params.set('scatter', 'false');
   if (view !== views[0].id) params.set('chart', view);
   return params.size ? `?${params}` : '/';
 }
