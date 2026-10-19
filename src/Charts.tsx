@@ -923,12 +923,18 @@ export const Chart = memo(function Chart({
   return (
     <div className="relative flex min-h-0 min-w-0 flex-1 flex-col">
       <div
-        className={`relative min-h-0 flex-1 mobile:aspect-[1/1.2] mobile:flex-none ${!scatter ? 'phone:pointer-events-none phone:invisible phone:absolute phone:h-px phone:w-full phone:aspect-auto' : ''}`}
+        className={`relative min-h-0 flex-1 mobile:aspect-[1/1.2] mobile:flex-none ${!scatter && (!ready || validRows.length > 0) ? 'phone:pointer-events-none phone:invisible phone:absolute phone:h-px phone:w-full phone:aspect-auto' : ''}`}
         ref={ref}
       >
         {ready &&
-          (scatter || !phone) &&
-          (validRows.length ? (
+          (validRows.length === 0 ? (
+            <div className="flex h-full flex-col items-center justify-center gap-2.5">
+              <strong className="text-[17px] font-medium">No models to display</strong>
+              <span className="m-0 text-[12px] text-fg-2">
+                Select a model with measurements for this view.
+              </span>
+            </div>
+          ) : (scatter || !phone) && (
             <svg
               id={`chart-${view.id}`}
               className="absolute inset-0 block size-full font-sans [&_g[role=button]:focus]:[outline:none]"
@@ -970,16 +976,9 @@ export const Chart = memo(function Chart({
                 />
               )}
             </svg>
-          ) : (
-            <div className="flex h-full flex-col items-center justify-center gap-2.5">
-              <strong className="text-[17px] font-medium">No models to display</strong>
-              <span className="m-0 text-[12px] text-fg-2">
-                Select a model with measurements for this view.
-              </span>
-            </div>
           ))}
       </div>
-      {ready && !scatter && phone && (
+      {ready && validRows.length > 0 && !scatter && phone && (
         <div className="hidden phone:block">
           <DotPlot
             rows={validRows}
