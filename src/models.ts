@@ -2,15 +2,8 @@ import snapshot from 'virtual:benchmarks';
 import type { Model } from './data/schema';
 import { speedEndpoints } from './data/speed-endpoints';
 export type { Model } from './data/schema';
-export type Metric =
-  | 'cost'
-  | 'intelligence'
-  | 'omniscience'
-  | 'time'
-  | 'tokens'
-  | 'tokensTotal'
-  | 'costTotal'
-  | 'speed';
+import { metrics, type Metric } from './chart-definitions';
+export { views, type Metric, type View, type ViewId } from './chart-definitions';
 export type Family = { family: string; model: Model; variants: Model[] };
 
 export const models: Model[] = snapshot.models;
@@ -19,20 +12,6 @@ const endpointParents = new Map(
   speedEndpoints.map((endpoint) => [endpoint.family, endpoint.parentFamily]),
 );
 export const fetchedAt = snapshot.fetchedAt;
-export const views = [
-  { id: 'cost-intelligence', label: 'Cost vs intelligence', metric: 'cost', scatter: true },
-  { id: 'intelligence', label: 'Intelligence index', metric: 'intelligence', scatter: false },
-  { id: 'omniscience', label: 'AA-Omniscience', metric: 'omniscience', scatter: false },
-  { id: 'tokens-task', label: 'Tokens per task', metric: 'tokens', scatter: false },
-  { id: 'tokens-total', label: 'Total tokens', metric: 'tokensTotal', scatter: false },
-  { id: 'cost-task', label: 'Cost per task', metric: 'cost', scatter: false },
-  { id: 'cost-total', label: 'Total cost', metric: 'costTotal', scatter: false },
-  { id: 'output-speed', label: 'Output speed', metric: 'speed', scatter: false },
-  { id: 'time-task', label: 'Time per task', metric: 'time', scatter: false },
-] as const;
-export type View = (typeof views)[number];
-export type ViewId = View['id'];
-
 export const frontierFamilies = [
   'gpt-6-1-sol',
   'gpt-6-luna',
@@ -138,7 +117,7 @@ export function paretoFrontier(rows: Model[], metric: Metric) {
     .toSorted(
       (a, b) =>
         (a[metric]! - b[metric]!) *
-          (metric === 'speed' || metric === 'intelligence' || metric === 'omniscience' ? -1 : 1) ||
+          (metrics[metric].higherIsBetter ? -1 : 1) ||
         b.intelligence! - a.intelligence!,
     );
   let best = -Infinity;
@@ -234,24 +213,3 @@ export function formatModelValue(model: Model, metric: Metric, compact = false) 
   const value = format(model[metric], metric, compact);
   return metric === 'time' && model.time !== null && model.timeEstimate ? `~${value}` : value;
 }
-
-export const metricLabels: Record<Metric, string> = {
-  cost: 'Cost per task',
-  intelligence: 'Intelligence index',
-  omniscience: 'AA-Omniscience Index',
-  time: 'Time per task',
-  tokens: 'Tokens per task',
-  tokensTotal: 'Total tokens',
-  costTotal: 'Total cost',
-  speed: 'Output speed',
-};
-export const metricUnits: Record<Metric, string> = {
-  cost: 'USD',
-  intelligence: 'Intelligence index',
-  omniscience: 'AA-Omniscience Index',
-  time: 'decode time per task',
-  tokens: 'output tokens',
-  tokensTotal: 'output tokens, full index run',
-  costTotal: 'USD, full index run',
-  speed: 'output tokens/s',
-};
