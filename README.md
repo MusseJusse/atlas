@@ -44,6 +44,7 @@ Components use Tailwind utilities. `src/styles.css` holds the font, theme tokens
 
 - Cost versus intelligence.
 - Intelligence index, with grouped reasoning levels and no cost axis.
+- AA-Omniscience Index, with grouped reasoning levels and positive and negative scores around zero.
 - Tokens per task, total tokens, cost per task, and total cost.
 - Output speed in tokens per second, with grouped reasoning levels and a separate GPT-6.1 Sol Ultrafast endpoint.
 - Time per task, with grouped reasoning levels and a labeled Ultrafast estimate.
@@ -58,6 +59,8 @@ Components use Tailwind utilities. `src/styles.css` holds the font, theme tokens
 The original baseline was a Slopalytics snapshot captured **13 October 2026 at 20:47 UTC**, with **699 model configurations**. Updates now come directly from the public [Artificial Analysis models page](https://artificialanalysis.ai/models). The current snapshot is in `src/data/benchmarks.json`. `pnpm data:sync` fetches the complete dataset used by AA's public charts, including task costs and token counts. No API key is needed. It does not use Slopalytics or AA's authenticated Data API.
 
 Null measurements mean unmeasured or unavailable. They are omitted from the relevant charts, not treated as zero. Benchmark cost per task describes the benchmark workload, not a forecast of personal API spend.
+
+The [AA-Omniscience Index](https://artificialanalysis.ai/evaluations/omniscience) measures factual reliability on a scale of -100 to 100. Higher is better. Correct answers raise the score, incorrect answers lower it, and abstentions have no penalty. Scores come from AA's `omniscience` field without normalization. The chart scales to the selected measurements and includes zero. Negative bars extend below zero, and mobile score positions use the same signed range. The importer and changelog track future score changes.
 
 The output speed chart uses the snapshot's Artificial Analysis speed measurements. A separate [GPT-6.1 Sol Ultrafast measurement](https://artificialanalysis.ai/models/gpt-6-1-sol/providers), retrieved on 17 October 2026, adds 336.4 output tokens/s at Max effort. It lives in `src/data/speed-endpoints.ts`, keeps its own source and date, and has no task cost, token use or intelligence measurements. The GPT-6.1 Sol model picker entry controls both standard and Ultrafast bars. The charts keep Ultrafast as a separate group. Output speed excludes the wait before generation and does not measure complete task duration.
 

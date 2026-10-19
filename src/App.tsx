@@ -11,6 +11,7 @@ import { Brand } from './Brand';
 const viewDescriptions = {
   'cost-intelligence': 'Compare capability at the cost of a benchmark task.',
   intelligence: 'Intelligence index across reasoning levels. Higher is better.',
+  omniscience: 'Factual reliability across reasoning levels. Higher is better; scores can be negative.',
   'tokens-task': 'Token consumption for a benchmark task, across reasoning levels.',
   'tokens-total': 'Total token consumption across the benchmark workload.',
   'cost-task': 'The cost of a benchmark task. Lower costs less.',

@@ -112,6 +112,23 @@ describe('benchmark comparisons', () => {
     ];
     expect(paretoFrontier(rows, 'speed').map((row) => row.id)).toEqual(['fast-tie', 'smart']);
   });
+  it('shows negative and zero Omniscience scores without requiring intelligence or cost', () => {
+    const rows = [
+      { ...fixture('negative', null, null), omniscience: -5.35 },
+      { ...fixture('zero', null, null), omniscience: 0 },
+      { ...fixture('positive', null, null), omniscience: 40.65 },
+      { ...fixture('missing', 1, 50), omniscience: null },
+    ];
+    expect(barGroups(rows, 'omniscience', true, true).map((group) => group.id)).toEqual([
+      'positive', 'zero', 'negative',
+    ]);
+    expect(formatModelValue(rows[0]!, 'omniscience', true)).toBe('-5.4');
+    expect(formatModelValue(rows[1]!, 'omniscience')).toBe('0');
+    const settings = { ...readSettings(''), descending: true };
+    const url = writeSettings(settings, 'omniscience');
+    expect(readView(url)).toBe('omniscience');
+    expect(readSettings(url)).toEqual(settings);
+  });
   it('keeps the endpoint separate from standard models and unmeasured charts', () => {
     const [endpoint] = speedEndpoints;
     const rows = visibleModels([endpoint.parentFamily], ['none', 'max']);

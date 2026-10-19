@@ -2,6 +2,13 @@ import { nice, ticks } from 'd3-array';
 
 type Interval = readonly [number, number];
 
+/** Include every signed measurement and zero, with optional space beyond the bar ends. */
+export function barDomain(values: number[], padding = 0): Interval {
+  const min = Math.min(0, ...values);
+  const max = Math.max(min < 0 ? 0 : 1, ...values);
+  return [min * (1 + padding), max * (1 + padding)];
+}
+
 /** Numeric chart coordinates only. Color and string interpolation are not needed here. */
 export function linearScale(domain: Interval, range: Interval, options: { nice?: boolean } = {}) {
   const [min, max] = options.nice ? nice(domain[0], domain[1], 10) : domain;

@@ -14,6 +14,7 @@ export const modelFields = [
   'effortLabel',
   'effortOrder',
   'intelligence',
+  'omniscience',
   'cost',
   'costTotal',
   'tokens',
