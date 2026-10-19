@@ -1,9 +1,10 @@
-import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { lazy, Suspense, useCallback, useEffect, useMemo, useState } from 'react';
 import { ArrowDown, Check, Download, Ellipsis, Moon, SlidersHorizontal, Sun } from 'lucide-react';
 import { Chart } from './Charts';
 import { Sidebar } from './Sidebar';
 import { useMediaQuery } from './useMediaQuery';
-import { fetchedAt, paretoFrontier, views, visibleModels, type ViewId } from './models';
+import { useChartNavigation } from './useChartNavigation';
+import { fetchedAt, paretoFrontier, views, visibleModels } from './models';
 import { chartDescending, readSettings, readView, writeSettings, type Settings } from './state';
 import { useTheme } from './useTheme';
 import { Brand } from './Brand';
@@ -43,16 +44,13 @@ export function App() {
 function Benchmarks() {
   const search = typeof location === 'undefined' ? '' : location.search;
   const [settings, setSettings] = useState(() => readSettings(search));
-  const [active, setActive] = useState(() => readView(search));
   const [theme, setTheme] = useTheme();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [highlighted, setHighlighted] = useState<string | null>(null);
   const [exportError, setExportError] = useState('');
   const mobile = useMediaQuery('(max-width: 900px)');
   const phone = useMediaQuery('(max-width: 600px)');
-  const feed = useRef<HTMLDivElement>(null);
-  const chartNavigation = useRef<HTMLElement>(null);
-  const navigationTarget = useRef<{ id: ViewId; until: number } | null>(null);
+  const { active, navigate, feed, chartNavigation } = useChartNavigation(mobile);
   const update = useCallback(
     (patch: Partial<Settings>) => setSettings((current) => ({ ...current, ...patch })),
     [],
@@ -75,71 +73,14 @@ function Benchmarks() {
     history.replaceState(null, '', writeSettings(settings, active));
   }, [settings, active]);
   useEffect(() => {
-    const navigation = chartNavigation.current;
-    const button = navigation?.querySelector<HTMLButtonElement>('[aria-current="page"]');
-    if (!navigation || !button) return;
-    const bounds = navigation.getBoundingClientRect();
-    const rect = button.getBoundingClientRect();
-    const offset = rect.left < bounds.left
-      ? rect.left - bounds.left
-      : Math.max(0, rect.right - bounds.right);
-    // Scroll only this strip, preserving the page's vertical scroll position.
-    if (offset) navigation.scrollBy({ left: offset, behavior: 'instant' });
-  }, [active, mobile]);
-  useEffect(() => {
     const pop = () => {
       setSettings(readSettings(location.search));
       navigate(readView(location.search));
     };
     window.addEventListener('popstate', pop);
     return () => window.removeEventListener('popstate', pop);
-  }, []);
-  useEffect(() => {
-    const id = readView(location.search);
-    requestAnimationFrame(() => document.getElementById(id)?.scrollIntoView({ block: 'start' }));
-  }, []);
+  }, [navigate]);
 
-  useEffect(() => {
-    const container = feed.current;
-    if (!container) return;
-    const sections = [...container.querySelectorAll<HTMLElement>('.chart-section')];
-    const observer = new IntersectionObserver(
-      (entries) => {
-        const bounds = entries[0]?.rootBounds;
-        if (!bounds) return;
-        // Notifications only include sections that crossed a threshold. Compare all
-        // sections at their current positions so an outgoing chart cannot steal selection.
-        const visible = sections
-          .map((section) => {
-            const rect = section.getBoundingClientRect();
-            const width = Math.max(0, Math.min(rect.right, bounds.right) - Math.max(rect.left, bounds.left));
-            const height = Math.max(0, Math.min(rect.bottom, bounds.bottom) - Math.max(rect.top, bounds.top));
-            const area = rect.width * rect.height;
-            return { id: section.id, ratio: area > 0 ? (width * height) / area : 0 };
-          })
-          .sort((a, b) => b.ratio - a.ratio)[0];
-        if (!visible || visible.ratio < 0.4) return;
-        const candidate = views.find((view) => view.id === visible.id)?.id;
-        if (!candidate) return;
-        if (
-          navigationTarget.current &&
-          Date.now() < navigationTarget.current.until &&
-          navigationTarget.current.id !== candidate
-        )
-          return;
-        setActive(candidate);
-      },
-      { root: mobile ? null : container, threshold: [0.4, 0.6, 0.9] },
-    );
-    sections.forEach((element) => observer.observe(element));
-    return () => observer.disconnect();
-  }, [mobile]);
-
-  function navigate(id: ViewId) {
-    navigationTarget.current = { id, until: Date.now() + 500 };
-    setActive(id);
-    document.getElementById(id)?.scrollIntoView({ block: 'start', behavior: 'instant' });
-  }
   async function exportPng() {
     setExportError('');
     try {
