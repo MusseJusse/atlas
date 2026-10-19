@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest';
 import { scaleLinear, scaleLog } from 'd3-scale';
-import { linearScale, logScale } from './scales';
+import { barDomain, linearScale, logScale } from './scales';
 import { models } from './models';
 
 test('numeric scales preserve D3 coordinates and ticks across the benchmark domains', () => {
@@ -29,6 +29,24 @@ test('numeric scales preserve D3 coordinates and ticks across the benchmark doma
           expect(logarithmic(value)).toBeCloseTo(referenceLog(value), 10);
           expect(rounded(value)).toBeCloseTo(referenceRounded(value), 10);
         }
+      }
+    }
+  }
+});
+
+test('signed chart scales include zero and keep negative scores within desktop and mobile bounds', () => {
+  for (const values of [[-88.6, 0, 46.4], [-21.9, -5.5], [0], [], [0, 52.4]]) {
+    for (const padding of [0, 0.15]) {
+      const domain = barDomain(values, padding);
+      const desktop = linearScale(domain, [300, 30]);
+      const mobile = linearScale(domain, [0, 100]);
+      for (const value of [...values, 0]) {
+        expect(desktop(value)).toBeGreaterThanOrEqual(30);
+        expect(desktop(value)).toBeLessThanOrEqual(300);
+        expect(mobile(value)).toBeGreaterThanOrEqual(0);
+        expect(mobile(value)).toBeLessThanOrEqual(100);
+        if (value < 0) expect(desktop(value)).toBeGreaterThan(desktop(0));
+        if (value > 0) expect(desktop(value)).toBeLessThan(desktop(0));
       }
     }
   }

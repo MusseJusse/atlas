@@ -13,6 +13,7 @@ export const fieldLabels = {
   effortOrder: 'Reasoning order',
   estimated: 'Estimated',
   intelligence: 'Intelligence',
+  omniscience: 'AA-Omniscience',
   cost: 'Cost per task',
   costTotal: 'Total cost',
   tokens: 'Tokens per task',

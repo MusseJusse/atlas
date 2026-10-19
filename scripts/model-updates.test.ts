@@ -18,6 +18,7 @@ const fixture = (): BenchmarkSnapshot =>
       id: `model-${index}`,
       deprecated: false,
       intelligence: 20,
+      omniscience: null,
       cost: null,
       speed: null,
     })),
@@ -41,6 +42,7 @@ describe('model updates', () => {
     next.models[0]!.name = 'Updated name';
     next.models[0]!.speed = 200;
     next.models[0]!.intelligence = null;
+    next.models[0]!.omniscience = -5.3;
     next.models[0]!.deprecated = true;
     next.models[1]!.id = 'new-model';
     const batch = compareSnapshots(previous, next, checkedAt);
@@ -53,6 +55,7 @@ describe('model updates', () => {
       { field: 'name', before: previous.models[0]!.name, after: 'Updated name' },
       { field: 'deprecated', before: false, after: true },
       { field: 'intelligence', before: previous.models[0]!.intelligence, after: null },
+      { field: 'omniscience', before: null, after: -5.3 },
       { field: 'speed', before: null, after: 200 },
     ]);
     expect(batch.previousFetchedAt).toBe(previous.fetchedAt);
@@ -113,7 +116,7 @@ describe('direct Artificial Analysis import', () => {
       variant: 'DeepSeek V4.1 Flash (max)', lab: 'deepseek', labName: 'DeepSeek',
       released: '2026-09-10', open: true, deprecated: false,
       effort: 'max', effortLabel: 'max', effortOrder: 60, estimated: false,
-      intelligence: 39.456167472527, cost: 0.26522527009606844,
+      intelligence: 39.456167472527, omniscience: -5.3, cost: 0.26522527009606844,
       costTotal: 476.89044593693893, tokens: 88573.99849468909, tokensTotal: 253113556,
       speed: 175.852558774099, time: 361.81506607584737,
       inputPrice: 0.3, outputPrice: 1.2, context: 1000000,
@@ -140,6 +143,26 @@ describe('direct Artificial Analysis import', () => {
       effort: 'default', effortLabel: 'Default', effortOrder: 35,
       intelligence: 0, costTotal: 0, speed: 0, inputPrice: 0,
     });
+  });
+
+  it('imports signed Omniscience scores, distinguishes zero from missing, and rejects invalid scores', async () => {
+    const rows = aaModels.map((model, index) => ({
+      ...model, omniscience: [-5.316666666666666, 0, null][index],
+    }));
+    const { fetcher } = sourceFixture(rows);
+    expect((await fetchSnapshot(fetcher)).models.map((model) => model.omniscience)).toEqual([
+      -5.316666666666666, 0, null,
+    ]);
+    for (const score of [undefined, -101, 101]) {
+      const source = sourceFixture([{ ...aaModels[0]!, omniscience: score }]);
+      await expect(fetchSnapshot(source.fetcher)).rejects.toThrow();
+    }
+    const source = sourceFixture([{ ...aaModels[0]!, omniscience: null }]);
+    await expect(fetchSnapshot(source.fetcher)).rejects.toThrow('missing all omniscience');
+    const legacy = fixture();
+    expect(snapshotSchema.parse({
+      ...legacy, models: legacy.models.map(({ omniscience, ...model }) => model),
+    }).models.every((model) => model.omniscience === null)).toBe(true);
   });
 
   it('reads split Flight records and ignores unrelated scripts without executing code', () => {

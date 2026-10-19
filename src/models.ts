@@ -2,7 +2,15 @@ import snapshot from 'virtual:benchmarks';
 import type { Model } from './data/schema';
 import { speedEndpoints } from './data/speed-endpoints';
 export type { Model } from './data/schema';
-export type Metric = 'cost' | 'intelligence' | 'time' | 'tokens' | 'tokensTotal' | 'costTotal' | 'speed';
+export type Metric =
+  | 'cost'
+  | 'intelligence'
+  | 'omniscience'
+  | 'time'
+  | 'tokens'
+  | 'tokensTotal'
+  | 'costTotal'
+  | 'speed';
 export type Family = { family: string; model: Model; variants: Model[] };
 
 export const models: Model[] = snapshot.models;
@@ -14,6 +22,7 @@ export const fetchedAt = snapshot.fetchedAt;
 export const views = [
   { id: 'cost-intelligence', label: 'Cost vs intelligence', metric: 'cost', scatter: true },
   { id: 'intelligence', label: 'Intelligence index', metric: 'intelligence', scatter: false },
+  { id: 'omniscience', label: 'AA-Omniscience', metric: 'omniscience', scatter: false },
   { id: 'tokens-task', label: 'Tokens per task', metric: 'tokens', scatter: false },
   { id: 'tokens-total', label: 'Total tokens', metric: 'tokensTotal', scatter: false },
   { id: 'cost-task', label: 'Cost per task', metric: 'cost', scatter: false },
@@ -128,7 +137,8 @@ export function paretoFrontier(rows: Model[], metric: Metric) {
     .filter((model) => model[metric] !== null && model.intelligence !== null)
     .toSorted(
       (a, b) =>
-        (a[metric]! - b[metric]!) * (metric === 'speed' || metric === 'intelligence' ? -1 : 1) ||
+        (a[metric]! - b[metric]!) *
+          (metric === 'speed' || metric === 'intelligence' || metric === 'omniscience' ? -1 : 1) ||
         b.intelligence! - a.intelligence!,
     );
   let best = -Infinity;
@@ -209,7 +219,7 @@ export function format(
           ? ([1e3, 'k'] as const)
           : null;
   if (unit) return `${+(value / unit[0]).toFixed(compact ? 0 : 1)}${unit[1]}`;
-  return formatNumber(value, metric === 'intelligence' || !compact ? 1 : 0);
+  return formatNumber(value, metric === 'intelligence' || metric === 'omniscience' || !compact ? 1 : 0);
 }
 
 /** Distinguish local estimates wherever model measurements appear, including exports. */
@@ -221,6 +231,7 @@ export function formatModelValue(model: Model, metric: Metric, compact = false) 
 export const metricLabels: Record<Metric, string> = {
   cost: 'Cost per task',
   intelligence: 'Intelligence index',
+  omniscience: 'AA-Omniscience Index',
   time: 'Time per task',
   tokens: 'Tokens per task',
   tokensTotal: 'Total tokens',
@@ -230,6 +241,7 @@ export const metricLabels: Record<Metric, string> = {
 export const metricUnits: Record<Metric, string> = {
   cost: 'USD',
   intelligence: 'Intelligence index',
+  omniscience: 'AA-Omniscience Index',
   time: 'decode time per task',
   tokens: 'output tokens',
   tokensTotal: 'output tokens, full index run',

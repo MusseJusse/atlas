@@ -9,7 +9,7 @@ import {
   type MouseEvent,
 } from 'react';
 import { extent } from 'd3-array';
-import { linearScale, logScale } from './scales';
+import { barDomain, linearScale, logScale } from './scales';
 import { useHydrated } from './useHydrated';
 import { X } from 'lucide-react';
 import {
@@ -71,10 +71,12 @@ function activate(event: KeyboardEvent<SVGGElement>, action: () => void) {
 /** A fixed place to inspect a configuration without covering the chart. */
 function ConfigurationDetails({
   model,
+  metric,
   pinned,
   onClose,
 }: {
   model: Model | null;
+  metric: Metric;
   pinned: boolean;
   onClose: () => void;
 }) {
@@ -153,7 +155,9 @@ function ConfigurationDetails({
           <dl className="mt-2 mb-0 grid grid-cols-5 gap-x-3 gap-y-3 phone:grid-cols-2">
             {(
               [
-                ['Intelligence index', format(model.intelligence, 'intelligence')],
+                metric === 'omniscience'
+                  ? ['AA-Omniscience Index', format(model.omniscience, 'omniscience')]
+                  : ['Intelligence index', format(model.intelligence, 'intelligence')],
                 ['Cost per task', format(model.cost, 'cost')],
                 ['Time per task', formatModelValue(model, 'time')],
                 ['Tokens per task', format(model.tokens, 'tokens')],
@@ -539,12 +543,15 @@ function Bars({
   const { left, right, top, bottom, y, positioned } = useMemo(() => {
     const left = width < 600 ? 46 : 64;
     const right = width - 18;
-    const top = 30;
+    const top = metric === 'omniscience' ? 50 : 30;
     const bottom = height - 96;
     const groups = barGroups(rows, metric, settings.grouped, settings.descending);
+    const values = rows.map((row) => row[metric]!);
+    // Leave room for negative value labels above the reasoning marks and model names.
+    const labelSpace = values.some((value) => value < 0) ? 42 : 0;
     const y = linearScale(
-      [0, Math.max(...groups.map((group) => group.maximum), 1) * 1.15],
-      [bottom, top],
+      barDomain(values, 0.15),
+      [bottom - labelSpace, top],
     );
     const totalWeight = groups.reduce((total, group) => total + Math.max(3, group.rows.length), 0);
     let groupStart = left;
@@ -564,7 +571,8 @@ function Bars({
           left + textWidth / 2,
           Math.min(right - textWidth / 2, x + barWidth / 2),
         );
-        let labelY = y(row[metric]!) - 8;
+        const negative = row[metric]! < 0;
+        let labelY = y(row[metric]!) + (negative ? 16 : -8);
         while (
           barWidth > 8 &&
           valueLabels.some(
@@ -573,7 +581,7 @@ function Bars({
               Math.abs(label.y - labelY) < 17,
           )
         )
-          labelY -= 17;
+          labelY += negative ? 17 : -17;
         if (barWidth > 8) valueLabels.push({ x: labelX, y: labelY, width: textWidth });
         return { row, x, labelX, labelY, text };
       });
@@ -599,7 +607,7 @@ function Bars({
           </text>
         </g>
       ))}
-      <line x1={left} x2={right} y1={bottom} y2={bottom} stroke="var(--line-2)" />
+      <line x1={left} x2={right} y1={y(0)} y2={y(0)} stroke="var(--line-2)" />
       {positioned.map((group) => {
         const model = group.rows[0]!;
         const name = shortName(model);
@@ -656,9 +664,9 @@ function Bars({
                   />
                   <rect
                     x={barX}
-                    y={barY}
+                    y={Math.min(barY, y(0))}
                     width={group.barWidth}
-                    height={Math.max(1, bottom - barY)}
+                    height={Math.max(1, Math.abs(y(0) - barY))}
                     rx={4}
                     fill={modelColor(row)}
                     opacity={0.62 + (0.38 * row.effortOrder) / 60}
@@ -753,11 +761,17 @@ const DotPlot = memo(function DotPlot({
     () => barGroups(rows, metric, true, settings.descending),
     [rows, metric, settings.descending],
   );
-  const max = Math.max(...groups.map((group) => group.maximum), 1);
+  const [min, max] = barDomain(groups.flatMap((group) => group.rows.map((row) => row[metric]!)));
+  const position = linearScale([min, max], [0, 100]);
   return (
     <div className="flex flex-col">
-      <div className="flex justify-between border-b border-line pt-0.5 pb-1.5 text-[11px] text-fg-3 tabular-nums">
-        <span>0</span>
+      <div className="relative flex justify-between border-b border-line pt-0.5 pb-1.5 text-[11px] text-fg-3 tabular-nums">
+        <span>{format(min, metric, true)}</span>
+        {min < 0 && max > 0 && position(0) > 10 && position(0) < 90 && (
+          <span className="absolute -translate-x-1/2" style={{ left: `${position(0)}%` }}>
+            0
+          </span>
+        )}
         <span>{format(max, metric, true)}</span>
       </div>
       {groups.map((group) => {
@@ -790,17 +804,23 @@ const DotPlot = memo(function DotPlot({
                 <span
                   className="absolute top-[5px] h-0.5 opacity-45"
                   style={{
-                    left: `${(minimum / max) * 100}%`,
-                    width: `${((group.maximum - minimum) / max) * 100}%`,
+                    left: `${position(minimum)}%`,
+                    width: `${position(group.maximum) - position(minimum)}%`,
                     background: modelColor(model),
                   }}
                 />
+                {min < 0 && (
+                  <span
+                    className="absolute top-0 h-3 border-l border-line-2"
+                    style={{ left: `${position(0)}%` }}
+                  />
+                )}
                 {group.rows.map((row) => (
                   <span
                     className="absolute top-px -ml-[5px] size-2.5 rounded-[50%] [box-shadow:0_0_0_1.5px_var(--panel)]"
                     key={row.id}
                     style={{
-                      left: `${(row[metric]! / max) * 100}%`,
+                      left: `${position(row[metric]!)}%`,
                       background: modelColor(row),
                       opacity: 0.62 + (0.38 * row.effortOrder) / 60,
                     }}
@@ -993,6 +1013,7 @@ export const Chart = memo(function Chart({
       {(scatter || !phone) && (
         <ConfigurationDetails
           model={visibleTooltip}
+          metric={view.metric}
           pinned={Boolean(pinned && visibleTooltip)}
           onClose={() => {
             setPinned(null);
