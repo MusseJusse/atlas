@@ -256,7 +256,7 @@ export const Sidebar = memo(function Sidebar({
       </div>
       <div>
         <h3 className="text-[12px] font-[550] mobile:text-[14px]">Reasoning</h3>
-        <div className="mt-2 flex flex-wrap gap-1">
+        <div className="mt-2 grid grid-cols-3 gap-1 mobile:flex mobile:flex-wrap">
           {efforts.map((effort) => (
             <button
               className="min-h-8 rounded-md px-2 text-[11.5px] text-fg-2 aria-pressed:bg-accent-soft aria-pressed:font-medium aria-pressed:text-accent hover:bg-hover mobile:min-h-11 mobile:px-3 mobile:text-[14px]"
