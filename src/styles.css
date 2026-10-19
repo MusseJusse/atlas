@@ -32,7 +32,7 @@
     --logo-filter: invert(1);
     --fg: var(--lightningcss-light, #17213a) var(--lightningcss-dark, #f0f3fa);
     --fg-2: var(--lightningcss-light, #596982) var(--lightningcss-dark, #b3bfd3);
-    --fg-3: var(--lightningcss-light, #64718a) var(--lightningcss-dark, #a2afc5);
+    --fg-3: var(--lightningcss-light, #606d85) var(--lightningcss-dark, #a2afc5);
     --line: var(--lightningcss-light, #dfe5ee) var(--lightningcss-dark, #334159);
     --line-2: var(--lightningcss-light, #c3cdde) var(--lightningcss-dark, #52617b);
     --surface: var(--lightningcss-light, #f1f4fa) var(--lightningcss-dark, #243149);
