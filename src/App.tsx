@@ -101,13 +101,24 @@ function Benchmarks() {
   useEffect(() => {
     const container = feed.current;
     if (!container) return;
+    const sections = [...container.querySelectorAll<HTMLElement>('.chart-section')];
     const observer = new IntersectionObserver(
       (entries) => {
-        const visible = entries
-          .filter((entry) => entry.isIntersecting)
-          .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
-        if (!visible || visible.intersectionRatio < 0.4) return;
-        const candidate = views.find((view) => view.id === visible.target.id)?.id;
+        const bounds = entries[0]?.rootBounds;
+        if (!bounds) return;
+        // Notifications only include sections that crossed a threshold. Compare all
+        // sections at their current positions so an outgoing chart cannot steal selection.
+        const visible = sections
+          .map((section) => {
+            const rect = section.getBoundingClientRect();
+            const width = Math.max(0, Math.min(rect.right, bounds.right) - Math.max(rect.left, bounds.left));
+            const height = Math.max(0, Math.min(rect.bottom, bounds.bottom) - Math.max(rect.top, bounds.top));
+            const area = rect.width * rect.height;
+            return { id: section.id, ratio: area > 0 ? (width * height) / area : 0 };
+          })
+          .sort((a, b) => b.ratio - a.ratio)[0];
+        if (!visible || visible.ratio < 0.4) return;
+        const candidate = views.find((view) => view.id === visible.id)?.id;
         if (!candidate) return;
         if (
           navigationTarget.current &&
@@ -119,7 +130,7 @@ function Benchmarks() {
       },
       { root: mobile ? null : container, threshold: [0.4, 0.6, 0.9] },
     );
-    container.querySelectorAll('.chart-section').forEach((element) => observer.observe(element));
+    sections.forEach((element) => observer.observe(element));
     return () => observer.disconnect();
   }, [mobile]);
 
