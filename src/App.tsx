@@ -4,7 +4,7 @@ import { Chart } from './Charts';
 import { Sidebar } from './Sidebar';
 import { useMediaQuery } from './useMediaQuery';
 import { fetchedAt, paretoFrontier, views, visibleModels, type ViewId } from './models';
-import { readSettings, readView, writeSettings, type Settings } from './state';
+import { chartDescending, readSettings, readView, writeSettings, type Settings } from './state';
 import { useTheme } from './useTheme';
 import { Brand } from './Brand';
 
@@ -278,7 +278,11 @@ function Benchmarks() {
                         {viewDescriptions[view.id]}
                       </p>
                     </div>
-                    <ChartOptions settings={settings} update={update} />
+                    <ChartOptions
+                      settings={settings}
+                      update={update}
+                      descending={chartDescending(view.metric, phone, settings.descending)}
+                    />
                   </div>
                   <div className="flex min-h-[58px] shrink-0 short:min-h-12 short:py-1 flex-wrap items-center justify-between gap-x-4 gap-y-1 py-2 text-[12px]">
                     {scatter ? (
@@ -407,9 +411,11 @@ function Benchmarks() {
 function ChartOptions({
   settings,
   update,
+  descending,
 }: {
   settings: Settings;
   update: (patch: Partial<Settings>) => void;
+  descending: boolean;
 }) {
   return (
     <details className="group relative shrink-0">
@@ -444,14 +450,14 @@ function ChartOptions({
         </button>
         <button
           className="inline-flex min-h-10 items-center gap-2 px-1 text-[12px] text-fg hover:text-accent"
-          onClick={() => update({ descending: !settings.descending })}
+          onClick={() => update({ descending: !descending })}
         >
           <ArrowDown
             size={14}
-            style={{ transform: settings.descending ? 'rotate(180deg)' : undefined }}
+            style={{ transform: descending ? 'rotate(180deg)' : undefined }}
             aria-hidden="true"
           />
-          {settings.descending ? 'Highest first' : 'Highest last'}
+          {descending ? 'Highest first' : 'Highest last'}
         </button>
       </div>
     </details>

@@ -14,7 +14,7 @@ import {
 } from './models';
 import snapshot from './data/benchmarks.json';
 import { modelFields } from './data/schema';
-import { readSettings, readView, writeSettings } from './state';
+import { chartDescending, readSettings, readView, writeSettings } from './state';
 import { speedEndpoints } from './data/speed-endpoints';
 
 const fixture = (id: string, cost: number | null, intelligence: number | null): Model => ({
@@ -187,6 +187,47 @@ describe('benchmark comparisons', () => {
     expect(enabled.some((row) => row.family === endpoint.parentFamily)).toBe(true);
     expect(enabled).toContainEqual(endpoint);
     expect(barGroups(enabled, 'speed', true, false).at(-1)?.id).toBe(endpoint.family);
+  });
+});
+
+describe('chart ordering', () => {
+  it.each([
+    ['cost', ['low', 'high']],
+    ['costTotal', ['low', 'high']],
+    ['tokens', ['low', 'high']],
+    ['tokensTotal', ['low', 'high']],
+    ['time', ['low', 'high']],
+    ['intelligence', ['high', 'low']],
+    ['omniscience', ['high', 'low']],
+    ['speed', ['high', 'low']],
+  ] as const)('defaults mobile %s ranges to best first and desktop bars to ascending', (metric, expected) => {
+    const rows = [
+      { ...fixture('low', 1, 1), [metric]: -1 },
+      { ...fixture('high', 2, 2), [metric]: 2 },
+      { ...fixture('missing', null, null), [metric]: null },
+    ];
+    const { descending } = readSettings('');
+    expect(barGroups(rows, metric, true, chartDescending(metric, true, descending)).map((group) => group.id))
+      .toEqual(expected);
+    expect(barGroups(rows, metric, true, chartDescending(metric, false, descending)).map((group) => group.id))
+      .toEqual(['low', 'high']);
+  });
+
+  it.each([true, false])('preserves an explicit descending=%s choice across metrics and viewports', (descending) => {
+    const settings = { ...readSettings(''), descending };
+    const url = writeSettings(settings, 'intelligence');
+    expect(url).toContain(`sort=${descending ? 'desc' : 'asc'}`);
+    expect(readSettings(url)).toEqual(settings);
+    for (const { metric } of views) {
+      expect(chartDescending(metric, true, readSettings(url).descending)).toBe(descending);
+      expect(chartDescending(metric, false, readSettings(url).descending)).toBe(descending);
+    }
+  });
+
+  it('keeps automatic ordering when a URL has no recognized sort choice', () => {
+    expect(readSettings('').descending).toBeNull();
+    expect(readSettings('?sort=unknown').descending).toBeNull();
+    expect(writeSettings(readSettings(''), 'cost-intelligence')).toBe('/');
   });
 });
 
