@@ -63,6 +63,7 @@ function Benchmarks() {
   const mobile = useMediaQuery('(max-width: 900px)');
   const phone = useMediaQuery('(max-width: 600px)');
   const feed = useRef<HTMLDivElement>(null);
+  const chartNavigation = useRef<HTMLElement>(null);
   const navigationTarget = useRef<{ id: ViewId; until: number } | null>(null);
   const update = useCallback(
     (patch: Partial<Settings>) => setSettings((current) => ({ ...current, ...patch })),
@@ -85,6 +86,18 @@ function Benchmarks() {
   useEffect(() => {
     history.replaceState(null, '', writeSettings(settings, active));
   }, [settings, active]);
+  useEffect(() => {
+    const navigation = chartNavigation.current;
+    const button = navigation?.querySelector<HTMLButtonElement>('[aria-current="page"]');
+    if (!navigation || !button) return;
+    const bounds = navigation.getBoundingClientRect();
+    const rect = button.getBoundingClientRect();
+    const offset = rect.left < bounds.left
+      ? rect.left - bounds.left
+      : Math.max(0, rect.right - bounds.right);
+    // Scroll only this strip, preserving the page's vertical scroll position.
+    if (offset) navigation.scrollBy({ left: offset, behavior: 'instant' });
+  }, [active, mobile]);
   useEffect(() => {
     const pop = () => {
       setSettings(readSettings(location.search));
@@ -226,6 +239,7 @@ function Benchmarks() {
               <span className="ml-auto text-accent">Edit selection</span>
             </button>
             <nav
+              ref={chartNavigation}
               className="flex min-w-0 gap-6 overflow-x-auto border-b border-line [scrollbar-width:thin] [scrollbar-color:var(--line-2)_transparent] compact:gap-5"
               aria-label="Chart views"
             >
