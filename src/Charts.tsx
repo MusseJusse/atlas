@@ -25,7 +25,7 @@ import {
   type Model,
   type View,
 } from './models';
-import type { Settings } from './state';
+import { chartDescending, type Settings } from './state';
 import { Logo, SvgLogo } from './Logo';
 
 function useSize(enabled: boolean) {
@@ -545,7 +545,7 @@ function Bars({
     const right = width - 18;
     const top = metric === 'omniscience' ? 50 : 30;
     const bottom = height - 96;
-    const groups = barGroups(rows, metric, settings.grouped, settings.descending);
+    const groups = barGroups(rows, metric, settings.grouped, settings.descending ?? false);
     const values = rows.map((row) => row[metric]!);
     // Leave room for negative value labels above the reasoning marks and model names.
     const labelSpace = values.some((value) => value < 0) ? 42 : 0;
@@ -758,7 +758,7 @@ const DotPlot = memo(function DotPlot({
   onExpand: (id: string | null) => void;
 }) {
   const groups = useMemo(
-    () => barGroups(rows, metric, true, settings.descending),
+    () => barGroups(rows, metric, true, chartDescending(metric, true, settings.descending)),
     [rows, metric, settings.descending],
   );
   const [min, max] = barDomain(groups.flatMap((group) => group.rows.map((row) => row[metric]!)));
