@@ -17,15 +17,12 @@ import {
   barGroups,
   format,
   formatModelValue,
-  metricLabels,
-  metricUnits,
   modelColor,
   paretoFrontier,
   shortName,
-  type Metric,
   type Model,
-  type View,
 } from './models';
+import { metrics, resolveView, type Metric, type View } from './chart-definitions';
 import { chartDescending, type Settings } from './state';
 import { Logo, SvgLogo } from './Logo';
 
@@ -192,6 +189,7 @@ function ConfigurationDetails({
 function Scatter({
   rows,
   metric,
+  linear,
   settings,
   width,
   height,
@@ -199,15 +197,13 @@ function Scatter({
 }: {
   rows: Model[];
   metric: Metric;
+  linear: boolean;
   settings: Settings;
   width: number;
   height: number;
   interactions: Interactions;
 }) {
   const mobile = width < 600;
-  const linear = settings.linear.includes(
-    metric === 'tokens' ? 'tokens-task' : 'cost-intelligence',
-  );
   const {
     left,
     right,
@@ -358,7 +354,7 @@ function Scatter({
                 key={model.id}
                 role="button"
                 tabIndex={0}
-                aria-label={`${model.name}, ${model.effortLabel}, ${metricLabels[metric]} ${format(model[metric], metric)}, intelligence ${format(model.intelligence, 'intelligence')}`}
+                aria-label={`${model.name}, ${model.effortLabel}, ${metrics[metric].label} ${format(model[metric], metric)}, intelligence ${format(model.intelligence, 'intelligence')}`}
                 aria-pressed={interactions.pinned?.id === model.id}
                 className="cursor-pointer focus-visible:[&>circle:last-child]:stroke-accent focus-visible:[&>circle:last-child]:stroke-[3] focus-visible:[&>rect:nth-child(2)]:stroke-accent focus-visible:[&>rect:nth-child(2)]:stroke-[3] mobile:focus-visible:[outline:none]"
                 opacity={settings.frontier && !onFrontier && !active && !activeFamily ? 0.15 : 1}
@@ -453,7 +449,7 @@ function Scatter({
         fill="var(--fg-2)"
         fontSize="12"
       >
-        {metricLabels[metric]} ({metric === 'cost' ? 'USD' : metricUnits[metric]},{' '}
+        {metrics[metric].label} ({metrics[metric].unit},{' '}
         {linear ? 'linear' : 'log'} scale)
       </text>
     </>
@@ -588,7 +584,7 @@ function Bars({
   return (
     <>
       <text x={left} y={17} fill="var(--fg-2)" fontSize={12}>
-        {metricUnits[metric]}
+        {metrics[metric].unit}
       </text>
       {y.ticks(4).map((tick) => (
         <g key={tick} transform={`translate(0,${y(tick)})`}>
@@ -634,7 +630,7 @@ function Bars({
                   role="button"
                   tabIndex={0}
                   className="cursor-pointer focus-visible:[&>circle:last-child]:stroke-accent focus-visible:[&>circle:last-child]:stroke-[3] focus-visible:[&>rect:nth-child(2)]:stroke-accent focus-visible:[&>rect:nth-child(2)]:stroke-[3] mobile:focus-visible:[outline:none]"
-                  aria-label={`${visibleLabel}${row.name}, ${row.effortLabel} reasoning, ${metricLabels[metric]} ${metric === 'time' && row.timeEstimate ? 'estimated ' : ''}${formatModelValue(row, metric)}`}
+                  aria-label={`${visibleLabel}${row.name}, ${row.effortLabel} reasoning, ${metrics[metric].label} ${metric === 'time' && row.timeEstimate ? 'estimated ' : ''}${formatModelValue(row, metric)}`}
                   aria-pressed={interactions.pinned?.id === row.id}
                   onMouseEnter={() => enterHover(row.family, () => interactions.hover(row))}
                   onMouseLeave={cancelEnter}
@@ -865,8 +861,7 @@ export const Chart = memo(function Chart({
   const [visited, setVisited] = useState(active);
   const hydrated = useHydrated();
   const ready = hydrated && (active || visited);
-  const scatter = view.scatter || (view.id === 'tokens-task' && settings.scatter);
-  const linear = settings.linear.includes(view.id);
+  const { scatter, linear } = resolveView(view, settings);
   const { ref, width, height } = useSize(ready && (scatter || !phone));
 
   // Desktop sections have a fixed height, so charts can mount just before scrolling into view.
@@ -942,7 +937,7 @@ export const Chart = memo(function Chart({
               role="group"
               aria-label={
                 scatter
-                  ? `${metricLabels[view.metric]} versus Intelligence Index`
+                  ? `${metrics[view.metric].label} versus Intelligence Index`
                   : `${view.label} by model`
               }
               onClick={closeOnBackground}
@@ -960,6 +955,7 @@ export const Chart = memo(function Chart({
                 <Scatter
                   rows={validRows}
                   metric={view.metric}
+                  linear={linear}
                   settings={settings}
                   width={width}
                   height={height}

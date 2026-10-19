@@ -1,4 +1,5 @@
-import { defaultSelected, families, views, type Metric, type ViewId } from './models';
+import { defaultSelected, families } from './models';
+import { metrics, views, type Metric, type ViewId } from './chart-definitions';
 import { efforts } from './data/efforts';
 
 export type Settings = {
@@ -54,9 +55,7 @@ export function readView(search: string): ViewId {
 
 /** Mobile ranges put the better end first unless the user chose an order. */
 export function chartDescending(metric: Metric, phone: boolean, descending: Settings['descending']) {
-  return descending ?? (
-    phone && (metric === 'intelligence' || metric === 'omniscience' || metric === 'speed')
-  );
+  return descending ?? (phone && metrics[metric].higherIsBetter);
 }
 
 export function writeSettings(settings: Settings, view: ViewId) {

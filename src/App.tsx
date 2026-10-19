@@ -4,7 +4,8 @@ import { Chart } from './Charts';
 import { Sidebar } from './Sidebar';
 import { useMediaQuery } from './useMediaQuery';
 import { useChartNavigation } from './useChartNavigation';
-import { fetchedAt, paretoFrontier, views, visibleModels } from './models';
+import { fetchedAt, paretoFrontier, visibleModels } from './models';
+import { resolveView, views } from './chart-definitions';
 import { chartDescending, readSettings, readView, writeSettings, type Settings } from './state';
 import { ThemeToggle } from './ThemeToggle';
 import { formatUtcDate } from './formatDate';
@@ -181,8 +182,7 @@ function Benchmarks() {
             ref={feed}
           >
             {views.map((view) => {
-              const scatter = view.scatter || (view.id === 'tokens-task' && settings.scatter);
-              const linear = settings.linear.includes(view.id);
+              const { scatter, linear } = resolveView(view, settings);
               return (
                 <section
                   className="chart-section flex h-full snap-start flex-col px-6 pt-5 pb-4 short:pt-4 short:pb-3 [&+section]:border-t [&+section]:border-line mobile:h-auto mobile:scroll-mt-[180px] mobile:px-4 mobile:pb-6"
@@ -201,7 +201,7 @@ function Benchmarks() {
                     />
                   </div>
                   <div
-                    className={`flex min-h-[58px] shrink-0 short:min-h-12 short:py-1 flex-wrap items-center justify-between gap-x-4 gap-y-1 py-2 text-[12px] ${!scatter && view.id !== 'tokens-task' ? 'mobile:hidden' : ''}`}
+                    className={`flex min-h-[58px] shrink-0 short:min-h-12 short:py-1 flex-wrap items-center justify-between gap-x-4 gap-y-1 py-2 text-[12px] ${!scatter && view.mode !== 'optional-scatter' ? 'mobile:hidden' : ''}`}
                   >
                     {scatter ? (
                       <button
@@ -219,7 +219,7 @@ function Benchmarks() {
                       </span>
                     )}
                     <div className="ml-auto flex items-center gap-5 phone:gap-3">
-                      {view.id === 'tokens-task' && (
+                      {view.mode === 'optional-scatter' && (
                         <div
                           className="flex gap-1 rounded-md bg-surface p-1"
                           role="group"
