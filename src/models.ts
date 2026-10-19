@@ -52,7 +52,7 @@ export const notableFamilies = [
   'qwen3-8-27b',
 ];
 export const defaultSelected = frontierFamilies.filter((id) => id !== 'claude-sonnet-5-5');
-export const efforts = ['none', 'low', 'medium', 'high', 'xhigh', 'max'];
+export { efforts } from './data/efforts';
 
 const byFamily = new Map<string, Model[]>();
 for (const model of allModels) {

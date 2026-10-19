@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Moon, Sun } from 'lucide-react';
-import historyData from './data/changelog.json';
+import bundledHistory from 'virtual:changelog';
 import { fieldLabels, type ChangeHistory, type ChangeKind, type FieldChange } from './data/changelog';
 import { useTheme } from './useTheme';
 import { Brand } from './Brand';
@@ -12,8 +12,6 @@ const filters = [
   { id: 'removed', label: 'Removed' },
 ] as const;
 const kindLabels: Record<ChangeKind, string> = { added: 'Added', updated: 'Updated', removed: 'Removed' };
-// The sync command validates this JSON before committing it.
-const bundledHistory = historyData as ChangeHistory;
 const date = (value: string) =>
   new Date(value).toLocaleDateString('en-GB', {
     day: 'numeric',

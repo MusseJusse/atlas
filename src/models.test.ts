@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   barGroups,
   defaultSelected,
+  efforts,
   families,
   fetchedAt,
   format,
@@ -43,6 +44,18 @@ it('keeps number precision when reusing formatters across chart metrics', () => 
 });
 
 describe('benchmark comparisons', () => {
+  it('lets the picker exclude default and minimal efforts without changing URL defaults', () => {
+    expect(efforts).toContain('default');
+    expect(efforts).toContain('minimal');
+    expect(readSettings('').excluded).toEqual(['none', 'max']);
+    for (const effort of ['default', 'minimal']) {
+      const selected = [
+        ...new Set(models.filter((model) => model.effort === effort).map((model) => model.family)),
+      ];
+      expect(visibleModels(selected, []).some((model) => model.effort === effort)).toBe(true);
+      expect(visibleModels(selected, [effort]).some((model) => model.effort === effort)).toBe(false);
+    }
+  });
   it('removes dominated points and lower-scoring ties without treating missing values as zero', () => {
     const rows = [
       fixture('missing-cost', null, 100),

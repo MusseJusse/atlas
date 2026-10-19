@@ -2,80 +2,19 @@ import { createDecipheriv, createHash } from 'node:crypto';
 import { gunzipSync } from 'node:zlib';
 import { z } from 'zod';
 import {
-  fieldLabels,
+  modelSchema,
+  snapshotSchema,
+  type BenchmarkSnapshot,
   type ChangeBatch,
-  type ChangeHistory,
   type FieldChange,
-} from '../src/data/changelog.ts';
+} from '../src/data/schema.ts';
+
+// Keep the importer API available to the refresh and sync commands.
+export { modelSchema, snapshotSchema, historySchema } from '../src/data/schema.ts';
+export type { BenchmarkSnapshot } from '../src/data/schema.ts';
 
 const text = z.string().min(1);
 const measurement = z.number().nonnegative().nullable();
-export const modelSchema = z.strictObject({
-  id: text,
-  family: text,
-  name: text,
-  variant: text,
-  lab: text,
-  labName: text,
-  released: z.iso.date().nullable(),
-  open: z.boolean(),
-  deprecated: z.boolean(),
-  effort: text,
-  effortLabel: text,
-  effortOrder: z.number().nonnegative(),
-  estimated: z.boolean(),
-  intelligence: z.number().nullable(),
-  omniscience: z.number().min(-100).max(100).nullable().default(null),
-  cost: measurement,
-  costTotal: measurement,
-  tokens: measurement,
-  tokensTotal: measurement,
-  speed: measurement,
-  time: measurement,
-  inputPrice: measurement,
-  outputPrice: measurement,
-  context: measurement,
-});
-export const snapshotSchema = z
-  .object({
-    fetchedAt: z.iso.datetime(),
-    source: z.url().optional(),
-    sourceHash: text.optional(),
-    models: z.array(modelSchema).nonempty(),
-  })
-  .superRefine(({ models }, ctx) => {
-    if (new Set(models.map((model) => model.id)).size !== models.length)
-      ctx.addIssue({ code: 'custom', message: 'Duplicate model IDs in the snapshot.' });
-  });
-export type BenchmarkSnapshot = z.infer<typeof snapshotSchema>;
-
-const changeValue = z.union([z.string(), z.number(), z.boolean(), z.null()]);
-export const historySchema = z.strictObject({
-  source: z.url(),
-  baselineFetchedAt: z.iso.datetime(),
-  updates: z.array(
-    z.strictObject({
-      checkedAt: z.iso.datetime(),
-      previousFetchedAt: z.iso.datetime(),
-      fetchedAt: z.iso.datetime(),
-      changes: z.array(
-        z.strictObject({
-          id: text,
-          name: text,
-          effortLabel: text,
-          kind: z.enum(['added', 'updated', 'removed']),
-          fields: z.array(
-            z.strictObject({
-              field: modelSchema.keyof(),
-              before: changeValue,
-              after: changeValue,
-            }),
-          ),
-        }),
-      ),
-    }),
-  ),
-}) satisfies z.ZodType<ChangeHistory>;
 
 export const upstreamUrl = 'https://artificialanalysis.ai/models';
 const maxSourceBytes = 20_000_000;
@@ -236,7 +175,7 @@ export function compareSnapshots(
   const before = new Map(previous.models.map((model) => [model.id, model]));
   const after = new Map(next.models.map((model) => [model.id, model]));
   const changes: ChangeBatch['changes'] = [];
-  const fields = modelSchema.keyof().options satisfies (keyof typeof fieldLabels)[];
+  const fields = modelSchema.keyof().options;
   for (const id of [...new Set([...before.keys(), ...after.keys()])].sort()) {
     const old = before.get(id);
     const current = after.get(id);
