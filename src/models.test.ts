@@ -84,6 +84,24 @@ describe('benchmark comparisons', () => {
     const rows = [fixture('cheap', 1, 20), fixture('expensive', 3, 25), fixture('missing', null, 30)];
     expect(barGroups(rows, 'cost', true, true).map((group) => group.id)).toEqual(['expensive', 'cheap']);
   });
+  it('groups and sorts intelligence scores independently of cost, keeping zero scores', () => {
+    const low = { ...fixture('low', null, 42.3), family: 'scored', effortOrder: 10 };
+    const high = { ...fixture('high', 1, 52.4), family: 'scored', effortOrder: 30 };
+    const zero = fixture('zero', null, 0);
+    const rows = [high, fixture('missing-score', 1, null), zero, low];
+    const groups = barGroups(rows, 'intelligence', true, true);
+    expect(groups.map((group) => group.id)).toEqual(['scored', 'zero']);
+    expect(groups[0]?.rows).toEqual([low, high]);
+    expect(barGroups(rows, 'intelligence', false, false).map((group) => group.id)).toEqual([
+      'zero', 'low', 'high',
+    ]);
+    expect(formatModelValue(high, 'intelligence', true)).toBe('52.4');
+    expect(paretoFrontier(rows, 'intelligence')).toEqual([high]);
+    const settings = { ...readSettings(''), selected: ['gpt-6-1-sol'], excluded: ['none'] };
+    const url = writeSettings(settings, 'intelligence');
+    expect(readView(url)).toBe('intelligence');
+    expect(readSettings(url)).toEqual(settings);
+  });
   it('prefers higher output speed when finding the intelligence frontier', () => {
     const rows = [
       { ...fixture('fast', 1, 20), speed: 300 },

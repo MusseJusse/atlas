@@ -43,6 +43,7 @@ Components use Tailwind utilities. `src/styles.css` holds the font, theme tokens
 ## Included
 
 - Cost versus intelligence.
+- Intelligence index, with grouped reasoning levels and no cost axis.
 - Tokens per task, total tokens, cost per task, and total cost.
 - Output speed in tokens per second, with grouped reasoning levels and a separate GPT-6.1 Sol Ultrafast endpoint.
 - Time per task, with grouped reasoning levels and a labeled Ultrafast estimate.
