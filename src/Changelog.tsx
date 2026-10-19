@@ -36,7 +36,7 @@ function formatValue(value: FieldChange['before'], field: FieldChange['field']) 
 }
 
 export function Changelog({ history = bundledHistory }: { history?: ChangeHistory }) {
-  const [filter, setFilter] = useState<(typeof filters)[number]['id']>('all');
+  const [filter, setFilter] = useState<(typeof filters)[number]['id']>('added');
   const [theme, setTheme] = useTheme();
   useEffect(() => {
     document.title = 'Atlas · Changelog';

@@ -16,20 +16,26 @@ const history: ChangeHistory = {
           id: 'example',
           name: 'Example <model>',
           effortLabel: 'Max',
-          kind: 'updated',
+          kind: 'added',
           fields: [
             { field: 'speed', before: null, after: 0 },
             { field: 'deprecated', before: false, after: true },
             { field: 'cost', before: 0.0000000000001, after: 0.0000000000002 },
           ],
         },
+        { id: 'updated', name: 'Updated model', effortLabel: 'Max', kind: 'updated', fields: [] },
+        { id: 'removed', name: 'Removed model', effortLabel: 'Max', kind: 'removed', fields: [] },
       ],
     },
   ],
 };
 
-it('shows exact before and after values with null, zero, and boolean distinctions', () => {
+it('defaults to added changes and preserves exact field values', () => {
   const markup = renderToStaticMarkup(<Changelog history={history} />);
+  expect(markup).toMatch(/<button[^>]*aria-pressed="true"[^>]*>Added<\/button>/);
+  expect(markup).not.toContain('Updated model');
+  expect(markup).not.toContain('Removed model');
+  expect(markup).toContain('1 change shown');
   expect(markup).toContain('Example &lt;model&gt;');
   expect(markup).toContain('Not available');
   expect(markup).toContain('0 tok/s');
