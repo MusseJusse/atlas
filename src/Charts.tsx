@@ -10,6 +10,7 @@ import {
 } from 'react';
 import { barDomain, linearScale, logScale } from './scales';
 import { scatterDomain, scatterRows } from './scatter-data';
+import { resolveChartInteraction } from './chart-interactions';
 import { useHydrated } from './useHydrated';
 import { X } from 'lucide-react';
 import {
@@ -53,7 +54,7 @@ function useSize(enabled: boolean) {
 }
 
 type Interactions = {
-  hovered: Model | null;
+  activeModel: Model | null;
   pinned: Model | null;
   highlighted: string | null;
   hover: (model: Model | null) => void;
@@ -285,14 +286,13 @@ function Scatter({
       path,
     };
   }, [rows, metric, width, height, settings.labels, linear]);
-  const activeModel = interactions.pinned ?? interactions.hovered;
+  const { activeModel } = interactions;
   const activeFamily = activeModel?.family ?? interactions.highlighted;
-  const activePoint = rows.find((row) => row.id === activeModel?.id);
-  const guide = activePoint
+  const guide = activeModel
     ? {
-        x: x(activePoint[metric]!),
-        y: y(activePoint.intelligence!),
-        color: modelColor(activePoint),
+        x: x(activeModel[metric]!),
+        y: y(activeModel.intelligence!),
+        color: modelColor(activeModel),
       }
     : null;
 
@@ -352,8 +352,7 @@ function Scatter({
           />
           {series.rows.map((model) => {
             const onFrontier = frontierIds.has(model.id);
-            const active =
-              interactions.pinned?.id === model.id || interactions.hovered?.id === model.id;
+            const active = activeModel?.id === model.id;
             return (
               <g
                 key={model.id}
@@ -580,9 +579,10 @@ function Bars({
     });
     return { left, right, top, bottom, y, positioned };
   }, [rows, metric, width, height, settings.grouped, settings.descending]);
-  const activeModel = interactions.pinned ?? interactions.hovered;
-  const activeFamily = activeModel?.family ?? hoveredFamily ?? interactions.highlighted;
-  const activeValue = rows.find((row) => row.id === activeModel?.id)?.[metric];
+  const { activeModel } = interactions;
+  const visibleFamily = rows.some((row) => row.family === hoveredFamily) ? hoveredFamily : null;
+  const activeFamily = activeModel?.family ?? visibleFamily ?? interactions.highlighted;
+  const activeValue = activeModel?.[metric];
   const guideY = activeValue == null ? null : y(activeValue);
 
   return (
@@ -891,17 +891,9 @@ export const Chart = memo(function Chart({
     observer.observe(section);
     return () => observer.disconnect();
   }, [active, visited]);
-  const [hovered, setHovered] = useState<Model | null>(null);
-  const [pinned, setPinned] = useState<Model | null>(null);
+  const [hoveredId, setHoveredId] = useState<string | null>(null);
+  const [pinnedId, setPinnedId] = useState<string | null>(null);
   const [expanded, setExpanded] = useState<string | null>(null);
-  const interactions: Interactions = {
-    hovered,
-    pinned,
-    highlighted,
-    hover: setHovered,
-    pin: setPinned,
-    highlight: onHighlight,
-  };
   const validRows = useMemo(
     () =>
       scatter
@@ -909,9 +901,15 @@ export const Chart = memo(function Chart({
         : rows.filter((row) => row[view.metric] !== null),
     [rows, view.metric, scatter, linear],
   );
-  const tooltip = pinned ?? hovered;
-  // Keep a pinned tooltip tied to a visible configuration after filters change.
-  const visibleTooltip = tooltip && rows.some((row) => row.id === tooltip.id) ? tooltip : null;
+  const { pinned, activeModel } = resolveChartInteraction(validRows, pinnedId, hoveredId);
+  const interactions: Interactions = {
+    pinned,
+    activeModel,
+    highlighted: validRows.some((row) => row.family === highlighted) ? highlighted : null,
+    hover: (model) => setHoveredId(model?.id ?? null),
+    pin: (model) => setPinnedId(model?.id ?? null),
+    highlight: onHighlight,
+  };
   const legend = [...new Map(validRows.map((row) => [row.family, row])).values()];
 
   function closeOnBackground(event: MouseEvent<SVGSVGElement>) {
@@ -919,7 +917,7 @@ export const Chart = memo(function Chart({
       event.target instanceof SVGRectElement &&
       event.target.classList.contains('chart-background')
     )
-      setPinned(null);
+      setPinnedId(null);
   }
 
   return (
@@ -943,7 +941,7 @@ export const Chart = memo(function Chart({
               }
               onClick={closeOnBackground}
               onKeyDown={(event) => {
-                if (event.key === 'Escape') setPinned(null);
+                if (event.key === 'Escape') setPinnedId(null);
               }}
             >
               <rect
@@ -1000,7 +998,7 @@ export const Chart = memo(function Chart({
               className="flex min-h-8 items-center gap-[7px] overflow-hidden text-left text-[13px] font-[550] whitespace-nowrap"
               key={model.family}
               style={{ color: modelColor(model) }}
-              onClick={() => setPinned(model)}
+              onClick={() => setPinnedId(model.id)}
             >
               <Logo model={model} />
               {shortName(model)}
@@ -1010,12 +1008,12 @@ export const Chart = memo(function Chart({
       )}
       {(scatter || !phone) && (
         <ConfigurationDetails
-          model={visibleTooltip}
+          model={activeModel}
           metric={view.metric}
-          pinned={Boolean(pinned && visibleTooltip)}
+          pinned={Boolean(pinned)}
           onClose={() => {
-            setPinned(null);
-            setHovered(null);
+            setPinnedId(null);
+            setHoveredId(null);
           }}
         />
       )}
