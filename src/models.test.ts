@@ -240,6 +240,16 @@ it('defaults the Pareto line to off and preserves an explicit URL choice', () =>
   expect(writeSettings({ ...settings, frontier: true }, 'cost-intelligence')).toBe('?frontier=true');
 });
 
+it('defaults tokens per task to scatter and preserves a bar chart choice through the URL', () => {
+  const settings = readSettings('');
+  expect(settings.scatter).toBe(true);
+  expect(writeSettings(settings, 'cost-intelligence')).toBe('/');
+  expect(readSettings('?scatter=tokens-task').scatter).toBe(true);
+  const url = writeSettings({ ...settings, scatter: false }, 'tokens-task');
+  expect(url).toBe('?scatter=false&chart=tokens-task');
+  expect(readSettings(url).scatter).toBe(false);
+});
+
 it('round-trips an empty selection and view controls through the URL', () => {
   const settings = {
     ...readSettings(''),
