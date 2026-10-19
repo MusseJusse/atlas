@@ -1,4 +1,5 @@
 import { defaultSelected, families, views, type Metric, type ViewId } from './models';
+import { efforts } from './data/efforts';
 
 export type Settings = {
   selected: string[];
@@ -7,7 +8,7 @@ export type Settings = {
   labels: boolean;
   grouped: boolean;
   descending: boolean | null;
-  linear: string[];
+  linear: ViewId[];
   scatter: boolean;
 };
 export const defaults: Settings = {
@@ -21,26 +22,27 @@ export const defaults: Settings = {
   scatter: true,
 };
 
+/** Keep known URL IDs once, in the order they first appeared. */
+function readIds<Id extends string>(value: string, known: readonly Id[]): Id[] {
+  return [...new Set(value.split(','))].filter((id): id is Id =>
+    known.some((knownId) => knownId === id),
+  );
+}
+
 export function readSettings(search: string): Settings {
   const params = new URLSearchParams(search);
-  const known = new Set(families.map((family) => family.family));
+  const selected = params.get('selected');
+  const excluded = params.get('excluded');
   return {
-    selected: params.has('selected')
-      ? params
-          .get('selected')!
-          .split(',')
-          .filter((id) => known.has(id))
-      : defaults.selected,
-    excluded: params.has('excluded') ? params.get('excluded')!.split(',').filter(Boolean) : defaults.excluded,
+    selected: selected === null
+      ? defaults.selected
+      : readIds(selected, families.map((family) => family.family)),
+    excluded: excluded === null ? defaults.excluded : readIds(excluded, efforts),
     frontier: params.get('frontier') === 'true',
     labels: params.get('labels') !== 'false',
     grouped: params.get('grouped') !== 'false',
     descending: params.get('sort') === 'desc' ? true : params.get('sort') === 'asc' ? false : null,
-    linear:
-      params
-        .get('linear')
-        ?.split(',')
-        .filter((id) => views.some((view) => view.id === id)) ?? [],
+    linear: readIds(params.get('linear') ?? '', views.map((view) => view.id)),
     scatter: params.get('scatter') !== 'false',
   };
 }
