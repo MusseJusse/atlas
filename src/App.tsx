@@ -284,7 +284,9 @@ function Benchmarks() {
                       descending={chartDescending(view.metric, phone, settings.descending)}
                     />
                   </div>
-                  <div className="flex min-h-[58px] shrink-0 short:min-h-12 short:py-1 flex-wrap items-center justify-between gap-x-4 gap-y-1 py-2 text-[12px]">
+                  <div
+                    className={`flex min-h-[58px] shrink-0 short:min-h-12 short:py-1 flex-wrap items-center justify-between gap-x-4 gap-y-1 py-2 text-[12px] ${!scatter && view.id !== 'tokens-task' ? 'mobile:hidden' : ''}`}
+                  >
                     {scatter ? (
                       <button
                         className="inline-flex min-h-10 items-center gap-2 text-fg aria-pressed:text-accent hover:text-accent"
@@ -296,7 +298,7 @@ function Benchmarks() {
                         Pareto frontier
                       </button>
                     ) : (
-                      <span className="text-fg-2">
+                      <span className="text-fg-2 mobile:hidden">
                         {settings.grouped ? 'Grouped by model' : 'All configurations'}
                       </span>
                     )}
