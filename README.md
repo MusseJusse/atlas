@@ -72,7 +72,7 @@ DM Sans is bundled locally under the SIL Open Font License, included in `public/
 
 The initial page preloads a 22.6 KB font with the characters, weights 400 to 700, and optical sizes 9 to 24 used by the interface. It keeps normal text shaping and tabular numbers, and omits unused stylistic alternates. The full 88.8 KB variable font stays available for other characters and PNG export. Vite inlines the small stylesheet and renders the default page into the HTML so its text and controls can paint before React loads. React hydrates the default light view. Saved dark themes and URLs with query parameters render their own initial state. Chart contents mount after hydration, once the viewport and font are ready, so server rendering does not guess chart dimensions.
 
-The Vite data plugin packs the snapshot into columns and includes only fields the app reads. The original JSON stays intact, and tests compare every consumed field in all 699 configurations, including full numeric precision. Numeric chart scales avoid shipping D3's general formatting and interpolation code. A comparison test checks their coordinates and ticks against D3, which remains a development dependency.
+The Vite data plugin packs the snapshot into columns and includes only fields the app reads. The original JSON stays intact, and tests compare every consumed field in all configurations, including full numeric precision. Numeric chart scales avoid shipping D3's general formatting and interpolation code. A comparison test checks their coordinates and ticks against D3, which remains a development dependency.
 
 To regenerate the UI font, install `fonttools[woff]` in a Python environment, then run:
 
