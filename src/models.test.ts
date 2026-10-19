@@ -191,6 +191,28 @@ describe('benchmark comparisons', () => {
 });
 
 describe('chart ordering', () => {
+  it.each(['cost', 'costTotal', 'tokens', 'tokensTotal', 'time'] as const)(
+    'sorts overlapping mobile %s ranges by their lowest measured value',
+    (metric) => {
+      const rows = [
+        { ...fixture('wide-high', 1, 1), family: 'wide', effortOrder: 30, [metric]: 10 },
+        { ...fixture('narrow-low', 1, 1), family: 'narrow', effortOrder: 10, [metric]: 2 },
+        { ...fixture('wide-low', 1, 1), family: 'wide', effortOrder: 10, [metric]: 1 },
+        { ...fixture('narrow-high', 1, 1), family: 'narrow', effortOrder: 30, [metric]: 3 },
+        { ...fixture('missing', 1, 1), [metric]: null },
+      ];
+      const descending = chartDescending(metric, true, readSettings('').descending);
+      const groups = barGroups(rows, metric, true, descending, descending ? 'maximum' : 'minimum');
+      expect(groups.map((group) => group.id)).toEqual(['wide', 'narrow']);
+      expect(groups[0]?.minimum).toBe(1);
+      expect(groups[0]?.maximum).toBe(10);
+      expect(groups[0]?.rows.map((row) => row.id)).toEqual(['wide-low', 'wide-high']);
+      // Desktop bars still compare the highest value in each model group.
+      expect(barGroups(rows, metric, true, false).map((group) => group.id)).toEqual(['narrow', 'wide']);
+      expect(barGroups(rows, metric, true, true, 'maximum').map((group) => group.id)).toEqual(['wide', 'narrow']);
+    },
+  );
+
   it.each([
     ['cost', ['low', 'high']],
     ['costTotal', ['low', 'high']],
