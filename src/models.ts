@@ -111,7 +111,7 @@ export function visibleModels(selected: string[], excluded: string[]) {
 }
 
 /** Keep configurations with a higher score than every better alternative for the metric. */
-export function paretoFrontier(rows: Model[], metric: Metric) {
+export function paretoFrontier<Row extends Model>(rows: Row[], metric: Metric) {
   const ordered = rows
     .filter((model) => model[metric] !== null && model.intelligence !== null)
     .toSorted(
@@ -128,14 +128,14 @@ export function paretoFrontier(rows: Model[], metric: Metric) {
   });
 }
 
-export function barGroups(
-  rows: Model[],
+export function barGroups<Row extends Model>(
+  rows: Row[],
   metric: Metric,
   grouped: boolean,
   descending: boolean,
   sortBy: 'minimum' | 'maximum' = 'maximum',
 ) {
-  const groups = new Map<string, Model[]>();
+  const groups = new Map<string, Row[]>();
   for (const row of rows) {
     if (row[metric] === null) continue;
     const id = grouped ? row.family : row.id;

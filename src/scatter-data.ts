@@ -3,7 +3,7 @@ import type { Metric, Model } from './models';
 
 /** Share the scale's eligible measurements across every part of the scatter chart. */
 export function scatterRows(rows: Model[], metric: Metric, linear: boolean) {
-  return rows.filter((row) => {
+  return rows.filter((row): row is Model & { intelligence: number } => {
     const value = row[metric];
     return value !== null && row.intelligence !== null && (linear || value > 0);
   });
