@@ -39,7 +39,7 @@ export function Changelog({ history = bundledHistory }: { history?: ChangeHistor
   const [filter, setFilter] = useState<(typeof filters)[number]['id']>('all');
   const [theme, setTheme] = useTheme();
   useEffect(() => {
-    document.title = 'Slopalytics · Changelog';
+    document.title = 'Atlas · Changelog';
   }, []);
   const updates = history.updates
     .map((batch) => ({

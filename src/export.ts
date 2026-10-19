@@ -73,7 +73,7 @@ export async function downloadChart(id: string) {
     const download = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = download;
-    link.download = `slopalytics-${id}.png`;
+    link.download = `atlas-${id}.png`;
     link.click();
     setTimeout(() => URL.revokeObjectURL(download), 1000);
   } finally {
