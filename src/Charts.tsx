@@ -8,8 +8,8 @@ import {
   type KeyboardEvent,
   type MouseEvent,
 } from 'react';
-import { extent } from 'd3-array';
 import { barDomain, linearScale, logScale } from './scales';
+import { scatterDomain, scatterRows } from './scatter-data';
 import { useHydrated } from './useHydrated';
 import { X } from 'lucide-react';
 import {
@@ -226,26 +226,23 @@ function Scatter({
     const right = width - (settings.labels && !mobile ? 235 : 24);
     const top = 30;
     const bottom = Math.max(130, height - 60);
-    const points = rows.filter(
-      (row) => row[metric] !== null && row[metric]! > 0 && row.intelligence !== null,
-    );
-    const [min = 0.01, max = 1] = extent(points, (model) => model[metric]!);
+    const domain = scatterDomain(rows, metric, linear);
     const x = linear
-      ? linearScale([0, max * 1.08], [left, right], { nice: true })
-      : logScale([min * 0.7, max * 1.08], [left, right]);
+      ? linearScale(domain, [left, right], { nice: true })
+      : logScale(domain, [left, right]);
     const scoreMin = Math.max(
       0,
-      Math.floor((Math.min(...points.map((row) => row.intelligence!), 30) - 4) / 10) * 10,
+      Math.floor((Math.min(...rows.map((row) => row.intelligence!), 30) - 4) / 10) * 10,
     );
     const scoreMax =
-      Math.ceil((Math.max(...points.map((row) => row.intelligence!), 50) + 2) / 5) * 5;
+      Math.ceil((Math.max(...rows.map((row) => row.intelligence!), 50) + 2) / 5) * 5;
     const y = linearScale([scoreMin, scoreMax], [bottom, top]);
-    const frontier = paretoFrontier(points, metric);
+    const frontier = paretoFrontier(rows, metric);
     const frontierIds = new Set(frontier.map((row) => row.id));
     const frontierFamilies = new Set(frontier.map((row) => row.family));
-    const series = [...new Set(points.map((row) => row.family))].map((family) => ({
+    const series = [...new Set(rows.map((row) => row.family))].map((family) => ({
       family,
-      rows: points
+      rows: rows
         .filter((row) => row.family === family)
         .toSorted((a, b) => a.effortOrder - b.effortOrder),
     }));
@@ -290,13 +287,7 @@ function Scatter({
   }, [rows, metric, width, height, settings.labels, linear]);
   const activeModel = interactions.pinned ?? interactions.hovered;
   const activeFamily = activeModel?.family ?? interactions.highlighted;
-  const activePoint = rows.find(
-    (row) =>
-      row.id === activeModel?.id &&
-      row[metric] !== null &&
-      row[metric]! > 0 &&
-      row.intelligence !== null,
-  );
+  const activePoint = rows.find((row) => row.id === activeModel?.id);
   const guide = activePoint
     ? {
         x: x(activePoint[metric]!),
@@ -875,6 +866,7 @@ export const Chart = memo(function Chart({
   const hydrated = useHydrated();
   const ready = hydrated && (active || visited);
   const scatter = view.scatter || (view.id === 'tokens-task' && settings.scatter);
+  const linear = settings.linear.includes(view.id);
   const { ref, width, height } = useSize(ready && (scatter || !phone));
 
   // Desktop sections have a fixed height, so charts can mount just before scrolling into view.
@@ -912,8 +904,10 @@ export const Chart = memo(function Chart({
   };
   const validRows = useMemo(
     () =>
-      rows.filter((row) => row[view.metric] !== null && (!scatter || row.intelligence !== null)),
-    [rows, view.metric, scatter],
+      scatter
+        ? scatterRows(rows, view.metric, linear)
+        : rows.filter((row) => row[view.metric] !== null),
+    [rows, view.metric, scatter, linear],
   );
   const tooltip = pinned ?? hovered;
   // Keep a pinned tooltip tied to a visible configuration after filters change.
