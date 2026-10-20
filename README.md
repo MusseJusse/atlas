@@ -68,9 +68,9 @@ Time per task uses the snapshot's AA decode time estimates, not wall-clock bench
 
 Benchmark data comes from [Artificial Analysis](https://artificialanalysis.ai/). Model logos originate from the public [Slopalytics](https://slopalytics.com/) interface. Atlas is an independent benchmark explorer, not the official Slopalytics or Artificial Analysis service. There is no analytics collection or usage telemetry in this project.
 
-The Atlas interface uses a left model picker, chart workspace, and compact configuration details. Desktop previews and pinned details overlay the plot without resizing it. Bar charts place the overlay at the top left when sorted lowest first and top right when sorted highest first. Scatter plots always use the bottom right of the plotting area, clear of the axes and model labels. The overlay shows the active chart metric and two supporting measurements without duplicate rows.
+The Atlas interface uses a left model picker, chart workspace, and compact configuration details. Previews and pinned details use the same overlay on desktop and mobile, without resizing the plot. Bar charts place the overlay at the top left when sorted lowest first and top right when sorted highest first. Scatter plots always use the bottom right of the plotting area, clear of the axes and model labels. The overlay shows the active chart metric and two supporting measurements without duplicate rows.
 
-Mobile shows the full model name, logo, reasoning level and five measurements in a static readout. It is 64px tall unless a long model name needs to wrap. Phone range charts keep their existing per-model expansion. Clearing the selection removes the overlay or readout.
+The overlay shows the full model name, logo, reasoning level and source. It fits within the plotting area at phone widths. Phone range charts keep their existing per-model expansion. Clearing the selection removes the overlay.
 
 DM Sans is bundled locally under the SIL Open Font License, included in `public/fonts/OFL.txt`. Fonts, logos, and benchmark data load locally.
 

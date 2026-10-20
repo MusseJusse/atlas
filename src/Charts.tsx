@@ -47,7 +47,6 @@ function useSize(enabled: boolean) {
 export const Chart = memo(function Chart({
   active,
   phone,
-  mobile,
   view,
   rows,
   settings,
@@ -56,7 +55,6 @@ export const Chart = memo(function Chart({
 }: {
   active: boolean;
   phone: boolean;
-  mobile: boolean;
   view: View;
   rows: Model[];
   settings: Settings;
@@ -187,6 +185,21 @@ export const Chart = memo(function Chart({
               )}
             </svg>
           ))}
+        {(scatter || !phone) && activeModel && (
+          <aside
+            className="configuration-details"
+            data-placement={scatter ? 'bottom-right' : settings.descending ? 'top-right' : 'top-left'}
+            style={scatter ? { right: settings.labels && width >= 600 ? 235 : 24 } : undefined}
+            aria-label="Selected configuration"
+          >
+            <ConfigurationDetails
+              model={activeModel}
+              metric={view.metric}
+              pinned={Boolean(pinned)}
+              onClose={clearSelection}
+            />
+          </aside>
+        )}
       </div>
       {ready && validRows.length > 0 && !scatter && phone && (
         <div className="hidden phone:block">
@@ -213,22 +226,6 @@ export const Chart = memo(function Chart({
             </button>
           ))}
         </div>
-      )}
-      {(scatter || !phone) && activeModel && (
-        <aside
-          className="configuration-details"
-          data-placement={scatter ? 'bottom-right' : settings.descending ? 'top-right' : 'top-left'}
-          style={!mobile && scatter ? { right: settings.labels && width >= 600 ? 235 : 24 } : undefined}
-          aria-label="Selected configuration"
-        >
-          <ConfigurationDetails
-            model={activeModel}
-            metric={view.metric}
-            mobile={mobile}
-            pinned={Boolean(pinned)}
-            onClose={clearSelection}
-          />
-        </aside>
       )}
     </div>
   );

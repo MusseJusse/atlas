@@ -149,35 +149,32 @@
 
 /* Details overlay the plot without changing its size on hover or pin. */
 .configuration-details {
-  min-width: 0;
-  border-top: 1px solid var(--line);
-  margin-top: 10px;
+  position: absolute;
+  z-index: 2;
+  width: 248px;
+  max-width: calc(100% - 70px);
+  max-height: calc(100% - 104px);
+  overflow-y: auto;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--panel);
+  padding: 16px;
+  scrollbar-width: thin;
+  scrollbar-color: var(--line-2) var(--panel);
 }
-@media (width > 900px) {
+.configuration-details[data-placement='top-left'] {
+  top: 34px;
+  left: 64px;
+}
+.configuration-details[data-placement='top-right'] {
+  top: 34px;
+  right: 18px;
+}
+.configuration-details[data-placement='bottom-right'] {
+  bottom: 74px;
+}
+@media (width <= 600px) {
   .configuration-details {
-    position: absolute;
-    z-index: 2;
-    width: 248px;
-    max-width: calc(100% - 88px);
-    max-height: calc(100% - 104px);
-    overflow-y: auto;
-    margin: 0;
-    border: 1px solid var(--line);
-    border-radius: 8px;
-    background: var(--panel);
-    padding: 16px;
-    scrollbar-width: thin;
-    scrollbar-color: var(--line-2) var(--panel);
-  }
-  .configuration-details[data-placement='top-left'] {
-    top: 34px;
-    left: 64px;
-  }
-  .configuration-details[data-placement='top-right'] {
-    top: 34px;
-    right: 18px;
-  }
-  .configuration-details[data-placement='bottom-right'] {
-    bottom: 74px;
+    padding: 12px;
   }
 }
