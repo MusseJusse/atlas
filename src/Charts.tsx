@@ -119,8 +119,20 @@ export const Chart = memo(function Chart({
       setPinnedId(null);
   }
 
+  function clearSelection() {
+    // Keep keyboard users in the chart when removing the inspector's focused control.
+    ref.current?.querySelector<SVGGElement>('g[aria-pressed="true"]')?.focus({ preventScroll: true });
+    setPinnedId(null);
+    setHoveredId(null);
+  }
+
   return (
-    <div className="relative flex min-h-0 min-w-0 flex-1 flex-col">
+    <div
+      className="relative flex min-h-0 min-w-0 flex-1 flex-col"
+      onKeyDown={(event) => {
+        if (event.key === 'Escape') clearSelection();
+      }}
+    >
       <div
         className={`relative min-h-0 flex-1 mobile:aspect-[1/1.2] mobile:flex-none ${!scatter && (!ready || validRows.length > 0) ? 'phone:pointer-events-none phone:invisible phone:absolute phone:h-px phone:w-full phone:aspect-auto' : ''}`}
         ref={ref}
@@ -144,9 +156,6 @@ export const Chart = memo(function Chart({
                   : `${view.label} by model`
               }
               onClick={closeOnBackground}
-              onKeyDown={(event) => {
-                if (event.key === 'Escape') setPinnedId(null);
-              }}
             >
               <rect
                 className="chart-background"
@@ -176,6 +185,21 @@ export const Chart = memo(function Chart({
               )}
             </svg>
           ))}
+        {(scatter || !phone) && activeModel && (
+          <aside
+            className="configuration-details"
+            data-placement={scatter ? 'bottom-right' : settings.descending ? 'top-right' : 'top-left'}
+            style={scatter ? { right: settings.labels && width >= 600 ? 235 : 24 } : undefined}
+            aria-label="Selected configuration"
+          >
+            <ConfigurationDetails
+              model={activeModel}
+              metric={view.metric}
+              pinned={Boolean(pinned)}
+              onClose={clearSelection}
+            />
+          </aside>
+        )}
       </div>
       {ready && validRows.length > 0 && !scatter && phone && (
         <div className="hidden phone:block">
@@ -202,17 +226,6 @@ export const Chart = memo(function Chart({
             </button>
           ))}
         </div>
-      )}
-      {(scatter || !phone) && (
-        <ConfigurationDetails
-          model={activeModel}
-          metric={view.metric}
-          pinned={Boolean(pinned)}
-          onClose={() => {
-            setPinnedId(null);
-            setHoveredId(null);
-          }}
-        />
       )}
     </div>
   );

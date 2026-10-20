@@ -66,7 +66,11 @@ The output speed chart uses the snapshot's Artificial Analysis speed measurement
 
 Time per task uses the snapshot's AA decode time estimates, not wall-clock benchmark run times. It excludes startup latency and tool waits. Ultrafast's local estimate uses standard Sol High's task tokens divided by the Ultrafast speed: `13,191.9 tokens / 336.4 tokens/s ≈ 39.2 seconds`. This assumes the Max-measured Ultrafast throughput applies to a High-effort workload. The estimate derives from the existing snapshot at load time and remains unavailable if the baseline token count is missing. Ultrafast's time values have a `~` prefix on charts, mobile details, and tooltips. The tooltip shows the calculation.
 
-Benchmark data comes from [Artificial Analysis](https://artificialanalysis.ai/). The Atlas interface uses a left model picker, chart workspace, and configuration detail strip. Model logos originate from the public [Slopalytics](https://slopalytics.com/) interface. Atlas is an independent benchmark explorer, not the official Slopalytics or Artificial Analysis service. There is no analytics collection or usage telemetry in this project.
+Benchmark data comes from [Artificial Analysis](https://artificialanalysis.ai/). Model logos originate from the public [Slopalytics](https://slopalytics.com/) interface. Atlas is an independent benchmark explorer, not the official Slopalytics or Artificial Analysis service. There is no analytics collection or usage telemetry in this project.
+
+The Atlas interface uses a left model picker, chart workspace, and compact configuration details. Previews and pinned details use the same overlay on desktop and mobile, without resizing the plot. Bar charts place the overlay at the top left when sorted lowest first and top right when sorted highest first. Scatter plots always use the bottom right of the plotting area, clear of the axes and model labels. The overlay shows the active chart metric and two supporting measurements without duplicate rows.
+
+The overlay shows the full model name, logo, reasoning level and source. It fits within the plotting area at phone widths. Phone range charts keep their existing per-model expansion. Clearing the selection removes the overlay.
 
 DM Sans is bundled locally under the SIL Open Font License, included in `public/fonts/OFL.txt`. Fonts, logos, and benchmark data load locally.
 
