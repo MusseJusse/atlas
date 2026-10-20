@@ -173,8 +173,9 @@
 .configuration-details[data-placement='bottom-right'] {
   bottom: 74px;
 }
-@media (width <= 600px) {
+@media (width <= 900px) {
   .configuration-details {
+    width: 200px;
     padding: 12px;
   }
 }
