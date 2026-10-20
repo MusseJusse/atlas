@@ -1,11 +1,11 @@
-import { ChevronRight, X } from 'lucide-react';
+import { X } from 'lucide-react';
 import { Logo } from '../Logo';
 import { format, formatModelValue, shortName, type Model } from '../models';
 import { metrics, type Metric } from '../chart-definitions';
 
 const priceFormat = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' });
 
-/** A side inspector on desktop and a two-line, expandable readout on mobile. */
+/** A side inspector on desktop and a compact readout on mobile. */
 export function ConfigurationDetails({
   model,
   metric,
@@ -24,7 +24,6 @@ export function ConfigurationDetails({
   onClose: () => void;
 }) {
   const scoreMetric = metric === 'omniscience' ? 'omniscience' : 'intelligence';
-  const otherScoreMetric = scoreMetric === 'intelligence' ? 'omniscience' : 'intelligence';
   const measurements = [
     { label: metrics[scoreMetric].label, compact: scoreMetric === 'intelligence' ? 'index' : 'omni', metric: scoreMetric },
     { label: 'Cost per task', compact: '/ task', metric: 'cost' },
@@ -32,12 +31,40 @@ export function ConfigurationDetails({
     { label: 'Tokens per task', compact: 'tokens', metric: 'tokens' },
     { label: 'Output tokens / s', compact: 'tok / s', metric: 'speed' },
   ] as const;
+  if (mobile) {
+    return (
+      <div className="configuration-readout grid min-h-16 grid-rows-[minmax(20px,auto)_1fr] py-1.5">
+        <div className="flex min-w-0 items-center gap-2 text-[11px]">
+          <Logo model={model} size={13} />
+          <strong className="min-w-0 font-[550] [overflow-wrap:anywhere]">{model.name}</strong>
+          <span className="shrink-0 text-[10px] text-fg-2">{model.effortLabel}</span>
+        </div>
+        <dl className="m-0 grid grid-cols-5 gap-2">
+          {measurements.map((measurement) => (
+            <div className="flex min-w-0 flex-col" key={measurement.label}>
+              <dt className="text-[9px] leading-[12px] text-fg-2">
+                <span aria-hidden="true">{measurement.compact}</span>
+                <span className="sr-only">{measurement.label}</span>
+              </dt>
+              <dd className="order-first m-0 whitespace-nowrap text-[12px] font-medium leading-[16px]">
+                {model[measurement.metric] === null ? (
+                  <abbr className="no-underline" title="Not measured">n/a</abbr>
+                ) : formatModelValue(model, measurement.metric)}
+              </dd>
+            </div>
+          ))}
+        </dl>
+      </div>
+    );
+  }
+
+  const otherScoreMetric = scoreMetric === 'intelligence' ? 'omniscience' : 'intelligence';
   const allMeasurements = [
     ...measurements,
     { label: metrics[otherScoreMetric].label, metric: otherScoreMetric },
   ] as const;
   const reasoning = model.effort === 'none' ? 'No reasoning' : `${model.effortLabel} reasoning`;
-  const content = (
+  return (
     <div className="configuration-inspector">
       <div className="flex items-start justify-between gap-2">
         <div className="min-w-0">
@@ -141,35 +168,5 @@ export function ConfigurationDetails({
         </>
       )}
     </div>
-  );
-
-  if (!mobile) return content;
-
-  return (
-    <details className="configuration-readout group">
-      <summary className="grid h-16 cursor-pointer list-none grid-cols-[minmax(0,1fr)_16px] grid-rows-[20px_1fr] gap-x-2 py-1.5 [&::-webkit-details-marker]:hidden">
-        <span className="flex min-w-0 items-center gap-2 text-[11px]">
-          <strong className="truncate font-[550]">{shortName(model)}</strong>
-          <span className="shrink-0 text-[10px] text-fg-2">{model.effortLabel}</span>
-        </span>
-        <ChevronRight size={15} className="self-center text-accent group-open:rotate-90" aria-hidden="true" />
-        <span className="col-span-full grid grid-cols-5 gap-2">
-          {measurements.map((measurement) => (
-            <span className="min-w-0" key={measurement.label}>
-              <span className="block whitespace-nowrap text-[12px] font-medium leading-[16px]">
-                {model[measurement.metric] === null ? (
-                  <abbr className="no-underline" title="Not measured">n/a</abbr>
-                ) : formatModelValue(model, measurement.metric)}
-              </span>
-              <span className="block text-[9px] leading-[12px] text-fg-2">
-                <span aria-hidden="true">{measurement.compact}</span>
-                <span className="sr-only">{measurement.label}</span>
-              </span>
-            </span>
-          ))}
-        </span>
-      </summary>
-      {content}
-    </details>
   );
 }
