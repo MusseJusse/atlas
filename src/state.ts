@@ -1,6 +1,6 @@
 import { defaultSelected, families } from './models';
 import { metrics, views, type Metric, type ViewId } from './chart-definitions';
-import { efforts } from './data/efforts';
+import { effortGroup, efforts } from './data/efforts';
 
 export type Settings = {
   selected: string[];
@@ -38,7 +38,9 @@ export function readSettings(search: string): Settings {
     selected: selected === null
       ? defaults.selected
       : readIds(selected, families.map((family) => family.family)),
-    excluded: excluded === null ? defaults.excluded : readIds(excluded, efforts),
+    excluded: excluded === null
+      ? defaults.excluded
+      : readIds(excluded.split(',').map(effortGroup).join(','), efforts),
     frontier: params.get('frontier') === 'true',
     labels: params.get('labels') !== 'false',
     grouped: params.get('grouped') !== 'false',
