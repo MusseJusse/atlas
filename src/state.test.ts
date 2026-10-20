@@ -22,6 +22,14 @@ describe('URL settings', () => {
     expect(readSettings('?excluded=high,none,high,unknown').excluded).toEqual(['high', 'none']);
   });
 
+  it('normalizes old effort IDs into filter groups before deduplicating and writing URLs', () => {
+    const settings = readSettings('?excluded=minimal,low,default,medium,minimal,unknown');
+    expect(settings.excluded).toEqual(['low', 'medium']);
+    const url = writeSettings(settings, 'cost-intelligence');
+    expect(url).toBe('?excluded=low%2Cmedium');
+    expect(readSettings(url)).toEqual(settings);
+  });
+
   it('keeps known linear view IDs once in URL order', () => {
     const { linear } = readSettings(
       '?linear=tokens-task,unknown,cost-intelligence,tokens-task,,cost-intelligence',

@@ -44,17 +44,19 @@ it('keeps number precision when reusing formatters across chart metrics', () => 
 });
 
 describe('benchmark comparisons', () => {
-  it('lets the picker exclude default and minimal efforts without changing URL defaults', () => {
-    expect(efforts).toContain('default');
-    expect(efforts).toContain('minimal');
+  it.each([
+    ['minimal', 'low', 'medium'],
+    ['default', 'medium', 'low'],
+  ])('filters %s with %s while preserving source configurations', (effort, group, otherGroup) => {
+    expect(efforts).toEqual(['none', 'low', 'medium', 'high', 'xhigh', 'max']);
     expect(readSettings('').excluded).toEqual(['none', 'max']);
-    for (const effort of ['default', 'minimal']) {
-      const selected = [
-        ...new Set(models.filter((model) => model.effort === effort).map((model) => model.family)),
-      ];
-      expect(visibleModels(selected, []).some((model) => model.effort === effort)).toBe(true);
-      expect(visibleModels(selected, [effort]).some((model) => model.effort === effort)).toBe(false);
-    }
+    const source = models.filter((model) => model.effort === effort || model.effort === group);
+    const selected = [...new Set(source.map((model) => model.family))];
+    expect(source.some((model) => model.effort === effort)).toBe(true);
+    expect(source.some((model) => model.effort === group)).toBe(true);
+    expect(visibleModels(selected, []).filter((model) => source.includes(model))).toEqual(source);
+    expect(visibleModels(selected, [otherGroup]).filter((model) => source.includes(model))).toEqual(source);
+    expect(visibleModels(selected, [group]).some((model) => source.includes(model))).toBe(false);
   });
   it('removes dominated points and lower-scoring ties without treating missing values as zero', () => {
     const rows = [

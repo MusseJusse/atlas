@@ -1,6 +1,7 @@
 import snapshot from 'virtual:benchmarks';
 import type { Model } from './data/schema';
 import { speedEndpoints } from './data/speed-endpoints';
+import { effortGroup } from './data/efforts';
 export type { Model } from './data/schema';
 import { metrics, type Metric } from './chart-definitions';
 export { views, type Metric, type View, type ViewId } from './chart-definitions';
@@ -100,11 +101,11 @@ export function shortName(model: Model) {
 /** Null measurements stay absent from charts; they are never plotted as zero. */
 export function visibleModels(selected: string[], excluded: string[]) {
   const selectedFamilies = new Set(selected);
-  const excludedEfforts = new Set(excluded);
+  const excludedEfforts = new Set(excluded.map(effortGroup));
   return allModels.filter(
     (model) =>
       selectedFamilies.has(endpointParents.get(model.family) ?? model.family) &&
-      (!excludedEfforts.has(model.effort) ||
+      (!excludedEfforts.has(effortGroup(model.effort)) ||
         // Keep the only reasoning tier visible, even if a non-reasoning variant exists.
         (model.effort === 'max' && maxOnlyReasoningFamilies.has(model.family))),
   );
