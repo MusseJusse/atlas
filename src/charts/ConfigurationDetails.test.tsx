@@ -1,20 +1,19 @@
 import { renderToStaticMarkup } from 'react-dom/server';
 import { expect, it } from 'vitest';
-import { models, type Model } from '../models';
+import { formatModelValue, models, type Model } from '../models';
 import { speedEndpoints } from '../data/speed-endpoints';
+import type { Metric } from '../chart-definitions';
 import { ConfigurationDetails } from './ConfigurationDetails';
 
 const sol = models.find((model) => model.id === 'gpt-6-1-sol-xhigh')!;
 
-function render(model: Model, mobile: boolean) {
+function render(model: Model, mobile: boolean, metric: Metric = 'cost') {
   return renderToStaticMarkup(
     <ConfigurationDetails
       model={model}
-      metric="cost"
+      metric={metric}
       mobile={mobile}
       pinned
-      variants={[model]}
-      onSelect={() => {}}
       onClose={() => {}}
     />,
   );
@@ -30,9 +29,7 @@ it('shows the full model identity and accessible measurement labels', () => {
 
   const desktop = render(sol, false);
   expect(desktop).toContain('$0.393');
-  expect(desktop).toContain('View source');
-  expect(desktop).toContain('$2.00');
-  expect(desktop).toContain('$10.00');
+  expect(desktop).toContain('Artificial Analysis');
 });
 
 it('shows missing values as unavailable and preserves the estimate marker and source', () => {
@@ -45,4 +42,16 @@ it('shows missing values as unavailable and preserves the estimate marker and so
   expect(desktop).toContain('Not measured');
   expect(desktop).toContain(endpoint.speedSource.url);
   expect(desktop).toContain('Local time estimate');
+});
+
+it('shows the active chart metric and supporting values without duplicate rows', () => {
+  const totalTokens = render(sol, false, 'tokensTotal');
+  expect(totalTokens).toContain('Total tokens');
+  expect(totalTokens).toContain(formatModelValue(sol, 'tokensTotal'));
+  expect(totalTokens.match(/<dt /g)).toHaveLength(3);
+  for (const metric of ['cost', 'intelligence', 'omniscience'] as const) {
+    const markup = render(sol, false, metric);
+    expect(markup.match(/<dt /g)).toHaveLength(3);
+    expect(markup.match(/Cost per task/g)).toHaveLength(1);
+  }
 });

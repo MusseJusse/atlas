@@ -130,105 +130,101 @@ export const Chart = memo(function Chart({
 
   return (
     <div
-      className="relative flex min-h-0 min-w-0 flex-1 gap-5 mobile:flex-col mobile:gap-0"
+      className="relative flex min-h-0 min-w-0 flex-1 flex-col"
       onKeyDown={(event) => {
         if (event.key === 'Escape') clearSelection();
       }}
     >
-      <div className="flex min-h-0 min-w-0 flex-1 flex-col">
-        <div
-          className={`relative min-h-0 flex-1 mobile:aspect-[1/1.2] mobile:flex-none ${!scatter && (!ready || validRows.length > 0) ? 'phone:pointer-events-none phone:invisible phone:absolute phone:h-px phone:w-full phone:aspect-auto' : ''}`}
-          ref={ref}
-        >
-          {ready &&
-            (validRows.length === 0 ? (
-              <div className="flex h-full flex-col items-center justify-center gap-2.5">
-                <strong className="text-[17px] font-medium">No models to display</strong>
-                <span className="m-0 text-[12px] text-fg-2">
-                  Select a model with measurements for this view.
-                </span>
-              </div>
-            ) : (scatter || !phone) && (
-              <svg
-                className="absolute inset-0 block size-full font-sans [&_g[role=button]:focus]:[outline:none]"
-                viewBox={`0 0 ${width} ${height}`}
-                role="group"
-                aria-label={
-                  scatter
-                    ? `${metrics[view.metric].label} versus Intelligence Index`
-                    : `${view.label} by model`
-                }
-                onClick={closeOnBackground}
-              >
-                <rect
-                  className="chart-background"
+      <div
+        className={`relative min-h-0 flex-1 mobile:aspect-[1/1.2] mobile:flex-none ${!scatter && (!ready || validRows.length > 0) ? 'phone:pointer-events-none phone:invisible phone:absolute phone:h-px phone:w-full phone:aspect-auto' : ''}`}
+        ref={ref}
+      >
+        {ready &&
+          (validRows.length === 0 ? (
+            <div className="flex h-full flex-col items-center justify-center gap-2.5">
+              <strong className="text-[17px] font-medium">No models to display</strong>
+              <span className="m-0 text-[12px] text-fg-2">
+                Select a model with measurements for this view.
+              </span>
+            </div>
+          ) : (scatter || !phone) && (
+            <svg
+              className="absolute inset-0 block size-full font-sans [&_g[role=button]:focus]:[outline:none]"
+              viewBox={`0 0 ${width} ${height}`}
+              role="group"
+              aria-label={
+                scatter
+                  ? `${metrics[view.metric].label} versus Intelligence Index`
+                  : `${view.label} by model`
+              }
+              onClick={closeOnBackground}
+            >
+              <rect
+                className="chart-background"
+                width={width}
+                height={height}
+                fill="var(--panel)"
+              />
+              {prepared.scatter ? (
+                <Scatter
+                  rows={prepared.rows}
+                  metric={view.metric}
+                  linear={linear}
+                  settings={settings}
                   width={width}
                   height={height}
-                  fill="var(--panel)"
+                  interactions={interactions}
                 />
-                {prepared.scatter ? (
-                  <Scatter
-                    rows={prepared.rows}
-                    metric={view.metric}
-                    linear={linear}
-                    settings={settings}
-                    width={width}
-                    height={height}
-                    interactions={interactions}
-                  />
-                ) : (
-                  <Bars
-                    rows={prepared.rows}
-                    metric={view.metric}
-                    settings={settings}
-                    width={width}
-                    height={height}
-                    interactions={interactions}
-                  />
-                )}
-              </svg>
-            ))}
-        </div>
-        {ready && validRows.length > 0 && !scatter && phone && (
-          <div className="hidden phone:block">
-            <DotPlot
-              rows={validRows}
-              metric={view.metric}
-              settings={settings}
-              expanded={expanded}
-              onExpand={setExpanded}
-            />
-          </div>
-        )}
-        {/* Reserve the mobile legend's height in the initial HTML before hydration. */}
-        {scatter && settings.labels && (
-          <div className="hidden plot-mobile:grid grid-cols-2 gap-x-3 gap-y-0.5 pt-2.5">
-            {legend.map((model) => (
-              <button
-                className="flex min-h-8 items-center gap-[7px] overflow-hidden text-left text-[13px] font-[550] whitespace-nowrap text-fg"
-                key={model.family}
-                onClick={() => interactions.togglePin(model)}
-              >
-                <Logo model={model} />
-                {shortName(model)}
-              </button>
-            ))}
-          </div>
-        )}
+              ) : (
+                <Bars
+                  rows={prepared.rows}
+                  metric={view.metric}
+                  settings={settings}
+                  width={width}
+                  height={height}
+                  interactions={interactions}
+                />
+              )}
+            </svg>
+          ))}
       </div>
+      {ready && validRows.length > 0 && !scatter && phone && (
+        <div className="hidden phone:block">
+          <DotPlot
+            rows={validRows}
+            metric={view.metric}
+            settings={settings}
+            expanded={expanded}
+            onExpand={setExpanded}
+          />
+        </div>
+      )}
+      {/* Reserve the mobile legend's height in the initial HTML before hydration. */}
+      {scatter && settings.labels && (
+        <div className="hidden plot-mobile:grid grid-cols-2 gap-x-3 gap-y-0.5 pt-2.5">
+          {legend.map((model) => (
+            <button
+              className="flex min-h-8 items-center gap-[7px] overflow-hidden text-left text-[13px] font-[550] whitespace-nowrap text-fg"
+              key={model.family}
+              onClick={() => interactions.togglePin(model)}
+            >
+              <Logo model={model} />
+              {shortName(model)}
+            </button>
+          ))}
+        </div>
+      )}
       {(scatter || !phone) && activeModel && (
         <aside
-          className={`configuration-details ${pinned ? 'is-pinned' : 'is-preview'}`}
+          className="configuration-details"
+          data-placement={scatter ? 'bottom-right' : settings.descending ? 'top-right' : 'top-left'}
+          style={!mobile && scatter ? { right: settings.labels && width >= 600 ? 235 : 24 } : undefined}
           aria-label="Selected configuration"
         >
           <ConfigurationDetails
             model={activeModel}
             metric={view.metric}
             mobile={mobile}
-            variants={validRows
-              .filter((row) => row.family === activeModel.family)
-              .toSorted((a, b) => a.effortOrder - b.effortOrder)}
-            onSelect={(model) => setPinnedId(model.id)}
             pinned={Boolean(pinned)}
             onClose={clearSelection}
           />
