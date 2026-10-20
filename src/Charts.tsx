@@ -135,7 +135,6 @@ export const Chart = memo(function Chart({
             </div>
           ) : (scatter || !phone) && (
             <svg
-              id={`chart-${view.id}`}
               className="absolute inset-0 block size-full font-sans [&_g[role=button]:focus]:[outline:none]"
               viewBox={`0 0 ${width} ${height}`}
               role="group"

@@ -208,7 +208,7 @@ export function format(
   return formatNumber(value, metric === 'intelligence' || metric === 'omniscience' || !compact ? 1 : 0);
 }
 
-/** Distinguish local estimates wherever model measurements appear, including exports. */
+/** Distinguish local estimates wherever model measurements appear. */
 export function formatModelValue(model: Model, metric: Metric, compact = false) {
   const value = format(model[metric], metric, compact);
   return metric === 'time' && model.time !== null && model.timeEstimate ? `~${value}` : value;
