@@ -146,3 +146,38 @@
 @custom-variant mobile (@media (width <= 900px));
 @custom-variant phone (@media (width <= 600px));
 @custom-variant plot-mobile (@media (width < 632px));
+
+/* Hover previews overlay the chart so a point cannot move out from under the pointer. */
+.configuration-details {
+  width: 248px;
+  min-height: 0;
+  flex-shrink: 0;
+  border-left: 1px solid var(--line);
+  background: var(--panel);
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--line-2) var(--panel);
+}
+.configuration-details.is-preview {
+  position: absolute;
+  inset: 0 0 0 auto;
+  z-index: 2;
+}
+.configuration-inspector {
+  padding: 14px 0 0 16px;
+}
+@media (width <= 900px) {
+  .configuration-details,
+  .configuration-details.is-preview {
+    position: static;
+    width: auto;
+    border: 0;
+    border-top: 1px solid var(--line);
+    margin-top: 10px;
+    overflow: visible;
+  }
+  .configuration-inspector {
+    border-top: 1px solid var(--line);
+    padding: 14px 0 0;
+  }
+}

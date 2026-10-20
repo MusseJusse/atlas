@@ -97,6 +97,9 @@ export const modelFields = [
   'tokensTotal',
   'speed',
   'time',
+  'context',
+  'inputPrice',
+  'outputPrice',
 ] as const satisfies readonly (keyof SnapshotModel)[];
 
 export type Model = Pick<SnapshotModel, (typeof modelFields)[number]> & {

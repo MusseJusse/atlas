@@ -1,124 +1,175 @@
-import { X } from 'lucide-react';
+import { ChevronRight, X } from 'lucide-react';
 import { Logo } from '../Logo';
 import { format, formatModelValue, shortName, type Model } from '../models';
-import type { Metric } from '../chart-definitions';
+import { metrics, type Metric } from '../chart-definitions';
 
-/** A fixed place to inspect a configuration without covering the chart. */
+const priceFormat = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' });
+
+/** A side inspector on desktop and a two-line, expandable readout on mobile. */
 export function ConfigurationDetails({
   model,
   metric,
+  mobile,
   pinned,
+  variants,
+  onSelect,
   onClose,
 }: {
-  model: Model | null;
+  model: Model;
   metric: Metric;
+  mobile: boolean;
   pinned: boolean;
+  variants: Model[];
+  onSelect: (model: Model) => void;
   onClose: () => void;
 }) {
-  return (
-    <div
-      className="mt-3 min-h-[112px] short:min-h-24 shrink-0 rounded-lg bg-surface px-4 py-3 phone:px-3"
-      aria-live={pinned ? 'polite' : 'off'}
-      onKeyDown={(event) => {
-        if (event.key === 'Escape') onClose();
-      }}
-    >
-      {model ? (
-        <>
-          <div className="flex min-h-6 flex-wrap items-center justify-between gap-3">
-            <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1 text-[12px]">
-              <strong className="inline-flex items-center gap-2 font-[550]">
-                <Logo model={model} size={13} />
-                {shortName(model)}
-              </strong>
-              <span className="text-[11px] text-fg-2">
-                {model.effort === 'none' ? 'No reasoning' : `${model.effortLabel} reasoning`},{' '}
-                {model.labName}
-              </span>
-              <span className="text-[10px] text-accent">{pinned ? 'Pinned' : 'Preview'}</span>
-            </div>
-            {pinned && (
-              <a
-                className="ml-auto shrink-0 text-[11px] text-accent underline underline-offset-4"
-                href={
-                  model.speedSource?.url ?? `https://artificialanalysis.ai/models/${model.family}`
-                }
-                target="_blank"
-                rel="noreferrer"
-                aria-label={`View ${model.name} on Artificial Analysis`}
-              >
-                View source
-              </a>
-            )}
-            {pinned && (model.speedSource || model.timeEstimate) && (
-              <details className="group relative shrink-0">
-                <summary
-                  className="flex min-h-8 cursor-pointer list-none items-center rounded-md px-2 text-[11px] text-accent hover:bg-hover focus-visible:outline-2 focus-visible:outline-accent focus-visible:outline-offset-2 [&::-webkit-details-marker]:hidden"
-                  aria-label="Measurement notes"
-                >
-                  Notes
-                </summary>
-                <div className="absolute right-0 bottom-[calc(100%+10px)] z-10 w-[300px] max-w-[calc(100vw-80px)] rounded-lg border border-line bg-panel px-4 py-3 shadow-lg">
-                  {model.speedSource && (
-                    <p className="mt-2 mb-0 text-[11px] text-fg-2">
-                      Speed snapshot: {model.speedSource.fetchedAt.slice(0, 10)}
-                    </p>
-                  )}
-                  {model.timeEstimate && (
-                    <p className="mt-2 mb-0 text-[11px] leading-5 text-fg-2">
-                      Local time estimate. Uses standard Sol High task tokens at Max-measured
-                      throughput.
-                      <br />
-                      {model.timeEstimate.baselineTokens.toFixed(1)} tokens ÷{' '}
-                      {format(model.speed, 'speed')} tokens/s. Baseline:{' '}
-                      {model.timeEstimate.baselineFetchedAt.slice(0, 10)}
-                    </p>
-                  )}
-                </div>
-              </details>
-            )}
-            {pinned && (
-              <button
-                className="-my-2 -mr-2 flex size-10 shrink-0 items-center justify-center rounded-md text-fg-2 hover:bg-hover hover:text-accent"
-                onClick={onClose}
-                aria-label="Close model details"
-              >
-                <X size={15} aria-hidden="true" />
-              </button>
-            )}
-          </div>
-          <dl className="mt-2 mb-0 grid grid-cols-5 gap-x-3 gap-y-3 phone:grid-cols-2">
-            {(
-              [
-                metric === 'omniscience'
-                  ? ['AA-Omniscience Index', format(model.omniscience, 'omniscience')]
-                  : ['Intelligence index', format(model.intelligence, 'intelligence')],
-                ['Cost per task', format(model.cost, 'cost')],
-                ['Time per task', formatModelValue(model, 'time')],
-                ['Tokens per task', format(model.tokens, 'tokens')],
-                ['Output tokens / s', format(model.speed, 'speed')],
-              ] as const
-            ).map(([label, value]) => (
-              <div key={label} className="min-w-0">
-                <dt className="text-[10px] text-fg-2">{label}</dt>
-                <dd className="m-0 mt-0.5 text-[17px] font-medium tracking-[-0.4px] phone:text-[16px]">
-                  {value}
-                </dd>
-              </div>
-            ))}
-          </dl>
-        </>
-      ) : (
-        <div className="flex min-h-[88px] short:min-h-[72px] flex-col justify-center gap-1">
-          <strong className="text-[12px] font-medium">Configuration details</strong>
-          <span className="text-[12px] text-fg-2 phone:hidden">
-            Hover or focus a configuration to preview it. Click to pin its measurements.
-          </span>
-          <span className="hidden text-[12px] text-fg-2 phone:inline">
-            Tap a point or model label to pin its measurements.
-          </span>
+  const scoreMetric = metric === 'omniscience' ? 'omniscience' : 'intelligence';
+  const otherScoreMetric = scoreMetric === 'intelligence' ? 'omniscience' : 'intelligence';
+  const measurements = [
+    { label: metrics[scoreMetric].label, compact: scoreMetric === 'intelligence' ? 'index' : 'omni', metric: scoreMetric },
+    { label: 'Cost per task', compact: '/ task', metric: 'cost' },
+    { label: 'Time per task', compact: 'time', metric: 'time' },
+    { label: 'Tokens per task', compact: 'tokens', metric: 'tokens' },
+    { label: 'Output tokens / s', compact: 'tok / s', metric: 'speed' },
+  ] as const;
+  const allMeasurements = [
+    ...measurements,
+    { label: metrics[otherScoreMetric].label, metric: otherScoreMetric },
+  ] as const;
+  const reasoning = model.effort === 'none' ? 'No reasoning' : `${model.effortLabel} reasoning`;
+  const content = (
+    <div className="configuration-inspector">
+      <div className="flex items-start justify-between gap-2">
+        <div className="min-w-0">
+          <strong className="flex items-center gap-2 text-[13px] font-[550]">
+            <Logo model={model} size={14} />
+            {shortName(model)}
+          </strong>
+          <div className="mt-1 text-[11px] text-fg-2">{model.labName} · {reasoning}</div>
+          <div className="mt-2 text-[10px] text-accent">{pinned ? 'Pinned configuration' : 'Preview · Click a point to pin'}</div>
         </div>
+        {pinned && (
+          <button
+            className="-mt-2 -mr-2 flex size-11 shrink-0 items-center justify-center rounded-md text-fg-2 hover:bg-hover hover:text-accent"
+            onClick={onClose}
+            aria-label="Clear selected configuration"
+          >
+            <X size={15} aria-hidden="true" />
+          </button>
+        )}
+      </div>
+      <dl className="my-5 grid grid-cols-2 gap-x-3 gap-y-4">
+        {allMeasurements.map((measurement) => (
+          <div key={measurement.label} className="min-w-0">
+            <dt className="text-[10px] text-fg-2">{measurement.label}</dt>
+            <dd className="m-0 mt-1 text-[17px] font-medium tracking-[-0.4px]">
+              {formatModelValue(model, measurement.metric)}
+            </dd>
+          </div>
+        ))}
+      </dl>
+      {variants.length > 1 && (
+        <table className="mb-5 w-full border-collapse text-[11px] tabular-nums">
+          <caption className="pb-2 text-left text-[12px] font-medium">Visible reasoning levels</caption>
+          <thead>
+            <tr className="border-b border-line text-[10px] text-fg-2">
+              <th scope="col" className="py-2 text-left font-normal">Effort</th>
+              <th scope="col" className="py-2 text-right font-normal">
+                {metric === 'omniscience' ? 'Omniscience' : 'Index'}
+              </th>
+              <th scope="col" className="py-2 text-right font-normal">Cost / task</th>
+            </tr>
+          </thead>
+          <tbody>
+            {variants.map((variant) => (
+              <tr key={variant.id} className={variant.id === model.id ? 'bg-surface text-accent' : undefined}>
+                <th scope="row" className="text-left font-normal">
+                  <button
+                    className="min-h-11 w-full pr-2 text-left hover:text-accent"
+                    onClick={() => onSelect(variant)}
+                    aria-label={`Select ${shortName(variant)}, ${variant.effortLabel} reasoning`}
+                    aria-pressed={variant.id === model.id}
+                  >
+                    {variant.effortLabel}
+                  </button>
+                </th>
+                <td className="text-right">
+                  {formatModelValue(variant, scoreMetric)}
+                </td>
+                <td className="text-right">{format(variant.cost, 'cost')}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
+      <dl className="m-0 grid grid-cols-3 gap-2 border-t border-line pt-3">
+        {[
+          ['Context', format(model.context, 'tokens')],
+          ['Input / 1M', model.inputPrice === null ? 'Not measured' : priceFormat.format(model.inputPrice)],
+          ['Output / 1M', model.outputPrice === null ? 'Not measured' : priceFormat.format(model.outputPrice)],
+        ].map(([label, value]) => (
+          <div key={label} className="min-w-0">
+            <dt className="text-[9px] text-fg-2">{label}</dt>
+            <dd className="m-0 mt-1 text-[11px]">{value}</dd>
+          </div>
+        ))}
+      </dl>
+      {pinned && (
+        <>
+          {model.speedSource && (
+            <p className="mt-3 mb-0 text-[10px] text-fg-2">
+              Speed snapshot: {model.speedSource.fetchedAt.slice(0, 10)}
+            </p>
+          )}
+          {model.timeEstimate && (
+            <p className="mt-3 mb-0 text-[11px] leading-5 text-fg-2">
+              Local time estimate. Uses standard Sol High task tokens at Max-measured throughput.
+              <br />
+              {model.timeEstimate.baselineTokens.toFixed(1)} tokens ÷ {format(model.speed, 'speed')} tokens/s.
+              Baseline: {model.timeEstimate.baselineFetchedAt.slice(0, 10)}
+            </p>
+          )}
+          <a
+            className="mt-3 inline-flex min-h-11 items-center text-[11px] text-accent underline underline-offset-4"
+            href={model.speedSource?.url ?? `https://artificialanalysis.ai/models/${model.family}`}
+            target="_blank"
+            rel="noreferrer"
+            aria-label={`View ${model.name} on Artificial Analysis`}
+          >
+            View source
+          </a>
+        </>
       )}
     </div>
+  );
+
+  if (!mobile) return content;
+
+  return (
+    <details className="configuration-readout group">
+      <summary className="grid h-16 cursor-pointer list-none grid-cols-[minmax(0,1fr)_16px] grid-rows-[20px_1fr] gap-x-2 py-1.5 [&::-webkit-details-marker]:hidden">
+        <span className="flex min-w-0 items-center gap-2 text-[11px]">
+          <strong className="truncate font-[550]">{shortName(model)}</strong>
+          <span className="shrink-0 text-[10px] text-fg-2">{model.effortLabel}</span>
+        </span>
+        <ChevronRight size={15} className="self-center text-accent group-open:rotate-90" aria-hidden="true" />
+        <span className="col-span-full grid grid-cols-5 gap-2">
+          {measurements.map((measurement) => (
+            <span className="min-w-0" key={measurement.label}>
+              <span className="block whitespace-nowrap text-[12px] font-medium leading-[16px]">
+                {model[measurement.metric] === null ? (
+                  <abbr className="no-underline" title="Not measured">n/a</abbr>
+                ) : formatModelValue(model, measurement.metric)}
+              </span>
+              <span className="block text-[9px] leading-[12px] text-fg-2">
+                <span aria-hidden="true">{measurement.compact}</span>
+                <span className="sr-only">{measurement.label}</span>
+              </span>
+            </span>
+          ))}
+        </span>
+      </summary>
+      {content}
+    </details>
   );
 }

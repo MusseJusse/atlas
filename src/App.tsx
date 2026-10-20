@@ -256,6 +256,7 @@ function Benchmarks() {
                   <Chart
                     active={mobile || active === view.id}
                     phone={phone}
+                    mobile={mobile}
                     view={view}
                     rows={rows}
                     settings={settings}

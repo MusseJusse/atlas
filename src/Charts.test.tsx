@@ -16,6 +16,7 @@ function renderChart(rows: Model[], phone: boolean, view = rangeView) {
     <Chart
       active
       phone={phone}
+      mobile={phone}
       view={view}
       rows={rows}
       settings={defaults}
