@@ -1,5 +1,5 @@
 import { lazy, Suspense, useCallback, useEffect, useMemo, useState } from 'react';
-import { ArrowDown, Check, Download, Ellipsis, SlidersHorizontal } from 'lucide-react';
+import { ArrowDown, Check, Ellipsis, SlidersHorizontal } from 'lucide-react';
 import { Chart } from './Charts';
 import { Sidebar } from './Sidebar';
 import { useMediaQuery } from './useMediaQuery';
@@ -48,7 +48,6 @@ function Benchmarks() {
   const [settings, setSettings] = useState(() => readSettings(search));
   const [mobileOpen, setMobileOpen] = useState(false);
   const [highlighted, setHighlighted] = useState<string | null>(null);
-  const [exportError, setExportError] = useState('');
   const mobile = useMediaQuery('(max-width: 900px)');
   const phone = useMediaQuery('(max-width: 600px)');
   const { active, navigate, feed, chartNavigation } = useChartNavigation(mobile);
@@ -82,16 +81,6 @@ function Benchmarks() {
     return () => window.removeEventListener('popstate', pop);
   }, [navigate]);
 
-  async function exportPng() {
-    setExportError('');
-    try {
-      const { downloadChart } = await import('./export');
-      await downloadChart(active);
-    } catch (error) {
-      setExportError(error instanceof Error ? error.message : 'Could not export the chart.');
-    }
-  }
-
   return (
     <div className="grid h-dvh grid-rows-[var(--header-height)_minmax(0,1fr)_auto] mobile:block mobile:h-auto">
       <a
@@ -122,14 +111,6 @@ function Benchmarks() {
             className="flex size-10 items-center justify-center rounded-md text-fg-2 hover:bg-hover hover:text-accent"
             showTitle
           />
-          <button
-            className="inline-flex min-h-10 items-center justify-center gap-2 rounded-md px-3 text-[12px] text-fg-2 hover:bg-hover hover:text-accent phone:hidden!"
-            aria-label="Export chart as PNG"
-            onClick={exportPng}
-          >
-            <Download size={15} aria-hidden="true" />
-            <span className="phone:hidden">Export chart</span>
-          </button>
         </div>
       </header>
       <div className="grid min-h-0 grid-cols-[var(--sidebar-width)_minmax(0,1fr)] gap-6 px-7 pt-6 pb-2 short:pt-4 compact:gap-5 compact:px-5 mobile:block mobile:px-4 mobile:pt-4 mobile:pb-0">
@@ -306,17 +287,6 @@ function Benchmarks() {
           </time>
         </span>
       </footer>
-      {exportError && (
-        <div
-          className="fixed bottom-12 left-7 z-30 flex max-w-[calc(100vw-56px)] gap-[18px] rounded-lg border border-line-2 bg-panel px-4 py-3.5 text-[12px]"
-          role="alert"
-        >
-          {exportError}
-          <button className="text-accent hover:underline" onClick={() => setExportError('')}>
-            Dismiss
-          </button>
-        </div>
-      )}
     </div>
   );
 }

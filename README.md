@@ -50,7 +50,7 @@ Components use Tailwind utilities. `src/styles.css` holds the font, theme tokens
 - Time per task, with grouped reasoning levels and a labeled Ultrafast estimate.
 - Model search and selection, reasoning filters, and the full model browser.
 - Pareto frontiers, linear/log scales, grouped bars, sorting, and label controls.
-- Hover details, click-to-pin details, PNG export, and light/dark themes.
+- Hover details, click-to-pin details, and light/dark themes.
 - Responsive charts and a keyboard-accessible model picker on small screens.
 - Filter and view settings in the URL. Theme preference stored locally.
 
@@ -64,13 +64,13 @@ The [AA-Omniscience Index](https://artificialanalysis.ai/evaluations/omniscience
 
 The output speed chart uses the snapshot's Artificial Analysis speed measurements. A separate [GPT-6.1 Sol Ultrafast measurement](https://artificialanalysis.ai/models/gpt-6-1-sol/providers), retrieved on 17 October 2026, adds 336.4 output tokens/s at Max effort. It lives in `src/data/speed-endpoints.ts`, keeps its own source and date, and has no task cost, token use or intelligence measurements. The GPT-6.1 Sol model picker entry controls both standard and Ultrafast bars. The charts keep Ultrafast as a separate group. Output speed excludes the wait before generation and does not measure complete task duration.
 
-Time per task uses the snapshot's AA decode time estimates, not wall-clock benchmark run times. It excludes startup latency and tool waits. Ultrafast's local estimate uses standard Sol High's task tokens divided by the Ultrafast speed: `13,191.9 tokens / 336.4 tokens/s ≈ 39.2 seconds`. This assumes the Max-measured Ultrafast throughput applies to a High-effort workload. The estimate derives from the existing snapshot at load time and remains unavailable if the baseline token count is missing. Ultrafast's time values have a `~` prefix on charts, mobile details, tooltips and PNG exports. The tooltip shows the calculation.
+Time per task uses the snapshot's AA decode time estimates, not wall-clock benchmark run times. It excludes startup latency and tool waits. Ultrafast's local estimate uses standard Sol High's task tokens divided by the Ultrafast speed: `13,191.9 tokens / 336.4 tokens/s ≈ 39.2 seconds`. This assumes the Max-measured Ultrafast throughput applies to a High-effort workload. The estimate derives from the existing snapshot at load time and remains unavailable if the baseline token count is missing. Ultrafast's time values have a `~` prefix on charts, mobile details, and tooltips. The tooltip shows the calculation.
 
 Benchmark data comes from [Artificial Analysis](https://artificialanalysis.ai/). The Atlas interface uses a left model picker, chart workspace, and configuration detail strip. Model logos originate from the public [Slopalytics](https://slopalytics.com/) interface. Atlas is an independent benchmark explorer, not the official Slopalytics or Artificial Analysis service. There is no analytics collection or usage telemetry in this project.
 
 DM Sans is bundled locally under the SIL Open Font License, included in `public/fonts/OFL.txt`. Fonts, logos, and benchmark data load locally.
 
-The initial page preloads a 22.6 KB font with the characters, weights 400 to 700, and optical sizes 9 to 24 used by the interface. It keeps normal text shaping and tabular numbers, and omits unused stylistic alternates. The full 88.8 KB variable font stays available for other characters and PNG export. Vite inlines the small stylesheet and renders the default page into the HTML so its text and controls can paint before React loads. React hydrates the default light view. Saved dark themes and URLs with query parameters render their own initial state. Chart contents mount after hydration, once the viewport and font are ready, so server rendering does not guess chart dimensions.
+The initial page preloads a 22.6 KB font with the characters, weights 400 to 700, and optical sizes 9 to 24 used by the interface. It keeps normal text shaping and tabular numbers, and omits unused stylistic alternates. The full 88.8 KB variable font stays available for other characters. Vite inlines the small stylesheet and renders the default page into the HTML so its text and controls can paint before React loads. React hydrates the default light view. Saved dark themes and URLs with query parameters render their own initial state. Chart contents mount after hydration, once the viewport and font are ready, so server rendering does not guess chart dimensions.
 
 The Vite data plugin packs the snapshot into columns and includes only fields the app reads. The original JSON stays intact, and tests compare every consumed field in all configurations, including full numeric precision. Numeric chart scales avoid shipping D3's general formatting and interpolation code. A comparison test checks their coordinates and ticks against D3, which remains a development dependency.
 
@@ -152,7 +152,7 @@ Local Chromium results against `f2a4a2b`, with no CPU or network throttling:
 
 The first local page load recorded first contentful paint at 148 ms before and 68 ms after. A later cached reload recorded 60 ms and 40 ms. These are local samples, not a network or device performance guarantee.
 
-Desktop chart contents mount as sections approach the viewport and stay mounted after visiting, so pinned details survive navigation. Phones render the dot plots without also building hidden SVG bar charts. Chart geometry and number formatters are reused across hover updates, and PNG export code loads on demand.
+Desktop chart contents mount as sections approach the viewport and stay mounted after visiting, so pinned details survive navigation. Phones render the dot plots without also building hidden SVG bar charts. Chart geometry and number formatters are reused across hover updates.
 
 ## PageSpeed validation
 
