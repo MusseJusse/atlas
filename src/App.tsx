@@ -10,6 +10,7 @@ import { chartDescending, readSettings, readView, writeSettings, type Settings }
 import { ThemeToggle } from './ThemeToggle';
 import { formatUtcDate } from './formatDate';
 import { Brand } from './Brand';
+import { codingAgentSource, visibleCodingAgents } from './data/coding-agents';
 
 const Changelog = lazy(() =>
   import('./Changelog').then(({ Changelog }) => ({ default: Changelog })),
@@ -63,10 +64,17 @@ function Benchmarks() {
     () => visibleModels(settings.selected, settings.excluded),
     [settings.selected, settings.excluded],
   );
+  const agentRows = useMemo(
+    () => visibleCodingAgents(settings.selected, settings.excluded),
+    [settings.selected, settings.excluded],
+  );
   const view = views.find((view) => view.id === active) ?? views[0];
+  const { score } = resolveView(view, settings);
+  const activeRows = score === 'codingScore' ? agentRows : rows;
+  const activeFetchedAt = score === 'codingScore' ? codingAgentSource.fetchedAt : fetchedAt;
   const frontier = useMemo(
-    () => new Set(paretoFrontier(rows, view.metric).map((model) => model.family)),
-    [rows, view.metric],
+    () => new Set(paretoFrontier(activeRows, view.metric, (model) => model[score]).map((model) => model.family)),
+    [activeRows, view.metric, score],
   );
 
   useEffect(() => {
@@ -163,7 +171,7 @@ function Benchmarks() {
             ref={feed}
           >
             {views.map((view) => {
-              const { scatter, linear } = resolveView(view, settings);
+              const { scatter, linear, score } = resolveView(view, settings);
               return (
                 <section
                   className="chart-section flex h-full snap-start flex-col px-6 pt-5 pb-4 short:pt-4 short:pb-3 [&+section]:border-t [&+section]:border-line mobile:h-auto mobile:scroll-mt-[180px] mobile:px-4 mobile:pb-6"
@@ -257,7 +265,7 @@ function Benchmarks() {
                     active={mobile || active === view.id}
                     phone={phone}
                     view={view}
-                    rows={rows}
+                    rows={score === 'codingScore' ? agentRows : rows}
                     settings={settings}
                     highlighted={active === view.id ? highlighted : null}
                     onHighlight={setHighlighted}
@@ -280,10 +288,10 @@ function Benchmarks() {
             Artificial Analysis
           </a>
         </span>
-        <span title={`Local snapshot captured ${fetchedAt}`}>
+        <span title={`Local snapshot captured ${activeFetchedAt}`}>
           Snapshot captured{' '}
-          <time dateTime={fetchedAt}>
-            {formatUtcDate(fetchedAt, 'short')}
+          <time dateTime={activeFetchedAt}>
+            {formatUtcDate(activeFetchedAt, 'short')}
           </time>
         </span>
       </footer>

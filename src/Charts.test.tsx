@@ -9,7 +9,7 @@ vi.mock('./useHydrated', () => ({ useHydrated: vi.fn(() => true) }));
 
 afterEach(() => vi.mocked(useHydrated).mockReturnValue(true));
 
-const rangeView = views[1];
+const rangeView = views.find((view) => view.id === 'intelligence')!;
 
 function renderChart(rows: Model[], phone: boolean, view = rangeView) {
   return renderToStaticMarkup(

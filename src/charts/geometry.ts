@@ -1,10 +1,10 @@
 import { barDomain, linearScale, logScale } from '../scales';
 import { scatterDomain, scatterRows } from '../scatter-data';
 import { barGroups, formatModelValue, paretoFrontier, type Model } from '../models';
-import type { Metric } from '../chart-definitions';
+import type { Metric, ScoreMetric } from '../chart-definitions';
 
 export type MeasuredRow = Model & { value: number };
-export type ScatterRow = MeasuredRow & { intelligence: number };
+export type ScatterRow = MeasuredRow & { score: number };
 
 /** Keep null measurements absent and give geometry an explicit numeric value. */
 export function measureRows(rows: Model[], metric: Metric): MeasuredRow[] {
@@ -14,9 +14,9 @@ export function measureRows(rows: Model[], metric: Metric): MeasuredRow[] {
   });
 }
 
-export function measureScatterRows(rows: Model[], metric: Metric, linear: boolean): ScatterRow[] {
+export function measureScatterRows(rows: Model[], metric: Metric, linear: boolean, score: ScoreMetric = 'intelligence'): ScatterRow[] {
   // scatterRows guarantees both measurements before this single projection.
-  return scatterRows(rows, metric, linear).map((row) => ({ ...row, value: row[metric]! }));
+  return scatterRows(rows, metric, linear, score).map((row) => ({ ...row, value: row[metric]!, score: row[score]! }));
 }
 
 /** Geometry depends only on measured rows, dimensions and the visible axis choices. */
@@ -39,27 +39,34 @@ export function scatterGeometry(
     : logScale(domain, [left, right]);
   const scoreMin = Math.max(
     0,
-    Math.floor((Math.min(...rows.map((row) => row.intelligence), 30) - 4) / 10) * 10,
+    Math.floor((Math.min(...rows.map((row) => row.score), 30) - 4) / 10) * 10,
   );
   const scoreMax =
-    Math.ceil((Math.max(...rows.map((row) => row.intelligence), 50) + 2) / 5) * 5;
+    Math.ceil((Math.max(...rows.map((row) => row.score), 50) + 2) / 5) * 5;
   const y = linearScale([scoreMin, scoreMax], [bottom, top]);
-  const frontier = paretoFrontier(rows, metric);
+  const frontier = paretoFrontier(rows, metric, (row) => row.score);
   const frontierIds = new Set(frontier.map((row) => row.id));
   const frontierFamilies = new Set(frontier.map((row) => row.family));
-  const series = [...new Set(rows.map((row) => row.family))].map((family) => ({
-    family,
+  const seriesId = (row: ScatterRow) => row.codingAgent ? row.id : row.family;
+  const series = [...new Set(rows.map(seriesId))].map((id) => ({
+    id,
+    family: rows.find((row) => seriesId(row) === id)!.family,
     rows: rows
-      .filter((row) => row.family === family)
+      .filter((row) => seriesId(row) === id)
       .toSorted((a, b) => a.effortOrder - b.effortOrder),
   }));
   const labelPositions = series
     .map((series) => ({ ...series, end: series.rows.at(-1)! }))
-    .sort((a, b) => y(a.end.intelligence) - y(b.end.intelligence));
-  const labelSpacing = Math.min(24, (bottom - top) / Math.max(1, labelPositions.length - 1));
+    .sort((a, b) => y(a.end.score) - y(b.end.score));
+  const agentLabels = rows.some((row) => row.codingAgent);
+  const labelCapacity = Math.max(1, Math.floor((bottom - top) / 40) + 1);
+  // Keep agent names and tool names apart in dense selections. Every point remains interactive.
+  const labelStep = agentLabels ? Math.ceil(labelPositions.length / labelCapacity) : 1;
+  const visibleLabels = labelPositions.filter((_, index) => index % Math.max(1, labelStep) === 0);
+  const labelSpacing = Math.min(agentLabels ? 40 : 24, (bottom - top) / Math.max(1, visibleLabels.length - 1));
   let lastY = top - labelSpacing;
-  const labels = labelPositions.map((series) => {
-    lastY = Math.max(y(series.end.intelligence), lastY + labelSpacing);
+  const labels = visibleLabels.map((series) => {
+    lastY = Math.max(y(series.end.score), lastY + labelSpacing);
     return { ...series, y: lastY };
   });
   let nextY = bottom + labelSpacing;
@@ -74,7 +81,7 @@ export function scatterGeometry(
   });
   const path = (data: ScatterRow[]) =>
     data
-      .map((model, index) => `${index ? 'L' : 'M'}${x(model.value)},${y(model.intelligence)}`)
+      .map((model, index) => `${index ? 'L' : 'M'}${x(model.value)},${y(model.score)}`)
       .join('');
   return {
     left,

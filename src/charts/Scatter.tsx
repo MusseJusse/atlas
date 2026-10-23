@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { SvgLogo } from '../Logo';
 import { format, modelColor, shortName } from '../models';
-import { metrics, type Metric } from '../chart-definitions';
+import { scoreLabels, metrics, type Metric, type ScoreMetric } from '../chart-definitions';
 import type { Settings } from '../state';
 import { pinHandlers, type Interactions } from './interactions';
 import { scatterGeometry, type ScatterRow } from './geometry';
@@ -9,6 +9,7 @@ import { scatterGeometry, type ScatterRow } from './geometry';
 export function Scatter({
   rows,
   metric,
+  scoreMetric = 'intelligence',
   linear,
   settings,
   width,
@@ -17,6 +18,7 @@ export function Scatter({
 }: {
   rows: ScatterRow[];
   metric: Metric;
+  scoreMetric?: ScoreMetric;
   linear: boolean;
   settings: Settings;
   width: number;
@@ -47,7 +49,7 @@ export function Scatter({
   const guide = activeModel
     ? {
         x: x(activeModel[metric]!),
-        y: y(activeModel.intelligence!),
+        y: y(activeModel[scoreMetric]!),
         color: modelColor(activeModel),
       }
     : null;
@@ -55,7 +57,7 @@ export function Scatter({
   return (
     <>
       <text x={left} y={18} fill="var(--fg-2)" fontSize="12">
-        Intelligence index
+        {scoreLabels[scoreMetric]}
       </text>
       {y.ticks(6).map((tick) => (
         <g key={tick} transform={`translate(0,${y(tick)})`}>
@@ -98,7 +100,7 @@ export function Scatter({
         </g>
       )}
       {series.map((series) => (
-        <g key={series.family} opacity={activeFamily && activeFamily !== series.family ? 0.15 : 1}>
+        <g key={series.id} opacity={activeFamily && activeFamily !== series.family ? 0.15 : 1}>
           <path
             d={path(series.rows)}
             fill="none"
@@ -114,7 +116,7 @@ export function Scatter({
                 key={model.id}
                 role="button"
                 tabIndex={0}
-                aria-label={`${model.name}, ${model.effortLabel}, ${metrics[metric].label} ${format(model[metric], metric)}, intelligence ${format(model.intelligence, 'intelligence')}`}
+                aria-label={`${model.codingAgent?.configuration ?? `${model.name}, ${model.effortLabel}`}, ${metrics[metric].label} ${format(model[metric], metric)}, ${scoreLabels[scoreMetric]} ${format(model.score, 'intelligence')}`}
                 aria-pressed={interactions.pinned?.id === model.id}
                 className="cursor-pointer focus-visible:[&>circle:last-child]:stroke-accent focus-visible:[&>circle:last-child]:stroke-[3] mobile:focus-visible:[outline:none]"
                 opacity={settings.frontier && !onFrontier && !active && !activeFamily ? 0.15 : 1}
@@ -126,14 +128,14 @@ export function Scatter({
               >
                 <circle
                   cx={x(model.value)}
-                  cy={y(model.intelligence)}
+                  cy={y(model.score)}
                   r={13}
                   fill="transparent"
                 />
                 {active && (
                   <circle
                     cx={x(model.value)}
-                    cy={y(model.intelligence)}
+                    cy={y(model.score)}
                     r={10}
                     fill="none"
                     stroke={modelColor(model)}
@@ -142,7 +144,7 @@ export function Scatter({
                 )}
                 <circle
                   cx={x(model.value)}
-                  cy={y(model.intelligence)}
+                  cy={y(model.score)}
                   r={onFrontier && settings.frontier ? 6 : 4.5}
                   fill={modelColor(model)}
                   stroke={onFrontier && settings.frontier ? 'var(--accent)' : 'var(--panel)'}
@@ -158,22 +160,27 @@ export function Scatter({
         labels.map((series) => {
           const dim = activeFamily
             ? activeFamily !== series.family
-            : settings.frontier && !frontierFamilies.has(series.family);
+            : settings.frontier && !(series.end.codingAgent ? frontierIds.has(series.end.id) : frontierFamilies.has(series.family));
+          const name = shortName(series.end);
+          const nameLimit = Math.max(8, Math.floor((width - right - 62) / 6.5));
+          const labelName = series.end.codingAgent && name.length > nameLimit
+            ? `${name.slice(0, nameLimit - 1)}…`
+            : name;
           return (
             <g
-              key={series.family}
+              key={series.id}
               className="cursor-pointer focus-visible:[&>rect:nth-child(2)]:stroke-accent focus-visible:[&>rect:nth-child(2)]:stroke-[3]"
               opacity={dim ? 0.2 : 1}
               role="button"
               tabIndex={0}
-              aria-label={`Highlight ${series.end.name}`}
+              aria-label={`Highlight ${series.end.codingAgent?.configuration ?? series.end.name}`}
               onMouseEnter={() => interactions.highlight(series.family)}
               onMouseLeave={() => interactions.highlight(null)}
               aria-pressed={interactions.pinned?.id === series.end.id}
               {...pinHandlers(series.end, interactions.togglePin)}
             >
               <path
-                d={`M${x(series.end.value) + 8},${y(series.end.intelligence)} L${right + 20},${series.y}`}
+                d={`M${x(series.end.value) + 8},${y(series.end.score)} L${right + 20},${series.y}`}
                 stroke={modelColor(series.end)}
                 strokeWidth="0.7"
                 opacity="0.45"
@@ -183,19 +190,24 @@ export function Scatter({
                 x={right + 24}
                 y={series.y - 12}
                 width={width - right - 24}
-                height={24}
+                height={series.end.codingAgent ? 36 : 24}
                 fill="transparent"
               />
               <SvgLogo model={series.end} x={right + 27} y={series.y - 8} size={18} />
               <text
                 x={right + 53}
                 y={series.y + 4}
-                fontSize="14"
+                fontSize={series.end.codingAgent ? 12 : 14}
                 fontWeight="550"
                 fill={modelColor(series.end)}
               >
-                {shortName(series.end)}
+                {labelName}
               </text>
+              {series.end.codingAgent && (
+                <text x={right + 53} y={series.y + 18} fontSize="10" fill="var(--fg-2)">
+                  {series.end.codingAgent.name}, {series.end.effortLabel}
+                </text>
+              )}
             </g>
           );
         })}

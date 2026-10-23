@@ -20,8 +20,12 @@ export const metrics = {
 }>>;
 export type Metric = keyof typeof metrics;
 
+export type ScoreMetric = 'intelligence' | 'codingScore';
+export const scoreLabels = { intelligence: 'Intelligence index', codingScore: 'Coding Agent Index v2.0' };
+
 export const views = [
   { id: 'cost-intelligence', label: 'Cost vs intelligence', metric: 'cost', mode: 'scatter' },
+  { id: 'coding-agents', label: 'Coding agents', metric: 'cost', mode: 'scatter', score: 'codingScore' },
   { id: 'intelligence', label: metrics.intelligence.label, metric: 'intelligence', mode: 'bars' },
   { id: 'omniscience', label: 'AA-Omniscience', metric: 'omniscience', mode: 'bars' },
   { id: 'tokens-task', label: metrics.tokens.label, metric: 'tokens', mode: 'optional-scatter' },
@@ -35,6 +39,7 @@ export const views = [
   label: string;
   metric: Metric;
   mode: 'bars' | 'scatter' | 'optional-scatter';
+  score?: ScoreMetric;
 }[];
 export type View = (typeof views)[number];
 export type ViewId = View['id'];
@@ -44,5 +49,6 @@ export function resolveView(view: View, settings: { scatter: boolean; linear: re
   return {
     scatter: view.mode === 'scatter' || (view.mode === 'optional-scatter' && settings.scatter),
     linear: settings.linear.includes(view.id),
+    score: 'score' in view ? view.score : 'intelligence' as const,
   };
 }
