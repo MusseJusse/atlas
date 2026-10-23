@@ -28,6 +28,7 @@ export const frontierFamilies = [
 export const notableFamilies = [
   'glm-5-3-flash',
   'deepseek-v4-1-flash-1017',
+  'kimi-k3-1-pro',
   'qwen3-8-max-0902',
   'qwen3-8-27b',
 ];

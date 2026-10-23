@@ -180,10 +180,13 @@ describe('benchmark comparisons', () => {
   });
   it('includes task times and the Ultrafast estimate while omitting missing measurements', () => {
     const [endpoint] = speedEndpoints;
-    const selected = [endpoint.parentFamily, 'gemini-4-argon', 'muse-wonder-full'];
+    const selected = [endpoint.parentFamily];
     const url = writeSettings({ ...readSettings(''), selected }, 'time-task');
     expect(readView(url)).toBe('time-task');
-    const rows = visibleModels(readSettings(url).selected, ['none', 'max']);
+    const rows = [
+      ...visibleModels(readSettings(url).selected, ['none', 'max']),
+      { ...fixture('missing-time', 1, 50), time: null },
+    ];
     const groups = barGroups(rows, 'time', true, false);
     expect(groups.map((group) => group.id)).toEqual([endpoint.family, endpoint.parentFamily]);
     expect(groups[0]?.rows).toEqual([endpoint]);
