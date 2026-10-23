@@ -55,7 +55,7 @@ export function readView(search: string): ViewId {
   return views.find((view) => view.id === id)?.id ?? views[0].id;
 }
 
-/** Mobile ranges put the better end first unless the user chose an order. */
+/** Mobile rankings put the better value first unless the user chose an order. */
 export function chartDescending(metric: Metric, phone: boolean, descending: Settings['descending']) {
   return descending ?? (phone && metrics[metric].higherIsBetter);
 }

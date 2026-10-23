@@ -1,7 +1,8 @@
+import { nice } from 'd3-array';
 import { barDomain, linearScale, logScale } from '../scales';
 import { scatterDomain, scatterRows } from '../scatter-data';
 import { barGroups, formatModelValue, paretoFrontier, type Model } from '../models';
-import type { Metric } from '../chart-definitions';
+import { metrics, type Metric } from '../chart-definitions';
 
 export type MeasuredRow = Model & { value: number };
 export type ScatterRow = MeasuredRow & { intelligence: number };
@@ -150,14 +151,23 @@ export function barGeometry(
   return { left, right, top, bottom, y, positioned };
 }
 
-export function rangeGeometry(
+/** Rank each model's best selected configuration, independently of the requested sort direction. */
+export function mobileBarGeometry(
   rows: MeasuredRow[],
   metric: Metric,
   descending: boolean,
 ) {
-  // Phone ranges rank the requested endpoint; desktop groups rank their maximum.
-  const groups = barGroups(rows, metric, true, descending, descending ? 'maximum' : 'minimum');
-  const [min, max] = barDomain(rows.map((row) => row.value));
+  const higherIsBetter = metrics[metric].higherIsBetter;
+  const groups = barGroups(rows, metric, true, descending, higherIsBetter ? 'maximum' : 'minimum')
+    .map((group) => ({
+      ...group,
+      representative: group.rows.find((row) =>
+        row.value === (higherIsBetter ? group.maximum : group.minimum),
+      )!,
+    }));
+  const [min, max] = nice(...barDomain(rows.map((row) => row.value)), 4);
   const position = linearScale([min, max], [0, 100]);
-  return { groups, min, max, position };
+  const zero = position(0);
+  const ticks = position.ticks(3);
+  return { groups, min, max, position, zero, ticks };
 }

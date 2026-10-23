@@ -3,7 +3,7 @@ import { models, type Model } from '../models';
 import { speedEndpoints } from '../data/speed-endpoints';
 import { barDomain, linearScale, logScale } from '../scales';
 import { scatterDomain } from '../scatter-data';
-import { barGeometry, measureRows, measureScatterRows, rangeGeometry, scatterGeometry } from './geometry';
+import { barGeometry, measureRows, measureScatterRows, mobileBarGeometry, scatterGeometry } from './geometry';
 
 const base = models[0]!;
 function model(id: string, family: string, cost: number | null, intelligence = 40): Model {
@@ -76,25 +76,44 @@ it('keeps negative bars below zero, reserves label space and avoids overlapping 
   expect(rows).toEqual(original);
 });
 
-it('preserves phone minimum ordering versus desktop maximum ordering and explicit descending', () => {
+it('ranks mobile cost summaries by the cheapest selected configuration in either sort direction', () => {
   const rows = measureRows([
     model('a-low', 'a', 1), model('a-high', 'a', 100),
     model('b-low', 'b', 2), model('b-high', 'b', 3),
   ], 'cost');
-  expect(rangeGeometry(rows, 'cost', false).groups.map((group) => group.id)).toEqual(['a', 'b']);
+  const ascending = mobileBarGeometry(rows, 'cost', false);
+  const descending = mobileBarGeometry(rows, 'cost', true);
+  expect(ascending.groups.map((group) => group.id)).toEqual(['a', 'b']);
+  expect(ascending.groups.map((group) => group.representative.id)).toEqual(['a-low', 'b-low']);
   expect(barGeometry(rows, 'cost', 960, 640, true, false).positioned.map((group) => group.id)).toEqual(['b', 'a']);
-  expect(rangeGeometry(rows, 'cost', true).groups.map((group) => group.id)).toEqual(['a', 'b']);
+  expect(descending.groups.map((group) => group.id)).toEqual(['b', 'a']);
+  expect(descending.groups.map((group) => group.representative.id)).toEqual(['b-low', 'a-low']);
   const ungrouped = barGeometry(rows, 'cost', 960, 640, false, false);
   expect(ungrouped.positioned.map((group) => group.id)).toEqual(['a-low', 'b-low', 'b-high', 'a-high']);
 });
 
-it('places signed phone ranges within bounds and keeps a zero reference', () => {
+it('places signed mobile bars within bounds and keeps a zero reference', () => {
   const rows = measureRows([-88.6, 0, 46.4].map((omniscience, i) => ({ ...base, id: `${i}`, omniscience })), 'omniscience');
-  const geometry = rangeGeometry(rows, 'omniscience', true);
+  const geometry = mobileBarGeometry(rows, 'omniscience', true);
+  expect(geometry.groups[0]?.representative.value).toBe(46.4);
+  expect(geometry.ticks).toContain(0);
   expect(geometry.position(0)).toBeGreaterThan(0);
   expect(geometry.position(0)).toBeLessThan(100);
   for (const row of rows) {
     expect(geometry.position(row.value)).toBeGreaterThanOrEqual(0);
     expect(geometry.position(row.value)).toBeLessThanOrEqual(100);
+  }
+});
+
+it('keeps zero-only and all-negative mobile bars finite on a shared scale', () => {
+  for (const values of [[0, 0], [-80, -20]]) {
+    const rows = measureRows(values.map((omniscience, i) => ({ ...base, id: `${i}`, omniscience })), 'omniscience');
+    const geometry = mobileBarGeometry(rows, 'omniscience', true);
+    expect(geometry.groups[0]?.representative.value).toBe(Math.max(...values));
+    for (const value of [...values, 0]) {
+      expect(geometry.position(value)).toBeGreaterThanOrEqual(0);
+      expect(geometry.position(value)).toBeLessThanOrEqual(100);
+    }
+    expect(geometry.ticks).toContain(0);
   }
 });

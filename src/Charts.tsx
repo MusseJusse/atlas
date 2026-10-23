@@ -16,7 +16,7 @@ import { Logo } from './Logo';
 import { ConfigurationDetails } from './charts/ConfigurationDetails';
 import { Scatter } from './charts/Scatter';
 import { Bars } from './charts/Bars';
-import { DotPlot } from './charts/DotPlot';
+import { MobileBars } from './charts/MobileBars';
 import { measureRows, measureScatterRows } from './charts/geometry';
 import type { Interactions } from './charts/interactions';
 
@@ -203,7 +203,7 @@ export const Chart = memo(function Chart({
       </div>
       {ready && validRows.length > 0 && !scatter && phone && (
         <div className="hidden phone:block">
-          <DotPlot
+          <MobileBars
             rows={validRows}
             metric={view.metric}
             settings={settings}

@@ -36,10 +36,11 @@ it.each([true, false])('shows the existing empty state for range charts, phone=%
   }
 });
 
-it('keeps populated phone ranges without mounting the desktop chart', () => {
+it('renders populated phone rankings without mounting the desktop chart', () => {
   const markup = renderChart([{ ...models[0]!, intelligence: 42 }], true);
   expect(markup).toContain('aria-expanded="false"');
-  expect(markup).not.toContain('<svg');
+  expect(markup).not.toContain('chart-background');
+  expect(markup).toContain('View data table');
   expect(markup).not.toContain('No models to display');
 });
 
