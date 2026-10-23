@@ -70,7 +70,7 @@ Benchmark data comes from [Artificial Analysis](https://artificialanalysis.ai/).
 
 The Atlas interface uses a left model picker, chart workspace, and compact configuration details. Previews and pinned details use the same overlay on desktop and mobile, without resizing the plot. Bar charts place the overlay at the top left when sorted lowest first and top right when sorted highest first. Scatter plots always use the bottom right of the plotting area, clear of the axes and model labels. The overlay shows the active chart metric and two supporting measurements without duplicate rows.
 
-The overlay shows the full model name, logo, reasoning level and source. It fits within the plotting area at phone widths. Phone range charts keep their existing per-model expansion. Clearing the selection removes the overlay.
+The overlay shows the full model name, logo, reasoning level and source. It fits within the plotting area at phone widths. Phone bar charts show each model's best selected configuration, with expandable reasoning bars and a data table. Clearing the selection removes the overlay.
 
 DM Sans is bundled locally under the SIL Open Font License, included in `public/fonts/OFL.txt`. Fonts, logos, and benchmark data load locally.
 
@@ -156,7 +156,7 @@ Local Chromium results against `f2a4a2b`, with no CPU or network throttling:
 
 The first local page load recorded first contentful paint at 148 ms before and 68 ms after. A later cached reload recorded 60 ms and 40 ms. These are local samples, not a network or device performance guarantee.
 
-Desktop chart contents mount as sections approach the viewport and stay mounted after visiting, so pinned details survive navigation. Phones render the dot plots without also building hidden SVG bar charts. Chart geometry and number formatters are reused across hover updates.
+Desktop chart contents mount as sections approach the viewport and stay mounted after visiting, so pinned details survive navigation. Phones render HTML bar rankings without also building hidden SVG bar charts. Chart geometry and number formatters are reused across hover updates.
 
 ## PageSpeed validation
 
