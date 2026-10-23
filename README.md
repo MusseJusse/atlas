@@ -43,6 +43,7 @@ Components use Tailwind utilities. `src/styles.css` holds the font, theme tokens
 ## Included
 
 - Cost versus intelligence.
+- Cost versus Coding Agent Index, with separate agent configurations and API cost per task.
 - Intelligence index, with grouped reasoning levels and no cost axis.
 - AA-Omniscience Index, with grouped reasoning levels and positive and negative scores around zero.
 - Tokens per task, total tokens, cost per task, and total cost.
@@ -59,6 +60,10 @@ Components use Tailwind utilities. `src/styles.css` holds the font, theme tokens
 The original baseline was a Slopalytics snapshot captured **13 October 2026 at 20:47 UTC**, with **699 model configurations**. Updates now come directly from the public [Artificial Analysis models page](https://artificialanalysis.ai/models). The current snapshot is in `src/data/benchmarks.json`. `pnpm data:sync` fetches the complete dataset used by AA's public charts, including task costs and token counts. No API key is needed. It does not use Slopalytics or AA's authenticated Data API.
 
 Null measurements mean unmeasured or unavailable. They are omitted from the relevant charts, not treated as zero. Benchmark cost per task describes the benchmark workload, not a forecast of personal API spend.
+
+The Coding agents scatter chart uses a separate [Artificial Analysis Coding Agent Index v2.0](https://artificialanalysis.ai/agents/coding-agents) snapshot in `src/data/coding-agents.json`, captured on 23 October 2026. Its 24 configurations retain AA's source IDs, full configuration labels, fractional index scores and API costs at source precision. Chart scores multiply the source fraction by 100. The [v2.0 methodology](https://artificialanalysis.ai/methodology/coding-agents-benchmarking) averages FrontierCode v1.1, Terminal-Bench 4.0 and SWE-Atlas-QnA-AA. Cost is the average API cost per task, including applicable caching charges and discounts, rather than subscription pricing.
+
+Agent scores and costs never enter the model benchmark dataset. The model picker selects their model families, with mixed-model Devin configurations available as separate entries in the full browser. Each agent configuration is a separate plotted series, so different tools are never connected as reasoning levels. A family's only measured Max tier remains visible under the default reasoning filter, matching the model charts. Null scores or costs are omitted, and zero costs are eligible only on a linear axis. Labels and selected details identify the agent and settings. Dense selections thin chart labels to prevent overlap; every point remains available to focus or pin. The footer shows the coding snapshot date while that chart is active. The existing `data:sync` command updates model data only; this coding snapshot is a separate manual capture from the public page's `benchmarkRows` data, with the HTML SHA-256 recorded for provenance.
 
 The [AA-Omniscience Index](https://artificialanalysis.ai/evaluations/omniscience) measures factual reliability on a scale of -100 to 100. Higher is better. Correct answers raise the score, incorrect answers lower it, and abstentions have no penalty. Scores come from AA's `omniscience` field without normalization. The chart scales to the selected measurements and includes zero. Negative bars extend below zero, and mobile score positions use the same signed range. The importer and changelog track future score changes.
 

@@ -1,11 +1,12 @@
 import { extent } from 'd3-array';
 import type { Metric, Model } from './models';
+import type { ScoreMetric } from './chart-definitions';
 
 /** Share the scale's eligible measurements across every part of the scatter chart. */
-export function scatterRows(rows: Model[], metric: Metric, linear: boolean) {
-  return rows.filter((row): row is Model & { intelligence: number } => {
+export function scatterRows(rows: Model[], metric: Metric, linear: boolean, score: ScoreMetric = 'intelligence') {
+  return rows.filter((row) => {
     const value = row[metric];
-    return value !== null && row.intelligence !== null && (linear || value > 0);
+    return value !== null && row[score] != null && (linear || value > 0);
   });
 }
 

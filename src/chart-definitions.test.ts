@@ -8,8 +8,9 @@ it.each(views)('preserves the $id URL and chart mode with either scatter prefere
     const url = writeSettings(settings, view.id);
     expect(readView(url)).toBe(view.id);
     expect(resolveView(view, readSettings(url))).toEqual({
-      scatter: view.id === 'cost-intelligence' || (view.id === 'tokens-task' && scatter),
+      scatter: view.id === 'cost-intelligence' || view.id === 'coding-agents' || (view.id === 'tokens-task' && scatter),
       linear: false,
+      score: view.id === 'coding-agents' ? 'codingScore' : 'intelligence',
     });
   }
 });
@@ -21,8 +22,8 @@ it('resolves axis choices by view even when views share a metric or switch chart
     .toEqual(['tokens-task', 'cost-task']);
 
   const tokens = views.find((view) => view.id === 'tokens-task')!;
-  expect(resolveView(tokens, settings)).toEqual({ scatter: false, linear: true });
+  expect(resolveView(tokens, settings)).toEqual({ scatter: false, linear: true, score: 'intelligence' });
   expect(resolveView(tokens, { ...settings, scatter: true }))
-    .toEqual({ scatter: true, linear: true });
+    .toEqual({ scatter: true, linear: true, score: 'intelligence' });
   expect(readSettings(writeSettings(settings, tokens.id))).toEqual(settings);
 });

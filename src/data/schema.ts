@@ -100,6 +100,8 @@ export const modelFields = [
 ] as const satisfies readonly (keyof SnapshotModel)[];
 
 export type Model = Pick<SnapshotModel, (typeof modelFields)[number]> & {
+  codingScore?: number | null;
+  codingAgent?: { name: string; configuration: string; source: string };
   speedSource?: { url: string; fetchedAt: string };
   timeEstimate?: {
     baselineModelId: string;

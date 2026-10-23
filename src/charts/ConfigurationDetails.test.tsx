@@ -51,3 +51,17 @@ it('shows the active chart metric and supporting values without duplicate rows',
     expect(markup.match(/Cost per task/g)).toHaveLength(1);
   }
 });
+
+it('shows the agent configuration, coding score and agent cost with the correct source', async () => {
+  const { codingAgents } = await import('../data/coding-agents');
+  const sol = codingAgents.find((row) => row.family === 'gpt-6-1-sol')!;
+  const markup = render(sol);
+  expect(markup).toContain('Codex - GPT-6.1 Sol (max)');
+  expect(markup).toContain('Coding Agent Index v2.0');
+  expect(markup).toContain('54.1');
+  expect(markup).toContain('$1.50');
+  expect(markup).toContain('href="https://artificialanalysis.ai/agents/coding-agents"');
+  expect(markup).not.toContain('Intelligence index');
+  expect(markup).not.toContain('Total tokens');
+  expect(markup.match(/<dt /g)).toHaveLength(2);
+});

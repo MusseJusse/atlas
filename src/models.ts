@@ -1,6 +1,7 @@
 import snapshot from 'virtual:benchmarks';
 import type { Model } from './data/schema';
 import { speedEndpoints } from './data/speed-endpoints';
+import { codingAgents } from './data/coding-agents';
 import { effortGroup } from './data/efforts';
 export type { Model } from './data/schema';
 import { metrics, type Metric } from './chart-definitions';
@@ -47,7 +48,11 @@ const allFamilies: Family[] = [...byFamily].map(([family, variants]) => ({
   variants: variants.toSorted((a, b) => a.effortOrder - b.effortOrder),
 }));
 // Endpoint bars follow their parent model's selection, so the picker has one control per model.
-export const families = allFamilies.filter(({ family }) => !endpointParents.has(family));
+export const families = [
+  ...allFamilies.filter(({ family }) => !endpointParents.has(family)),
+  ...codingAgents.filter((model) => !byFamily.has(model.family))
+    .map((model) => ({ family: model.family, model, variants: [model] })),
+];
 export const familyMap = new Map(families.map((family) => [family.family, family]));
 const maxOnlyReasoningFamilies = new Set(
   allFamilies
@@ -113,19 +118,23 @@ export function visibleModels(selected: string[], excluded: string[]) {
 }
 
 /** Keep configurations with a higher score than every better alternative for the metric. */
-export function paretoFrontier<Row extends Model>(rows: Row[], metric: Metric) {
+export function paretoFrontier<Row extends Model>(
+  rows: Row[],
+  metric: Metric,
+  score: (row: Row) => number | null | undefined = (row) => row.intelligence,
+) {
   const ordered = rows
-    .filter((model) => model[metric] !== null && model.intelligence !== null)
+    .filter((model) => model[metric] !== null && score(model) != null)
     .toSorted(
       (a, b) =>
         (a[metric]! - b[metric]!) *
           (metrics[metric].higherIsBetter ? -1 : 1) ||
-        b.intelligence! - a.intelligence!,
+        score(b)! - score(a)!,
     );
   let best = -Infinity;
   return ordered.filter((model) => {
-    if (model.intelligence! <= best) return false;
-    best = model.intelligence!;
+    if (score(model)! <= best) return false;
+    best = score(model)!;
     return true;
   });
 }

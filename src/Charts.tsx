@@ -10,7 +10,7 @@ import {
 import { resolveChartInteraction } from './chart-interactions';
 import { useHydrated } from './useHydrated';
 import { shortName, type Model } from './models';
-import { metrics, resolveView, type View } from './chart-definitions';
+import { scoreLabels, metrics, resolveView, type View } from './chart-definitions';
 import type { Settings } from './state';
 import { Logo } from './Logo';
 import { ConfigurationDetails } from './charts/ConfigurationDetails';
@@ -64,7 +64,7 @@ export const Chart = memo(function Chart({
   const [visited, setVisited] = useState(active);
   const hydrated = useHydrated();
   const ready = hydrated && (active || visited);
-  const { scatter, linear } = resolveView(view, settings);
+  const { scatter, linear, score } = resolveView(view, settings);
   const { ref, width, height } = useSize(ready && (scatter || !phone));
 
   // Desktop sections have a fixed height, so charts can mount just before scrolling into view.
@@ -95,9 +95,9 @@ export const Chart = memo(function Chart({
   const prepared = useMemo(
     () =>
       scatter
-        ? { scatter: true, rows: measureScatterRows(rows, view.metric, linear) } as const
+        ? { scatter: true, rows: measureScatterRows(rows, view.metric, linear, score) } as const
         : { scatter: false, rows: measureRows(rows, view.metric) } as const,
-    [rows, view.metric, scatter, linear],
+    [rows, view.metric, scatter, linear, score],
   );
   const validRows = prepared.rows;
   const { pinned, activeModel } = resolveChartInteraction(validRows, pinnedId, hoveredId);
@@ -109,7 +109,7 @@ export const Chart = memo(function Chart({
     togglePin: (model) => setPinnedId((previous) => previous === model.id ? null : model.id),
     highlight: onHighlight,
   };
-  const legend = [...new Map(validRows.map((row) => [row.family, row])).values()];
+  const legend = [...new Map(validRows.map((row) => [row.codingAgent ? row.id : row.family, row])).values()];
 
   function closeOnBackground(event: MouseEvent<SVGSVGElement>) {
     if (
@@ -152,7 +152,7 @@ export const Chart = memo(function Chart({
               role="group"
               aria-label={
                 scatter
-                  ? `${metrics[view.metric].label} versus Intelligence Index`
+                  ? `${metrics[view.metric].label} versus ${scoreLabels[score]}`
                   : `${view.label} by model`
               }
               onClick={closeOnBackground}
@@ -167,6 +167,7 @@ export const Chart = memo(function Chart({
                 <Scatter
                   rows={prepared.rows}
                   metric={view.metric}
+                  scoreMetric={score}
                   linear={linear}
                   settings={settings}
                   width={width}
@@ -218,11 +219,19 @@ export const Chart = memo(function Chart({
           {legend.map((model) => (
             <button
               className="flex min-h-8 items-center gap-[7px] overflow-hidden text-left text-[13px] font-[550] whitespace-nowrap text-fg"
-              key={model.family}
+              key={model.codingAgent ? model.id : model.family}
+              aria-label={model.codingAgent?.configuration}
               onClick={() => interactions.togglePin(model)}
             >
               <Logo model={model} />
-              {shortName(model)}
+              {model.codingAgent ? (
+                <span className="min-w-0">
+                  <span className="block truncate">{shortName(model)}</span>
+                  <span className="block truncate text-[10px] font-normal text-fg-2">
+                    {model.codingAgent.name}, {model.effortLabel}
+                  </span>
+                </span>
+              ) : shortName(model)}
             </button>
           ))}
         </div>

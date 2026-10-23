@@ -40,7 +40,7 @@ it.each([false, true])('keeps scatter coordinates, frontier and family paths on 
     for (const row of rows) expect(geometry.x(row.value)).toBe(reference(row.value));
     expect([...geometry.frontierIds]).toEqual(linear ? ['free', 'small', 'large'] : ['small', 'large']);
     const family = geometry.series.find((series) => series.family === 'a')!;
-    expect(geometry.path(family.rows)).toBe(family.rows.map((row, index) => `${index ? 'L' : 'M'}${reference(row.value)},${geometry.y(row.intelligence)}`).join(''));
+    expect(geometry.path(family.rows)).toBe(family.rows.map((row, index) => `${index ? 'L' : 'M'}${reference(row.value)},${geometry.y(row.score)}`).join(''));
     expect(geometry.labels.every((label) => label.y >= geometry.top && label.y <= geometry.bottom)).toBe(true);
   }
   expect(rows).toEqual(original);

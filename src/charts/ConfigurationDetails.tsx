@@ -18,6 +18,9 @@ export function ConfigurationDetails({
   const scoreMetric = metric === 'omniscience' ? 'omniscience' : 'intelligence';
   // Keep the active chart metric and two supporting values without duplicate rows.
   const displayMetrics = [...new Set<Metric>([scoreMetric, metric, 'cost', 'tokensTotal'])].slice(0, 3);
+  const measurements = model.codingAgent
+    ? [['Coding Agent Index v2.0', format(model.codingScore ?? null, 'intelligence')], ['Cost per task', format(model.cost, 'cost')]]
+    : displayMetrics.map((measurement) => [metrics[measurement].label, formatModelValue(model, measurement)]);
   return (
     <div className="configuration-inspector">
       <div className="flex items-start justify-between gap-2">
@@ -36,13 +39,13 @@ export function ConfigurationDetails({
         )}
       </div>
       <div className="mt-1 text-[11px] text-fg-2">
-        {model.effort === 'none' ? 'No reasoning' : model.effortLabel} · {pinned ? 'Pinned' : 'Preview'}
+        {model.codingAgent?.configuration ?? (model.effort === 'none' ? 'No reasoning' : model.effortLabel)} · {pinned ? 'Pinned' : 'Preview'}
       </div>
       <dl className="mt-4 mb-3 space-y-2.5 text-[11px]">
-        {displayMetrics.map((measurement) => (
-          <div key={measurement} className="flex items-baseline justify-between gap-3">
-            <dt className="text-fg-2">{metrics[measurement].label}</dt>
-            <dd className="m-0 whitespace-nowrap font-semibold">{formatModelValue(model, measurement)}</dd>
+        {measurements.map(([label, value]) => (
+          <div key={label} className="flex items-baseline justify-between gap-3">
+            <dt className="text-fg-2">{label}</dt>
+            <dd className="m-0 whitespace-nowrap font-semibold">{value}</dd>
           </div>
         ))}
       </dl>
@@ -61,7 +64,7 @@ export function ConfigurationDetails({
       )}
       <a
         className="inline-block py-1 text-[11px] text-fg-2 underline underline-offset-4 hover:text-accent"
-        href={model.speedSource?.url ?? `https://artificialanalysis.ai/models/${model.family}`}
+        href={model.codingAgent?.source ?? model.speedSource?.url ?? `https://artificialanalysis.ai/models/${model.family}`}
         target="_blank"
         rel="noreferrer"
         aria-label={`View ${model.name} on Artificial Analysis`}
