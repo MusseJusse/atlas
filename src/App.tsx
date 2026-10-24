@@ -11,6 +11,7 @@ import { ThemeToggle } from './ThemeToggle';
 import { formatUtcDate } from './formatDate';
 import { Brand } from './Brand';
 import { codingAgentSource, visibleCodingAgents } from './data/coding-agents';
+import { cyberSource, visibleCyberModels } from './data/cyber-index';
 
 const Changelog = lazy(() =>
   import('./Changelog').then(({ Changelog }) => ({ default: Changelog })),
@@ -69,9 +70,15 @@ function Benchmarks() {
     [settings.selected, settings.excluded],
   );
   const view = views.find((view) => view.id === active) ?? views[0];
+  const cyberRows = useMemo(
+    () => visibleCyberModels(settings.selected, settings.excluded),
+    [settings.selected, settings.excluded],
+  );
+  const rowsByScore = { intelligence: rows, codingScore: agentRows, cyberScore: cyberRows };
+  const datesByScore = { intelligence: fetchedAt, codingScore: codingAgentSource.fetchedAt, cyberScore: cyberSource.fetchedAt };
   const { score } = resolveView(view, settings);
-  const activeRows = score === 'codingScore' ? agentRows : rows;
-  const activeFetchedAt = score === 'codingScore' ? codingAgentSource.fetchedAt : fetchedAt;
+  const activeRows = rowsByScore[score];
+  const activeFetchedAt = datesByScore[score];
   const frontier = useMemo(
     () => new Set(paretoFrontier(activeRows, view.metric, (model) => model[score]).map((model) => model.family)),
     [activeRows, view.metric, score],
@@ -265,7 +272,7 @@ function Benchmarks() {
                     active={mobile || active === view.id}
                     phone={phone}
                     view={view}
-                    rows={score === 'codingScore' ? agentRows : rows}
+                    rows={rowsByScore[score]}
                     settings={settings}
                     highlighted={active === view.id ? highlighted : null}
                     onHighlight={setHighlighted}

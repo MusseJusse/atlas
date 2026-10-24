@@ -20,12 +20,17 @@ export const metrics = {
 }>>;
 export type Metric = keyof typeof metrics;
 
-export type ScoreMetric = 'intelligence' | 'codingScore';
-export const scoreLabels = { intelligence: 'Intelligence index', codingScore: 'Coding Agent Index v2.0' };
+export type ScoreMetric = 'intelligence' | 'codingScore' | 'cyberScore';
+export const scoreLabels = {
+  intelligence: 'Intelligence index',
+  codingScore: 'Coding Agent Index v2.0',
+  cyberScore: 'Cyber Index',
+} satisfies Record<ScoreMetric, string>;
 
 export const views = [
   { id: 'cost-intelligence', label: 'Cost vs intelligence', metric: 'cost', mode: 'scatter' },
   { id: 'coding-agents', label: 'Coding agents', metric: 'cost', mode: 'scatter', score: 'codingScore' },
+  { id: 'cyber-index', label: 'Cyber Index', metric: 'cost', mode: 'scatter', score: 'cyberScore' },
   { id: 'intelligence', label: metrics.intelligence.label, metric: 'intelligence', mode: 'bars' },
   { id: 'omniscience', label: 'AA-Omniscience', metric: 'omniscience', mode: 'bars' },
   { id: 'tokens-task', label: metrics.tokens.label, metric: 'tokens', mode: 'optional-scatter' },

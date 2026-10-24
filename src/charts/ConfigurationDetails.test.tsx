@@ -65,3 +65,18 @@ it('shows the agent configuration, coding score and agent cost with the correct 
   expect(markup).not.toContain('Total tokens');
   expect(markup.match(/<dt /g)).toHaveLength(2);
 });
+
+it('shows Cyber scores and costs with the evaluation source and fallback settings', async () => {
+  const { cyberModels } = await import('../data/cyber-index');
+  const opus = cyberModels.find((row) => row.family === 'claude-opus-5-5')!;
+  const markup = render(opus);
+  expect(markup).toContain('Max, Default Fallback');
+  expect(markup).toContain('Cyber Index');
+  expect(markup).toContain('28.7');
+  expect(markup).toContain('$9.75');
+  expect(markup).toContain('href="https://artificialanalysis.ai/evaluations/artificial-analysis-cyber-index"');
+  expect(markup).not.toContain('Intelligence index');
+  expect(markup.match(/<dt /g)).toHaveLength(2);
+  const trusted = cyberModels.find((row) => row.cyber?.trustedAccess)!;
+  expect(render(trusted)).toContain('trusted access');
+});

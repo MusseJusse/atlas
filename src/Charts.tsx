@@ -188,7 +188,7 @@ export const Chart = memo(function Chart({
           ))}
         {(scatter || !phone) && activeModel && (
           <aside
-            className="configuration-details"
+            className={`configuration-details${pinned ? '' : ' pointer-events-none'}`}
             data-placement={scatter ? 'bottom-right' : settings.descending ? 'top-right' : 'top-left'}
             style={scatter ? { right: settings.labels && width >= 600 ? 235 : 24 } : undefined}
             aria-label="Selected configuration"
