@@ -102,6 +102,8 @@ export const modelFields = [
 export type Model = Pick<SnapshotModel, (typeof modelFields)[number]> & {
   codingScore?: number | null;
   codingAgent?: { name: string; configuration: string; source: string };
+  cyberScore?: number | null;
+  cyber?: { configuration: string; trustedAccess: boolean; source: string };
   speedSource?: { url: string; fetchedAt: string };
   timeEstimate?: {
     baselineModelId: string;

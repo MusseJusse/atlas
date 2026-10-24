@@ -20,6 +20,8 @@ export function ConfigurationDetails({
   const displayMetrics = [...new Set<Metric>([scoreMetric, metric, 'cost', 'tokensTotal'])].slice(0, 3);
   const measurements = model.codingAgent
     ? [['Coding Agent Index v2.0', format(model.codingScore ?? null, 'intelligence')], ['Cost per task', format(model.cost, 'cost')]]
+    : model.cyber
+    ? [['Cyber Index', format(model.cyberScore ?? null, 'intelligence')], ['Cost per task', format(model.cost, 'cost')]]
     : displayMetrics.map((measurement) => [metrics[measurement].label, formatModelValue(model, measurement)]);
   return (
     <div className="configuration-inspector">
@@ -39,7 +41,7 @@ export function ConfigurationDetails({
         )}
       </div>
       <div className="mt-1 text-[11px] text-fg-2">
-        {model.codingAgent?.configuration ?? (model.effort === 'none' ? 'No reasoning' : model.effortLabel)} · {pinned ? 'Pinned' : 'Preview'}
+        {model.codingAgent?.configuration ?? model.cyber?.configuration ?? (model.effort === 'none' ? 'No reasoning' : model.effortLabel)} · {pinned ? 'Pinned' : 'Preview'}
       </div>
       <dl className="mt-4 mb-3 space-y-2.5 text-[11px]">
         {measurements.map(([label, value]) => (
@@ -64,7 +66,7 @@ export function ConfigurationDetails({
       )}
       <a
         className="inline-block py-1 text-[11px] text-fg-2 underline underline-offset-4 hover:text-accent"
-        href={model.codingAgent?.source ?? model.speedSource?.url ?? `https://artificialanalysis.ai/models/${model.family}`}
+        href={model.codingAgent?.source ?? model.cyber?.source ?? model.speedSource?.url ?? `https://artificialanalysis.ai/models/${model.family}`}
         target="_blank"
         rel="noreferrer"
         aria-label={`View ${model.name} on Artificial Analysis`}

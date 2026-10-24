@@ -2,6 +2,7 @@ import snapshot from 'virtual:benchmarks';
 import type { Model } from './data/schema';
 import { speedEndpoints } from './data/speed-endpoints';
 import { codingAgents } from './data/coding-agents';
+import { cyberModels } from './data/cyber-index';
 import { effortGroup } from './data/efforts';
 export type { Model } from './data/schema';
 import { metrics, type Metric } from './chart-definitions';
@@ -49,7 +50,10 @@ const allFamilies: Family[] = [...byFamily].map(([family, variants]) => ({
 }));
 // Endpoint bars follow their parent model's selection, so the picker has one control per model.
 export const families = [
-  ...allFamilies.filter(({ family }) => !endpointParents.has(family)),
+  ...allFamilies.filter(({ family }) => !endpointParents.has(family)).map((family) => {
+    const trusted = cyberModels.find((model) => model.family === family.family && model.cyber?.trustedAccess);
+    return trusted ? { ...family, model: { ...family.model, name: trusted.name } } : family;
+  }),
   ...codingAgents.filter((model) => !byFamily.has(model.family))
     .map((model) => ({ family: model.family, model, variants: [model] })),
 ];
