@@ -16,6 +16,7 @@ const endpointParents = new Map(
 );
 export const fetchedAt = snapshot.fetchedAt;
 export const frontierFamilies = [
+  'gpt-6-1-terra',
   'gpt-6-1-sol',
   'gpt-6-luna',
   'gpt-6-astra',
