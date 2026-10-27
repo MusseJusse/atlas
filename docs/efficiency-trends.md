@@ -2,7 +2,7 @@
 
 Atlas can reproduce the two charts in the [Efficiency section of AA Trends](https://artificialanalysis.ai/trends#efficiency) using its existing importer. No new API key, endpoint, or historical price store is needed for this view.
 
-This PR adds the calculation and [three static display options](https://artifact-publisher-942befb9-pages.vercel.app/p/16516867-e4a2-44d1-8761-d40699f6839a), also [stored in this repository](efficiency-trends-options.html). It does not change the application interface. Choose a layout before wiring up the charts.
+This PR adds the calculation and [three static display options](https://artifact-publisher-942befb9-pages.vercel.app/p/48b82688-74f7-45ee-a023-8cccb4677f72), also [stored in this repository](efficiency-trends-options.html). It does not change the application interface. Choose a layout before wiring up the charts.
 
 ## What the charts measure
 
