@@ -17,10 +17,10 @@ vi.mock('virtual:benchmarks', async () => {
 
 afterEach(() => vi.unstubAllGlobals());
 
-it.each(['cost', 'speed'])('shows the shared model card and coincident %s records at the top right', (metric) => {
+it.each(['cost', 'speed'])('shows the shared model card and coincident %s records at the top left', (metric) => {
   vi.stubGlobal('location', { search: `?page=efficiency&metric=${metric}&thresholds=10,20` });
   const markup = renderToStaticMarkup(<Efficiency />);
-  expect(markup).toContain('data-placement="top-right"');
+  expect(markup).toContain('data-placement="top-left"');
   expect(markup).toContain('class="configuration-inspector"');
   expect(markup).toContain(metric === 'cost' ? 'Cost per task' : 'Output speed');
   expect(markup).toContain('role="group" aria-label="Record details"');

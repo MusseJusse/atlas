@@ -126,7 +126,7 @@ export function Efficiency() {
             {active && (
               <aside
                 className={`configuration-details${activePinned ? '' : ' pointer-events-none'}`}
-                data-placement="top-right"
+                data-placement="top-left"
                 aria-label="Selected configuration"
               >
                 <ConfigurationDetails
