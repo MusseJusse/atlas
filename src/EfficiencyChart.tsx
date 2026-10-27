@@ -1,4 +1,5 @@
 import { useId, useLayoutEffect, useRef, useState } from 'react';
+import { flushSync } from 'react-dom';
 import type { EfficiencyLine, EfficiencyMetric, EfficiencyPoint } from './efficiency-data';
 import { efficiencyGeometry } from './charts/efficiency-geometry';
 import { formatUtcDate } from './formatDate';
@@ -66,13 +67,12 @@ export function EfficiencyChart({ lines, selected, metric, fetchedAt, active, pi
           className="absolute inset-0 block size-full overflow-visible text-[11px]"
           viewBox={`0 0 ${size.width} ${size.height}`}
           role="group"
-          aria-labelledby={`${id}-title`}
+          aria-label={`${metric === 'cost' ? 'Cost per Intelligence Index task' : 'Output speed'} records by release date`}
           aria-describedby={`${id}-description`}
           onKeyDown={(event) => {
             if (event.key === 'Escape') clear();
           }}
         >
-          <title id={`${id}-title`}>{metric === 'cost' ? 'Cost per Intelligence Index task' : 'Output speed'} records by release date</title>
           <desc id={`${id}-description`}>
             Each line shows records for an intelligence threshold. Focus a point for details, press Enter or Space to pin it, and Escape to clear the selection.
           </desc>
@@ -106,7 +106,8 @@ export function EfficiencyChart({ lines, selected, metric, fetchedAt, active, pi
                     aria-pressed={pinned === key}
                     aria-label={`Intelligence Index at least ${line.threshold}, ${point.model.name}, ${point.model.effortLabel}, ${formatUtcDate(point.date)}, ${formatEfficiencyValue(point.value, metric)}`}
                     className="cursor-pointer focus:[outline:none] [&:focus_.record-target]:stroke-accent [&:focus_.record-target]:stroke-2"
-                    onMouseEnter={() => preview(key)}
+                    // Commit point feedback during mouse entry, without waiting for React's hover scheduling.
+                    onMouseEnter={() => flushSync(() => preview(key))}
                     onFocus={() => preview(key)}
                     onBlur={() => preview(null)}
                     onClick={activate}
