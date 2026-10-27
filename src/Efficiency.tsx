@@ -1,10 +1,11 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import snapshot from 'virtual:benchmarks';
 import { Brand } from './Brand';
 import { ThemeToggle } from './ThemeToggle';
 import { efficiencySeries, type EfficiencyMetric } from './efficiency-data';
 import { readEfficiencySettings, writeEfficiencySettings } from './efficiency-state';
-import { EfficiencyChart, efficiencyColors, formatEfficiencyValue, recordKey } from './EfficiencyChart';
+import { EfficiencyChart, efficiencyColors, recordKey } from './EfficiencyChart';
+import { ConfigurationDetails } from './charts/ConfigurationDetails';
 import { formatUtcDate } from './formatDate';
 
 const source = 'https://artificialanalysis.ai/trends#efficiency';
@@ -17,6 +18,7 @@ export function Efficiency() {
   const [settings, setSettings] = useState(() => readEfficiencySettings(typeof location === 'undefined' ? '' : location.search));
   const [hovered, setHovered] = useState<string | null>(null);
   const [pinned, setPinned] = useState<string | null>(null);
+  const chart = useRef<HTMLDivElement>(null);
   const lines = series[settings.metric];
   const selected = useMemo(() => lines.filter((line) => settings.thresholds.includes(line.threshold)), [lines, settings.thresholds]);
   const records = useMemo(() => selected.flatMap((line) => line.points.map((point) => ({ threshold: line.threshold, point }))), [selected]);
@@ -26,6 +28,7 @@ export function Efficiency() {
   const coincident = active ? records.filter(({ point }) =>
     point.date === active.point.date && point.value === active.point.value,
   ) : [];
+  const activePinned = active !== undefined && recordKey(active) === pinned;
 
   useEffect(() => {
     document.title = 'Atlas · Efficiency';
@@ -45,6 +48,12 @@ export function Efficiency() {
     setSettings((current) => ({ ...current, metric }));
     setHovered(null);
     setPinned(null);
+  }
+
+  function clearSelection() {
+    chart.current?.querySelector<SVGGElement>('g[aria-pressed="true"]')?.focus({ preventScroll: true });
+    setPinned(null);
+    setHovered(null);
   }
 
   return (
@@ -100,33 +109,48 @@ export function Efficiency() {
           <p className="m-0 text-[11px] text-fg-2">
             {settings.metric === 'cost' ? 'Cost per Intelligence Index task, USD · Log scale' : 'Output speed, tokens/s · Linear scale'}
           </p>
-          <div className="flex min-h-0 flex-1 flex-col" onMouseLeave={() => setHovered(null)}>
+          <div
+            ref={chart}
+            className="relative flex min-h-0 flex-1 flex-col"
+            onMouseLeave={() => setHovered(null)}
+            onKeyDown={(event) => {
+              // Native selects consume Escape for their popup; other card controls clear the pin.
+              if (event.key === 'Escape' && !(event.target instanceof HTMLSelectElement)) clearSelection();
+            }}
+          >
             <EfficiencyChart
               lines={lines} selected={selected} metric={settings.metric} fetchedAt={snapshot.fetchedAt}
               active={active} pinned={pinned} preview={setHovered}
               togglePin={(key) => setPinned((current) => current === key ? null : key)}
-              clear={() => { setPinned(null); setHovered(null); }}
             />
-            <div role="group" aria-label="Record details" className="mt-3 flex min-h-14 shrink-0 flex-wrap items-center gap-x-5 gap-y-1 border-t border-line py-2 text-[12px]">
-              {active && <>
-                <strong className="inline-flex flex-wrap items-center gap-2 font-semibold">
+            {active && (
+              <aside
+                className={`configuration-details${activePinned ? '' : ' pointer-events-none'}`}
+                data-placement="top-right"
+                aria-label="Selected configuration"
+              >
+                <ConfigurationDetails
+                  model={active.point.model}
+                  metric={settings.metric}
+                  pinned={activePinned}
+                  onClose={clearSelection}
+                />
+                <div role="group" aria-label="Record details" className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 border-t border-line pt-2 text-[11px] text-fg-2">
                   {coincident.length > 1 ? (
                     <select
                       aria-label="Threshold for overlapping records"
                       value={recordKey(active)}
                       onFocus={() => { setPinned(recordKey(active)); setHovered(null); }}
                       onChange={(event) => { setPinned(event.currentTarget.value); setHovered(null); }}
-                      className="min-h-10 rounded border border-line bg-panel px-2 font-sans text-[12px] text-fg focus-visible:outline-2 focus-visible:outline-accent focus-visible:outline-offset-2"
+                      className="pointer-events-auto min-h-10 min-w-0 max-w-full rounded border border-line bg-panel px-2 font-sans text-[11px] text-fg focus-visible:outline-2 focus-visible:outline-accent focus-visible:outline-offset-2"
                     >
-                      {coincident.map((record) => <option key={recordKey(record)} value={recordKey(record)}>≥ {record.threshold}</option>)}
+                      {coincident.map((record) => <option key={recordKey(record)} value={recordKey(record)}>Intelligence ≥ {record.threshold}</option>)}
                     </select>
-                  ) : <span>≥ {active.threshold}</span>}
-                  <span>· {active.point.model.name}, {active.point.model.effortLabel}</span>
-                </strong>
-                <time dateTime={active.point.date}>{formatUtcDate(active.point.date, 'short')}</time>
-                <span>{formatEfficiencyValue(active.point.value, settings.metric)}{settings.metric === 'cost' ? ' per task' : ''}</span>
-              </>}
-            </div>
+                  ) : <span>Intelligence ≥ {active.threshold}</span>}
+                  <time dateTime={active.point.date}>{formatUtcDate(active.point.date, 'short')}</time>
+                </div>
+              </aside>
+            )}
           </div>
           <p className="m-0 shrink-0 text-[11px] leading-5 text-fg-2">Current measurements ordered by model release date. Each step marks a new {settings.metric === 'cost' ? 'lowest cost' : 'highest speed'}.</p>
           <footer className="mt-1 flex shrink-0 flex-wrap justify-between gap-x-4 text-[11px] leading-5 text-fg-2">

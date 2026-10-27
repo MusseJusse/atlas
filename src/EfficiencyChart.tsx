@@ -28,7 +28,7 @@ export function recordKey({ threshold, point }: EfficiencyRecord) {
   return `${threshold}:${point.model.id}`;
 }
 
-export function EfficiencyChart({ lines, selected, metric, fetchedAt, active, pinned, preview, togglePin, clear }: {
+export function EfficiencyChart({ lines, selected, metric, fetchedAt, active, pinned, preview, togglePin }: {
   lines: EfficiencyLine[];
   selected: EfficiencyLine[];
   metric: EfficiencyMetric;
@@ -37,7 +37,6 @@ export function EfficiencyChart({ lines, selected, metric, fetchedAt, active, pi
   pinned: string | null;
   preview: (key: string | null) => void;
   togglePin: (key: string) => void;
-  clear: () => void;
 }) {
   const ref = useRef<HTMLDivElement>(null);
   const [size, setSize] = useState({ width: 0, height: 0 });
@@ -69,9 +68,6 @@ export function EfficiencyChart({ lines, selected, metric, fetchedAt, active, pi
           role="group"
           aria-label={`${metric === 'cost' ? 'Cost per Intelligence Index task' : 'Output speed'} records by release date`}
           aria-describedby={`${id}-description`}
-          onKeyDown={(event) => {
-            if (event.key === 'Escape') clear();
-          }}
         >
           <desc id={`${id}-description`}>
             Each line shows records for an intelligence threshold. Focus a point for details, press Enter or Space to pin it, and Escape to clear the selection.
