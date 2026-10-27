@@ -10,14 +10,12 @@ export type Interactions = {
   highlight: (family: string | null) => void;
 };
 
-/** SVG buttons share mouse/keyboard activation, including pending hover cancellation. */
-export function pinHandlers(
-  model: Model,
-  togglePin: Interactions['togglePin'],
-  beforeActivate?: () => void,
+/** SVG buttons share mouse and keyboard activation. */
+export function pinHandlers<Row>(
+  model: Row,
+  togglePin: (model: Row) => void,
 ) {
   function onClick() {
-    beforeActivate?.();
     togglePin(model);
   }
   return {
@@ -29,4 +27,23 @@ export function pinHandlers(
       }
     },
   };
+}
+
+/** Resolve overlapping hit areas by distance; later entries win exact ties. */
+export function nearestPoint<Row extends { x: number; y: number }>(
+  points: readonly Row[],
+  x: number,
+  y: number,
+  radius: number,
+) {
+  let nearest: Row | null = null;
+  let distance = radius * radius;
+  for (const point of points) {
+    const squared = (point.x - x) ** 2 + (point.y - y) ** 2;
+    if (squared <= distance) {
+      nearest = point;
+      distance = squared;
+    }
+  }
+  return nearest;
 }

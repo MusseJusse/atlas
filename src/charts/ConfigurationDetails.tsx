@@ -26,7 +26,7 @@ export function ConfigurationDetails({
   return (
     <div className="configuration-inspector">
       <div className="flex items-start justify-between gap-2">
-        <strong className="flex min-w-0 items-center gap-2 text-[13px] font-[550]" style={{ color: modelColor(model) }}>
+        <strong className="flex min-w-0 items-center gap-2 text-[13px] font-[550]" style={{ color: `color-mix(in srgb, ${modelColor(model)} 80%, var(--fg))` }}>
           <Logo model={model} size={19} />
           {model.name}
         </strong>

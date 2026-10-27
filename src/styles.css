@@ -179,3 +179,53 @@
     padding: 12px;
   }
 }
+
+/* Efficiency keeps the shared card beside the plot, never over its records. */
+.efficiency-details-slot {
+  margin-top: 20px;
+}
+.efficiency-details.configuration-details {
+  position: static;
+  width: 100%;
+  max-width: none;
+  max-height: none;
+}
+@media (width <= 900px) {
+  /* Keyboard focus must clear the sticky header, including links inside the card. */
+  .efficiency-workspace :where(button, a, input, select, [tabindex]) {
+    scroll-margin-top: calc(var(--header-height) + 8px);
+    scroll-margin-bottom: 8px;
+  }
+  .efficiency-filters {
+    order: 1;
+    margin-bottom: 16px;
+  }
+  .efficiency-heading {
+    order: 2;
+    border-radius: 12px 12px 0 0;
+    padding: 20px 16px 0;
+    background: var(--panel);
+  }
+  .efficiency-details-slot {
+    order: 3;
+    margin-top: 0;
+    height: 320px;
+    flex: none;
+    padding: 16px;
+    background: var(--panel);
+  }
+  .efficiency-details.configuration-details {
+    max-height: 100%;
+  }
+  .efficiency-plot {
+    order: 4;
+    padding: 0 16px;
+    background: var(--panel);
+  }
+  .efficiency-footer {
+    order: 5;
+    padding: 0 16px 16px;
+    border-radius: 0 0 12px 12px;
+    background: var(--panel);
+  }
+}

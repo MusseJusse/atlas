@@ -16,6 +16,9 @@ import { cyberSource, visibleCyberModels } from './data/cyber-index';
 const Changelog = lazy(() =>
   import('./Changelog').then(({ Changelog }) => ({ default: Changelog })),
 );
+const Efficiency = lazy(() =>
+  import('./Efficiency').then(({ Efficiency }) => ({ default: Efficiency })),
+);
 
 function Selection({ checked }: { checked: boolean }) {
   return (
@@ -29,16 +32,17 @@ function Selection({ checked }: { checked: boolean }) {
 }
 
 export function App() {
-  return typeof location !== 'undefined' &&
-    new URLSearchParams(location.search).get('page') === 'changelog' ? (
+  const page = typeof location === 'undefined' ? null : new URLSearchParams(location.search).get('page');
+  const Page = page === 'changelog' ? Changelog : page === 'efficiency' ? Efficiency : null;
+  return Page ? (
     <Suspense
       fallback={
         <p className="p-7 text-[14px] text-fg-2" role="status">
-          Loading changelog…
+          Loading {page}…
         </p>
       }
     >
-      <Changelog />
+      <Page />
     </Suspense>
   ) : (
     <Benchmarks />
@@ -114,6 +118,12 @@ function Benchmarks() {
           >
             Benchmarks
           </button>
+          <a
+            href="?page=efficiency"
+            className="flex min-h-11 items-center text-[12px] text-fg-2 hover:text-accent"
+          >
+            Efficiency
+          </a>
           <a
             href="?page=changelog"
             className="flex min-h-11 items-center text-[12px] text-fg-2 hover:text-accent"

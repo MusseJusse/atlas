@@ -3,6 +3,17 @@ import { models, visibleModels, type Model } from './models';
 import { resolveChartInteraction } from './chart-interactions';
 import { scatterRows } from './scatter-data';
 
+it('shares preview and pin precedence with keyed efficiency records', () => {
+  const hover = { id: '10:shared', threshold: 10 };
+  const pin = { id: '20:shared', threshold: 20 };
+  const rows = [hover, pin];
+  expect(resolveChartInteraction(rows, null, null).activeModel).toBeNull();
+  expect(resolveChartInteraction(rows, null, hover.id).activeModel).toBe(hover);
+  expect(resolveChartInteraction(rows, pin.id, hover.id).activeModel).toBe(pin);
+  expect(resolveChartInteraction(rows, pin.id, null).activeModel).toBe(pin);
+  expect(resolveChartInteraction([hover], pin.id, hover.id).activeModel).toBe(hover);
+});
+
 it('lets a visible hover replace a filtered pin and restores the pin when re-enabled', () => {
   const selected = ['claude-fable-5-1', 'gpt-6-1-sol'];
   const rows = scatterRows(visibleModels(selected, []), 'cost', false);

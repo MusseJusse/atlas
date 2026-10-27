@@ -50,6 +50,9 @@ export function Changelog({ history = bundledHistory }: { history?: ChangeHistor
           <a href="/" className="flex min-h-11 items-center text-fg-2 phone:hidden">
             Benchmarks
           </a>
+          <a href="?page=efficiency" className="flex min-h-11 items-center text-fg-2">
+            Efficiency
+          </a>
           <a
             href="?page=changelog"
             aria-current="page"
