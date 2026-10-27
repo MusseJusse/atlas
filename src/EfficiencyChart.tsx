@@ -88,14 +88,8 @@ export function EfficiencyChart({ lines, selected, metric, fetchedAt, active, pi
             ))}
             <text x={(geometry.left + geometry.right) / 2} y={size.height - 4} textAnchor="middle">Release date</text>
           </g>
-          {active && (
-            <g stroke={efficiencyColors[active.threshold]} strokeWidth={1} strokeDasharray="6 4" pointerEvents="none" aria-hidden="true">
-              <line x1={geometry.left} x2={geometry.right} y1={geometry.y(active.point.value)} y2={geometry.y(active.point.value)} />
-              <line x1={geometry.x(Date.parse(active.point.date))} x2={geometry.x(Date.parse(active.point.date))} y1={geometry.top} y2={geometry.bottom} />
-            </g>
-          )}
           {selected.map((line) => (
-            <g key={line.threshold} opacity={active && active.threshold !== line.threshold ? 0.15 : 1} style={{ color: efficiencyColors[line.threshold] }}>
+            <g key={line.threshold} style={{ color: efficiencyColors[line.threshold] }}>
               <path d={geometry.path(line.points)} fill="none" stroke="currentColor" strokeWidth={1.7} aria-hidden="true" />
               {line.points.map((point) => {
                 const record = { threshold: line.threshold, point };
@@ -116,9 +110,9 @@ export function EfficiencyChart({ lines, selected, metric, fetchedAt, active, pi
                     onBlur={() => preview(null)}
                     {...pinHandlers(record, (selected) => togglePin(recordKey(selected)))}
                   >
-                    <circle className="record-target" r={12} fill="transparent" stroke="transparent" />
-                    {active && recordKey(active) === key && <circle r={6} fill="var(--panel)" stroke="currentColor" strokeWidth={2} />}
-                    <rect x={-2.5} y={-2.5} width={5} height={5} fill="currentColor" />
+                    <circle className="record-target" r={13} fill="transparent" stroke="transparent" />
+                    {active && recordKey(active) === key && <circle r={10} fill="none" stroke="currentColor" opacity={0.5} />}
+                    <circle r={4.5} fill="currentColor" stroke="var(--panel)" strokeWidth={1.8} />
                   </g>
                 );
               })}
