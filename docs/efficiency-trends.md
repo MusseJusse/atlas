@@ -41,7 +41,7 @@ The authenticated [Data API](https://artificialanalysis.ai/data-api/docs) is a s
 - Compute the default view across the complete benchmark snapshot. The benchmark picker's default frontier selection would hide older record setters and change the meaning of the chart.
 - Keep reasoning configurations distinct. Show the winning model and effort in the point details.
 - Skip missing dates, missing scores, and missing or non-positive measurements, matching AA's positive-value filtering. Zero cost is a real value elsewhere in Atlas, but AA's logarithmic efficiency plot excludes it.
-- Keep one best configuration per release day. Equal measurements on that date use the stable configuration ID as a tie breaker, so row order cannot change the details. Do not add several zero-width steps on the same date.
+- AA can emit intermediate records on the same release day, depending on its input ordering. Atlas deliberately keeps only that day's best qualifying configuration, preserving the daily frontier without zero-width intermediate steps. Equal measurements on that date use the stable configuration ID as a tie breaker, so row order cannot change the details.
 - Leave empty thresholds empty. Do not copy an intelligence score or release date onto provider-only endpoints to make them qualify.
 - Keep any step extension to the chart's right edge in rendering. The calculation returns actual record points only.
 

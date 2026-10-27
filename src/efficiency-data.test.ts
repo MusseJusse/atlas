@@ -80,3 +80,16 @@ it('omits missing and non-positive measurements as AA does, without inventing po
       .toEqual(['measured']);
   expect(efficiencySeries([], 'cost').every(({ points }) => points.length === 0)).toBe(true);
 });
+
+it('keeps a qualifying same-day record when a better measurement falls below its threshold', () => {
+  const rows = [
+    fixture('earlier', '2026-01-01', 40, 2, 50),
+    fixture('below', '2026-02-01', 39.99, 0.1, 500),
+    fixture('qualifies', '2026-02-01', 40, 1, 100),
+  ];
+  for (const metric of ['cost', 'speed'] as const) {
+    const series = efficiencySeries(rows, metric);
+    expect(series[2]!.points.map(({ model }) => model.id)).toEqual(['earlier', 'below']);
+    expect(series[3]!.points.map(({ model }) => model.id)).toEqual(['earlier', 'qualifies']);
+  }
+});
