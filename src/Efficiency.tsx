@@ -59,9 +59,17 @@ export function Efficiency() {
         </nav>
         <ThemeToggle className="ml-auto flex size-10 shrink-0 items-center justify-center rounded-md text-fg-2 hover:bg-hover hover:text-accent" showTitle />
       </header>
-      <div className="grid min-h-0 grid-cols-[var(--sidebar-width)_minmax(0,1fr)] gap-6 px-7 py-6 compact:gap-5 compact:px-5 mobile:block mobile:px-4 mobile:py-4">
-        <aside aria-label="Efficiency filters" className="min-w-0 pt-2 mobile:mb-4 mobile:pt-0">
-          <fieldset className="m-0 min-w-0 border-0 p-0">
+      <main
+        id="efficiency-workspace"
+        tabIndex={-1}
+        className="efficiency-workspace [outline:none] grid min-h-0 grid-cols-[var(--sidebar-width)_minmax(0,1fr)] gap-6 px-7 py-6 compact:gap-5 compact:px-5 mobile:flex mobile:flex-col mobile:gap-0 mobile:px-4 mobile:py-4"
+        onKeyDown={(event) => {
+          // Native selects consume Escape for their popup; other controls clear the pin.
+          if (event.key === 'Escape' && !(event.target instanceof HTMLSelectElement)) clearSelection();
+        }}
+      >
+        <aside aria-label="Efficiency controls" className="min-h-0 min-w-0 overflow-y-auto pt-2 mobile:contents">
+          <fieldset className="efficiency-filters m-0 min-w-0 border-0 p-0">
             <legend className="mb-3 text-[13px] font-semibold">Intelligence Index</legend>
             <div className="flex flex-col gap-1 mobile:flex-row mobile:flex-wrap mobile:gap-x-5 mobile:gap-y-0">
               {lines.map((line) => (
@@ -85,31 +93,10 @@ export function Efficiency() {
               ))}
             </div>
           </fieldset>
-        </aside>
-        <main id="efficiency-workspace" tabIndex={-1} className="flex min-h-0 min-w-0 flex-col overflow-y-auto rounded-xl bg-panel px-6 pt-5 pb-4 [outline:none] mobile:overflow-visible mobile:px-4">
-          <h1 className="m-0 text-[25px] leading-tight font-[550] tracking-[-0.8px] phone:text-[22px]">
-            Cost at each intelligence threshold
-          </h1>
-          <p className="mt-2 mb-0 text-[11px] text-fg-2">Cost per Intelligence Index task, USD · Log scale</p>
-          <div
-            ref={chart}
-            className="relative flex min-h-0 flex-1 flex-col"
-            onClick={(event) => {
-              if (event.target instanceof SVGRectElement && event.target.classList.contains('chart-background')) setPinned(null);
-            }}
-            onKeyDown={(event) => {
-              // Native selects consume Escape for their popup; other card controls clear the pin.
-              if (event.key === 'Escape' && !(event.target instanceof HTMLSelectElement)) clearSelection();
-            }}
-          >
-            <EfficiencyChart
-              lines={lines} selected={selected} fetchedAt={snapshot.fetchedAt}
-              active={active} pinned={pinned} preview={setHovered}
-              togglePin={(key) => setPinned((current) => current === key ? null : key)}
-            />
+          <div className="efficiency-details-slot">
             {active && (
               <aside
-                className={`configuration-details${activePinned ? '' : ' pointer-events-none'}`}
+                className={`configuration-details efficiency-details${activePinned ? '' : ' pointer-events-none'}`}
                 data-placement="top-left"
                 aria-label="Selected configuration"
               >
@@ -135,13 +122,36 @@ export function Efficiency() {
               </aside>
             )}
           </div>
-          <p className="m-0 shrink-0 text-[11px] leading-5 text-fg-2">Current measurements ordered by model release date. Each step marks a new lowest cost.</p>
-          <footer className="mt-1 flex shrink-0 flex-wrap justify-between gap-x-4 text-[11px] leading-5 text-fg-2">
-            <a href={source} className="underline underline-offset-4">Source: Artificial Analysis</a>
-            <span>Snapshot <time dateTime={snapshot.fetchedAt}>{formatUtcDate(snapshot.fetchedAt, 'short')}</time></span>
-          </footer>
-        </main>
-      </div>
+        </aside>
+        <section aria-labelledby="efficiency-title" className="flex min-h-0 min-w-0 flex-col overflow-y-auto rounded-xl bg-panel px-6 pt-5 pb-4 mobile:contents">
+          <div className="efficiency-heading">
+            <h1 id="efficiency-title" className="m-0 text-[25px] leading-tight font-[550] tracking-[-0.8px] phone:text-[22px]">
+              Cost at each intelligence threshold
+            </h1>
+            <p className="mt-2 mb-0 text-[11px] text-fg-2">Cost per Intelligence Index task, USD · Log scale</p>
+          </div>
+          <div
+            ref={chart}
+            className="efficiency-plot relative flex min-h-0 flex-1 flex-col"
+            onClick={(event) => {
+              if (event.target instanceof SVGRectElement && event.target.classList.contains('chart-background')) setPinned(null);
+            }}
+          >
+            <EfficiencyChart
+              lines={lines} selected={selected} fetchedAt={snapshot.fetchedAt}
+              active={active} pinned={pinned} preview={setHovered}
+              togglePin={(key) => setPinned((current) => current === key ? null : key)}
+            />
+          </div>
+          <div className="efficiency-footer">
+            <p className="m-0 shrink-0 text-[11px] leading-5 text-fg-2">Current measurements ordered by model release date. Each step marks a new lowest cost.</p>
+            <footer className="mt-1 flex shrink-0 flex-wrap justify-between gap-x-4 text-[11px] leading-5 text-fg-2">
+              <a href={source} className="underline underline-offset-4">Source: Artificial Analysis</a>
+              <span>Snapshot <time dateTime={snapshot.fetchedAt}>{formatUtcDate(snapshot.fetchedAt, 'short')}</time></span>
+            </footer>
+          </div>
+        </section>
+      </main>
     </div>
   );
 }

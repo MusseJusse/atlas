@@ -28,3 +28,22 @@ export function pinHandlers<Row>(
     },
   };
 }
+
+/** Resolve overlapping hit areas by distance; later entries win exact ties. */
+export function nearestPoint<Row extends { x: number; y: number }>(
+  points: readonly Row[],
+  x: number,
+  y: number,
+  radius: number,
+) {
+  let nearest: Row | null = null;
+  let distance = radius * radius;
+  for (const point of points) {
+    const squared = (point.x - x) ** 2 + (point.y - y) ** 2;
+    if (squared <= distance) {
+      nearest = point;
+      distance = squared;
+    }
+  }
+  return nearest;
+}

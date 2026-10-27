@@ -3,7 +3,7 @@ import { flushSync } from 'react-dom';
 import type { EfficiencyLine, EfficiencyPoint } from './efficiency-data';
 import { efficiencyGeometry } from './charts/efficiency-geometry';
 import { formatUtcDate } from './formatDate';
-import { pinHandlers } from './charts/interactions';
+import { nearestPoint, pinHandlers } from './charts/interactions';
 
 const monthFormat = new Intl.DateTimeFormat('en-GB', { month: 'short', year: '2-digit', timeZone: 'UTC' });
 const costFormat = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumSignificantDigits: 4 });
@@ -49,6 +49,19 @@ export function EfficiencyChart({ lines, selected, fetchedAt, active, pinned, pr
     ? efficiencyGeometry(lines, size.width, size.height, fetchedAt)
     : null;
   const populated = selected.some((line) => line.points.length > 0);
+  const targets = geometry ? selected.flatMap((line) => line.points.map((point) => ({
+    key: recordKey({ threshold: line.threshold, point }),
+    x: geometry.x(Date.parse(point.date)), y: geometry.y(point.value),
+  }))) : [];
+
+  function pointerRecord(svg: SVGSVGElement, clientX: number, clientY: number) {
+    const bounds = svg.getBoundingClientRect();
+    return nearestPoint(targets,
+      (clientX - bounds.left) * size.width / bounds.width,
+      (clientY - bounds.top) * size.height / bounds.height,
+      13,
+    );
+  }
 
   return (
     <div ref={ref} className="relative min-h-[280px] min-w-0 flex-1 mobile:h-[380px] mobile:flex-none phone:h-[360px]">
@@ -63,6 +76,21 @@ export function EfficiencyChart({ lines, selected, fetchedAt, active, pinned, pr
           role="group"
           aria-label="Cost per Intelligence Index task records by release date"
           aria-describedby={`${id}-description`}
+          onPointerMove={(event) => {
+            if (event.pointerType === 'touch') return;
+            const record = pointerRecord(event.currentTarget, event.clientX, event.clientY);
+            flushSync(() => preview(record?.key ?? null));
+          }}
+          onPointerLeave={() => flushSync(() => preview(null))}
+          onClick={(event) => {
+            const record = pointerRecord(event.currentTarget, event.clientX, event.clientY);
+            if (!record) return;
+            event.stopPropagation();
+            // Focus the resolved record too, rather than whichever invisible target was on top.
+            Array.from(event.currentTarget.querySelectorAll<SVGGElement>('g[data-record-key]'))
+              .find((point) => point.dataset.recordKey === record.key)?.focus({ preventScroll: true });
+            togglePin(record.key);
+          }}
         >
           <desc id={`${id}-description`}>
             Each line shows records for an intelligence threshold. Focus a point for details, press Enter or Space to pin it, and Escape to clear the selection.
@@ -88,21 +116,24 @@ export function EfficiencyChart({ lines, selected, fetchedAt, active, pinned, pr
               {line.points.map((point) => {
                 const record = { threshold: line.threshold, point };
                 const key = recordKey(record);
+                const handlers = pinHandlers(record, (selected) => togglePin(recordKey(selected)));
                 return (
                   <g
                     key={point.model.id}
+                    data-record-key={key}
                     transform={`translate(${geometry.x(Date.parse(point.date))},${geometry.y(point.value)})`}
                     role="button"
                     tabIndex={0}
                     aria-pressed={pinned === key}
                     aria-label={`Intelligence Index at least ${line.threshold}, ${point.model.name}, ${point.model.effortLabel}, ${formatUtcDate(point.date)}, ${costFormat.format(point.value)}`}
                     className="cursor-pointer focus:[outline:none] [&:focus_.record-target]:stroke-accent [&:focus_.record-target]:stroke-2"
-                    // Commit point feedback during mouse entry, without waiting for React's hover scheduling.
-                    onMouseEnter={() => flushSync(() => preview(key))}
-                    onMouseLeave={() => flushSync(() => preview(null))}
                     onFocus={() => preview(key)}
                     onBlur={() => preview(null)}
-                    {...pinHandlers(record, (selected) => togglePin(recordKey(selected)))}
+                    onKeyDown={handlers.onKeyDown}
+                    onClick={(event) => {
+                      // Assistive activation has no pointer coordinates.
+                      if (event.detail === 0) { event.stopPropagation(); handlers.onClick(); }
+                    }}
                   >
                     <circle className="record-target" r={13} fill="transparent" stroke="transparent" />
                     {active && recordKey(active) === key && <circle r={10} fill="none" stroke="currentColor" opacity={0.5} />}
