@@ -100,30 +100,33 @@ export function Efficiency() {
           <p className="m-0 text-[11px] text-fg-2">
             {settings.metric === 'cost' ? 'Cost per Intelligence Index task, USD · Log scale' : 'Output speed, tokens/s · Linear scale'}
           </p>
-          <EfficiencyChart
-            lines={lines} selected={selected} metric={settings.metric} fetchedAt={snapshot.fetchedAt}
-            active={active} pinned={pinned} preview={setHovered}
-            togglePin={(key) => setPinned((current) => current === key ? null : key)}
-            clear={() => { setPinned(null); setHovered(null); }}
-          />
-          <div aria-label="Record details" className="mt-3 flex min-h-14 shrink-0 flex-wrap items-center gap-x-5 gap-y-1 border-t border-line py-2 text-[12px]">
-            {active && <>
-              <strong className="inline-flex flex-wrap items-center gap-2 font-semibold">
-                {coincident.length > 1 ? (
-                  <select
-                    aria-label="Threshold for overlapping records"
-                    value={recordKey(active)}
-                    onChange={(event) => { setPinned(event.currentTarget.value); setHovered(null); }}
-                    className="min-h-10 rounded border border-line bg-panel px-2 text-fg focus-visible:outline-2 focus-visible:outline-accent focus-visible:outline-offset-2"
-                  >
-                    {coincident.map((record) => <option key={recordKey(record)} value={recordKey(record)}>≥ {record.threshold}</option>)}
-                  </select>
-                ) : <span>≥ {active.threshold}</span>}
-                <span>· {active.point.model.name}, {active.point.model.effortLabel}</span>
-              </strong>
-              <time dateTime={active.point.date}>{formatUtcDate(active.point.date, 'short')}</time>
-              <span>{formatEfficiencyValue(active.point.value, settings.metric)}{settings.metric === 'cost' ? ' per task' : ''}</span>
-            </>}
+          <div className="flex min-h-0 flex-1 flex-col" onMouseLeave={() => setHovered(null)}>
+            <EfficiencyChart
+              lines={lines} selected={selected} metric={settings.metric} fetchedAt={snapshot.fetchedAt}
+              active={active} pinned={pinned} preview={setHovered}
+              togglePin={(key) => setPinned((current) => current === key ? null : key)}
+              clear={() => { setPinned(null); setHovered(null); }}
+            />
+            <div role="group" aria-label="Record details" className="mt-3 flex min-h-14 shrink-0 flex-wrap items-center gap-x-5 gap-y-1 border-t border-line py-2 text-[12px]">
+              {active && <>
+                <strong className="inline-flex flex-wrap items-center gap-2 font-semibold">
+                  {coincident.length > 1 ? (
+                    <select
+                      aria-label="Threshold for overlapping records"
+                      value={recordKey(active)}
+                      onFocus={() => { setPinned(recordKey(active)); setHovered(null); }}
+                      onChange={(event) => { setPinned(event.currentTarget.value); setHovered(null); }}
+                      className="min-h-10 rounded border border-line bg-panel px-2 font-sans text-[12px] text-fg focus-visible:outline-2 focus-visible:outline-accent focus-visible:outline-offset-2"
+                    >
+                      {coincident.map((record) => <option key={recordKey(record)} value={recordKey(record)}>≥ {record.threshold}</option>)}
+                    </select>
+                  ) : <span>≥ {active.threshold}</span>}
+                  <span>· {active.point.model.name}, {active.point.model.effortLabel}</span>
+                </strong>
+                <time dateTime={active.point.date}>{formatUtcDate(active.point.date, 'short')}</time>
+                <span>{formatEfficiencyValue(active.point.value, settings.metric)}{settings.metric === 'cost' ? ' per task' : ''}</span>
+              </>}
+            </div>
           </div>
           <p className="m-0 shrink-0 text-[11px] leading-5 text-fg-2">Current measurements ordered by model release date. Each step marks a new {settings.metric === 'cost' ? 'lowest cost' : 'highest speed'}.</p>
           <footer className="mt-1 flex shrink-0 flex-wrap justify-between gap-x-4 text-[11px] leading-5 text-fg-2">

@@ -107,7 +107,6 @@ export function EfficiencyChart({ lines, selected, metric, fetchedAt, active, pi
                     aria-label={`Intelligence Index at least ${line.threshold}, ${point.model.name}, ${point.model.effortLabel}, ${formatUtcDate(point.date)}, ${formatEfficiencyValue(point.value, metric)}`}
                     className="cursor-pointer focus:[outline:none] [&:focus_.record-target]:stroke-accent [&:focus_.record-target]:stroke-2"
                     onMouseEnter={() => preview(key)}
-                    onMouseLeave={() => preview(null)}
                     onFocus={() => preview(key)}
                     onBlur={() => preview(null)}
                     onClick={activate}
