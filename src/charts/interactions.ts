@@ -10,14 +10,12 @@ export type Interactions = {
   highlight: (family: string | null) => void;
 };
 
-/** SVG buttons share mouse/keyboard activation, including pending hover cancellation. */
+/** SVG buttons share mouse and keyboard activation. */
 export function pinHandlers(
   model: Model,
   togglePin: Interactions['togglePin'],
-  beforeActivate?: () => void,
 ) {
   function onClick() {
-    beforeActivate?.();
     togglePin(model);
   }
   return {

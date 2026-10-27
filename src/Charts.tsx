@@ -7,6 +7,7 @@ import {
   useState,
   type MouseEvent,
 } from 'react';
+import { flushSync } from 'react-dom';
 import { resolveChartInteraction } from './chart-interactions';
 import { useHydrated } from './useHydrated';
 import { shortName, type Model } from './models';
@@ -105,9 +106,9 @@ export const Chart = memo(function Chart({
     pinned,
     activeModel,
     highlighted: validRows.some((row) => row.family === highlighted) ? highlighted : null,
-    hover: (model) => setHoveredId(model?.id ?? null),
+    hover: (model) => flushSync(() => setHoveredId(model?.id ?? null)),
     togglePin: (model) => setPinnedId((previous) => previous === model.id ? null : model.id),
-    highlight: onHighlight,
+    highlight: (id) => flushSync(() => onHighlight(id)),
   };
   const legend = [...new Map(validRows.map((row) => [row.codingAgent ? row.id : row.family, row])).values()];
 
