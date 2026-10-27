@@ -23,6 +23,9 @@ export function Efficiency() {
   const latest = records.toSorted((a, b) => b.point.date.localeCompare(a.point.date) || b.threshold - a.threshold)[0];
   const active = records.find((record) => recordKey(record) === hovered) ??
     records.find((record) => recordKey(record) === pinned) ?? latest;
+  const coincident = active ? records.filter(({ point }) =>
+    point.date === active.point.date && point.value === active.point.value,
+  ) : [];
 
   useEffect(() => {
     document.title = 'Atlas · Efficiency';
@@ -105,7 +108,19 @@ export function Efficiency() {
           />
           <div aria-label="Record details" className="mt-3 flex min-h-14 shrink-0 flex-wrap items-center gap-x-5 gap-y-1 border-t border-line py-2 text-[12px]">
             {active && <>
-              <strong className="font-semibold">≥ {active.threshold} · {active.point.model.name}, {active.point.model.effortLabel}</strong>
+              <strong className="inline-flex flex-wrap items-center gap-2 font-semibold">
+                {coincident.length > 1 ? (
+                  <select
+                    aria-label="Threshold for overlapping records"
+                    value={recordKey(active)}
+                    onChange={(event) => { setPinned(event.currentTarget.value); setHovered(null); }}
+                    className="min-h-10 rounded border border-line bg-panel px-2 text-fg focus-visible:outline-2 focus-visible:outline-accent focus-visible:outline-offset-2"
+                  >
+                    {coincident.map((record) => <option key={recordKey(record)} value={recordKey(record)}>≥ {record.threshold}</option>)}
+                  </select>
+                ) : <span>≥ {active.threshold}</span>}
+                <span>· {active.point.model.name}, {active.point.model.effortLabel}</span>
+              </strong>
               <time dateTime={active.point.date}>{formatUtcDate(active.point.date, 'short')}</time>
               <span>{formatEfficiencyValue(active.point.value, settings.metric)}{settings.metric === 'cost' ? ' per task' : ''}</span>
             </>}
