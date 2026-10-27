@@ -1,10 +1,9 @@
-import type { EfficiencyLine, EfficiencyMetric, EfficiencyPoint } from '../efficiency-data';
+import type { EfficiencyLine, EfficiencyPoint } from '../efficiency-data';
 import { linearScale, logScale } from '../scales';
 
 /** Keep axes fixed while thresholds are toggled, using every series in this snapshot. */
 export function efficiencyGeometry(
   lines: readonly EfficiencyLine[],
-  metric: EfficiencyMetric,
   width: number,
   height: number,
   fetchedAt: string,
@@ -22,12 +21,8 @@ export function efficiencyGeometry(
   const values = points.map((point) => point.value);
   const minPower = Math.floor(Math.log10(Math.min(...values)));
   const maxPower = Math.max(minPower + 1, Math.ceil(Math.log10(Math.max(...values))));
-  const y = metric === 'cost'
-    ? logScale([10 ** minPower, 10 ** maxPower], [bottom, top])
-    : linearScale([0, Math.max(...values) * 1.08], [bottom, top], { nice: true });
-  const yTicks = metric === 'cost'
-    ? Array.from({ length: maxPower - minPower + 1 }, (_, index) => 10 ** (minPower + index))
-    : y.ticks(5);
+  const y = logScale([10 ** minPower, 10 ** maxPower], [bottom, top]);
+  const yTicks = Array.from({ length: maxPower - minPower + 1 }, (_, index) => 10 ** (minPower + index));
   const last = new Date(end);
   const months = (last.getUTCFullYear() - first.getUTCFullYear()) * 12 + last.getUTCMonth() - first.getUTCMonth();
   const step = Math.max(1, Math.ceil(months / Math.max(2, Math.floor((right - left) / 100))));

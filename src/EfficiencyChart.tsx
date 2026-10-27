@@ -1,13 +1,12 @@
 import { useId, useLayoutEffect, useRef, useState } from 'react';
 import { flushSync } from 'react-dom';
-import type { EfficiencyLine, EfficiencyMetric, EfficiencyPoint } from './efficiency-data';
+import type { EfficiencyLine, EfficiencyPoint } from './efficiency-data';
 import { efficiencyGeometry } from './charts/efficiency-geometry';
 import { formatUtcDate } from './formatDate';
 import { pinHandlers } from './charts/interactions';
 
 const monthFormat = new Intl.DateTimeFormat('en-GB', { month: 'short', year: '2-digit', timeZone: 'UTC' });
 const costFormat = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumSignificantDigits: 4 });
-const speedFormat = new Intl.NumberFormat('en-US', { maximumFractionDigits: 1 });
 
 // Threshold colors stay distinct and readable in both existing Atlas themes.
 export const efficiencyColors = {
@@ -19,20 +18,15 @@ export const efficiencyColors = {
   60: 'light-dark(#65516f, #ccb6d9)',
 } as const;
 
-export function formatEfficiencyValue(value: number, metric: EfficiencyMetric) {
-  return metric === 'cost' ? costFormat.format(value) : `${speedFormat.format(value)} tokens/s`;
-}
-
 export type EfficiencyRecord = { threshold: EfficiencyLine['threshold']; point: EfficiencyPoint };
 
 export function recordKey({ threshold, point }: EfficiencyRecord) {
   return `${threshold}:${point.model.id}`;
 }
 
-export function EfficiencyChart({ lines, selected, metric, fetchedAt, active, pinned, preview, togglePin }: {
+export function EfficiencyChart({ lines, selected, fetchedAt, active, pinned, preview, togglePin }: {
   lines: EfficiencyLine[];
   selected: EfficiencyLine[];
-  metric: EfficiencyMetric;
   fetchedAt: string;
   active: EfficiencyRecord | null;
   pinned: string | null;
@@ -52,7 +46,7 @@ export function EfficiencyChart({ lines, selected, metric, fetchedAt, active, pi
     return () => observer.disconnect();
   }, []);
   const geometry = size.width > 0 && size.height > 0
-    ? efficiencyGeometry(lines, metric, size.width, size.height, fetchedAt)
+    ? efficiencyGeometry(lines, size.width, size.height, fetchedAt)
     : null;
   const populated = selected.some((line) => line.points.length > 0);
 
@@ -67,7 +61,7 @@ export function EfficiencyChart({ lines, selected, metric, fetchedAt, active, pi
           className="absolute inset-0 block size-full overflow-visible text-[11px]"
           viewBox={`0 0 ${size.width} ${size.height}`}
           role="group"
-          aria-label={`${metric === 'cost' ? 'Cost per Intelligence Index task' : 'Output speed'} records by release date`}
+          aria-label="Cost per Intelligence Index task records by release date"
           aria-describedby={`${id}-description`}
         >
           <desc id={`${id}-description`}>
@@ -79,7 +73,7 @@ export function EfficiencyChart({ lines, selected, metric, fetchedAt, active, pi
               <g key={tick}>
                 <line x1={geometry.left} x2={geometry.right} y1={geometry.y(tick)} y2={geometry.y(tick)} stroke="var(--line)" strokeDasharray="2 5" />
                 <text x={geometry.left - 10} y={geometry.y(tick) + 4} textAnchor="end">
-                  {metric === 'cost' ? costFormat.format(tick) : speedFormat.format(tick)}
+                  {costFormat.format(tick)}
                 </text>
               </g>
             ))}
@@ -101,7 +95,7 @@ export function EfficiencyChart({ lines, selected, metric, fetchedAt, active, pi
                     role="button"
                     tabIndex={0}
                     aria-pressed={pinned === key}
-                    aria-label={`Intelligence Index at least ${line.threshold}, ${point.model.name}, ${point.model.effortLabel}, ${formatUtcDate(point.date)}, ${formatEfficiencyValue(point.value, metric)}`}
+                    aria-label={`Intelligence Index at least ${line.threshold}, ${point.model.name}, ${point.model.effortLabel}, ${formatUtcDate(point.date)}, ${costFormat.format(point.value)}`}
                     className="cursor-pointer focus:[outline:none] [&:focus_.record-target]:stroke-accent [&:focus_.record-target]:stroke-2"
                     // Commit point feedback during mouse entry, without waiting for React's hover scheduling.
                     onMouseEnter={() => flushSync(() => preview(key))}

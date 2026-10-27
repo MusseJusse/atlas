@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import snapshot from 'virtual:benchmarks';
 import { Brand } from './Brand';
 import { ThemeToggle } from './ThemeToggle';
-import { efficiencySeries, type EfficiencyMetric } from './efficiency-data';
+import { efficiencySeries } from './efficiency-data';
 import { readEfficiencySettings, writeEfficiencySettings } from './efficiency-state';
 import { EfficiencyChart, efficiencyColors, recordKey } from './EfficiencyChart';
 import { ConfigurationDetails } from './charts/ConfigurationDetails';
@@ -10,17 +10,13 @@ import { resolveChartInteraction } from './chart-interactions';
 import { formatUtcDate } from './formatDate';
 
 const source = 'https://artificialanalysis.ai/trends#efficiency';
-const series = {
-  cost: efficiencySeries(snapshot.models, 'cost'),
-  speed: efficiencySeries(snapshot.models, 'speed'),
-};
+const lines = efficiencySeries(snapshot.models);
 
 export function Efficiency() {
   const [settings, setSettings] = useState(() => readEfficiencySettings(typeof location === 'undefined' ? '' : location.search));
   const [hovered, setHovered] = useState<string | null>(null);
   const [pinned, setPinned] = useState<string | null>(null);
   const chart = useRef<HTMLDivElement>(null);
-  const lines = series[settings.metric];
   const selected = useMemo(() => lines.filter((line) => settings.thresholds.includes(line.threshold)), [lines, settings.thresholds]);
   const records = useMemo(() => selected.flatMap((line) => line.points.map((point) => ({
     id: recordKey({ threshold: line.threshold, point }), threshold: line.threshold, point,
@@ -44,12 +40,6 @@ export function Efficiency() {
   useEffect(() => {
     history.replaceState(null, '', writeEfficiencySettings(settings));
   }, [settings]);
-
-  function changeMetric(metric: EfficiencyMetric) {
-    setSettings((current) => ({ ...current, metric }));
-    setHovered(null);
-    setPinned(null);
-  }
 
   function clearSelection() {
     chart.current?.querySelector<SVGGElement>('g[aria-pressed="true"]')?.focus({ preventScroll: true });
@@ -98,18 +88,9 @@ export function Efficiency() {
         </aside>
         <main id="efficiency-workspace" tabIndex={-1} className="flex min-h-0 min-w-0 flex-col overflow-y-auto rounded-xl bg-panel px-6 pt-5 pb-4 [outline:none] mobile:overflow-visible mobile:px-4">
           <h1 className="m-0 text-[25px] leading-tight font-[550] tracking-[-0.8px] phone:text-[22px]">
-            {settings.metric === 'cost' ? 'Cost at each intelligence threshold' : 'Speed at each intelligence threshold'}
+            Cost at each intelligence threshold
           </h1>
-          <div role="group" aria-label="Efficiency measurement" className="mt-2 mb-4 flex shrink-0 gap-6 border-b border-line">
-            {(['cost', 'speed'] as const).map((metric) => (
-              <button key={metric} aria-pressed={settings.metric === metric} onClick={() => changeMetric(metric)} className="min-h-11 border-b-2 border-transparent text-[12px] text-fg-2 aria-pressed:border-accent aria-pressed:font-semibold aria-pressed:text-accent">
-                {metric === 'cost' ? 'Cost per task' : 'Output speed'}
-              </button>
-            ))}
-          </div>
-          <p className="m-0 text-[11px] text-fg-2">
-            {settings.metric === 'cost' ? 'Cost per Intelligence Index task, USD · Log scale' : 'Output speed, tokens/s · Linear scale'}
-          </p>
+          <p className="mt-2 mb-0 text-[11px] text-fg-2">Cost per Intelligence Index task, USD · Log scale</p>
           <div
             ref={chart}
             className="relative flex min-h-0 flex-1 flex-col"
@@ -122,7 +103,7 @@ export function Efficiency() {
             }}
           >
             <EfficiencyChart
-              lines={lines} selected={selected} metric={settings.metric} fetchedAt={snapshot.fetchedAt}
+              lines={lines} selected={selected} fetchedAt={snapshot.fetchedAt}
               active={active} pinned={pinned} preview={setHovered}
               togglePin={(key) => setPinned((current) => current === key ? null : key)}
             />
@@ -134,7 +115,7 @@ export function Efficiency() {
               >
                 <ConfigurationDetails
                   model={active.point.model}
-                  metric={settings.metric}
+                  metric="cost"
                   pinned={activePinned}
                   onClose={clearSelection}
                 />
@@ -154,7 +135,7 @@ export function Efficiency() {
               </aside>
             )}
           </div>
-          <p className="m-0 shrink-0 text-[11px] leading-5 text-fg-2">Current measurements ordered by model release date. Each step marks a new {settings.metric === 'cost' ? 'lowest cost' : 'highest speed'}.</p>
+          <p className="m-0 shrink-0 text-[11px] leading-5 text-fg-2">Current measurements ordered by model release date. Each step marks a new lowest cost.</p>
           <footer className="mt-1 flex shrink-0 flex-wrap justify-between gap-x-4 text-[11px] leading-5 text-fg-2">
             <a href={source} className="underline underline-offset-4">Source: Artificial Analysis</a>
             <span>Snapshot <time dateTime={snapshot.fetchedAt}>{formatUtcDate(snapshot.fetchedAt, 'short')}</time></span>

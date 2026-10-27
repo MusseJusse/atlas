@@ -17,8 +17,8 @@ vi.mock('virtual:benchmarks', async () => {
 
 afterEach(() => vi.unstubAllGlobals());
 
-it.each(['cost', 'speed'])('waits for a hovered or pinned point before showing the %s model card', (metric) => {
-  vi.stubGlobal('location', { search: `?page=efficiency&metric=${metric}&thresholds=10,20` });
+it('waits for a hovered or pinned point before showing the model card', () => {
+  vi.stubGlobal('location', { search: '?page=efficiency&thresholds=10,20' });
   const markup = renderToStaticMarkup(<Efficiency />);
   expect(markup).not.toContain('class="configuration-inspector"');
   expect(markup).not.toContain('<select');
