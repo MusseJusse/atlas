@@ -42,7 +42,9 @@ export function Efficiency() {
   }, [settings]);
 
   function clearSelection() {
-    chart.current?.querySelector<SVGGElement>('g[aria-pressed="true"]')?.focus({ preventScroll: true });
+    const point = chart.current?.querySelector<SVGGElement>('g[aria-pressed="true"]');
+    point?.focus({ preventScroll: true });
+    point?.scrollIntoView({ block: 'nearest', inline: 'nearest' });
     setPinned(null);
     setHovered(null);
   }

@@ -191,6 +191,11 @@
   max-height: none;
 }
 @media (width <= 900px) {
+  /* Keyboard focus must clear the sticky header, including links inside the card. */
+  .efficiency-workspace :where(button, a, input, select, [tabindex]) {
+    scroll-margin-top: calc(var(--header-height) + 8px);
+    scroll-margin-bottom: 8px;
+  }
   .efficiency-filters {
     order: 1;
     margin-bottom: 16px;
