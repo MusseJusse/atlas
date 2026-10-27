@@ -58,6 +58,8 @@ Components use Tailwind utilities. `src/styles.css` holds the font, theme tokens
 
 ## Data and attribution
 
+The [efficiency trends investigation](docs/efficiency-trends.md) documents how to reproduce Artificial Analysis's cost and output-speed records by intelligence threshold, with tested calculations and proposed layouts. The charts are awaiting a layout selection before UI integration.
+
 The original baseline was a Slopalytics snapshot captured **13 October 2026 at 20:47 UTC**, with **699 model configurations**. Updates now come directly from the public [Artificial Analysis models page](https://artificialanalysis.ai/models). The current snapshot is in `src/data/benchmarks.json`. `pnpm data:sync` fetches the complete dataset used by AA's public charts, including task costs and token counts. No API key is needed. It does not use Slopalytics or AA's authenticated Data API.
 
 Null measurements mean unmeasured or unavailable. They are omitted from the relevant charts, not treated as zero. Benchmark cost per task describes the benchmark workload, not a forecast of personal API spend.
