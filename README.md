@@ -54,6 +54,7 @@ Components use Tailwind utilities. `src/styles.css` holds the font, theme tokens
 - Pareto frontiers, linear/log scales, grouped bars, sorting, and label controls.
 - Hover details, click-to-pin details, and light/dark themes.
 - Responsive charts and a keyboard-accessible model picker on small screens.
+- Efficiency trends with cost and speed records over release dates, filtered by Intelligence Index threshold.
 - Filter and view settings in the URL. Theme preference stored locally.
 
 ## Data and attribution
@@ -61,6 +62,10 @@ Components use Tailwind utilities. `src/styles.css` holds the font, theme tokens
 The original baseline was a Slopalytics snapshot captured **13 October 2026 at 20:47 UTC**, with **699 model configurations**. Updates now come directly from the public [Artificial Analysis models page](https://artificialanalysis.ai/models). The current snapshot is in `src/data/benchmarks.json`. `pnpm data:sync` fetches the complete dataset used by AA's public charts, including task costs and token counts. No API key is needed. It does not use Slopalytics or AA's authenticated Data API.
 
 Null measurements mean unmeasured or unavailable. They are omitted from the relevant charts, not treated as zero. Benchmark cost per task describes the benchmark workload, not a forecast of personal API spend.
+
+The Efficiency page reproduces the [AA Trends efficiency charts](https://artificialanalysis.ai/trends#efficiency) from the same benchmark snapshot. For thresholds of 10, 20, 30, 40, 50, and 60, it retains each new lowest task cost or highest output speed among qualifying configurations, ordered by release date. It uses the full catalogue, independently of the benchmark model picker. Scores remain unrounded when testing thresholds. Missing and non-positive values stay absent, matching AA's filtering for these charts. Atlas keeps only the best qualifying configuration per day, with stable ID ties; AA can show intermediate records at the same date depending on input order.
+
+These are current measurements arranged by release date, not historical API prices or speed measurements. Data refreshes can revise earlier steps. The page shows the snapshot date and links to AA's source. Cost uses a logarithmic axis and speed a linear axis. Threshold selections and the active metric are stored in the URL. Points support hover details, keyboard focus, Enter or Space to pin, and Escape to clear the selection. The underlying calculation, URL handling, and chart geometry have focused tests.
 
 The Coding agents scatter chart uses a separate [Artificial Analysis Coding Agent Index v2.0](https://artificialanalysis.ai/agents/coding-agents) snapshot in `src/data/coding-agents.json`, captured on 23 October 2026. Its 24 configurations retain AA's source IDs, full configuration labels, fractional index scores and API costs at source precision. Chart scores multiply the source fraction by 100. The [v2.0 methodology](https://artificialanalysis.ai/methodology/coding-agents-benchmarking) averages FrontierCode v1.1, Terminal-Bench 4.0 and SWE-Atlas-QnA-AA. Cost is the average API cost per task, including applicable caching charges and discounts, rather than subscription pricing.
 
