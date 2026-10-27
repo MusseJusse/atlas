@@ -17,29 +17,9 @@ vi.mock('virtual:benchmarks', async () => {
 
 afterEach(() => vi.unstubAllGlobals());
 
-it.each(['cost', 'speed'])('shows the shared model card and coincident %s records at the top left', (metric) => {
+it.each(['cost', 'speed'])('waits for a hovered or pinned point before showing the %s model card', (metric) => {
   vi.stubGlobal('location', { search: `?page=efficiency&metric=${metric}&thresholds=10,20` });
   const markup = renderToStaticMarkup(<Efficiency />);
-  expect(markup).toContain('data-placement="top-left"');
-  expect(markup).toContain('class="configuration-inspector"');
-  expect(markup).toContain(metric === 'cost' ? 'Cost per task' : 'Output speed');
-  expect(markup).toContain('role="group" aria-label="Record details"');
-  expect(markup).toContain('<select aria-label="Threshold for overlapping records"');
-  expect(markup).toContain('<option value="10:shared">Intelligence ≥ 10</option>');
-  expect(markup).toContain('<option value="20:shared" selected="">Intelligence ≥ 20</option>');
-  expect(markup).toContain('Shared record');
-  expect(markup).toContain('High · Preview');
-});
-
-it('omits the overlap selector when only one threshold qualifies', () => {
-  vi.stubGlobal('location', { search: '?page=efficiency&thresholds=10' });
-  const markup = renderToStaticMarkup(<Efficiency />);
+  expect(markup).not.toContain('class="configuration-inspector"');
   expect(markup).not.toContain('<select');
-  expect(markup).toContain('Shared record');
-  expect(markup).toContain('Intelligence ≥ 10');
-});
-
-it('hides the model card when no thresholds are selected', () => {
-  vi.stubGlobal('location', { search: '?page=efficiency&thresholds=' });
-  expect(renderToStaticMarkup(<Efficiency />)).not.toContain('class="configuration-inspector"');
 });

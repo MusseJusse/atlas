@@ -11,9 +11,9 @@ export type Interactions = {
 };
 
 /** SVG buttons share mouse and keyboard activation. */
-export function pinHandlers(
-  model: Model,
-  togglePin: Interactions['togglePin'],
+export function pinHandlers<Row>(
+  model: Row,
+  togglePin: (model: Row) => void,
 ) {
   function onClick() {
     togglePin(model);

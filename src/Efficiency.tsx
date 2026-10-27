@@ -6,6 +6,7 @@ import { efficiencySeries, type EfficiencyMetric } from './efficiency-data';
 import { readEfficiencySettings, writeEfficiencySettings } from './efficiency-state';
 import { EfficiencyChart, efficiencyColors, recordKey } from './EfficiencyChart';
 import { ConfigurationDetails } from './charts/ConfigurationDetails';
+import { resolveChartInteraction } from './chart-interactions';
 import { formatUtcDate } from './formatDate';
 
 const source = 'https://artificialanalysis.ai/trends#efficiency';
@@ -21,14 +22,14 @@ export function Efficiency() {
   const chart = useRef<HTMLDivElement>(null);
   const lines = series[settings.metric];
   const selected = useMemo(() => lines.filter((line) => settings.thresholds.includes(line.threshold)), [lines, settings.thresholds]);
-  const records = useMemo(() => selected.flatMap((line) => line.points.map((point) => ({ threshold: line.threshold, point }))), [selected]);
-  const latest = records.toSorted((a, b) => b.point.date.localeCompare(a.point.date) || b.threshold - a.threshold)[0];
-  const active = records.find((record) => recordKey(record) === hovered) ??
-    records.find((record) => recordKey(record) === pinned) ?? latest;
+  const records = useMemo(() => selected.flatMap((line) => line.points.map((point) => ({
+    id: recordKey({ threshold: line.threshold, point }), threshold: line.threshold, point,
+  }))), [selected]);
+  const { pinned: pinnedRecord, activeModel: active } = resolveChartInteraction(records, pinned, hovered);
   const coincident = active ? records.filter(({ point }) =>
     point.date === active.point.date && point.value === active.point.value,
   ) : [];
-  const activePinned = active !== undefined && recordKey(active) === pinned;
+  const activePinned = pinnedRecord !== null;
 
   useEffect(() => {
     document.title = 'Atlas · Efficiency';
@@ -112,7 +113,9 @@ export function Efficiency() {
           <div
             ref={chart}
             className="relative flex min-h-0 flex-1 flex-col"
-            onMouseLeave={() => setHovered(null)}
+            onClick={(event) => {
+              if (event.target instanceof SVGRectElement && event.target.classList.contains('chart-background')) setPinned(null);
+            }}
             onKeyDown={(event) => {
               // Native selects consume Escape for their popup; other card controls clear the pin.
               if (event.key === 'Escape' && !(event.target instanceof HTMLSelectElement)) clearSelection();
@@ -140,9 +143,8 @@ export function Efficiency() {
                     <select
                       aria-label="Threshold for overlapping records"
                       value={recordKey(active)}
-                      onFocus={() => { setPinned(recordKey(active)); setHovered(null); }}
                       onChange={(event) => { setPinned(event.currentTarget.value); setHovered(null); }}
-                      className="pointer-events-auto min-h-10 min-w-0 max-w-full rounded border border-line bg-panel px-2 font-sans text-[11px] text-fg focus-visible:outline-2 focus-visible:outline-accent focus-visible:outline-offset-2"
+                      className="min-h-10 min-w-0 max-w-full rounded border border-line bg-panel px-2 font-sans text-[11px] text-fg focus-visible:outline-2 focus-visible:outline-accent focus-visible:outline-offset-2"
                     >
                       {coincident.map((record) => <option key={recordKey(record)} value={recordKey(record)}>Intelligence ≥ {record.threshold}</option>)}
                     </select>

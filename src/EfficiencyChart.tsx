@@ -3,6 +3,7 @@ import { flushSync } from 'react-dom';
 import type { EfficiencyLine, EfficiencyMetric, EfficiencyPoint } from './efficiency-data';
 import { efficiencyGeometry } from './charts/efficiency-geometry';
 import { formatUtcDate } from './formatDate';
+import { pinHandlers } from './charts/interactions';
 
 const monthFormat = new Intl.DateTimeFormat('en-GB', { month: 'short', year: '2-digit', timeZone: 'UTC' });
 const costFormat = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumSignificantDigits: 4 });
@@ -33,7 +34,7 @@ export function EfficiencyChart({ lines, selected, metric, fetchedAt, active, pi
   selected: EfficiencyLine[];
   metric: EfficiencyMetric;
   fetchedAt: string;
-  active: EfficiencyRecord | undefined;
+  active: EfficiencyRecord | null;
   pinned: string | null;
   preview: (key: string | null) => void;
   togglePin: (key: string) => void;
@@ -72,6 +73,7 @@ export function EfficiencyChart({ lines, selected, metric, fetchedAt, active, pi
           <desc id={`${id}-description`}>
             Each line shows records for an intelligence threshold. Focus a point for details, press Enter or Space to pin it, and Escape to clear the selection.
           </desc>
+          <rect className="chart-background" width={size.width} height={size.height} fill="var(--panel)" />
           <g aria-hidden="true" fill="var(--fg-2)">
             {geometry.yTicks.map((tick) => (
               <g key={tick}>
@@ -86,13 +88,18 @@ export function EfficiencyChart({ lines, selected, metric, fetchedAt, active, pi
             ))}
             <text x={(geometry.left + geometry.right) / 2} y={size.height - 4} textAnchor="middle">Release date</text>
           </g>
+          {active && (
+            <g stroke={efficiencyColors[active.threshold]} strokeWidth={1} strokeDasharray="6 4" pointerEvents="none" aria-hidden="true">
+              <line x1={geometry.left} x2={geometry.right} y1={geometry.y(active.point.value)} y2={geometry.y(active.point.value)} />
+              <line x1={geometry.x(Date.parse(active.point.date))} x2={geometry.x(Date.parse(active.point.date))} y1={geometry.top} y2={geometry.bottom} />
+            </g>
+          )}
           {selected.map((line) => (
-            <g key={line.threshold} style={{ color: efficiencyColors[line.threshold] }}>
+            <g key={line.threshold} opacity={active && active.threshold !== line.threshold ? 0.15 : 1} style={{ color: efficiencyColors[line.threshold] }}>
               <path d={geometry.path(line.points)} fill="none" stroke="currentColor" strokeWidth={1.7} aria-hidden="true" />
               {line.points.map((point) => {
                 const record = { threshold: line.threshold, point };
                 const key = recordKey(record);
-                const activate = () => togglePin(key);
                 return (
                   <g
                     key={point.model.id}
@@ -104,15 +111,10 @@ export function EfficiencyChart({ lines, selected, metric, fetchedAt, active, pi
                     className="cursor-pointer focus:[outline:none] [&:focus_.record-target]:stroke-accent [&:focus_.record-target]:stroke-2"
                     // Commit point feedback during mouse entry, without waiting for React's hover scheduling.
                     onMouseEnter={() => flushSync(() => preview(key))}
+                    onMouseLeave={() => flushSync(() => preview(null))}
                     onFocus={() => preview(key)}
                     onBlur={() => preview(null)}
-                    onClick={activate}
-                    onKeyDown={(event) => {
-                      if (event.key === 'Enter' || event.key === ' ') {
-                        event.preventDefault();
-                        activate();
-                      }
-                    }}
+                    {...pinHandlers(record, (selected) => togglePin(recordKey(selected)))}
                   >
                     <circle className="record-target" r={12} fill="transparent" stroke="transparent" />
                     {active && recordKey(active) === key && <circle r={6} fill="var(--panel)" stroke="currentColor" strokeWidth={2} />}
