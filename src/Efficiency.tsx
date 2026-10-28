@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import snapshot from 'virtual:benchmarks';
 import { Brand } from './Brand';
 import { ThemeToggle } from './ThemeToggle';
-import { efficiencySeries } from './efficiency-data';
+import { costMultiplier, efficiencySeries } from './efficiency-data';
 import { readEfficiencySettings, writeEfficiencySettings } from './efficiency-state';
 import { EfficiencyChart, efficiencyColors, recordKey } from './EfficiencyChart';
 import { ConfigurationDetails } from './charts/ConfigurationDetails';
@@ -26,6 +26,7 @@ export function Efficiency() {
     point.date === active.point.date && point.value === active.point.value,
   ) : [];
   const activePinned = pinnedRecord !== null;
+  const activeLine = active ? selected.find((line) => line.threshold === active.threshold) : undefined;
 
   useEffect(() => {
     document.title = 'Atlas · Efficiency';
@@ -121,6 +122,14 @@ export function Efficiency() {
                   ) : <span>Intelligence ≥ {active.threshold}</span>}
                   <time dateTime={active.point.date}>{formatUtcDate(active.point.date, 'short')}</time>
                 </div>
+                {activeLine && (
+                  <div className="mt-2 text-[11px] text-fg-2">
+                    <div className="text-[18px] font-semibold text-fg">
+                      {activeLine.points[0] === active.point ? 'First record' : `${new Intl.NumberFormat('en', { maximumFractionDigits: 1 }).format(costMultiplier(activeLine, active.point))}× cheaper`}
+                    </div>
+                    <div>Compared with the first record at this threshold</div>
+                  </div>
+                )}
               </aside>
             )}
           </div>

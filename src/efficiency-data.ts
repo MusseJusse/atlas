@@ -38,3 +38,8 @@ export function efficiencySeries<Row extends EfficiencyModel>(rows: readonly Row
 
 export type EfficiencyLine = ReturnType<typeof efficiencySeries<Model>>[number];
 export type EfficiencyPoint = EfficiencyLine['points'][number];
+
+/** Compare a record with the first record at the same intelligence threshold. */
+export function costMultiplier(line: { points: readonly { value: number }[] }, point: { value: number }) {
+  return line.points[0]!.value / point.value;
+}
