@@ -130,7 +130,6 @@ export function Efficiency() {
                     {activeLine.points[0] !== active.point && (
                       <div className="text-[18px] font-semibold text-fg">after {elapsedTimeSinceFirstRecord(activeLine, active.point)}</div>
                     )}
-                    <div>Compared with the first record at this threshold</div>
                   </div>
                 )}
               </aside>
@@ -159,7 +158,6 @@ export function Efficiency() {
             />
           </div>
           <div className="efficiency-footer">
-            <p className="m-0 shrink-0 text-[11px] leading-5 text-fg-2">Current measurements ordered by model release date. Each step marks a new lowest cost.</p>
             <footer className="mt-1 flex shrink-0 flex-wrap justify-between gap-x-4 text-[11px] leading-5 text-fg-2">
               <a href={source} className="underline underline-offset-4">Source: Artificial Analysis</a>
               <span>Snapshot <time dateTime={snapshot.fetchedAt}>{formatUtcDate(snapshot.fetchedAt, 'short')}</time></span>
