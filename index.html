@@ -4,6 +4,16 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="theme-color" content="#f1f4fa" />
+    <script>
+      try {
+        if (localStorage.getItem('benchmark-theme') === 'dark') {
+          document.documentElement.dataset.theme = 'dark';
+          document.querySelector('meta[name="theme-color"]').content = '#131c2b';
+        }
+      } catch {
+        // Use the default light theme when storage is unavailable.
+      }
+    </script>
     <meta
       name="description"
       content="Compare AI model intelligence, task cost, token use, and output speed with Atlas."
