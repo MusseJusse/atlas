@@ -128,7 +128,7 @@ export function Efficiency() {
                       {activeLine.points[0] === active.point ? 'First record' : `${new Intl.NumberFormat('en', { maximumFractionDigits: 1 }).format(costMultiplier(activeLine, active.point))}× cheaper`}
                     </div>
                     {activeLine.points[0] !== active.point && (
-                      <div>after {elapsedTimeSinceFirstRecord(activeLine, active.point)}</div>
+                      <div className="text-[18px] font-semibold text-fg">after {elapsedTimeSinceFirstRecord(activeLine, active.point)}</div>
                     )}
                     <div>Compared with the first record at this threshold</div>
                   </div>
