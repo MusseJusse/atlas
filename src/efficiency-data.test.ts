@@ -1,5 +1,5 @@
 import { expect, it } from 'vitest';
-import { efficiencySeries } from './efficiency-data';
+import { costMultiplier, efficiencySeries } from './efficiency-data';
 
 const fixture = (
   id: string,
@@ -7,6 +7,17 @@ const fixture = (
   intelligence: number | null,
   cost: number | null,
 ) => ({ id, released, intelligence, cost });
+
+it('compares each record with the first cost at its own threshold', () => {
+  const lines = efficiencySeries([
+    fixture('first', '2026-01-01', 30, 10),
+    fixture('higher', '2026-02-01', 40, 5),
+    fixture('latest', '2026-03-01', 40, 2),
+  ]);
+  expect(costMultiplier(lines[2]!, lines[2]!.points[2]!)).toBe(5);
+  expect(costMultiplier(lines[3]!, lines[3]!.points[1]!)).toBe(2.5);
+  expect(costMultiplier(lines[3]!, lines[3]!.points[0]!)).toBe(1);
+});
 
 it('keeps strict cost records in release order without changing the input', () => {
   const rows = [
