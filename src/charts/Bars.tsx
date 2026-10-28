@@ -59,7 +59,7 @@ export function Bars({
         return (
           <g
             key={group.id}
-            opacity={activeFamily && activeFamily !== model.family ? 0.2 : 1}
+            opacity={activeFamily && activeFamily !== model.family ? 0.65 : 1}
             onMouseLeave={leaveHover}
           >
             {/* Keep the last column active through the gaps between reasoning levels and label. */}
@@ -79,7 +79,7 @@ export function Bars({
                 <g
                   key={row.id}
                   opacity={
-                    activeModel?.family === row.family && activeModel.id !== row.id ? 0.2 : 1
+                    activeModel?.family === row.family && activeModel.id !== row.id ? 0.65 : 1
                   }
                   role="button"
                   tabIndex={0}
