@@ -1,5 +1,5 @@
 import { expect, it } from 'vitest';
-import { costMultiplier, efficiencySeries, monthsSinceFirstRecord } from './efficiency-data';
+import { costMultiplier, efficiencySeries, elapsedTimeSinceFirstRecord } from './efficiency-data';
 
 const fixture = (
   id: string,
@@ -14,15 +14,18 @@ it('measures elapsed months from the first record at the selected threshold', ()
     fixture('higher', '2026-01-15', 40, 5),
     fixture('latest', '2026-02-15', 40, 2),
   ]);
-  expect(monthsSinceFirstRecord(lines[2]!, lines[2]!.points[2]!)).toBeCloseTo(2.04, 2);
-  expect(monthsSinceFirstRecord(lines[3]!, lines[3]!.points[1]!)).toBeCloseTo(1.02, 2);
-  expect(monthsSinceFirstRecord(lines[3]!, lines[3]!.points[0]!)).toBe(0);
+  expect(elapsedTimeSinceFirstRecord(lines[2]!, lines[2]!.points[2]!)).toBe('2 months');
+  expect(elapsedTimeSinceFirstRecord(lines[3]!, lines[3]!.points[1]!)).toBe('1 month');
+  expect(elapsedTimeSinceFirstRecord(lines[3]!, lines[3]!.points[0]!)).toBe('0 days');
 });
 
-it('preserves partial months and leap days in elapsed time', () => {
+it('shows days below one month, including leap days, and months otherwise', () => {
   const line = { points: [{ date: '2024-02-28' }] };
-  expect(monthsSinceFirstRecord(line, { date: '2024-03-01' })).toBeCloseTo(2 / 30.436875);
-  expect(monthsSinceFirstRecord(line, { date: '2024-03-14' })).toBeCloseTo(15 / 30.436875);
+  expect(elapsedTimeSinceFirstRecord(line, { date: '2024-02-29' })).toBe('1 day');
+  expect(elapsedTimeSinceFirstRecord(line, { date: '2024-03-01' })).toBe('2 days');
+  expect(elapsedTimeSinceFirstRecord(line, { date: '2024-03-29' })).toBe('30 days');
+  expect(elapsedTimeSinceFirstRecord(line, { date: '2024-03-30' })).toBe('1 month');
+  expect(elapsedTimeSinceFirstRecord(line, { date: '2024-04-14' })).toBe('1.5 months');
 });
 
 it('compares each record with the first cost at its own threshold', () => {
