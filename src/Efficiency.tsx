@@ -141,7 +141,8 @@ export function Efficiency() {
           >
             <EfficiencyChart
               lines={lines} selected={selected} fetchedAt={snapshot.fetchedAt}
-              active={active} pinned={pinned} preview={setHovered}
+              active={active} highlightedThreshold={records.find((record) => record.id === hovered)?.threshold ?? active?.threshold ?? null}
+              pinned={pinned} preview={setHovered}
               togglePin={(key) => setPinned((current) => current === key ? null : key)}
             />
           </div>
