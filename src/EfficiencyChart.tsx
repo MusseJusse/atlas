@@ -24,11 +24,12 @@ export function recordKey({ threshold, point }: EfficiencyRecord) {
   return `${threshold}:${point.model.id}`;
 }
 
-export function EfficiencyChart({ lines, selected, fetchedAt, active, pinned, preview, togglePin }: {
+export function EfficiencyChart({ lines, selected, fetchedAt, active, highlightedThreshold, pinned, preview, togglePin }: {
   lines: EfficiencyLine[];
   selected: EfficiencyLine[];
   fetchedAt: string;
   active: EfficiencyRecord | null;
+  highlightedThreshold: EfficiencyLine['threshold'] | null;
   pinned: string | null;
   preview: (key: string | null) => void;
   togglePin: (key: string) => void;
@@ -111,8 +112,8 @@ export function EfficiencyChart({ lines, selected, fetchedAt, active, pinned, pr
             <text x={(geometry.left + geometry.right) / 2} y={size.height - 4} textAnchor="middle">Release date</text>
           </g>
           {selected.map((line) => (
-            <g key={line.threshold} style={{ color: efficiencyColors[line.threshold] }}>
-              <path d={geometry.path(line.points)} fill="none" stroke="currentColor" strokeWidth={1.7} aria-hidden="true" />
+            <g key={line.threshold} style={{ color: efficiencyColors[line.threshold], opacity: highlightedThreshold !== null && highlightedThreshold !== line.threshold ? 0.65 : 1 }}>
+              <path d={geometry.path(line.points)} fill="none" stroke="currentColor" strokeWidth={highlightedThreshold === line.threshold ? 3 : 1.7} aria-hidden="true" />
               {line.points.map((point) => {
                 const record = { threshold: line.threshold, point };
                 const key = recordKey(record);
