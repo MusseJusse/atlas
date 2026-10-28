@@ -1,5 +1,5 @@
 import { expect, it } from 'vitest';
-import { costMultiplier, efficiencySeries } from './efficiency-data';
+import { costMultiplier, efficiencySeries, monthsSinceFirstRecord } from './efficiency-data';
 
 const fixture = (
   id: string,
@@ -7,6 +7,23 @@ const fixture = (
   intelligence: number | null,
   cost: number | null,
 ) => ({ id, released, intelligence, cost });
+
+it('measures elapsed months from the first record at the selected threshold', () => {
+  const lines = efficiencySeries([
+    fixture('first', '2025-12-15', 30, 10),
+    fixture('higher', '2026-01-15', 40, 5),
+    fixture('latest', '2026-02-15', 40, 2),
+  ]);
+  expect(monthsSinceFirstRecord(lines[2]!, lines[2]!.points[2]!)).toBeCloseTo(2.04, 2);
+  expect(monthsSinceFirstRecord(lines[3]!, lines[3]!.points[1]!)).toBeCloseTo(1.02, 2);
+  expect(monthsSinceFirstRecord(lines[3]!, lines[3]!.points[0]!)).toBe(0);
+});
+
+it('preserves partial months and leap days in elapsed time', () => {
+  const line = { points: [{ date: '2024-02-28' }] };
+  expect(monthsSinceFirstRecord(line, { date: '2024-03-01' })).toBeCloseTo(2 / 30.436875);
+  expect(monthsSinceFirstRecord(line, { date: '2024-03-14' })).toBeCloseTo(15 / 30.436875);
+});
 
 it('compares each record with the first cost at its own threshold', () => {
   const lines = efficiencySeries([
