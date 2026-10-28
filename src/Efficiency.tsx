@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import snapshot from 'virtual:benchmarks';
 import { Brand } from './Brand';
 import { ThemeToggle } from './ThemeToggle';
-import { costMultiplier, efficiencySeries, monthsSinceFirstRecord } from './efficiency-data';
+import { costMultiplier, efficiencySeries, elapsedTimeSinceFirstRecord } from './efficiency-data';
 import { readEfficiencySettings, writeEfficiencySettings } from './efficiency-state';
 import { EfficiencyChart, efficiencyColors, recordKey } from './EfficiencyChart';
 import { ConfigurationDetails } from './charts/ConfigurationDetails';
@@ -128,7 +128,7 @@ export function Efficiency() {
                       {activeLine.points[0] === active.point ? 'First record' : `${new Intl.NumberFormat('en', { maximumFractionDigits: 1 }).format(costMultiplier(activeLine, active.point))}× cheaper`}
                     </div>
                     {activeLine.points[0] !== active.point && (
-                      <div>after {new Intl.NumberFormat('en', { style: 'unit', unit: 'month', unitDisplay: 'long', maximumFractionDigits: 1 }).format(monthsSinceFirstRecord(activeLine, active.point))}</div>
+                      <div>after {elapsedTimeSinceFirstRecord(activeLine, active.point)}</div>
                     )}
                     <div>Compared with the first record at this threshold</div>
                   </div>

@@ -44,8 +44,11 @@ export function costMultiplier(line: { points: readonly { value: number }[] }, p
   return line.points[0]!.value / point.value;
 }
 
-/** Elapsed release-date time in average Gregorian months, using the multiplier's baseline. */
-export function monthsSinceFirstRecord(line: { points: readonly { date: string }[] }, point: { date: string }) {
-  const millisecondsPerMonth = 1000 * 60 * 60 * 24 * 365.2425 / 12;
-  return (Date.parse(point.date) - Date.parse(line.points[0]!.date)) / millisecondsPerMonth;
+/** Format elapsed release-date time, using days below one average Gregorian month. */
+export function elapsedTimeSinceFirstRecord(line: { points: readonly { date: string }[] }, point: { date: string }) {
+  const days = (Date.parse(point.date) - Date.parse(line.points[0]!.date)) / (1000 * 60 * 60 * 24);
+  const months = days / (365.2425 / 12);
+  return new Intl.NumberFormat('en', {
+    style: 'unit', unit: months < 1 ? 'day' : 'month', unitDisplay: 'long', maximumFractionDigits: 1,
+  }).format(months < 1 ? days : months);
 }
