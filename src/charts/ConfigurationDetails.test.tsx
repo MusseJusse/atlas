@@ -5,7 +5,8 @@ import { speedEndpoints } from '../data/speed-endpoints';
 import type { Metric } from '../chart-definitions';
 import { ConfigurationDetails } from './ConfigurationDetails';
 
-const sol = models.find((model) => model.id === 'gpt-6-1-sol-xhigh')!;
+// Fix formatting inputs so upstream benchmark changes do not alter these UI assertions.
+const sol = { ...models.find((model) => model.id === 'gpt-6-1-sol-xhigh')!, cost: 0.393 };
 
 function render(model: Model, metric: Metric = 'cost') {
   return renderToStaticMarkup(
@@ -32,7 +33,7 @@ it('shows the full model identity and accessible measurement labels', () => {
 });
 
 it('shows missing values as unavailable and preserves the estimate marker and source', () => {
-  const endpoint = speedEndpoints[0]!;
+  const endpoint = { ...speedEndpoints[0]!, time: 39.2 };
   const markup = render(endpoint, 'time');
   expect(markup).toContain('Not measured');
   expect(markup).toContain('~39s');
