@@ -13,12 +13,14 @@ import { Brand } from './Brand';
 import { codingAgentSource, visibleCodingAgents } from './data/coding-agents';
 import { cyberSource, visibleCyberModels } from './data/cyber-index';
 
-const Changelog = lazy(() =>
-  import('./Changelog').then(({ Changelog }) => ({ default: Changelog })),
-);
-const Efficiency = lazy(() =>
-  import('./Efficiency').then(({ Efficiency }) => ({ default: Efficiency })),
-);
+const loadChangelog = () => import('./Changelog');
+const loadEfficiency = () => import('./Efficiency');
+const Changelog = lazy(() => loadChangelog().then(({ Changelog }) => ({ default: Changelog })));
+const Efficiency = lazy(() => loadEfficiency().then(({ Efficiency }) => ({ default: Efficiency })));
+
+function currentPage() {
+  return typeof location === 'undefined' ? null : new URLSearchParams(location.search).get('page');
+}
 
 function Selection({ checked }: { checked: boolean }) {
   return (
@@ -32,7 +34,48 @@ function Selection({ checked }: { checked: boolean }) {
 }
 
 export function App() {
-  const page = typeof location === 'undefined' ? null : new URLSearchParams(location.search).get('page');
+  const [page, setPage] = useState(currentPage);
+
+  useEffect(() => {
+    const pop = () => setPage(currentPage());
+    const click = (event: MouseEvent) => {
+      if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+      const target = event.target instanceof Element ? event.target.closest('a') : null;
+      if (!target || target.target || target.hasAttribute('download')) return;
+      const href = target.getAttribute('href');
+      if (href !== '/' && href !== '?page=efficiency' && href !== '?page=changelog') return;
+      event.preventDefault();
+      if (target.href === location.href) return;
+      const previousPage = currentPage();
+      history.pushState(null, '', target.href);
+      const nextPage = currentPage();
+      if (previousPage === nextPage) window.dispatchEvent(new PopStateEvent('popstate'));
+      else setPage(nextPage);
+      window.scrollTo(0, 0);
+    };
+    const preload = (event: Event) => {
+      const link = event.target instanceof Element ? event.target.closest('a') : null;
+      if (link?.getAttribute('href') === '?page=changelog') void loadChangelog().catch(() => {});
+      if (link?.getAttribute('href') === '?page=efficiency') void loadEfficiency().catch(() => {});
+    };
+    window.addEventListener('popstate', pop);
+    document.addEventListener('click', click);
+    document.addEventListener('pointerover', preload);
+    document.addEventListener('focusin', preload);
+    document.addEventListener('touchstart', preload, { passive: true });
+    // Load other sections after the initial render without blocking it.
+    const timer = window.setTimeout(() => {
+      void loadEfficiency().catch(() => {});
+    }, 1000);
+    return () => {
+      window.removeEventListener('popstate', pop);
+      document.removeEventListener('click', click);
+      document.removeEventListener('pointerover', preload);
+      document.removeEventListener('focusin', preload);
+      document.removeEventListener('touchstart', preload);
+      window.clearTimeout(timer);
+    };
+  }, []);
   const Page = page === 'changelog' ? Changelog : page === 'efficiency' ? Efficiency : null;
   return Page ? (
     <Suspense
@@ -50,6 +93,7 @@ export function App() {
 }
 
 function Benchmarks() {
+  useEffect(() => { document.title = 'Atlas · AI model benchmarks'; }, []);
   const search = typeof location === 'undefined' ? '' : location.search;
   const [settings, setSettings] = useState(() => readSettings(search));
   const [mobileOpen, setMobileOpen] = useState(false);
