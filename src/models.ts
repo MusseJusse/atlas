@@ -24,7 +24,7 @@ export const frontierFamilies = [
   'claude-sonnet-5-5',
   'claude-opus-5-5',
   'claude-fable-5-1',
-  'gemini-4-argon',
+  'gemini-4-carbon',
   'grok-4-7',
   'muse-wonder-full',
 ];
