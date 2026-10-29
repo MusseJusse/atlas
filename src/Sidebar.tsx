@@ -142,7 +142,7 @@ export const Sidebar = memo(function Sidebar({
           Done
         </button>
       </div>
-      <label className="flex h-10 items-center gap-2 rounded-md border border-line-2 bg-panel px-3 text-fg-2 focus-within:border-accent focus-within:ring-1 focus-within:ring-accent mobile:h-11">
+      <label className="flex h-10 items-center gap-2 rounded-md border border-line-2 bg-panel px-3 text-fg-2 focus-within:border-accent focus-within:ring-1 focus-within:ring-inset focus-within:ring-accent mobile:h-11">
         <Search size={14} aria-hidden="true" />
         <input
           className="min-w-0 flex-1 border-0 bg-transparent text-[12.5px] text-fg focus-visible:outline-none placeholder:text-fg-2 mobile:text-[16px]"
