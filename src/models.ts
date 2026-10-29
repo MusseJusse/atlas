@@ -55,8 +55,9 @@ export const families = [
     const trusted = cyberModels.find((model) => model.family === family.family && model.cyber?.trustedAccess);
     return trusted ? { ...family, model: { ...family.model, name: trusted.name } } : family;
   }),
-  ...codingAgents.filter((model) => !byFamily.has(model.family))
-    .map((model) => ({ family: model.family, model, variants: [model] })),
+  ...new Map([...codingAgents, ...cyberModels]
+    .filter((model) => !byFamily.has(model.family))
+    .map((model) => [model.family, { family: model.family, model, variants: [model] }])).values(),
 ];
 export const familyMap = new Map(families.map((family) => [family.family, family]));
 const maxOnlyReasoningFamilies = new Set(
