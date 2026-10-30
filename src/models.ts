@@ -29,6 +29,7 @@ export const frontierFamilies = [
   'muse-wonder-full',
 ];
 export const notableFamilies = [
+  'glm-5-3-flash',
   'mistral-large-4',
   'deepseek-v4-1-flash-1017',
   'kimi-k3-1-pro',
