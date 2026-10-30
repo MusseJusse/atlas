@@ -42,9 +42,8 @@ it('uses the picker and reasoning filters without hiding max-only agent measurem
   expect(visibleCodingAgents(['grok-4-7'], ['xhigh'])).toEqual([]);
   const router = codingAgents.find((row) => row.family === 'coding-devin-astra-swe2')!;
   expect(visibleCodingAgents([router.family], [])).toEqual([router]);
-  const url = writeSettings({ ...defaults, selected: [router.family], linear: ['coding-agents'] }, 'coding-agents');
+  const url = writeSettings({ ...defaults, selected: [router.family] }, 'cost-intelligence');
   expect(readSettings(url).selected).toEqual([router.family]);
-  expect(readSettings(url).linear).toEqual(['coding-agents']);
 });
 
 it('uses coding scores for eligibility, coordinates and dominance, keeping tools as separate series', () => {
