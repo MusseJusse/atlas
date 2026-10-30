@@ -51,7 +51,21 @@
     "contextWindowTokens": 1000000,
     "omniscience": -5.3,
     "terminalBench40": 0.4,
-    "frontierCode20": 0.6
+    "frontierCode20": 0.6,
+    "intelligenceIndexEvaluations": [
+      {
+        "slug": "terminalbench-4-0",
+        "costPerTask": 2,
+        "outputTokensPerTask": 10000,
+        "timePerTask": 100
+      },
+      {
+        "slug": "frontiercode-2-0",
+        "costPerTask": 4,
+        "outputTokensPerTask": 20000,
+        "timePerTask": 200
+      }
+    ]
   },
   {
     "slug": "glm-4-5v",
@@ -84,7 +98,8 @@
     "contextWindowTokens": 64000,
     "omniscience": -55.583333333333336,
     "terminalBench40": null,
-    "frontierCode20": null
+    "frontierCode20": null,
+    "intelligenceIndexEvaluations": []
   },
   {
     "slug": "mercury-2",
@@ -138,6 +153,7 @@
     "contextWindowTokens": 128000,
     "omniscience": -50.71666666666667,
     "terminalBench40": 0,
-    "frontierCode20": 0.2
+    "frontierCode20": 0.2,
+    "intelligenceIndexEvaluations": []
   }
 ]

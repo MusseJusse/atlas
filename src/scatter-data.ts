@@ -6,7 +6,7 @@ import type { ScoreMetric } from './chart-definitions';
 export function scatterRows(rows: Model[], metric: Metric, linear: boolean, score: ScoreMetric = 'intelligence') {
   return rows.filter((row) => {
     const value = row[metric];
-    return value !== null && row[score] != null && (linear || value > 0);
+    return value != null && row[score] != null && (linear || value > 0);
   });
 }
 

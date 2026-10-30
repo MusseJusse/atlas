@@ -4,7 +4,7 @@ import { vi } from 'vitest';
 import models from './aa-models.json';
 
 // AA's public models chart, trimmed to imported fields. Core fields: 18 October 2026;
-// Omniscience scores: 19 October 2026. Coding component scores are synthetic.
+// Omniscience scores: 19 October 2026. Coding component scores and workloads are synthetic.
 export const aaModels = models;
 const key = Buffer.alloc(32, 7);
 export const manifest = { path: '/data/0123456789abcdef.txt', key: key.toString('hex') };

@@ -1,7 +1,7 @@
 import { X } from 'lucide-react';
 import { Logo } from '../Logo';
 import { format, formatModelValue, modelColor, type Model } from '../models';
-import { metrics, scoreLabels, type ScoreMetric, type Metric } from '../chart-definitions';
+import { metrics, type ScoreMetric, type Metric } from '../chart-definitions';
 
 /** The same compact selection overlay on desktop and mobile. */
 export function ConfigurationDetails({
@@ -21,7 +21,7 @@ export function ConfigurationDetails({
   // Keep the active chart metric and two supporting values without duplicate rows.
   const displayMetrics = [...new Set<Metric>([scoreMetric, metric, 'cost', 'tokensTotal'])].slice(0, 3);
   const measurements = score === 'codingIndex'
-    ? [[scoreLabels.codingIndex, format(model.codingIndex ?? null, 'intelligence')], ['Cost per task', format(model.cost, 'cost')]]
+    ? [...new Set<Metric>(['codingIndex', metric, 'cost'])].map((measurement) => [metrics[measurement].label, formatModelValue(model, measurement)])
     : model.codingAgent
     ? [['Coding Agent Index v2.0', format(model.codingScore ?? null, 'intelligence')], ['Cost per task', format(model.cost, 'cost')]]
     : model.cyber

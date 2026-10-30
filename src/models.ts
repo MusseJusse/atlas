@@ -132,7 +132,7 @@ export function paretoFrontier<Row extends Model>(
   score: (row: Row) => number | null | undefined = (row) => row.intelligence,
 ) {
   const ordered = rows
-    .filter((model) => model[metric] !== null && score(model) != null)
+    .filter((model) => model[metric] != null && score(model) != null)
     .toSorted(
       (a, b) =>
         (a[metric]! - b[metric]!) *
@@ -156,7 +156,7 @@ export function barGroups<Row extends Model>(
 ) {
   const groups = new Map<string, Row[]>();
   for (const row of rows) {
-    if (row[metric] === null) continue;
+    if (row[metric] == null) continue;
     const id = grouped ? row.family : row.id;
     const group = groups.get(id) ?? [];
     group.push(row);
@@ -224,11 +224,11 @@ export function format(
           ? ([1e3, 'k'] as const)
           : null;
   if (unit) return `${+(value / unit[0]).toFixed(compact ? 0 : 1)}${unit[1]}`;
-  return formatNumber(value, metric === 'intelligence' || metric === 'omniscience' || !compact ? 1 : 0);
+  return formatNumber(value, metric === 'intelligence' || metric === 'codingIndex' || metric === 'omniscience' || !compact ? 1 : 0);
 }
 
 /** Distinguish local estimates wherever model measurements appear. */
 export function formatModelValue(model: Model, metric: Metric, compact = false) {
-  const value = format(model[metric], metric, compact);
+  const value = format(model[metric] ?? null, metric, compact);
   return metric === 'time' && model.time !== null && model.timeEstimate ? `~${value}` : value;
 }

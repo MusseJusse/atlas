@@ -1,5 +1,5 @@
 import { expect, it } from 'vitest';
-import { resolveView, views } from './chart-definitions';
+import { chartViews, resolveView, views } from './chart-definitions';
 import { readSettings, readView, writeSettings } from './state';
 
 it.each(views)('preserves the $id URL and chart mode with either scatter preference', (view) => {
@@ -28,13 +28,22 @@ it('resolves axis choices by view even when views share a metric or switch chart
   expect(readSettings(writeSettings(settings, tokens.id))).toEqual(settings);
 });
 
-it('persists Coding Only in the URL and applies it only to the main cost scatter', () => {
+it('persists Coding Only in the URL and applies the coding score across all chart views', () => {
   const settings = { ...readSettings(''), codingOnly: true };
   expect(writeSettings(settings, 'cost-intelligence')).toBe('?codingOnly=true');
   expect(readSettings(writeSettings(settings, 'cost-intelligence'))).toEqual(settings);
   expect(readSettings('?codingOnly=false').codingOnly).toBe(false);
   for (const view of views) {
     expect(resolveView(view, settings).score)
-      .toBe(view.id === 'cost-intelligence' ? 'codingIndex' : 'intelligence');
+      .toBe('codingIndex');
   }
+});
+
+it('changes the score bar metric without changing chart IDs or unrelated benchmark scores', () => {
+  const coding = chartViews(true);
+  expect(coding.map((view) => view.id)).toEqual(views.map((view) => view.id));
+  expect(coding.find((view) => view.id === 'intelligence'))
+    .toMatchObject({ label: 'Coding score', metric: 'codingIndex' });
+  expect(coding.find((view) => view.id === 'omniscience')?.metric).toBe('omniscience');
+  expect(chartViews(false)).toEqual(views);
 });

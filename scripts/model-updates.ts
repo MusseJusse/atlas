@@ -13,6 +13,8 @@ import {
 export { modelSchema, snapshotSchema, historySchema } from '../src/data/schema.ts';
 export type { BenchmarkSnapshot } from '../src/data/schema.ts';
 
+import { codingWorkload } from '../src/data/coding-only.ts';
+
 const text = z.string().min(1);
 const measurement = z.number().nonnegative().nullable();
 
@@ -39,6 +41,13 @@ const aaModelSchema = z.object({
   omniscience: z.number().min(-100).max(100).nullable(),
   terminalBench40: z.number().min(0).max(1).nullable(),
   frontierCode20: z.number().min(0).max(1).nullable(),
+  intelligenceIndexEvaluations: z.array(z.object({
+    slug: text,
+    costPerTask: measurement.nullish(),
+    outputTokensPerTask: measurement.nullish(),
+    timePerTask: measurement.nullish(),
+  })).refine((evaluations) => new Set(evaluations.map((evaluation) => evaluation.slug)).size === evaluations.length,
+    'Duplicate evaluation slugs.'),
   intelligenceIndexIsEstimated: z.boolean(),
   intelligenceIndexCost: z.object({ total: measurement }).nullish(),
   intelligenceIndexCostPerTask: z.object({ cost: z.object({ total: measurement }) }).nullish(),
@@ -146,6 +155,7 @@ export async function fetchSnapshot(fetcher: typeof fetch = fetch): Promise<Benc
         omniscience: model.omniscience,
         terminalBench40: model.terminalBench40,
         frontierCode20: model.frontierCode20,
+        ...codingWorkload(model.intelligenceIndexEvaluations),
         cost: model.intelligenceIndexCostPerTask?.cost.total ?? null,
         costTotal: model.intelligenceIndexCost?.total ?? null,
         tokens: model.intelligenceIndexOutputTokensPerTask?.output ?? null,
@@ -159,7 +169,7 @@ export async function fetchSnapshot(fetcher: typeof fetch = fetch): Promise<Benc
     }),
   });
   // Optional per-model measurements must still exist somewhere in the full dataset.
-  for (const field of ['terminalBench40', 'frontierCode20', 'omniscience', 'cost', 'costTotal', 'tokens', 'tokensTotal', 'speed', 'time'] as const) {
+  for (const field of ['codingCost', 'codingTokens', 'codingTime', 'terminalBench40', 'frontierCode20', 'omniscience', 'cost', 'costTotal', 'tokens', 'tokensTotal', 'speed', 'time'] as const) {
     if (!snapshot.models.some((model) => model[field] !== null))
       throw new Error(`Artificial Analysis dataset is missing all ${field} measurements.`);
   }

@@ -116,7 +116,8 @@ describe('direct Artificial Analysis import', () => {
       variant: 'DeepSeek V4.1 Flash (max)', lab: 'deepseek', labName: 'DeepSeek',
       released: '2026-09-10', open: true, deprecated: false,
       effort: 'max', effortLabel: 'max', effortOrder: 60, estimated: false,
-      intelligence: 39.456167472527, omniscience: -5.3, terminalBench40: 0.4, frontierCode20: 0.6, cost: 0.26522527009606844,
+      intelligence: 39.456167472527, omniscience: -5.3, terminalBench40: 0.4, frontierCode20: 0.6,
+      codingCost: 3, codingTokens: 15000, codingTime: 150, codingTokensTotal: 3300000, codingCostTotal: 660, cost: 0.26522527009606844,
       costTotal: 476.89044593693893, tokens: 88573.99849468909, tokensTotal: 253113556,
       speed: 175.852558774099, time: 361.81506607584737,
       inputPrice: 0.3, outputPrice: 1.2, context: 1000000,
@@ -217,4 +218,16 @@ it('records changes to each coding component for subsequent syncs', () => {
     { field: 'terminalBench40', before: previous.models[0]!.terminalBench40, after: 0.5 },
     { field: 'frontierCode20', before: previous.models[0]!.frontierCode20, after: 0 },
   ]);
+});
+
+it('imports coding workload measurements and rejects duplicate or invalid evaluation entries', async () => {
+  const { models } = await fetchSnapshot(sourceFixture(structuredClone(aaModels)).fetcher);
+  expect(models[0]).toMatchObject({ codingCost: 3, codingTokens: 15000, codingTime: 150,
+    codingTokensTotal: 3300000, codingCostTotal: 660 });
+  expect(models[1]).toMatchObject({ codingCost: null, codingTokens: null, codingTime: null });
+  const entries = aaModels[0]!.intelligenceIndexEvaluations;
+  for (const bad of [undefined, [], [entries[0], entries[0]], [{ ...entries[0], costPerTask: -1 }, entries[1]]]) {
+    const source = sourceFixture([{ ...aaModels[0]!, intelligenceIndexEvaluations: bad }]);
+    await expect(fetchSnapshot(source.fetcher)).rejects.toThrow();
+  }
 });
