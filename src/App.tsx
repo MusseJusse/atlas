@@ -1,8 +1,9 @@
 import { lazy, Suspense, useCallback, useEffect, useMemo, useState } from 'react';
-import { ArrowDown, Check, Ellipsis, SlidersHorizontal } from 'lucide-react';
+import { ArrowDown, Ellipsis, SlidersHorizontal } from 'lucide-react';
 import { Chart } from './Charts';
-import { codingOnlyDescription, codingOnlyRows } from './data/coding-only';
+import { codingOnlyRows } from './data/coding-only';
 import { Sidebar } from './Sidebar';
+import { Selection } from './Selection';
 import { useMediaQuery } from './useMediaQuery';
 import { useChartNavigation } from './useChartNavigation';
 import { codingFetchedAt, fetchedAt, paretoFrontier, visibleModels } from './models';
@@ -19,17 +20,6 @@ const Efficiency = lazy(() => loadEfficiency().then(({ Efficiency }) => ({ defau
 
 function currentPage() {
   return typeof location === 'undefined' ? null : new URLSearchParams(location.search).get('page');
-}
-
-function Selection({ checked }: { checked: boolean }) {
-  return (
-    <span
-      className={`inline-flex size-3 shrink-0 items-center justify-center rounded-[3px] border text-on-accent [&_svg]:size-2.5 ${checked ? 'border-accent bg-accent' : 'border-line-2'}`}
-      aria-hidden="true"
-    >
-      {checked && <Check size={11} strokeWidth={3} />}
-    </span>
-  );
 }
 
 export function App() {
@@ -243,42 +233,21 @@ function Benchmarks() {
                   <div
                     className={`flex min-h-[58px] shrink-0 short:min-h-12 short:py-1 flex-wrap items-center justify-between gap-x-4 gap-y-1 py-2 text-[12px] ${!scatter && view.mode !== 'optional-scatter' ? 'mobile:hidden' : ''}`}
                   >
-                    <div className="flex flex-wrap items-center gap-4">
-                      {scatter ? (
-                        <button
-                          className="inline-flex min-h-10 items-center gap-2 text-fg aria-pressed:text-accent hover:text-accent"
-                          aria-pressed={settings.frontier}
-                          title="Show configurations with no better and cheaper alternative."
-                          onClick={() => update({ frontier: !settings.frontier })}
-                        >
-                          <Selection checked={settings.frontier} />
-                          Pareto frontier
-                        </button>
-                      ) : (
-                        <span className="text-fg-2 mobile:hidden">
-                          {settings.grouped ? 'Grouped by model' : 'All configurations'}
-                        </span>
-                      )}
-                      {view.id === 'cost-intelligence' && (
-                        <button
-                          className="group relative inline-flex min-h-10 items-center gap-2 text-fg aria-pressed:text-accent hover:text-accent"
-                          aria-pressed={settings.codingOnly}
-                          aria-label="Coding Only"
-                          aria-describedby="coding-only-description"
-                          onClick={() => update({ codingOnly: !settings.codingOnly })}
-                        >
-                          <Selection checked={settings.codingOnly} />
-                          Coding Only
-                          <span
-                            id="coding-only-description"
-                            role="tooltip"
-                            className="pointer-events-none absolute top-full left-0 phone:left-1/2 phone:-translate-x-1/2 z-10 w-64 rounded-md border border-line bg-panel p-3 text-left text-[11px] leading-5 font-normal text-fg-2 opacity-0 shadow-md group-hover:opacity-100 group-focus-visible:opacity-100"
-                          >
-                            {codingOnlyDescription}
-                          </span>
-                        </button>
-                      )}
-                    </div>
+                    {scatter ? (
+                      <button
+                        className="inline-flex min-h-10 items-center gap-2 text-fg aria-pressed:text-accent hover:text-accent"
+                        aria-pressed={settings.frontier}
+                        title="Show configurations with no better and cheaper alternative."
+                        onClick={() => update({ frontier: !settings.frontier })}
+                      >
+                        <Selection checked={settings.frontier} />
+                        Pareto frontier
+                      </button>
+                    ) : (
+                      <span className="text-fg-2 mobile:hidden">
+                        {settings.grouped ? 'Grouped by model' : 'All configurations'}
+                      </span>
+                    )}
                     <div className="ml-auto flex items-center gap-5 phone:gap-3">
                       {view.mode === 'optional-scatter' && (
                         <div
