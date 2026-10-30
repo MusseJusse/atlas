@@ -18,6 +18,8 @@ export const fieldLabels = {
   estimated: 'Estimated',
   intelligence: 'Intelligence',
   omniscience: 'AA-Omniscience',
+  terminalBench40: 'Terminal-Bench 4.0',
+  frontierCode20: 'FrontierCode 2.0',
   cost: 'Cost per task',
   costTotal: 'Total cost',
   tokens: 'Tokens per task',

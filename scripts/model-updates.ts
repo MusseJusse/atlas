@@ -37,6 +37,8 @@ const aaModelSchema = z.object({
   effort: z.object({ slug: text, label: text, level: z.number().nonnegative() }).optional(),
   intelligenceIndex: z.number().nullable(),
   omniscience: z.number().min(-100).max(100).nullable(),
+  terminalBench40: z.number().min(0).max(1).nullable(),
+  frontierCode20: z.number().min(0).max(1).nullable(),
   intelligenceIndexIsEstimated: z.boolean(),
   intelligenceIndexCost: z.object({ total: measurement }).nullish(),
   intelligenceIndexCostPerTask: z.object({ cost: z.object({ total: measurement }) }).nullish(),
@@ -142,6 +144,8 @@ export async function fetchSnapshot(fetcher: typeof fetch = fetch): Promise<Benc
         estimated: model.intelligenceIndexIsEstimated,
         intelligence: model.intelligenceIndex,
         omniscience: model.omniscience,
+        terminalBench40: model.terminalBench40,
+        frontierCode20: model.frontierCode20,
         cost: model.intelligenceIndexCostPerTask?.cost.total ?? null,
         costTotal: model.intelligenceIndexCost?.total ?? null,
         tokens: model.intelligenceIndexOutputTokensPerTask?.output ?? null,
@@ -155,7 +159,7 @@ export async function fetchSnapshot(fetcher: typeof fetch = fetch): Promise<Benc
     }),
   });
   // Optional per-model measurements must still exist somewhere in the full dataset.
-  for (const field of ['omniscience', 'cost', 'costTotal', 'tokens', 'tokensTotal', 'speed', 'time'] as const) {
+  for (const field of ['terminalBench40', 'frontierCode20', 'omniscience', 'cost', 'costTotal', 'tokens', 'tokensTotal', 'speed', 'time'] as const) {
     if (!snapshot.models.some((model) => model[field] !== null))
       throw new Error(`Artificial Analysis dataset is missing all ${field} measurements.`);
   }

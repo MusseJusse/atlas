@@ -1,10 +1,11 @@
 import { lazy, Suspense, useCallback, useEffect, useMemo, useState } from 'react';
 import { ArrowDown, Check, Ellipsis, SlidersHorizontal } from 'lucide-react';
 import { Chart } from './Charts';
+import { codingOnlyDescription, codingOnlyRows } from './data/coding-only';
 import { Sidebar } from './Sidebar';
 import { useMediaQuery } from './useMediaQuery';
 import { useChartNavigation } from './useChartNavigation';
-import { fetchedAt, paretoFrontier, visibleModels } from './models';
+import { codingFetchedAt, fetchedAt, paretoFrontier, visibleModels } from './models';
 import { resolveView, views } from './chart-definitions';
 import { chartDescending, readSettings, readView, writeSettings, type Settings } from './state';
 import { ThemeToggle } from './ThemeToggle';
@@ -111,10 +112,14 @@ function Benchmarks() {
     () => visibleModels(settings.selected, settings.excluded),
     [settings.selected, settings.excluded],
   );
+  const codingRows = useMemo(() => codingOnlyRows(rows), [rows]);
   const view = views.find((view) => view.id === active) ?? views[0];
+  const { score } = resolveView(view, settings);
+  const activeRows = score === 'codingIndex' ? codingRows : rows;
+  const activeFetchedAt = score === 'codingIndex' ? codingFetchedAt : fetchedAt;
   const frontier = useMemo(
-    () => new Set(paretoFrontier(rows, view.metric).map((model) => model.family)),
-    [rows, view.metric],
+    () => new Set(paretoFrontier(activeRows, view.metric, (model) => model[score]).map((model) => model.family)),
+    [activeRows, view.metric, score],
   );
 
   useEffect(() => {
@@ -238,21 +243,42 @@ function Benchmarks() {
                   <div
                     className={`flex min-h-[58px] shrink-0 short:min-h-12 short:py-1 flex-wrap items-center justify-between gap-x-4 gap-y-1 py-2 text-[12px] ${!scatter && view.mode !== 'optional-scatter' ? 'mobile:hidden' : ''}`}
                   >
-                    {scatter ? (
-                      <button
-                        className="inline-flex min-h-10 items-center gap-2 text-fg aria-pressed:text-accent hover:text-accent"
-                        aria-pressed={settings.frontier}
-                        title="Show configurations with no better and cheaper alternative."
-                        onClick={() => update({ frontier: !settings.frontier })}
-                      >
-                        <Selection checked={settings.frontier} />
-                        Pareto frontier
-                      </button>
-                    ) : (
-                      <span className="text-fg-2 mobile:hidden">
-                        {settings.grouped ? 'Grouped by model' : 'All configurations'}
-                      </span>
-                    )}
+                    <div className="flex flex-wrap items-center gap-4">
+                      {scatter ? (
+                        <button
+                          className="inline-flex min-h-10 items-center gap-2 text-fg aria-pressed:text-accent hover:text-accent"
+                          aria-pressed={settings.frontier}
+                          title="Show configurations with no better and cheaper alternative."
+                          onClick={() => update({ frontier: !settings.frontier })}
+                        >
+                          <Selection checked={settings.frontier} />
+                          Pareto frontier
+                        </button>
+                      ) : (
+                        <span className="text-fg-2 mobile:hidden">
+                          {settings.grouped ? 'Grouped by model' : 'All configurations'}
+                        </span>
+                      )}
+                      {view.id === 'cost-intelligence' && (
+                        <button
+                          className="group relative inline-flex min-h-10 items-center gap-2 text-fg aria-pressed:text-accent hover:text-accent"
+                          aria-pressed={settings.codingOnly}
+                          aria-label="Coding Only"
+                          aria-describedby="coding-only-description"
+                          onClick={() => update({ codingOnly: !settings.codingOnly })}
+                        >
+                          <Selection checked={settings.codingOnly} />
+                          Coding Only
+                          <span
+                            id="coding-only-description"
+                            role="tooltip"
+                            className="pointer-events-none absolute top-full left-0 phone:left-1/2 phone:-translate-x-1/2 z-10 w-64 rounded-md border border-line bg-panel p-3 text-left text-[11px] leading-5 font-normal text-fg-2 opacity-0 shadow-md group-hover:opacity-100 group-focus-visible:opacity-100"
+                          >
+                            {codingOnlyDescription}
+                          </span>
+                        </button>
+                      )}
+                    </div>
                     <div className="ml-auto flex items-center gap-5 phone:gap-3">
                       {view.mode === 'optional-scatter' && (
                         <div
@@ -311,7 +337,7 @@ function Benchmarks() {
                     active={mobile || active === view.id}
                     phone={phone}
                     view={view}
-                    rows={rows}
+                    rows={score === 'codingIndex' ? codingRows : rows}
                     settings={settings}
                     highlighted={active === view.id ? highlighted : null}
                     onHighlight={setHighlighted}
@@ -334,10 +360,10 @@ function Benchmarks() {
             Artificial Analysis
           </a>
         </span>
-        <span title={`Local snapshot captured ${fetchedAt}`}>
+        <span title={`Local snapshot captured ${activeFetchedAt}`}>
           Snapshot captured{' '}
-          <time dateTime={fetchedAt}>
-            {formatUtcDate(fetchedAt, 'short')}
+          <time dateTime={activeFetchedAt}>
+            {formatUtcDate(activeFetchedAt, 'short')}
           </time>
         </span>
       </footer>

@@ -49,7 +49,9 @@
     "price1mInputTokens": 0.3,
     "price1mOutputTokens": 1.2,
     "contextWindowTokens": 1000000,
-    "omniscience": -5.3
+    "omniscience": -5.3,
+    "terminalBench40": 0.4,
+    "frontierCode20": 0.6
   },
   {
     "slug": "glm-4-5v",
@@ -80,7 +82,9 @@
     "price1mInputTokens": 0.6,
     "price1mOutputTokens": 1.8,
     "contextWindowTokens": 64000,
-    "omniscience": -55.583333333333336
+    "omniscience": -55.583333333333336,
+    "terminalBench40": null,
+    "frontierCode20": null
   },
   {
     "slug": "mercury-2",
@@ -132,6 +136,8 @@
     "price1mInputTokens": 0.25,
     "price1mOutputTokens": 0.75,
     "contextWindowTokens": 128000,
-    "omniscience": -50.71666666666667
+    "omniscience": -50.71666666666667,
+    "terminalBench40": 0,
+    "frontierCode20": 0.2
   }
 ]

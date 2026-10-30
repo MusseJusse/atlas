@@ -197,6 +197,7 @@ export const Chart = memo(function Chart({
             <ConfigurationDetails
               model={activeModel}
               metric={view.metric}
+              score={scatter ? score : undefined}
               pinned={Boolean(pinned)}
               onClose={clearSelection}
             />

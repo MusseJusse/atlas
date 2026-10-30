@@ -1,24 +1,28 @@
 import { X } from 'lucide-react';
 import { Logo } from '../Logo';
 import { format, formatModelValue, modelColor, type Model } from '../models';
-import { metrics, type Metric } from '../chart-definitions';
+import { metrics, scoreLabels, type ScoreMetric, type Metric } from '../chart-definitions';
 
 /** The same compact selection overlay on desktop and mobile. */
 export function ConfigurationDetails({
   model,
   metric,
   pinned,
+  score,
   onClose,
 }: {
   model: Model;
   metric: Metric;
   pinned: boolean;
+  score?: ScoreMetric;
   onClose: () => void;
 }) {
   const scoreMetric = metric === 'omniscience' ? 'omniscience' : 'intelligence';
   // Keep the active chart metric and two supporting values without duplicate rows.
   const displayMetrics = [...new Set<Metric>([scoreMetric, metric, 'cost', 'tokensTotal'])].slice(0, 3);
-  const measurements = model.codingAgent
+  const measurements = score === 'codingIndex'
+    ? [[scoreLabels.codingIndex, format(model.codingIndex ?? null, 'intelligence')], ['Cost per task', format(model.cost, 'cost')]]
+    : model.codingAgent
     ? [['Coding Agent Index v2.0', format(model.codingScore ?? null, 'intelligence')], ['Cost per task', format(model.cost, 'cost')]]
     : model.cyber
     ? [['Cyber Index', format(model.cyberScore ?? null, 'intelligence')], ['Cost per task', format(model.cost, 'cost')]]

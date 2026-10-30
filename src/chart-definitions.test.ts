@@ -27,3 +27,14 @@ it('resolves axis choices by view even when views share a metric or switch chart
     .toEqual({ scatter: true, linear: true, score: 'intelligence' });
   expect(readSettings(writeSettings(settings, tokens.id))).toEqual(settings);
 });
+
+it('persists Coding Only in the URL and applies it only to the main cost scatter', () => {
+  const settings = { ...readSettings(''), codingOnly: true };
+  expect(writeSettings(settings, 'cost-intelligence')).toBe('?codingOnly=true');
+  expect(readSettings(writeSettings(settings, 'cost-intelligence'))).toEqual(settings);
+  expect(readSettings('?codingOnly=false').codingOnly).toBe(false);
+  for (const view of views) {
+    expect(resolveView(view, settings).score)
+      .toBe(view.id === 'cost-intelligence' ? 'codingIndex' : 'intelligence');
+  }
+});

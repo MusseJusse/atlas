@@ -28,6 +28,8 @@ export const codingAgents: Model[] = source.configurations.map((configuration) =
     effortOrder: effortOrder.get(configuration.effort) ?? 0,
     intelligence: null,
     omniscience: null,
+    terminalBench40: null,
+    frontierCode20: null,
     codingScore: configuration.indexScore === null ? null : configuration.indexScore * 100,
     cost: configuration.cost,
     costTotal: null,

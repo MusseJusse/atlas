@@ -116,7 +116,7 @@ describe('direct Artificial Analysis import', () => {
       variant: 'DeepSeek V4.1 Flash (max)', lab: 'deepseek', labName: 'DeepSeek',
       released: '2026-09-10', open: true, deprecated: false,
       effort: 'max', effortLabel: 'max', effortOrder: 60, estimated: false,
-      intelligence: 39.456167472527, omniscience: -5.3, cost: 0.26522527009606844,
+      intelligence: 39.456167472527, omniscience: -5.3, terminalBench40: 0.4, frontierCode20: 0.6, cost: 0.26522527009606844,
       costTotal: 476.89044593693893, tokens: 88573.99849468909, tokensTotal: 253113556,
       speed: 175.852558774099, time: 361.81506607584737,
       inputPrice: 0.3, outputPrice: 1.2, context: 1000000,
@@ -194,4 +194,27 @@ describe('direct Artificial Analysis import', () => {
     const duplicate = sourceFixture([aaModels[0]!, aaModels[0]!]);
     await expect(fetchSnapshot(duplicate.fetcher)).rejects.toThrow('Duplicate');
   });
+});
+
+it('imports coding components independently and rejects missing fields and invalid fractions', async () => {
+  const { fetcher } = sourceFixture(structuredClone(aaModels));
+  expect((await fetchSnapshot(fetcher)).models.map(({ terminalBench40, frontierCode20 }) =>
+    [terminalBench40, frontierCode20])).toEqual([[0.4, 0.6], [null, null], [0, 0.2]]);
+  for (const field of ['terminalBench40', 'frontierCode20'] as const) {
+    for (const value of [undefined, -0.1, 1.1, null]) {
+      const source = sourceFixture([{ ...aaModels[0]!, [field]: value }]);
+      await expect(fetchSnapshot(source.fetcher)).rejects.toThrow();
+    }
+  }
+});
+
+it('records changes to each coding component for subsequent syncs', () => {
+  const previous = fixture();
+  const next = structuredClone(previous);
+  next.models[0]!.terminalBench40 = 0.5;
+  next.models[0]!.frontierCode20 = 0;
+  expect(compareSnapshots(previous, next, checkedAt).changes[0]?.fields).toEqual([
+    { field: 'terminalBench40', before: previous.models[0]!.terminalBench40, after: 0.5 },
+    { field: 'frontierCode20', before: previous.models[0]!.frontierCode20, after: 0 },
+  ]);
 });

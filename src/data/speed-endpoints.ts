@@ -31,6 +31,8 @@ export const speedEndpoints = [
     effortOrder: 60,
     intelligence: null,
     omniscience: null,
+    terminalBench40: null,
+    frontierCode20: null,
     cost: null,
     costTotal: null,
     tokens: null,

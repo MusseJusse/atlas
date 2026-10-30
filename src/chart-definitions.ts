@@ -20,9 +20,10 @@ export const metrics = {
 }>>;
 export type Metric = keyof typeof metrics;
 
-export type ScoreMetric = 'intelligence' | 'codingScore' | 'cyberScore';
+export type ScoreMetric = 'intelligence' | 'codingIndex' | 'codingScore' | 'cyberScore';
 export const scoreLabels = {
   intelligence: 'Intelligence index',
+  codingIndex: 'Coding score',
   codingScore: 'Coding Agent Index v2.0',
   cyberScore: 'Cyber Index',
 } satisfies Record<ScoreMetric, string>;
@@ -45,10 +46,10 @@ export type View = (typeof views)[number];
 export type ViewId = View['id'];
 
 /** Resolve controls and rendering from the same view, including per-view axis choices. */
-export function resolveView(view: View, settings: { scatter: boolean; linear: readonly ViewId[] }) {
+export function resolveView(view: View, settings: { scatter: boolean; linear: readonly ViewId[]; codingOnly?: boolean }) {
   return {
     scatter: view.mode === 'scatter' || (view.mode === 'optional-scatter' && settings.scatter),
     linear: settings.linear.includes(view.id),
-    score: 'intelligence' as const,
+    score: view.id === 'cost-intelligence' && settings.codingOnly ? 'codingIndex' as const : 'intelligence' as const,
   };
 }

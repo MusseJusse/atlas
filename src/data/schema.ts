@@ -18,6 +18,8 @@ export const modelSchema = z.strictObject({
   estimated: z.boolean(),
   intelligence: z.number().nullable(),
   omniscience: z.number().min(-100).max(100).nullable().default(null),
+  terminalBench40: z.number().min(0).max(1).nullable().default(null),
+  frontierCode20: z.number().min(0).max(1).nullable().default(null),
   cost: measurement,
   costTotal: measurement,
   tokens: measurement,
@@ -33,6 +35,7 @@ export const snapshotSchema = z
     fetchedAt: z.iso.datetime(),
     source: z.url().optional(),
     sourceHash: text.optional(),
+    codingSource: z.object({ fetchedAt: z.iso.datetime(), sourceHash: text }).optional(),
     models: z.array(modelSchema).nonempty(),
   })
   .superRefine(({ models }, ctx) => {
@@ -91,6 +94,8 @@ export const modelFields = [
   'effortOrder',
   'intelligence',
   'omniscience',
+  'terminalBench40',
+  'frontierCode20',
   'cost',
   'costTotal',
   'tokens',
@@ -100,6 +105,7 @@ export const modelFields = [
 ] as const satisfies readonly (keyof SnapshotModel)[];
 
 export type Model = Pick<SnapshotModel, (typeof modelFields)[number]> & {
+  codingIndex?: number | null;
   codingScore?: number | null;
   codingAgent?: { name: string; configuration: string; source: string };
   cyberScore?: number | null;
@@ -111,4 +117,4 @@ export type Model = Pick<SnapshotModel, (typeof modelFields)[number]> & {
     baselineFetchedAt: string;
   };
 };
-export type Snapshot = Pick<BenchmarkSnapshot, 'fetchedAt'> & { models: Model[] };
+export type Snapshot = Pick<BenchmarkSnapshot, 'fetchedAt' | 'codingSource'> & { models: Model[] };

@@ -15,6 +15,7 @@ const endpointParents = new Map(
   speedEndpoints.map((endpoint) => [endpoint.family, endpoint.parentFamily]),
 );
 export const fetchedAt = snapshot.fetchedAt;
+export const codingFetchedAt = snapshot.codingSource?.fetchedAt ?? fetchedAt;
 export const frontierFamilies = [
   'gpt-6-1-terra',
   'gpt-6-1-sol',
