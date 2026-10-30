@@ -1,5 +1,6 @@
 import { StrictMode } from 'react';
 import { createRoot, hydrateRoot } from 'react-dom/client';
+import { Analytics } from '@vercel/analytics/react';
 import { App } from './App';
 import './styles.css';
 
@@ -16,6 +17,7 @@ try {
 const app = (
   <StrictMode>
     <App />
+    <Analytics />
   </StrictMode>
 );
 
