@@ -29,22 +29,17 @@ export const scoreLabels = {
 
 export const views = [
   { id: 'cost-intelligence', label: 'Cost vs intelligence', metric: 'cost', mode: 'scatter' },
-  { id: 'coding-agents', label: 'Coding agents', metric: 'cost', mode: 'scatter', score: 'codingScore' },
-  { id: 'cyber-index', label: 'Cyber Index', metric: 'cost', mode: 'scatter', score: 'cyberScore' },
   { id: 'intelligence', label: metrics.intelligence.label, metric: 'intelligence', mode: 'bars' },
   { id: 'omniscience', label: 'AA-Omniscience', metric: 'omniscience', mode: 'bars' },
   { id: 'tokens-task', label: metrics.tokens.label, metric: 'tokens', mode: 'optional-scatter' },
   { id: 'tokens-total', label: metrics.tokensTotal.label, metric: 'tokensTotal', mode: 'bars' },
   { id: 'cost-task', label: metrics.cost.label, metric: 'cost', mode: 'bars' },
-  { id: 'cost-total', label: metrics.costTotal.label, metric: 'costTotal', mode: 'bars' },
-  { id: 'output-speed', label: metrics.speed.label, metric: 'speed', mode: 'bars' },
   { id: 'time-task', label: metrics.time.label, metric: 'time', mode: 'bars' },
 ] as const satisfies readonly {
   id: string;
   label: string;
   metric: Metric;
   mode: 'bars' | 'scatter' | 'optional-scatter';
-  score?: ScoreMetric;
 }[];
 export type View = (typeof views)[number];
 export type ViewId = View['id'];
@@ -54,6 +49,6 @@ export function resolveView(view: View, settings: { scatter: boolean; linear: re
   return {
     scatter: view.mode === 'scatter' || (view.mode === 'optional-scatter' && settings.scatter),
     linear: settings.linear.includes(view.id),
-    score: 'score' in view ? view.score : 'intelligence' as const,
+    score: 'intelligence' as const,
   };
 }

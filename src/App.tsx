@@ -10,8 +10,6 @@ import { chartDescending, readSettings, readView, writeSettings, type Settings }
 import { ThemeToggle } from './ThemeToggle';
 import { formatUtcDate } from './formatDate';
 import { Brand } from './Brand';
-import { codingAgentSource, visibleCodingAgents } from './data/coding-agents';
-import { cyberSource, visibleCyberModels } from './data/cyber-index';
 
 const loadChangelog = () => import('./Changelog');
 const loadEfficiency = () => import('./Efficiency');
@@ -113,23 +111,10 @@ function Benchmarks() {
     () => visibleModels(settings.selected, settings.excluded),
     [settings.selected, settings.excluded],
   );
-  const agentRows = useMemo(
-    () => visibleCodingAgents(settings.selected, settings.excluded),
-    [settings.selected, settings.excluded],
-  );
   const view = views.find((view) => view.id === active) ?? views[0];
-  const cyberRows = useMemo(
-    () => visibleCyberModels(settings.selected, settings.excluded),
-    [settings.selected, settings.excluded],
-  );
-  const rowsByScore = { intelligence: rows, codingScore: agentRows, cyberScore: cyberRows };
-  const datesByScore = { intelligence: fetchedAt, codingScore: codingAgentSource.fetchedAt, cyberScore: cyberSource.fetchedAt };
-  const { score } = resolveView(view, settings);
-  const activeRows = rowsByScore[score];
-  const activeFetchedAt = datesByScore[score];
   const frontier = useMemo(
-    () => new Set(paretoFrontier(activeRows, view.metric, (model) => model[score]).map((model) => model.family)),
-    [activeRows, view.metric, score],
+    () => new Set(paretoFrontier(rows, view.metric).map((model) => model.family)),
+    [rows, view.metric],
   );
 
   useEffect(() => {
@@ -232,7 +217,7 @@ function Benchmarks() {
             ref={feed}
           >
             {views.map((view) => {
-              const { scatter, linear, score } = resolveView(view, settings);
+              const { scatter, linear } = resolveView(view, settings);
               return (
                 <section
                   className="chart-section flex h-full snap-start flex-col px-6 pt-5 pb-4 short:pt-4 short:pb-3 [&+section]:border-t [&+section]:border-line mobile:h-auto mobile:scroll-mt-[180px] mobile:px-4 mobile:pb-6"
@@ -326,7 +311,7 @@ function Benchmarks() {
                     active={mobile || active === view.id}
                     phone={phone}
                     view={view}
-                    rows={rowsByScore[score]}
+                    rows={rows}
                     settings={settings}
                     highlighted={active === view.id ? highlighted : null}
                     onHighlight={setHighlighted}
@@ -349,10 +334,10 @@ function Benchmarks() {
             Artificial Analysis
           </a>
         </span>
-        <span title={`Local snapshot captured ${activeFetchedAt}`}>
+        <span title={`Local snapshot captured ${fetchedAt}`}>
           Snapshot captured{' '}
-          <time dateTime={activeFetchedAt}>
-            {formatUtcDate(activeFetchedAt, 'short')}
+          <time dateTime={fetchedAt}>
+            {formatUtcDate(fetchedAt, 'short')}
           </time>
         </span>
       </footer>

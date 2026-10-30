@@ -154,13 +154,13 @@ describe('benchmark comparisons', () => {
     const groups = barGroups(rows, 'speed', true, true);
     expect(groups[0]?.id).toBe(endpoint.family);
     expect(groups[0]?.rows).toEqual([endpoint]);
-    for (const view of views.filter((view) => view.metric !== 'speed' && view.metric !== 'time')) {
+    for (const view of views.filter((view) => view.metric !== 'time')) {
       expect(barGroups([endpoint], view.metric, true, true)).toEqual([]);
     }
     expect(paretoFrontier([endpoint], 'speed')).toEqual([]);
     expect(defaultSelected).toContain(endpoint.parentFamily);
-    const url = writeSettings({ ...readSettings(''), selected: [endpoint.parentFamily] }, 'output-speed');
-    expect(readView(url)).toBe('output-speed');
+    const url = writeSettings({ ...readSettings(''), selected: [endpoint.parentFamily] }, 'time-task');
+    expect(readView(url)).toBe('time-task');
     expect(readSettings(url).selected).toEqual([endpoint.parentFamily]);
   });
   it('estimates Ultrafast task time from High tokens and labels only that estimate', () => {
@@ -197,7 +197,7 @@ describe('benchmark comparisons', () => {
     expect(families.filter(({ family }) => family === endpoint.parentFamily)).toHaveLength(1);
     expect(families.some(({ family }) => family === endpoint.family)).toBe(false);
     const disabled = defaultSelected.filter((family) => family !== endpoint.parentFamily);
-    const url = writeSettings({ ...readSettings(''), selected: disabled }, 'output-speed');
+    const url = writeSettings({ ...readSettings(''), selected: disabled }, 'time-task');
     expect(visibleModels(readSettings(url).selected, []).some(
       (row) => row.family === endpoint.parentFamily || row.family === endpoint.family,
     )).toBe(false);
@@ -302,5 +302,5 @@ it('round-trips an empty selection and view controls through the URL', () => {
     descending: true,
     scatter: true,
   };
-  expect(readSettings(writeSettings(settings, 'cost-total'))).toEqual(settings);
+  expect(readSettings(writeSettings(settings, 'cost-task'))).toEqual(settings);
 });

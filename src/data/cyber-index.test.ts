@@ -2,7 +2,7 @@ import { expect, it } from 'vitest';
 import { z } from 'zod';
 import { cyberModels, cyberSource, visibleCyberModels } from './cyber-index';
 import { families, models } from '../models';
-import { defaults, readSettings, readView, writeSettings } from '../state';
+import { defaults, readSettings, writeSettings } from '../state';
 import { measureScatterRows, scatterGeometry } from '../charts/geometry';
 
 it('validates the Cyber snapshot and preserves its score and workload cost precision', () => {
@@ -48,10 +48,8 @@ it('uses picker and reasoning filters, retaining the only measured Max tier', ()
   expect(trusted.family).toBe('gpt-6-sol-daybreak-blue');
   expect(families.find((family) => family.family === trusted.family)?.model.name).toContain('trusted access');
   expect(visibleCyberModels(['gpt-6-sol'], []).some((row) => row.id === trusted.id)).toBe(false);
-  const url = writeSettings({ ...defaults, selected: [trusted.family], linear: ['cyber-index'] }, 'cyber-index');
-  expect(readView(url)).toBe('cyber-index');
+  const url = writeSettings({ ...defaults, selected: [trusted.family] }, 'cost-intelligence');
   expect(readSettings(url).selected).toEqual([trusted.family]);
-  expect(readSettings(url).linear).toEqual(['cyber-index']);
 });
 
 it('uses Cyber scores for eligibility, coordinates and frontier on desktop and phone', () => {
