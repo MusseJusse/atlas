@@ -1,11 +1,13 @@
 import { lazy, Suspense, useCallback, useEffect, useMemo, useState } from 'react';
-import { ArrowDown, Check, Ellipsis, SlidersHorizontal } from 'lucide-react';
+import { ArrowDown, Ellipsis, SlidersHorizontal } from 'lucide-react';
 import { Chart } from './Charts';
+import { codingOnlyRows } from './data/coding-only';
 import { Sidebar } from './Sidebar';
+import { Selection } from './Selection';
 import { useMediaQuery } from './useMediaQuery';
 import { useChartNavigation } from './useChartNavigation';
-import { fetchedAt, paretoFrontier, visibleModels } from './models';
-import { resolveView, views } from './chart-definitions';
+import { codingFetchedAt, fetchedAt, paretoFrontier, visibleModels } from './models';
+import { chartViews, resolveView, views } from './chart-definitions';
 import { chartDescending, readSettings, readView, writeSettings, type Settings } from './state';
 import { ThemeToggle } from './ThemeToggle';
 import { formatUtcDate } from './formatDate';
@@ -18,17 +20,6 @@ const Efficiency = lazy(() => loadEfficiency().then(({ Efficiency }) => ({ defau
 
 function currentPage() {
   return typeof location === 'undefined' ? null : new URLSearchParams(location.search).get('page');
-}
-
-function Selection({ checked }: { checked: boolean }) {
-  return (
-    <span
-      className={`inline-flex size-3 shrink-0 items-center justify-center rounded-[3px] border text-on-accent [&_svg]:size-2.5 ${checked ? 'border-accent bg-accent' : 'border-line-2'}`}
-      aria-hidden="true"
-    >
-      {checked && <Check size={11} strokeWidth={3} />}
-    </span>
-  );
 }
 
 export function App() {
@@ -111,10 +102,15 @@ function Benchmarks() {
     () => visibleModels(settings.selected, settings.excluded),
     [settings.selected, settings.excluded],
   );
-  const view = views.find((view) => view.id === active) ?? views[0];
+  const codingRows = useMemo(() => codingOnlyRows(rows), [rows]);
+  const datasetViews = useMemo(() => chartViews(settings.codingOnly), [settings.codingOnly]);
+  const view = datasetViews.find((view) => view.id === active) ?? datasetViews[0]!;
+  const { score } = resolveView(view, settings);
+  const activeRows = settings.codingOnly ? codingRows : rows;
+  const activeFetchedAt = settings.codingOnly ? codingFetchedAt : fetchedAt;
   const frontier = useMemo(
-    () => new Set(paretoFrontier(rows, view.metric).map((model) => model.family)),
-    [rows, view.metric],
+    () => new Set(paretoFrontier(activeRows, view.metric, (model) => model[score]).map((model) => model.family)),
+    [activeRows, view.metric, score],
   );
 
   useEffect(() => {
@@ -200,7 +196,7 @@ function Benchmarks() {
               className="flex min-w-0 gap-6 overflow-x-auto border-b border-line [scrollbar-width:thin] [scrollbar-color:var(--line-2)_transparent] compact:gap-5"
               aria-label="Chart views"
             >
-              {views.map((view) => (
+              {datasetViews.map((view) => (
                 <button
                   key={view.id}
                   className="min-h-[50px] shrink-0 short:min-h-11 border-b-2 border-transparent text-[12px] text-fg-2 aria-[current=page]:border-accent aria-[current=page]:font-semibold aria-[current=page]:text-accent hover:text-accent"
@@ -216,7 +212,7 @@ function Benchmarks() {
             className="relative min-h-0 snap-y snap-proximity overflow-y-auto rounded-b-xl [scrollbar-width:thin] [scrollbar-color:var(--line-2)_var(--panel)] mobile:snap-none mobile:overflow-visible"
             ref={feed}
           >
-            {views.map((view) => {
+            {datasetViews.map((view) => {
               const { scatter, linear } = resolveView(view, settings);
               return (
                 <section
@@ -311,7 +307,7 @@ function Benchmarks() {
                     active={mobile || active === view.id}
                     phone={phone}
                     view={view}
-                    rows={rows}
+                    rows={settings.codingOnly ? codingRows : rows}
                     settings={settings}
                     highlighted={active === view.id ? highlighted : null}
                     onHighlight={setHighlighted}
@@ -334,10 +330,10 @@ function Benchmarks() {
             Artificial Analysis
           </a>
         </span>
-        <span title={`Local snapshot captured ${fetchedAt}`}>
+        <span title={`Local snapshot captured ${activeFetchedAt}`}>
           Snapshot captured{' '}
-          <time dateTime={fetchedAt}>
-            {formatUtcDate(fetchedAt, 'short')}
+          <time dateTime={activeFetchedAt}>
+            {formatUtcDate(activeFetchedAt, 'short')}
           </time>
         </span>
       </footer>

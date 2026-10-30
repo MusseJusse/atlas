@@ -10,7 +10,7 @@ export type ScatterRow = MeasuredRow & { score: number };
 export function measureRows(rows: Model[], metric: Metric): MeasuredRow[] {
   return rows.flatMap((row) => {
     const value = row[metric];
-    return value === null ? [] : [{ ...row, value }];
+    return value == null ? [] : [{ ...row, value }];
   });
 }
 

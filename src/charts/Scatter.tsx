@@ -116,7 +116,7 @@ export function Scatter({
                 key={model.id}
                 role="button"
                 tabIndex={0}
-                aria-label={`${model.codingAgent?.configuration ?? `${model.name}, ${model.effortLabel}`}, ${metrics[metric].label} ${format(model[metric], metric)}, ${scoreLabels[scoreMetric]} ${format(model.score, 'intelligence')}`}
+                aria-label={`${model.codingAgent?.configuration ?? `${model.name}, ${model.effortLabel}`}, ${metrics[metric].label} ${format(model[metric] ?? null, metric)}, ${scoreLabels[scoreMetric]} ${format(model.score, 'intelligence')}`}
                 aria-pressed={interactions.pinned?.id === model.id}
                 className="cursor-pointer focus-visible:[&>circle:last-child]:stroke-accent focus-visible:[&>circle:last-child]:stroke-[3] mobile:focus-visible:[outline:none]"
                 opacity={settings.frontier && !onFrontier && !active && !activeFamily ? 0.15 : 1}
