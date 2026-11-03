@@ -1,7 +1,8 @@
 import { PricingDetails } from './PricingDetails';
 import { memo, useMemo } from 'react';
 import { Logo } from '../Logo';
-import { format, formatModelValue, modelColor, shortName } from '../models';
+import { modelColor, shortName } from '../model-presentation';
+import { format, formatModelValue } from '../formatModel';
 import type { Metric } from '../chart-definitions';
 import { chartDescending, type Settings } from '../state';
 import { rangeGeometry, type MeasuredRow } from './geometry';

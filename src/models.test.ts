@@ -1,18 +1,7 @@
 import { describe, expect, it } from 'vitest';
-import {
-  barGroups,
-  defaultSelected,
-  efforts,
-  families,
-  fetchedAt,
-  format,
-  formatModelValue,
-  models,
-  paretoFrontier,
-  views,
-  visibleModels,
-  type Model,
-} from './models';
+import { barGroups, efforts, families, fetchedAt, models, paretoFrontier, views, visibleModels, type Model } from './models';
+import { defaultSelected } from './model-presentation';
+import { format, formatModelValue } from './formatModel';
 import snapshot from './data/benchmarks.json';
 import { modelFields } from './data/schema';
 import { chartDescending, readSettings, readView, writeSettings, type Settings } from './state';

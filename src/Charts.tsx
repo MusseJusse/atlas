@@ -10,7 +10,8 @@ import {
 import { flushSync } from 'react-dom';
 import { resolveChartInteraction } from './chart-interactions';
 import { useHydrated } from './useHydrated';
-import { shortName, type Model } from './models';
+import type { Model } from './models';
+import { shortName } from './model-presentation';
 import { scoreLabels, metrics, resolveView, type View } from './chart-definitions';
 import type { Settings } from './state';
 import { Logo } from './Logo';
@@ -35,12 +36,18 @@ function useSize(enabled: boolean) {
         previous.width === width && previous.height === height ? previous : { width, height },
       );
     };
-    resize(element.clientWidth, element.clientHeight);
+    const measure = () => resize(element.clientWidth, element.clientHeight);
+    measure();
+    // Fonts can finish after React starts. Recheck chart dimensions without delaying controls.
+    document.fonts.addEventListener('loadingdone', measure);
     const observer = new ResizeObserver(([entry]) => {
       if (entry) resize(entry.contentRect.width, entry.contentRect.height);
     });
     observer.observe(element);
-    return () => observer.disconnect();
+    return () => {
+      observer.disconnect();
+      document.fonts.removeEventListener('loadingdone', measure);
+    };
   }, [enabled]);
   return { ref, ...size };
 }

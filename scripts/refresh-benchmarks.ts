@@ -29,13 +29,13 @@ export async function refreshBenchmarks({
   const originalSnapshot = await readFile(snapshotPath, 'utf8');
   const previous = snapshotSchema.parse(JSON.parse(originalSnapshot));
   const history = historySchema.parse(JSON.parse(await readFile(historyPath, 'utf8')));
+  const latestHistory = history.updates[0]?.fetchedAt ?? history.baselineFetchedAt;
+  if (latestHistory !== previous.fetchedAt)
+    throw new Error('The changelog does not match the current snapshot. Stop any refresh process, then run pnpm data:recover.');
   const next = await fetchSnapshot(fetcher);
   const batch = compareSnapshots(previous, next, checkedAt);
   if (checkOnly || !batch.changes.length) return batch;
 
-  const latestHistory = history.updates[0]?.fetchedAt ?? history.baselineFetchedAt;
-  if (latestHistory !== previous.fetchedAt)
-    throw new Error('The changelog does not match the current snapshot.');
   const updatedHistory = historySchema.parse({
     ...history,
     source: upstreamUrl,

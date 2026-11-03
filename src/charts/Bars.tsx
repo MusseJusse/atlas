@@ -1,7 +1,8 @@
 import { taskCostLabel } from './PricingDetails';
 import { useMemo, useState } from 'react';
 import { SvgLogo } from '../Logo';
-import { format, formatModelValue, modelColor, shortName } from '../models';
+import { modelColor, shortName } from '../model-presentation';
+import { format, formatModelValue } from '../formatModel';
 import { metrics, type Metric } from '../chart-definitions';
 import type { Settings } from '../state';
 import { pinHandlers, type Interactions } from './interactions';

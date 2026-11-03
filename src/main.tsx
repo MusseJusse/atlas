@@ -7,13 +7,6 @@ import './styles.css';
 const root = document.getElementById('root');
 if (!root) throw new Error('The application root is missing.');
 
-// Decode the preloaded UI font before measuring and painting the charts.
-try {
-  await document.fonts.load('16px "DM Sans UI"');
-} catch {
-  /* Keep the app usable with fallback fonts if decoding fails. */
-}
-
 const app = (
   <StrictMode>
     <App />

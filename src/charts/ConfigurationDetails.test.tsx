@@ -1,6 +1,7 @@
 import { renderToStaticMarkup } from 'react-dom/server';
 import { expect, it } from 'vitest';
-import { formatModelValue, models, type Model } from '../models';
+import { models, type Model } from '../models';
+import { formatModelValue } from '../formatModel';
 import { speedEndpoints } from '../data/speed-endpoints';
 import type { Metric } from '../chart-definitions';
 import { ConfigurationDetails } from './ConfigurationDetails';

@@ -1,5 +1,6 @@
 import { expect, it } from 'vitest';
-import { families, frontierFamilies, notableFamilies } from './models';
+import { families } from './models';
+import { frontierFamilies, notableFamilies } from './model-presentation';
 import { browseFamilies, curatedSections, selectedOtherFamilies } from './sidebar-catalogue';
 
 it('preserves curated order and keeps every other family in lab and release order', () => {
