@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import type { TaskPricing } from './subscriptions.ts';
 
 const text = z.string().min(1);
 const measurement = z.number().nonnegative().nullable();
@@ -106,6 +107,8 @@ export const modelFields = [
   'codingTokensTotal',
   'codingCostTotal',
   'cost',
+  'inputPrice',
+  'outputPrice',
   'costTotal',
   'tokens',
   'tokensTotal',
@@ -114,6 +117,7 @@ export const modelFields = [
 ] as const satisfies readonly (keyof SnapshotModel)[];
 
 export type Model = Pick<SnapshotModel, (typeof modelFields)[number]> & {
+  taskPricing?: TaskPricing;
   codingIndex?: number | null;
   codingScore?: number | null;
   codingAgent?: { name: string; configuration: string; source: string };
@@ -126,4 +130,4 @@ export type Model = Pick<SnapshotModel, (typeof modelFields)[number]> & {
     baselineFetchedAt: string;
   };
 };
-export type Snapshot = Pick<BenchmarkSnapshot, 'fetchedAt' | 'codingSource'> & { models: Model[] };
+export type Snapshot = Pick<BenchmarkSnapshot, 'fetchedAt' | 'codingSource' | 'sourceHash'> & { models: Model[] };

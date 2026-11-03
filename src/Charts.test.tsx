@@ -48,3 +48,18 @@ it('keeps empty charts behind the hydration guard', () => {
   expect(renderChart([], true)).not.toContain('No models to display');
   expect(renderChart([], false)).not.toContain('No models to display');
 });
+
+it('keeps subscription provenance inside the SVG and fallback points out of frontier mode', async () => {
+  const { subscriptionRows, pricingDisclosure } = await import('./data/subscriptions');
+  const settings = { ...defaults, pricingMode: 'subscription' as const, frontier: true };
+  const rows = subscriptionRows(models.filter((row) => ['gpt-6-1-sol', 'gpt-6-1-terra'].includes(row.family)), settings);
+  // App passes only supported estimates to subscription frontier charts.
+  const eligible = rows.filter((row) => row.taskPricing?.basis === 'subscription');
+  const markup = renderToStaticMarkup(<Chart active phone={false} view={views[0]} rows={eligible} settings={settings}
+    pricingContext={pricingDisclosure(rows, false)} highlighted={null} onHighlight={() => {}} />);
+  expect(markup).toContain('<metadata>');
+  expect(markup).toContain('One model uses the full allowance');
+  expect(markup).toContain('External coding token mix');
+  expect(markup).toContain('ChatGPT Pro 10x');
+  expect(markup).not.toContain('GPT-6.1 Terra,');
+});

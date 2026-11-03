@@ -1,3 +1,4 @@
+import { PricingDetails, taskCostLabel } from './PricingDetails';
 import { X } from 'lucide-react';
 import { Logo } from '../Logo';
 import { format, formatModelValue, modelColor, type Model } from '../models';
@@ -19,14 +20,14 @@ export function ConfigurationDetails({
 }) {
   const scoreMetric = metric === 'omniscience' ? 'omniscience' : 'intelligence';
   // Keep the active chart metric and two supporting values without duplicate rows.
-  const displayMetrics = [...new Set<Metric>([scoreMetric, metric, 'cost', 'tokensTotal'])].slice(0, 3);
+  const displayMetrics = [...new Set<Metric>([scoreMetric, metric, 'cost', 'tokensTotal'])].slice(0, model.taskPricing?.basis === 'subscription' ? 2 : 3);
   const measurements = score === 'codingIndex'
-    ? [...new Set<Metric>(['codingIndex', metric, 'cost'])].map((measurement) => [metrics[measurement].label, formatModelValue(model, measurement)])
+    ? [...new Set<Metric>(['codingIndex', metric, 'cost'])].map((measurement) => [measurement === 'cost' ? taskCostLabel(model) : measurement === 'costTotal' ? 'Total cost · API' : metrics[measurement].label, formatModelValue(model, measurement)])
     : model.codingAgent
     ? [['Coding Agent Index v2.0', format(model.codingScore ?? null, 'intelligence')], ['Cost per task', format(model.cost, 'cost')]]
     : model.cyber
     ? [['Cyber Index', format(model.cyberScore ?? null, 'intelligence')], ['Cost per task', format(model.cost, 'cost')]]
-    : displayMetrics.map((measurement) => [metrics[measurement].label, formatModelValue(model, measurement)]);
+    : displayMetrics.map((measurement) => [measurement === 'cost' ? taskCostLabel(model) : measurement === 'costTotal' ? 'Total cost · API' : metrics[measurement].label, formatModelValue(model, measurement)]);
   return (
     <div className="configuration-inspector">
       <div className="flex items-start justify-between gap-2">
@@ -47,6 +48,9 @@ export function ConfigurationDetails({
       <div className="mt-1 text-[11px] text-fg-2">
         {model.codingAgent?.configuration ?? model.cyber?.configuration ?? (model.effort === 'none' ? 'No reasoning' : model.effortLabel)} · {pinned ? 'Pinned' : 'Preview'}
       </div>
+      {model.taskPricing?.basis === 'subscription' && (
+        <p className="mt-2 mb-0 text-[10px] leading-4 text-fg-2">Full allowance for one model. External token mix, not measured subscription spend.</p>
+      )}
       <dl className="mt-4 mb-3 space-y-2.5 text-[11px]">
         {measurements.map(([label, value]) => (
           <div key={label} className="flex items-baseline justify-between gap-3">
@@ -55,6 +59,12 @@ export function ConfigurationDetails({
           </div>
         ))}
       </dl>
+      {model.taskPricing?.basis === 'subscription' && (
+        <div className="flex items-baseline justify-between gap-3 text-[11px]">
+          <span className="text-fg-2">Measured API / task</span><span className="font-semibold">{format(model.taskPricing.apiCost, 'cost')}</span>
+        </div>
+      )}
+      <PricingDetails model={model} />
       {pinned && model.speedSource && (
         <p className="mt-3 mb-2 text-[10px] text-fg-2">
           Speed snapshot: {model.speedSource.fetchedAt.slice(0, 10)}

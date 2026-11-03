@@ -34,6 +34,8 @@ export const cyberModels: Model[] = source.configurations.map((configuration) =>
     codingCostTotal: null,
     cyberScore: configuration.indexScore,
     cost: configuration.cost,
+    inputPrice: null,
+    outputPrice: null,
     costTotal: null,
     tokens: null,
     tokensTotal: null,

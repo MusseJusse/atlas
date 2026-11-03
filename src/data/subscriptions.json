@@ -1,0 +1,1525 @@
+{
+  "capturedAt": "2026-11-03T11:17:39.481Z",
+  "sourceGeneratedAt": "2026-11-03T10:54:20.494Z",
+  "source": "https://mypriors.com/api/snapshot?view=core",
+  "sourceHash": "d59e9fb288131aabebf8f11443c4935a3e0d0a1125eeedb6dd0fa4b9d52fc38f",
+  "methodology": "https://github.com/Fei2411/real-api-pricing/blob/main/CONVENTIONS.md",
+  "models": [
+    {
+      "family": "gpt-5-6-sol",
+      "sourceModel": "gpt-5.6-sol",
+      "provider": "openai",
+      "providerName": "OpenAI",
+      "defaultPlan": "ChatGPT Pro 10x",
+      "dataDate": "2026-07-30",
+      "mix": {
+        "cache": 0.97,
+        "input": 0.025,
+        "cacheWrite": 0,
+        "output": 0.005
+      },
+      "apiPrices": {
+        "cached": 0.4,
+        "input": 4,
+        "output": 20,
+        "cacheWrite": 5
+      },
+      "plans": [
+        {
+          "id": "ChatGPT Pro 20x",
+          "feeUsd": 200,
+          "usdPerMtok": 0.015501473,
+          "confidence": "high",
+          "periodDays": 28
+        },
+        {
+          "id": "ChatGPT Pro 10x",
+          "feeUsd": 100,
+          "usdPerMtok": 0.016233766,
+          "confidence": "medium",
+          "periodDays": 28
+        },
+        {
+          "id": "ChatGPT Plus",
+          "feeUsd": 20,
+          "usdPerMtok": 0.032467532,
+          "confidence": "medium",
+          "periodDays": 28
+        }
+      ]
+    },
+    {
+      "family": "gpt-5-6-luna",
+      "sourceModel": "gpt-5.6-luna",
+      "provider": "openai",
+      "providerName": "OpenAI",
+      "defaultPlan": "ChatGPT Pro 20x",
+      "dataDate": "2026-09-08",
+      "mix": {
+        "cache": 0.97,
+        "input": 0.025,
+        "cacheWrite": 0,
+        "output": 0.005
+      },
+      "apiPrices": {
+        "cached": 0.02,
+        "input": 0.2,
+        "output": 1.2,
+        "cacheWrite": 0.25
+      },
+      "plans": [
+        {
+          "id": "ChatGPT Pro 10x",
+          "feeUsd": 100,
+          "usdPerMtok": 0.0014167918,
+          "confidence": "medium",
+          "periodDays": 28
+        },
+        {
+          "id": "ChatGPT Pro 20x",
+          "feeUsd": 200,
+          "usdPerMtok": 0.0014168019,
+          "confidence": "medium",
+          "periodDays": 28
+        },
+        {
+          "id": "ChatGPT Plus",
+          "feeUsd": 20,
+          "usdPerMtok": 0.0028336639,
+          "confidence": "high",
+          "periodDays": 28
+        }
+      ]
+    },
+    {
+      "family": "gpt-6-astra",
+      "sourceModel": "gpt-6-astra",
+      "provider": "openai",
+      "providerName": "OpenAI",
+      "defaultPlan": "ChatGPT Pro 10x",
+      "dataDate": "2026-09-11",
+      "mix": {
+        "cache": 0.97,
+        "input": 0.025,
+        "cacheWrite": 0,
+        "output": 0.005
+      },
+      "apiPrices": {
+        "input": 10,
+        "output": 50,
+        "cached": 1,
+        "cacheWrite": 12.5
+      },
+      "plans": [
+        {
+          "id": "ChatGPT Pro 20x",
+          "feeUsd": 200,
+          "usdPerMtok": 0.052465897,
+          "confidence": "medium",
+          "periodDays": 28
+        },
+        {
+          "id": "ChatGPT Pro 10x",
+          "feeUsd": 100,
+          "usdPerMtok": 0.06289308,
+          "confidence": "medium",
+          "periodDays": 28
+        },
+        {
+          "id": "ChatGPT Plus",
+          "feeUsd": 20,
+          "usdPerMtok": 0.12578616,
+          "confidence": "high",
+          "periodDays": 28
+        }
+      ]
+    },
+    {
+      "family": "gpt-6-sol",
+      "sourceModel": "gpt-6-sol",
+      "provider": "openai",
+      "providerName": "OpenAI",
+      "defaultPlan": "ChatGPT Pro 10x",
+      "dataDate": "2026-09-24",
+      "mix": {
+        "cache": 0.97,
+        "input": 0.025,
+        "cacheWrite": 0,
+        "output": 0.005
+      },
+      "apiPrices": {
+        "input": 2,
+        "output": 10,
+        "cached": 0.2,
+        "cacheWrite": 2.5
+      },
+      "plans": [
+        {
+          "id": "ChatGPT Pro 20x",
+          "feeUsd": 200,
+          "usdPerMtok": 0.009090909,
+          "confidence": "medium",
+          "periodDays": 28
+        },
+        {
+          "id": "ChatGPT Pro 10x",
+          "feeUsd": 100,
+          "usdPerMtok": 0.009090909,
+          "confidence": "medium",
+          "periodDays": 28
+        },
+        {
+          "id": "ChatGPT Plus",
+          "feeUsd": 20,
+          "usdPerMtok": 0.018181818,
+          "confidence": "high",
+          "periodDays": 28
+        }
+      ]
+    },
+    {
+      "family": "gpt-6-luna",
+      "sourceModel": "gpt-6-luna",
+      "provider": "openai",
+      "providerName": "OpenAI",
+      "defaultPlan": "ChatGPT Pro 10x",
+      "dataDate": "2026-09-27~2026-09-28",
+      "mix": {
+        "cache": 0.97,
+        "input": 0.025,
+        "cacheWrite": 0,
+        "output": 0.005
+      },
+      "apiPrices": {
+        "input": 0.1,
+        "output": 0.5,
+        "cached": 0.01,
+        "cacheWrite": 0.125
+      },
+      "plans": [
+        {
+          "id": "ChatGPT Pro 20x",
+          "feeUsd": 200,
+          "usdPerMtok": 0.0010866022,
+          "confidence": "medium",
+          "periodDays": 28
+        },
+        {
+          "id": "ChatGPT Pro 10x",
+          "feeUsd": 100,
+          "usdPerMtok": 0.0010866022,
+          "confidence": "medium",
+          "periodDays": 28
+        },
+        {
+          "id": "ChatGPT Plus",
+          "feeUsd": 20,
+          "usdPerMtok": 0.0021732044,
+          "confidence": "high",
+          "periodDays": 28
+        }
+      ]
+    },
+    {
+      "family": "gpt-6-1-sol",
+      "sourceModel": "gpt-6.1-sol",
+      "provider": "openai",
+      "providerName": "OpenAI",
+      "defaultPlan": "ChatGPT Pro 10x",
+      "dataDate": "2026-09-30",
+      "mix": {
+        "cache": 0.97,
+        "input": 0.025,
+        "cacheWrite": 0,
+        "output": 0.005
+      },
+      "apiPrices": {
+        "input": 2,
+        "output": 10,
+        "cached": 0.1,
+        "cacheWrite": 2.5
+      },
+      "plans": [
+        {
+          "id": "ChatGPT Pro 20x",
+          "feeUsd": 200,
+          "usdPerMtok": 0.011494253,
+          "confidence": "medium",
+          "periodDays": 28
+        },
+        {
+          "id": "ChatGPT Pro 10x",
+          "feeUsd": 100,
+          "usdPerMtok": 0.011494253,
+          "confidence": "medium",
+          "periodDays": 28
+        },
+        {
+          "id": "ChatGPT Plus",
+          "feeUsd": 20,
+          "usdPerMtok": 0.022988506,
+          "confidence": "high",
+          "periodDays": 28
+        }
+      ]
+    },
+    {
+      "family": "gemini-3-8-flash",
+      "sourceModel": "gemini-3.8-flash",
+      "provider": "google",
+      "providerName": "Google",
+      "defaultPlan": "Google AI Pro",
+      "dataDate": "2026-09-12~2026-09-27",
+      "mix": {
+        "cache": 0.85,
+        "input": 0.145,
+        "cacheWrite": 0,
+        "output": 0.005
+      },
+      "apiPrices": {
+        "input": 0.75,
+        "output": 3.75,
+        "cached": 0.075,
+        "cacheWrite": 0.75
+      },
+      "plans": [
+        {
+          "id": "Google AI Ultra 20x",
+          "feeUsd": 199.99,
+          "usdPerMtok": 0.0038742735,
+          "confidence": "low",
+          "periodDays": 28
+        },
+        {
+          "id": "Google AI Pro",
+          "feeUsd": 19.99,
+          "usdPerMtok": 0.0077450601,
+          "confidence": "high",
+          "periodDays": 28
+        },
+        {
+          "id": "Google AI Ultra 5x",
+          "feeUsd": 99.99,
+          "usdPerMtok": 0.0077481596,
+          "confidence": "low",
+          "periodDays": 28
+        }
+      ]
+    },
+    {
+      "family": "gemini-3-6-flash",
+      "sourceModel": "gemini-3.6-flash",
+      "provider": "google",
+      "providerName": "Google",
+      "defaultPlan": "Google AI Pro",
+      "dataDate": "2026-09-13~2026-09-27",
+      "mix": {
+        "cache": 0.85,
+        "input": 0.145,
+        "cacheWrite": 0,
+        "output": 0.005
+      },
+      "apiPrices": {
+        "input": 0.75,
+        "output": 3.75,
+        "cached": 0.15,
+        "cacheWrite": 0.9375
+      },
+      "plans": [
+        {
+          "id": "Google AI Pro",
+          "feeUsd": 19.99,
+          "usdPerMtok": 0.0080313379,
+          "confidence": "medium",
+          "periodDays": 28
+        }
+      ]
+    },
+    {
+      "family": "gemini-4-argon",
+      "sourceModel": "gemini-4",
+      "provider": "google",
+      "providerName": "Google",
+      "defaultPlan": "Google AI Pro",
+      "dataDate": "2026-10-16",
+      "mix": {
+        "cache": 0.85,
+        "input": 0.145,
+        "cacheWrite": 0,
+        "output": 0.005
+      },
+      "apiPrices": {
+        "input": 4,
+        "output": 20,
+        "cached": 0.2,
+        "cacheWrite": 5.0
+      },
+      "plans": [
+        {
+          "id": "Google AI Pro",
+          "feeUsd": 19.99,
+          "usdPerMtok": 0.30287879,
+          "confidence": "low",
+          "periodDays": 28
+        }
+      ]
+    },
+    {
+      "family": "claude-opus-5",
+      "sourceModel": "claude-opus-5",
+      "provider": "anthropic",
+      "providerName": "Anthropic",
+      "defaultPlan": "Claude Max 20x",
+      "dataDate": "2026-08",
+      "mix": {
+        "cache": 0.97,
+        "input": 0.025,
+        "cacheWrite": 0,
+        "output": 0.005
+      },
+      "apiPrices": {
+        "cached": 0.5,
+        "input": 5,
+        "output": 25,
+        "cacheWrite": 6.25
+      },
+      "plans": [
+        {
+          "id": "Claude Pro",
+          "feeUsd": 20,
+          "usdPerMtok": 0.0077249903,
+          "confidence": "high",
+          "periodDays": 28
+        },
+        {
+          "id": "Claude Max 20x",
+          "feeUsd": 200,
+          "usdPerMtok": 0.012738854,
+          "confidence": "medium",
+          "periodDays": 28
+        },
+        {
+          "id": "Claude Max 5x",
+          "feeUsd": 100,
+          "usdPerMtok": 0.012738854,
+          "confidence": "medium",
+          "periodDays": 28
+        }
+      ]
+    },
+    {
+      "family": "claude-fable-5-1",
+      "sourceModel": "claude-fable-5.1",
+      "provider": "anthropic",
+      "providerName": "Anthropic",
+      "defaultPlan": "Claude Max 20x",
+      "dataDate": "2026-09-04~2026-09-05",
+      "mix": {
+        "cache": 0.97,
+        "input": 0.025,
+        "cacheWrite": 0,
+        "output": 0.005
+      },
+      "apiPrices": {
+        "input": 10,
+        "output": 50,
+        "cached": 0.25,
+        "cacheWrite": 12.5
+      },
+      "plans": [
+        {
+          "id": "Claude Max 20x",
+          "feeUsd": 200,
+          "usdPerMtok": 0.11574074,
+          "confidence": "medium",
+          "periodDays": 28
+        },
+        {
+          "id": "Claude Max 5x",
+          "feeUsd": 100,
+          "usdPerMtok": 0.11575414,
+          "confidence": "low",
+          "periodDays": 28
+        }
+      ]
+    },
+    {
+      "family": "claude-opus-5-5",
+      "sourceModel": "claude-opus-5.5",
+      "provider": "anthropic",
+      "providerName": "Anthropic",
+      "defaultPlan": "Claude Max 20x",
+      "dataDate": "2026-09-22~2026-09-27",
+      "mix": {
+        "cache": 0.97,
+        "input": 0,
+        "cacheWrite": 0.025,
+        "output": 0.005
+      },
+      "apiPrices": {
+        "cached": 0.2,
+        "input": 4,
+        "output": 20,
+        "cacheWrite": 5
+      },
+      "plans": [
+        {
+          "id": "Claude Max 5x",
+          "feeUsd": 100,
+          "usdPerMtok": 0.0054543471,
+          "confidence": "medium",
+          "periodDays": 28
+        },
+        {
+          "id": "Claude Max 20x",
+          "feeUsd": 200,
+          "usdPerMtok": 0.0063415562,
+          "confidence": "medium",
+          "periodDays": 28
+        },
+        {
+          "id": "Claude Pro",
+          "feeUsd": 20,
+          "usdPerMtok": 0.0065487885,
+          "confidence": "high",
+          "periodDays": 28
+        },
+        {
+          "id": "Claude Team Premium",
+          "feeUsd": 125,
+          "usdPerMtok": 0.0099166997,
+          "confidence": "low",
+          "periodDays": 28
+        }
+      ]
+    },
+    {
+      "family": "grok-4-6",
+      "sourceModel": "grok-4.6",
+      "provider": "xai",
+      "providerName": "SpaceXAI",
+      "defaultPlan": "SuperGrok Heavy",
+      "dataDate": "2026-08-23~2026-09-20",
+      "mix": {
+        "cache": 0.97,
+        "input": 0.025,
+        "cacheWrite": 0,
+        "output": 0.005
+      },
+      "apiPrices": {
+        "cached": 0.5,
+        "input": 2,
+        "output": 6,
+        "cacheWrite": 2.5
+      },
+      "plans": [
+        {
+          "id": "SuperGrok Plus",
+          "feeUsd": 100,
+          "usdPerMtok": 0.048543689,
+          "confidence": "medium",
+          "periodDays": 28
+        },
+        {
+          "id": "SuperGrok Heavy",
+          "feeUsd": 300,
+          "usdPerMtok": 0.058139535,
+          "confidence": "medium",
+          "periodDays": 28
+        },
+        {
+          "id": "SuperGrok",
+          "feeUsd": 30,
+          "usdPerMtok": 0.058139535,
+          "confidence": "high",
+          "periodDays": 28
+        },
+        {
+          "id": "SuperGrok Lite",
+          "feeUsd": 10,
+          "usdPerMtok": 0.066666667,
+          "confidence": "low",
+          "periodDays": 28
+        }
+      ]
+    },
+    {
+      "family": "grok-4-7",
+      "sourceModel": "grok-4.7",
+      "provider": "xai",
+      "providerName": "SpaceXAI",
+      "defaultPlan": "SuperGrok Heavy",
+      "dataDate": "2026-09-22",
+      "mix": {
+        "cache": 0.97,
+        "input": 0.025,
+        "cacheWrite": 0,
+        "output": 0.005
+      },
+      "apiPrices": {
+        "cached": 0.5,
+        "input": 2,
+        "output": 6,
+        "cacheWrite": 2.5
+      },
+      "plans": [
+        {
+          "id": "SuperGrok Plus",
+          "feeUsd": 100,
+          "usdPerMtok": 0.043668122,
+          "confidence": "medium",
+          "periodDays": 28
+        },
+        {
+          "id": "SuperGrok Heavy",
+          "feeUsd": 300,
+          "usdPerMtok": 0.052447552,
+          "confidence": "medium",
+          "periodDays": 28
+        },
+        {
+          "id": "SuperGrok",
+          "feeUsd": 30,
+          "usdPerMtok": 0.052447552,
+          "confidence": "medium",
+          "periodDays": 28
+        }
+      ]
+    },
+    {
+      "family": "gpt-5-6-terra",
+      "sourceModel": "gpt-5.6-terra",
+      "provider": "openai",
+      "providerName": "OpenAI",
+      "defaultPlan": "ChatGPT Pro 10x",
+      "dataDate": "2026-07-30",
+      "mix": {
+        "cache": 0.97,
+        "input": 0.025,
+        "cacheWrite": 0,
+        "output": 0.005
+      },
+      "apiPrices": {
+        "cached": 0.2,
+        "input": 2,
+        "output": 12,
+        "cacheWrite": 2.5
+      },
+      "plans": [
+        {
+          "id": "ChatGPT Pro 20x",
+          "feeUsd": 200,
+          "usdPerMtok": 0.0080143617,
+          "confidence": "medium",
+          "periodDays": 28
+        },
+        {
+          "id": "ChatGPT Pro 10x",
+          "feeUsd": 100,
+          "usdPerMtok": 0.008392923,
+          "confidence": "medium",
+          "periodDays": 28
+        },
+        {
+          "id": "ChatGPT Plus",
+          "feeUsd": 20,
+          "usdPerMtok": 0.016785564,
+          "confidence": "medium",
+          "periodDays": 28
+        }
+      ]
+    },
+    {
+      "family": "gpt-5-5",
+      "sourceModel": "gpt-5.5",
+      "provider": "openai",
+      "providerName": "OpenAI",
+      "defaultPlan": "ChatGPT Pro 10x",
+      "dataDate": "2026-07-30",
+      "mix": {
+        "cache": 0.97,
+        "input": 0.025,
+        "cacheWrite": 0,
+        "output": 0.005
+      },
+      "apiPrices": {
+        "cached": 0.5,
+        "input": 5,
+        "output": 30,
+        "cacheWrite": 6.25
+      },
+      "plans": [
+        {
+          "id": "ChatGPT Pro 20x",
+          "feeUsd": 200,
+          "usdPerMtok": 0.020035864,
+          "confidence": "medium",
+          "periodDays": 28
+        },
+        {
+          "id": "ChatGPT Pro 10x",
+          "feeUsd": 100,
+          "usdPerMtok": 0.020982836,
+          "confidence": "medium",
+          "periodDays": 28
+        },
+        {
+          "id": "ChatGPT Plus",
+          "feeUsd": 20,
+          "usdPerMtok": 0.041963911,
+          "confidence": "medium",
+          "periodDays": 28
+        }
+      ]
+    },
+    {
+      "family": "claude-sonnet-5",
+      "sourceModel": "claude-sonnet-5",
+      "provider": "anthropic",
+      "providerName": "Anthropic",
+      "defaultPlan": "Claude Max 20x",
+      "dataDate": "2026-08",
+      "mix": {
+        "cache": 0.97,
+        "input": 0.025,
+        "cacheWrite": 0,
+        "output": 0.005
+      },
+      "apiPrices": {
+        "cached": 0.2,
+        "input": 2,
+        "output": 10,
+        "cacheWrite": 2.5
+      },
+      "plans": [
+        {
+          "id": "Claude Pro",
+          "feeUsd": 20,
+          "usdPerMtok": 0.0030899961,
+          "confidence": "medium",
+          "periodDays": 28
+        },
+        {
+          "id": "Claude Max 20x",
+          "feeUsd": 200,
+          "usdPerMtok": 0.0050955414,
+          "confidence": "medium",
+          "periodDays": 28
+        },
+        {
+          "id": "Claude Max 5x",
+          "feeUsd": 100,
+          "usdPerMtok": 0.0050955414,
+          "confidence": "low",
+          "periodDays": 28
+        }
+      ]
+    },
+    {
+      "family": "claude-opus-4-8",
+      "sourceModel": "claude-opus-4.8",
+      "provider": "anthropic",
+      "providerName": "Anthropic",
+      "defaultPlan": "Claude Max 20x",
+      "dataDate": "2026-08",
+      "mix": {
+        "cache": 0.97,
+        "input": 0.025,
+        "cacheWrite": 0,
+        "output": 0.005
+      },
+      "apiPrices": {
+        "cached": 0.5,
+        "input": 5,
+        "output": 25,
+        "cacheWrite": 6.25
+      },
+      "plans": [
+        {
+          "id": "Claude Pro",
+          "feeUsd": 20,
+          "usdPerMtok": 0.0077249903,
+          "confidence": "low",
+          "periodDays": 28
+        },
+        {
+          "id": "Claude Max 20x",
+          "feeUsd": 200,
+          "usdPerMtok": 0.012738854,
+          "confidence": "low",
+          "periodDays": 28
+        }
+      ]
+    },
+    {
+      "family": "claude-fable-5",
+      "sourceModel": "claude-fable-5",
+      "provider": "anthropic",
+      "providerName": "Anthropic",
+      "defaultPlan": "Claude Max 20x",
+      "dataDate": "2026-08",
+      "mix": {
+        "cache": 0.97,
+        "input": 0.025,
+        "cacheWrite": 0,
+        "output": 0.005
+      },
+      "apiPrices": {
+        "cached": 1,
+        "input": 10,
+        "output": 50,
+        "cacheWrite": 12.5
+      },
+      "plans": [
+        {
+          "id": "Claude Max 5x",
+          "feeUsd": 100,
+          "usdPerMtok": 0.1082837,
+          "confidence": "low",
+          "periodDays": 28
+        },
+        {
+          "id": "Claude Max 20x",
+          "feeUsd": 200,
+          "usdPerMtok": 0.16560404,
+          "confidence": "low",
+          "periodDays": 28
+        }
+      ]
+    },
+    {
+      "family": "claude-sonnet-5-5",
+      "sourceModel": "claude-sonnet-5.5",
+      "provider": "anthropic",
+      "providerName": "Anthropic",
+      "defaultPlan": "Claude Max 20x",
+      "dataDate": "2026-09-22~2026-09-27",
+      "mix": {
+        "cache": 0.97,
+        "input": 0,
+        "cacheWrite": 0.025,
+        "output": 0.005
+      },
+      "apiPrices": {
+        "cached": 0.1,
+        "input": 2,
+        "output": 10,
+        "cacheWrite": 2.5
+      },
+      "plans": [
+        {
+          "id": "Claude Max 5x",
+          "feeUsd": 100,
+          "usdPerMtok": 0.0027271736,
+          "confidence": "low",
+          "periodDays": 28
+        },
+        {
+          "id": "Claude Max 20x",
+          "feeUsd": 200,
+          "usdPerMtok": 0.0031707781,
+          "confidence": "low",
+          "periodDays": 28
+        },
+        {
+          "id": "Claude Pro",
+          "feeUsd": 20,
+          "usdPerMtok": 0.0032743942,
+          "confidence": "low",
+          "periodDays": 28
+        }
+      ]
+    },
+    {
+      "family": "claude-haiku-5-5",
+      "sourceModel": "claude-haiku-5.5",
+      "provider": "anthropic",
+      "providerName": "Anthropic",
+      "defaultPlan": "Claude Max 20x",
+      "dataDate": "2026-09-22~2026-09-27",
+      "mix": {
+        "cache": 0.97,
+        "input": 0,
+        "cacheWrite": 0.025,
+        "output": 0.005
+      },
+      "apiPrices": {
+        "cached": 0.01,
+        "input": 0.1,
+        "output": 0.5,
+        "cacheWrite": 0.125
+      },
+      "plans": [
+        {
+          "id": "Claude Max 5x",
+          "feeUsd": 100,
+          "usdPerMtok": 0.00027929123,
+          "confidence": "low",
+          "periodDays": 28
+        },
+        {
+          "id": "Claude Max 20x",
+          "feeUsd": 200,
+          "usdPerMtok": 0.00032472098,
+          "confidence": "low",
+          "periodDays": 28
+        },
+        {
+          "id": "Claude Pro",
+          "feeUsd": 20,
+          "usdPerMtok": 0.00033533247,
+          "confidence": "low",
+          "periodDays": 28
+        }
+      ]
+    },
+    {
+      "family": "grok-4-5",
+      "sourceModel": "grok-4.5",
+      "provider": "xai",
+      "providerName": "SpaceXAI",
+      "defaultPlan": "SuperGrok",
+      "dataDate": "2026-08-23~2026-09-20",
+      "mix": {
+        "cache": 0.97,
+        "input": 0.025,
+        "cacheWrite": 0,
+        "output": 0.005
+      },
+      "apiPrices": {
+        "cached": 0.3,
+        "input": 2,
+        "output": 6,
+        "cacheWrite": 2.5
+      },
+      "plans": [
+        {
+          "id": "SuperGrok Heavy",
+          "feeUsd": 300,
+          "usdPerMtok": 0.058139535,
+          "confidence": "medium",
+          "periodDays": 28
+        },
+        {
+          "id": "SuperGrok",
+          "feeUsd": 30,
+          "usdPerMtok": 0.058139535,
+          "confidence": "medium",
+          "periodDays": 28
+        }
+      ]
+    }
+  ],
+  "resets": [
+    {
+      "provider": "anthropic",
+      "source": "https://claude-resets.com/data/resets.json",
+      "clock": "fixed",
+      "events": [
+        {
+          "at": "2026-04-16T20:02:04.000Z",
+          "kind": "reset",
+          "scope": "all",
+          "source": "https://x.com/ClaudeDevs/status/2044868953206612154",
+          "providerConfirmed": true
+        },
+        {
+          "at": "2026-04-23T17:44:48.000Z",
+          "kind": "reset",
+          "scope": "all",
+          "source": "https://x.com/ClaudeDevs/status/2047371123185287223",
+          "providerConfirmed": true
+        },
+        {
+          "at": "2026-05-15T18:00:14.000Z",
+          "kind": "reset",
+          "scope": "all",
+          "source": "https://x.com/ClaudeDevs/status/2055347539923308703",
+          "providerConfirmed": true
+        },
+        {
+          "at": "2026-06-01T17:35:01.000Z",
+          "kind": "reset",
+          "scope": "Pro + Max",
+          "source": "https://x.com/ClaudeDevs/status/2061501787769893055",
+          "providerConfirmed": true
+        },
+        {
+          "at": "2026-06-09T21:48:01.000Z",
+          "kind": "reset",
+          "scope": "all",
+          "source": "https://x.com/ClaudeDevs/status/2064464557951852643",
+          "providerConfirmed": true
+        },
+        {
+          "at": "2026-06-13T02:24:00.000Z",
+          "kind": "reset",
+          "scope": "all",
+          "source": "https://x.com/ClaudeDevs/status/2065621176735646006",
+          "providerConfirmed": true
+        },
+        {
+          "at": "2026-06-19T02:50:28.000Z",
+          "kind": "reset",
+          "scope": "affected users",
+          "source": "https://x.com/ClaudeDevs/status/2067802163498352929",
+          "providerConfirmed": true
+        },
+        {
+          "at": "2026-06-20T00:05:06.000Z",
+          "kind": "reset",
+          "scope": "all",
+          "source": "https://x.com/ClaudeDevs/status/2068122937308426676",
+          "providerConfirmed": true
+        },
+        {
+          "at": "2026-07-01T21:16:35.000Z",
+          "kind": "reset",
+          "scope": "all",
+          "source": "https://x.com/ClaudeDevs/status/2072429181565288665",
+          "providerConfirmed": true
+        },
+        {
+          "at": "2026-07-09T18:01:18.000Z",
+          "kind": "reset",
+          "scope": "all",
+          "source": "https://x.com/ClaudeDevs/status/2075279141352706215",
+          "providerConfirmed": true
+        },
+        {
+          "at": "2026-07-16T03:58:48.000Z",
+          "kind": "reset",
+          "scope": "all",
+          "source": "https://x.com/ClaudeDevs/status/2077603834453770467",
+          "providerConfirmed": true
+        },
+        {
+          "at": "2026-09-01T18:35:27.000Z",
+          "kind": "reset",
+          "scope": "all",
+          "source": "https://x.com/ClaudeDevs/status/2094856679250919746",
+          "providerConfirmed": true
+        },
+        {
+          "at": "2026-09-04T20:08:45.000Z",
+          "kind": "reset",
+          "scope": "Max",
+          "source": "https://x.com/lydiahallie/status/2095967323412930677",
+          "providerConfirmed": true
+        },
+        {
+          "at": "2026-09-22T16:44:06.000Z",
+          "kind": "banked",
+          "scope": "Pro, Max + Team",
+          "source": "https://x.com/ClaudeDevs/status/2102438800836489554",
+          "providerConfirmed": true
+        }
+      ]
+    },
+    {
+      "provider": "openai",
+      "source": "https://opentherank.com/codex-reset",
+      "clock": "restart",
+      "events": [
+        {
+          "at": "2025-09-17T04:02:52.000Z",
+          "kind": "reset",
+          "scope": "all",
+          "source": "https://x.com/thsottiaux/status/1968163721034994139",
+          "providerConfirmed": true
+        },
+        {
+          "at": "2025-11-05T20:19:29.000Z",
+          "kind": "reset",
+          "scope": "all",
+          "source": "https://x.com/thsottiaux/status/1986166501435711936",
+          "providerConfirmed": true
+        },
+        {
+          "at": "2025-11-22T23:13:56.000Z",
+          "kind": "reset",
+          "scope": "all",
+          "source": "https://x.com/thsottiaux/status/1992370994028388670",
+          "providerConfirmed": true
+        },
+        {
+          "at": "2025-12-02T22:49:02.000Z",
+          "kind": "reset",
+          "scope": "all",
+          "source": "https://x.com/thsottiaux/status/1995988609896513743",
+          "providerConfirmed": true
+        },
+        {
+          "at": "2025-12-17T02:18:14.000Z",
+          "kind": "reset",
+          "scope": "all",
+          "source": "https://x.com/thsottiaux/status/2001114683047317723",
+          "providerConfirmed": true
+        },
+        {
+          "at": "2025-12-19T22:01:37.000Z",
+          "kind": "reset",
+          "scope": "all",
+          "source": "https://x.com/thsottiaux/status/2002137269134819610",
+          "providerConfirmed": true
+        },
+        {
+          "at": "2025-12-25T08:01:03.000Z",
+          "kind": "reset",
+          "scope": "all",
+          "source": "https://x.com/thsottiaux/status/2004100061933064395",
+          "providerConfirmed": true
+        },
+        {
+          "at": "2026-03-03T01:50:07.000Z",
+          "kind": "reset",
+          "scope": "all",
+          "source": "https://x.com/thsottiaux/status/2028649088594436225",
+          "providerConfirmed": true
+        },
+        {
+          "at": "2026-03-04T21:30:47.000Z",
+          "kind": "reset",
+          "scope": "all",
+          "source": "https://x.com/thsottiaux/status/2029308599835738218",
+          "providerConfirmed": true
+        },
+        {
+          "at": "2026-03-08T02:42:13.000Z",
+          "kind": "reset",
+          "scope": "all",
+          "source": "https://x.com/thsottiaux/status/2030474136024400173",
+          "providerConfirmed": true
+        },
+        {
+          "at": "2026-03-10T03:51:43.000Z",
+          "kind": "reset",
+          "scope": "all",
+          "source": "https://x.com/thsottiaux/status/2031216405266481489",
+          "providerConfirmed": true
+        },
+        {
+          "at": "2026-03-11T05:38:13.000Z",
+          "kind": "reset",
+          "scope": "all",
+          "source": "https://x.com/thsottiaux/status/2031605592352313567",
+          "providerConfirmed": true
+        },
+        {
+          "at": "2026-03-27T01:52:28.000Z",
+          "kind": "reset",
+          "scope": "all",
+          "source": "https://x.com/thsottiaux/status/2037346989244096581",
+          "providerConfirmed": true
+        },
+        {
+          "at": "2026-04-01T07:48:39.000Z",
+          "kind": "reset",
+          "scope": "all",
+          "source": "https://x.com/thsottiaux/status/2039248564967424483",
+          "providerConfirmed": true
+        },
+        {
+          "at": "2026-04-07T23:13:48.000Z",
+          "kind": "reset",
+          "scope": "all",
+          "source": "https://x.com/thsottiaux/status/2041655710346572085",
+          "providerConfirmed": true
+        },
+        {
+          "at": "2026-04-09T17:51:28.000Z",
+          "kind": "reset",
+          "scope": "all",
+          "source": "https://x.com/thsottiaux/status/2042299371602264319",
+          "providerConfirmed": true
+        },
+        {
+          "at": "2026-04-17T00:58:21.000Z",
+          "kind": "reset",
+          "scope": "all",
+          "source": "https://x.com/thsottiaux/status/2044943514832871564",
+          "providerConfirmed": true
+        },
+        {
+          "at": "2026-04-20T23:15:21.000Z",
+          "kind": "reset",
+          "scope": "all",
+          "source": "https://x.com/thsottiaux/status/2046367145588916687",
+          "providerConfirmed": true
+        },
+        {
+          "at": "2026-04-28T05:28:43.000Z",
+          "kind": "reset",
+          "scope": "all",
+          "source": "https://x.com/thsottiaux/status/2048997818673537399",
+          "providerConfirmed": true
+        },
+        {
+          "at": "2026-05-16T17:51:03.000Z",
+          "kind": "reset",
+          "scope": "all",
+          "source": "https://x.com/thsottiaux/status/2055707616605835333",
+          "providerConfirmed": true
+        },
+        {
+          "at": "2026-05-23T20:14:35.000Z",
+          "kind": "reset",
+          "scope": "all",
+          "source": "https://x.com/thsottiaux/status/2058280452851638313",
+          "providerConfirmed": true
+        },
+        {
+          "at": "2026-05-31T15:25:06.000Z",
+          "kind": "reset",
+          "scope": "all",
+          "source": "https://x.com/thsottiaux/status/2061106703446450392",
+          "providerConfirmed": true
+        },
+        {
+          "at": "2026-06-04T00:25:58.000Z",
+          "kind": "reset",
+          "scope": "all",
+          "source": "https://x.com/thsottiaux/status/2062329981548802523",
+          "providerConfirmed": true
+        },
+        {
+          "at": "2026-06-18T00:10:10.000Z",
+          "kind": "both",
+          "scope": "all",
+          "source": "https://x.com/thsottiaux/status/2067399435009622521",
+          "providerConfirmed": true
+        },
+        {
+          "at": "2026-06-26T23:39:48.000Z",
+          "kind": "reset",
+          "scope": "all",
+          "source": "https://x.com/thsottiaux/status/2070653282440405046",
+          "providerConfirmed": true
+        },
+        {
+          "at": "2026-06-28T23:54:07.000Z",
+          "kind": "reset",
+          "scope": "all",
+          "source": "https://x.com/thsottiaux/status/2071381664853319742",
+          "providerConfirmed": true
+        },
+        {
+          "at": "2026-06-29T23:39:41.000Z",
+          "kind": "both",
+          "scope": "all",
+          "source": "https://x.com/thsottiaux/status/2071740419030053227",
+          "providerConfirmed": true
+        },
+        {
+          "at": "2026-07-09T21:24:11.000Z",
+          "kind": "reset",
+          "scope": "all",
+          "source": "https://x.com/thsottiaux/status/2075330198887940337",
+          "providerConfirmed": true
+        },
+        {
+          "at": "2026-07-10T17:59:43.000Z",
+          "kind": "reset",
+          "scope": "all",
+          "source": "https://x.com/thsottiaux/status/2075641131002700120",
+          "providerConfirmed": true
+        },
+        {
+          "at": "2026-07-11T05:54:25.000Z",
+          "kind": "reset",
+          "scope": "all",
+          "source": "https://x.com/thsottiaux/status/2075820987833274448",
+          "providerConfirmed": true
+        },
+        {
+          "at": "2026-07-12T21:28:59.000Z",
+          "kind": "banked",
+          "scope": "all",
+          "source": "https://x.com/thsottiaux/status/2076418567143408112",
+          "providerConfirmed": true
+        },
+        {
+          "at": "2026-07-13T18:29:31.000Z",
+          "kind": "banked",
+          "scope": "all",
+          "source": "https://x.com/thsottiaux/status/2076735790567338203",
+          "providerConfirmed": true
+        },
+        {
+          "at": "2026-07-14T19:34:54.000Z",
+          "kind": "reset",
+          "scope": "all",
+          "source": "https://x.com/thsottiaux/status/2077114635308986427",
+          "providerConfirmed": true
+        },
+        {
+          "at": "2026-07-16T04:14:09.000Z",
+          "kind": "reset",
+          "scope": "all",
+          "source": "https://x.com/thsottiaux/status/2077607697487188198",
+          "providerConfirmed": true
+        },
+        {
+          "at": "2026-07-18T03:28:22.000Z",
+          "kind": "reset",
+          "scope": "all",
+          "source": "https://x.com/thsottiaux/status/2078320950488297917",
+          "providerConfirmed": true
+        },
+        {
+          "at": "2026-07-21T16:47:15.000Z",
+          "kind": "reset",
+          "scope": "all",
+          "source": "https://x.com/thsottiaux/status/2079609157934886975",
+          "providerConfirmed": true
+        },
+        {
+          "at": "2026-07-25T19:17:12.000Z",
+          "kind": "reset",
+          "scope": "all",
+          "source": "https://x.com/thsottiaux/status/2081096447718723984",
+          "providerConfirmed": true
+        },
+        {
+          "at": "2026-07-28T03:09:23.000Z",
+          "kind": "reset",
+          "scope": "all",
+          "source": "https://x.com/thsottiaux/status/2081940052154933696",
+          "providerConfirmed": true
+        },
+        {
+          "at": "2026-07-29T04:09:02.000Z",
+          "kind": "reset",
+          "scope": "all",
+          "source": "https://x.com/thsottiaux/status/2082317452755751098",
+          "providerConfirmed": true
+        },
+        {
+          "at": "2026-08-01T03:32:37.000Z",
+          "kind": "reset",
+          "scope": "all",
+          "source": "https://x.com/thsottiaux/status/2083395449814229287",
+          "providerConfirmed": true
+        },
+        {
+          "at": "2026-08-08T20:29:22.000Z",
+          "kind": "reset",
+          "scope": "all",
+          "source": "https://x.com/thsottiaux/status/2086188036493344823",
+          "providerConfirmed": true
+        },
+        {
+          "at": "2026-08-11T00:27:44.000Z",
+          "kind": "reset",
+          "scope": "all",
+          "source": "https://x.com/thsottiaux/status/2086972802457063486",
+          "providerConfirmed": true
+        },
+        {
+          "at": "2026-08-13T01:01:37.000Z",
+          "kind": "reset",
+          "scope": "all",
+          "source": "https://x.com/thsottiaux/status/2087706104814023111",
+          "providerConfirmed": true
+        },
+        {
+          "at": "2026-08-21T11:43:19.000Z",
+          "kind": "banked",
+          "scope": "all",
+          "source": "https://x.com/thsottiaux/status/2090766694897619318",
+          "providerConfirmed": true
+        },
+        {
+          "at": "2026-08-24T00:46:51.000Z",
+          "kind": "reset",
+          "scope": "all",
+          "source": "https://x.com/thsottiaux/status/2091688655828246890",
+          "providerConfirmed": true
+        },
+        {
+          "at": "2026-08-25T14:30:00.000Z",
+          "kind": "reset",
+          "scope": "all",
+          "source": "https://x.com/thsottiaux/status/observed-20260825T143200Z",
+          "providerConfirmed": false
+        },
+        {
+          "at": "2026-08-27T16:35:05.000Z",
+          "kind": "reset",
+          "scope": "all",
+          "source": "https://x.com/thsottiaux/status/2093014447833116908",
+          "providerConfirmed": true
+        },
+        {
+          "at": "2026-08-29T20:43:34.000Z",
+          "kind": "reset",
+          "scope": "all",
+          "source": "https://x.com/thsottiaux/status/2093801758665715784",
+          "providerConfirmed": true
+        },
+        {
+          "at": "2026-08-31T02:29:25.000Z",
+          "kind": "reset",
+          "scope": "all",
+          "source": "https://x.com/thsottiaux/status/2094251180121854309",
+          "providerConfirmed": true
+        },
+        {
+          "at": "2026-09-03T23:12:09.000Z",
+          "kind": "banked",
+          "scope": "all",
+          "source": "https://x.com/thsottiaux/status/2095651088502591861",
+          "providerConfirmed": true
+        },
+        {
+          "at": "2026-09-05T00:39:25.000Z",
+          "kind": "banked",
+          "scope": "all",
+          "source": "https://x.com/thsottiaux/status/2096035437299237298",
+          "providerConfirmed": true
+        },
+        {
+          "at": "2026-09-08T01:56:57.501Z",
+          "kind": "reset",
+          "scope": "all",
+          "source": "https://x.com/thsottiaux/status/observed-2097043464538264003",
+          "providerConfirmed": false
+        },
+        {
+          "at": "2026-09-12T08:09:17.000Z",
+          "kind": "reset",
+          "scope": "all",
+          "source": "https://x.com/thsottiaux/status/2098685367058612394",
+          "providerConfirmed": true
+        },
+        {
+          "at": "2026-09-22T18:23:37.000Z",
+          "kind": "banked",
+          "scope": "all",
+          "source": "https://x.com/thsottiaux/status/2102463847714247142",
+          "providerConfirmed": true
+        },
+        {
+          "at": "2026-09-26T18:17:54.000Z",
+          "kind": "reset",
+          "scope": "all",
+          "source": "https://x.com/thsottiaux/status/2103911959544610829",
+          "providerConfirmed": true
+        },
+        {
+          "at": "2026-09-29T18:45:00.000Z",
+          "kind": "banked",
+          "scope": "all",
+          "source": "https://x.com/thsottiaux/status/observed-20260929T1845Z",
+          "providerConfirmed": false
+        },
+        {
+          "at": "2026-10-02T21:18:48.417Z",
+          "kind": "reset",
+          "scope": "all",
+          "source": "https://x.com/thsottiaux/status/2106131810921136451",
+          "providerConfirmed": true
+        },
+        {
+          "at": "2026-10-07T03:35:09.000Z",
+          "kind": "reset",
+          "scope": "all",
+          "source": "https://x.com/thsottiaux/status/2107676072871600470",
+          "providerConfirmed": true
+        },
+        {
+          "at": "2026-10-07T19:19:17.000Z",
+          "kind": "banked",
+          "scope": "all",
+          "source": "https://x.com/thsottiaux/status/2107913674593644711",
+          "providerConfirmed": true
+        },
+        {
+          "at": "2026-10-11T04:01:09.000Z",
+          "kind": "reset",
+          "scope": "all",
+          "source": "https://x.com/thsottiaux/status/2109132167112782291",
+          "providerConfirmed": true
+        },
+        {
+          "at": "2026-10-13T05:06:06.031Z",
+          "kind": "reset",
+          "scope": "all",
+          "source": "https://x.com/thsottiaux/status/2109873287853707513",
+          "providerConfirmed": true
+        },
+        {
+          "at": "2026-10-15T04:55:51.053Z",
+          "kind": "reset",
+          "scope": "all",
+          "source": "https://x.com/thsottiaux/status/2110595484180214059",
+          "providerConfirmed": true
+        },
+        {
+          "at": "2026-10-17T21:12:21.411Z",
+          "kind": "reset",
+          "scope": "all",
+          "source": "https://x.com/thsottiaux/status/2111566005684289735",
+          "providerConfirmed": true
+        },
+        {
+          "at": "2026-10-20T06:33:48.848Z",
+          "kind": "reset",
+          "scope": "all",
+          "source": "https://x.com/thsottiaux/status/2112432076767289678",
+          "providerConfirmed": true
+        },
+        {
+          "at": "2026-10-22T17:00:00.000Z",
+          "kind": "reset",
+          "scope": "all",
+          "source": "https://x.com/thsottiaux/status/observed-20261022T1700Z",
+          "providerConfirmed": false
+        },
+        {
+          "at": "2026-10-23T17:00:00.000Z",
+          "kind": "reset",
+          "scope": "all",
+          "source": "https://x.com/thsottiaux/status/observed-20261023T1700Z",
+          "providerConfirmed": false
+        },
+        {
+          "at": "2026-10-25T06:06:16.025Z",
+          "kind": "reset",
+          "scope": "all",
+          "source": "https://x.com/thsottiaux/status/2114237083652882932",
+          "providerConfirmed": true
+        },
+        {
+          "at": "2026-10-26T06:15:00.000Z",
+          "kind": "reset",
+          "scope": "all",
+          "source": "https://x.com/thsottiaux/status/observed-20261026T0615Z",
+          "providerConfirmed": false
+        },
+        {
+          "at": "2026-10-28T06:29:38.078Z",
+          "kind": "reset",
+          "scope": "all",
+          "source": "https://x.com/thsottiaux/status/2115330127886463244",
+          "providerConfirmed": true
+        },
+        {
+          "at": "2026-11-01T00:43:20.047Z",
+          "kind": "banked",
+          "scope": "all",
+          "source": "https://x.com/thsottiaux/status/2116692529970311254",
+          "providerConfirmed": true
+        },
+        {
+          "at": "2026-11-01T23:27:20.731Z",
+          "kind": "banked",
+          "scope": "all",
+          "source": "https://x.com/thsottiaux/status/2117035794678546764",
+          "providerConfirmed": true
+        }
+      ]
+    }
+  ],
+  "benchmarkSourceHash": "edccf2762942a859b59c2cbe819ff28b5a720618b42b1b4fe9d3203e40b32707"
+}

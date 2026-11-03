@@ -9,3 +9,8 @@ declare module 'virtual:changelog' {
   const history: import('./data/schema').ChangeHistory;
   export default history;
 }
+
+declare module 'virtual:subscriptions' {
+  const snapshot: import('./data/subscription-schema').SubscriptionSnapshot;
+  export default snapshot;
+}

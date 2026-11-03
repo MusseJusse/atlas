@@ -1,3 +1,4 @@
+import { PricingDetails } from './PricingDetails';
 import { memo, useMemo } from 'react';
 import { Logo } from '../Logo';
 import { format, formatModelValue, modelColor, shortName } from '../models';
@@ -48,7 +49,7 @@ export const DotPlot = memo(function DotPlot({
               <span className="flex min-w-0 items-center gap-[7px] text-[14px] font-[550]">
                 <Logo model={model} />
                 <span className="overflow-hidden text-ellipsis whitespace-nowrap">
-                  {shortName(model)}
+                  {shortName(model)}{metric === 'cost' && model.taskPricing?.basis === 'api-fallback' && ' · API'}
                 </span>
               </span>
               <span className="text-[13px] text-fg-2 tabular-nums">
@@ -92,6 +93,7 @@ export const DotPlot = memo(function DotPlot({
                 className="flex flex-col gap-1.5 pb-3.5 pl-[21px] text-[13px]"
                 id={`variants-${metric}-${group.id}`}
               >
+                <PricingDetails model={model} />
                 {group.rows.map((row) => (
                   <div className="flex justify-between gap-3" key={row.id}>
                     <span className="text-fg-2">{row.effortLabel}</span>

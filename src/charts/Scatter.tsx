@@ -1,3 +1,4 @@
+import { taskCostLabel } from './PricingDetails';
 import { useMemo } from 'react';
 import { SvgLogo } from '../Logo';
 import { format, modelColor, shortName } from '../models';
@@ -116,7 +117,7 @@ export function Scatter({
                 key={model.id}
                 role="button"
                 tabIndex={0}
-                aria-label={`${model.codingAgent?.configuration ?? `${model.name}, ${model.effortLabel}`}, ${metrics[metric].label} ${format(model[metric] ?? null, metric)}, ${scoreLabels[scoreMetric]} ${format(model.score, 'intelligence')}`}
+                aria-label={`${model.codingAgent?.configuration ?? `${model.name}, ${model.effortLabel}`}, ${metric === 'cost' ? taskCostLabel(model) : metrics[metric].label} ${format(model[metric] ?? null, metric)}, ${scoreLabels[scoreMetric]} ${format(model.score, 'intelligence')}`}
                 aria-pressed={interactions.pinned?.id === model.id}
                 className="cursor-pointer focus-visible:[&>circle:last-child]:stroke-accent focus-visible:[&>circle:last-child]:stroke-[3] mobile:focus-visible:[outline:none]"
                 opacity={settings.frontier && !onFrontier && !active && !activeFamily ? 0.15 : 1}
@@ -201,7 +202,7 @@ export function Scatter({
                 fontWeight="550"
                 fill={modelColor(series.end)}
               >
-                {labelName}
+                {labelName}{metric === 'cost' && series.end.taskPricing?.basis === 'api-fallback' && <tspan fontSize={10}> · API</tspan>}
               </text>
               {series.end.codingAgent && (
                 <text x={right + 53} y={series.y + 18} fontSize="10" fill="var(--fg-2)">
