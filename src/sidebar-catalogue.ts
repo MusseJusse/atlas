@@ -21,6 +21,10 @@ const otherFamilies = families
       (b.model.released ?? '').localeCompare(a.model.released ?? ''),
   );
 
+export function selectedOtherFamilies(selected: string[]) {
+  return otherFamilies.filter((family) => selected.includes(family.family));
+}
+
 export function browseFamilies(selected: string[], showOpen: boolean, showOlder: boolean) {
   return otherFamilies.filter(
     (family) =>

@@ -5,7 +5,7 @@ import { efforts, families, modelColor, shortName } from './models';
 import { Logo } from './Logo';
 import { Selection } from './Selection';
 import { codingOnlyDescription } from './data/coding-only';
-import { browseFamilies, curatedSections } from './sidebar-catalogue';
+import { browseFamilies, curatedSections, selectedOtherFamilies } from './sidebar-catalogue';
 
 export const Sidebar = memo(function Sidebar({
   settings,
@@ -89,6 +89,7 @@ export const Sidebar = memo(function Sidebar({
     });
   }
   const query = search.trim().toLowerCase();
+  const selectedOthers = selectedOtherFamilies(settings.selected);
   const sections = query
     ? [
         {
@@ -100,11 +101,13 @@ export const Sidebar = memo(function Sidebar({
       ]
     : [
         ...curatedSections,
-        ...(browse
+        ...(browse || selectedOthers.length > 0
           ? [
               {
                 name: 'Other',
-                items: browseFamilies(settings.selected, showOpen, showOlder),
+                items: browse
+                  ? browseFamilies(settings.selected, showOpen, showOlder)
+                  : selectedOthers,
               },
             ]
           : []),

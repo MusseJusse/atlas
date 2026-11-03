@@ -1,6 +1,6 @@
 import { expect, it } from 'vitest';
 import { families, frontierFamilies, notableFamilies } from './models';
-import { browseFamilies, curatedSections } from './sidebar-catalogue';
+import { browseFamilies, curatedSections, selectedOtherFamilies } from './sidebar-catalogue';
 
 it('preserves curated order and keeps every other family in lab and release order', () => {
   expect(curatedSections.map((section) => section.name)).toEqual(['Frontier', 'Notable']);
@@ -52,4 +52,11 @@ it('keeps selected families visible with either toggle off and filters them afte
     expect(browseFamilies([family.family], false, false)).toContain(family);
     expect(browseFamilies([], false, false)).not.toContain(family);
   }
+});
+
+it('returns only selected non-curated families for the Other section', () => {
+  const other = browseFamilies([], true, true)[0]!;
+  expect(selectedOtherFamilies([])).toEqual([]);
+  expect(selectedOtherFamilies([frontierFamilies[0]!, other.family])).toEqual([other]);
+  expect(selectedOtherFamilies([frontierFamilies[0]!])).toEqual([]);
 });
