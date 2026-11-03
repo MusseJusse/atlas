@@ -3,7 +3,7 @@ import type { Model } from './data/schema';
 import { speedEndpoints } from './data/speed-endpoints';
 import { codingAgents } from './data/coding-agents';
 import { cyberModels } from './data/cyber-index';
-import { effortGroup } from './data/efforts';
+import { filterReasoning } from './data/efforts';
 export type { Model } from './data/schema';
 import { metrics, type Metric } from './chart-definitions';
 export { views, type Metric, type View, type ViewId } from './chart-definitions';
@@ -62,16 +62,6 @@ export const families = [
     .map((model) => [model.family, { family: model.family, model, variants: [model] }])).values(),
 ];
 export const familyMap = new Map(families.map((family) => [family.family, family]));
-const maxOnlyReasoningFamilies = new Set(
-  allFamilies
-    .filter(
-      ({ variants }) =>
-        variants.some((model) => model.effort === 'max') &&
-        variants.every((model) => model.effort === 'max' || model.effort === 'none'),
-    )
-    .map(({ family }) => family),
-);
-
 const colors: Record<string, [string, string]> = {
   'gpt-6-astra': ['#303840', '#f1f3f5'],
   'gpt-6-1-sol': ['#586878', '#c5cbd3'],
@@ -115,14 +105,8 @@ export function shortName(model: Model) {
 /** Null measurements stay absent from charts; they are never plotted as zero. */
 export function visibleModels(selected: string[], excluded: string[]) {
   const selectedFamilies = new Set(selected);
-  const excludedEfforts = new Set(excluded.map(effortGroup));
-  return allModels.filter(
-    (model) =>
-      selectedFamilies.has(endpointParents.get(model.family) ?? model.family) &&
-      (!excludedEfforts.has(effortGroup(model.effort)) ||
-        // Keep the only reasoning tier visible, even if a non-reasoning variant exists.
-        (model.effort === 'max' && maxOnlyReasoningFamilies.has(model.family))),
-  );
+  return filterReasoning(allModels.filter((model) =>
+    selectedFamilies.has(endpointParents.get(model.family) ?? model.family)), excluded);
 }
 
 /** Keep configurations with a higher score than every better alternative for the metric. */
