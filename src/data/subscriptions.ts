@@ -104,18 +104,3 @@ export function pricingDisclosure(rows: Model[], countResets: boolean) {
     `${countResets ? 'Source-linked bonus resets included where supported' : 'Bonus resets excluded'}. ${rows.some((row) => row.taskPricing?.basis === 'api-fallback') ? 'Includes API fallback.' : 'Subscription estimates only.'}`,
   ];
 }
-
-/** Wrap SVG disclosure text so copied charts retain readable context at phone widths. */
-export function pricingSvgLines(context: string[], width: number) {
-  const capacity = Math.max(20, Math.floor((width - 16) / 5.5));
-  return context.flatMap((paragraph) => {
-    const lines: string[] = [];
-    let line = '';
-    for (const word of paragraph.split(' ')) {
-      if (line && line.length + word.length + 1 > capacity) { lines.push(line); line = ''; }
-      line += `${line ? ' ' : ''}${word}`;
-    }
-    if (line) lines.push(line);
-    return lines;
-  });
-}
