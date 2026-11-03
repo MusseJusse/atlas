@@ -20,7 +20,7 @@ export function ConfigurationDetails({
 }) {
   const scoreMetric = metric === 'omniscience' ? 'omniscience' : 'intelligence';
   // Keep the active chart metric and two supporting values without duplicate rows.
-  const displayMetrics = [...new Set<Metric>([scoreMetric, metric, 'cost', 'tokensTotal'])].slice(0, 3);
+  const displayMetrics = [...new Set<Metric>([scoreMetric, metric, 'cost', 'tokensTotal'])].slice(0, model.taskPricing?.basis === 'subscription' ? 2 : 3);
   const measurements = score === 'codingIndex'
     ? [...new Set<Metric>(['codingIndex', metric, 'cost'])].map((measurement) => [measurement === 'cost' ? taskCostLabel(model) : measurement === 'costTotal' ? 'Total cost · API' : metrics[measurement].label, formatModelValue(model, measurement)])
     : model.codingAgent
@@ -48,6 +48,9 @@ export function ConfigurationDetails({
       <div className="mt-1 text-[11px] text-fg-2">
         {model.codingAgent?.configuration ?? model.cyber?.configuration ?? (model.effort === 'none' ? 'No reasoning' : model.effortLabel)} · {pinned ? 'Pinned' : 'Preview'}
       </div>
+      {model.taskPricing?.basis === 'subscription' && (
+        <p className="mt-2 mb-0 text-[10px] leading-4 text-fg-2">Full allowance for one model. External token mix, not measured subscription spend.</p>
+      )}
       <dl className="mt-4 mb-3 space-y-2.5 text-[11px]">
         {measurements.map(([label, value]) => (
           <div key={label} className="flex items-baseline justify-between gap-3">

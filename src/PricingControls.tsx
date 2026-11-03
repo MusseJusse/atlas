@@ -63,7 +63,7 @@ export function PricingControls({ settings, update }: {
             <input type="checkbox" checked={settings.countResets} onChange={(event) => update({ countResets: event.target.checked })} />
             Count bonus resets
           </label>
-          <p className="m-0 text-[11px] leading-5 text-fg-2">Plans apply to estimated subscription pricing. Source-linked bonus resets use the captured 30-day window. Banked and unconfirmed resets are excluded.</p>
+          <p className="m-0 text-[11px] leading-5 text-fg-2">Applies to Cost per task and Cost vs intelligence. Other charts retain API costs. Source-linked bonus resets use the captured 30-day window. Banked and unconfirmed resets are excluded.</p>
           <a className="inline-block py-1 text-[11px] text-fg-2 underline underline-offset-4" href="https://mypriors.com/benchmarks/subscription-token-price">
             Pricing captured {subscriptionSource.capturedAt.slice(0, 10)}
           </a>

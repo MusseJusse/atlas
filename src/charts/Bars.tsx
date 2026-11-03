@@ -1,3 +1,4 @@
+import { taskCostLabel } from './PricingDetails';
 import { useMemo, useState } from 'react';
 import { SvgLogo } from '../Logo';
 import { format, formatModelValue, modelColor, shortName } from '../models';
@@ -84,7 +85,7 @@ export function Bars({
                   role="button"
                   tabIndex={0}
                   className="cursor-pointer focus-visible:[&>rect:nth-child(2)]:stroke-accent focus-visible:[&>rect:nth-child(2)]:stroke-[3] mobile:focus-visible:[outline:none]"
-                  aria-label={`${visibleLabel}${row.name}, ${row.effortLabel} reasoning, ${metrics[metric].label} ${metric === 'time' && row.timeEstimate ? 'estimated ' : ''}${formatModelValue(row, metric)}`}
+                  aria-label={`${visibleLabel}${row.name}, ${row.effortLabel} reasoning, ${metric === 'cost' ? taskCostLabel(row) : metrics[metric].label} ${metric === 'time' && row.timeEstimate ? 'estimated ' : ''}${formatModelValue(row, metric)}`}
                   aria-pressed={interactions.pinned?.id === row.id}
                   onMouseEnter={() => interactions.hover(row)}
                   onFocus={() => interactions.hover(row)}
@@ -153,6 +154,9 @@ export function Bars({
                     <tspan x={group.center} dy={20}>
                       {name.slice(split + 1)}
                     </tspan>
+                  )}
+                  {metric === 'cost' && model.taskPricing?.basis === 'api-fallback' && (
+                    <tspan x={group.center} dy={16} fontSize={10}>API</tspan>
                   )}
                 </text>
               </g>

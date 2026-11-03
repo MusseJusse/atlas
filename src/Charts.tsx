@@ -205,6 +205,7 @@ export const Chart = memo(function Chart({
             data-placement={scatter ? 'bottom-right' : settings.descending ? 'top-right' : 'top-left'}
             style={scatter ? { right: settings.labels && width >= 600 ? 235 : 24 } : undefined}
             aria-label="Selected configuration"
+            tabIndex={pinned ? 0 : undefined}
           >
             <ConfigurationDetails
               model={activeModel}
@@ -245,7 +246,7 @@ export const Chart = memo(function Chart({
                     {model.codingAgent.name}, {model.effortLabel}
                   </span>
                 </span>
-              ) : shortName(model)}
+              ) : <span>{shortName(model)}{view.metric === 'cost' && model.taskPricing?.basis === 'api-fallback' && <span className="text-[10px] font-normal text-fg-2"> · API</span>}</span>}
             </button>
           ))}
         </div>

@@ -212,7 +212,7 @@ function Benchmarks() {
                 </button>
               ))}
             </nav>
-            {!settings.codingOnly && (view.id === 'cost-intelligence' || view.id === 'cost-task') && (
+            {!settings.codingOnly && (
               <PricingControls settings={settings} update={update} />
             )}
           </div>

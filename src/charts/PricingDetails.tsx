@@ -15,7 +15,7 @@ export function PricingDetails({ model }: { model: Model }) {
     <div className="mt-2 text-[11px] leading-5 text-fg-2">
       <p className="m-0">{pricing.plan} · ${pricing.feeUsd}/mo · {pricing.confidence} source confidence</p>
       <p className="m-0">Allowance data: {pricing.dataDate}. {pricing.resetBoost > 1 ? `Bonus allowance ×${pricing.resetBoost.toFixed(2)}.` : 'No bonus reset discount.'}</p>
-      <p className="mt-1 mb-0">One model uses the full allowance. External coding token mix applied across efforts. Equivalent allocation, not monthly spend; model allowances are not additive.</p>
+      <p className="mt-1 mb-0">External coding token mix applied across efforts; model allowances are not additive.</p>
       <a href="https://mypriors.com/benchmarks/subscription-token-price" className="inline-block py-1 underline underline-offset-4">
         Pricing captured {subscriptionSource.capturedAt.slice(0, 10)}
       </a>
