@@ -42,7 +42,7 @@ export function PricingControls({ settings, update }: {
         <summary className="flex min-h-11 cursor-pointer list-none items-center gap-1.5 rounded-sm px-2 text-fg-2 focus-visible:outline-2 focus-visible:outline-accent [&::-webkit-details-marker]:hidden">
           Plans <ChevronDown size={13} aria-hidden="true" />
         </summary>
-        <div className="absolute top-full right-0 z-30 w-[310px] max-w-[calc(100vw-64px)] space-y-3 rounded-lg border border-line bg-panel p-4 shadow-lg">
+        <div className="absolute top-full right-0 z-30 max-h-[calc(100dvh-var(--header-height)-180px)] w-[310px] max-w-[calc(100vw-64px)] space-y-3 overflow-y-auto overscroll-contain rounded-lg border border-line bg-panel p-4 shadow-lg">
           {subscriptionProviders.map((provider) => (
             <label key={provider.id} className="block text-fg-2">
               {provider.name}
