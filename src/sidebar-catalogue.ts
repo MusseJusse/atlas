@@ -1,4 +1,5 @@
-import { families, familyMap, frontierFamilies, notableFamilies } from './models';
+import { families, familyMap } from './models';
+import { frontierFamilies, notableFamilies } from './model-presentation';
 
 function ordered(ids: string[]) {
   return ids.flatMap((id) => {

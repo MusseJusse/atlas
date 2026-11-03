@@ -1,6 +1,7 @@
 import { barDomain, linearScale, logScale } from '../scales';
 import { scatterDomain, scatterRows } from '../scatter-data';
-import { barGroups, formatModelValue, paretoFrontier, type Model } from '../models';
+import { barGroups, paretoFrontier, type Model } from '../models';
+import { formatModelValue } from '../formatModel';
 import type { Metric, ScoreMetric } from '../chart-definitions';
 
 export type MeasuredRow = Model & { value: number };

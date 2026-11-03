@@ -91,7 +91,9 @@ The overlay shows the full model name, logo, reasoning level and source. It fits
 
 DM Sans is bundled locally under the SIL Open Font License, included in `public/fonts/OFL.txt`. Fonts, logos, and benchmark data load locally.
 
-The initial page preloads a 22.6 KB font with the characters, weights 400 to 700, and optical sizes 9 to 24 used by the interface. It keeps normal text shaping and tabular numbers, and omits unused stylistic alternates. The full 88.8 KB variable font stays available for other characters. Vite inlines the small stylesheet and renders the default page into the HTML so its text and controls can paint before React loads. React hydrates the default light view. Saved dark themes and URLs with query parameters render their own initial state. Chart contents mount after hydration, once the viewport and font are ready, so server rendering does not guess chart dimensions.
+The initial page preloads a 22.6 KB font with the characters, weights 400 to 700, and optical sizes 9 to 24 used by the interface. It keeps normal text shaping and tabular numbers, and omits unused stylistic alternates. The full 88.8 KB variable font stays available for other characters. Vite inlines the small stylesheet and renders the default page into the HTML so its text and controls can paint before React loads. React hydrates the default light view. Saved dark themes and URLs with query parameters render their own initial state. Chart contents mount after hydration using the measured viewport and whichever font is available. Chart dimensions are measured again when fonts finish loading, so font loading does not block controls.
+
+Curated model choices and colors live in `src/model-presentation.ts`; measurement formatting lives in `src/formatModel.ts`. `src/models.ts` owns the catalogue and model comparisons.
 
 The Vite data plugin packs the snapshot into columns and includes only fields the app reads. The original JSON stays intact, and tests compare every consumed field in all configurations, including full numeric precision. Numeric chart scales avoid shipping D3's general formatting and interpolation code. A comparison test checks their coordinates and ticks against D3, which remains a development dependency.
 
@@ -132,6 +134,10 @@ For a lower-level refresh that writes the snapshot and changelog in your current
 pnpm data:refresh
 ```
 
+The two refresh renames are not crash-atomic. If a process stops after replacing the snapshot but before replacing the changelog, stop any remaining refresh process and run `pnpm data:recover` in that checkout before retrying. The command restores the single `.backup` snapshot whose timestamp matches the changelog. It does nothing when the pair already matches and refuses missing or ambiguous backups. Keep backup files until recovery succeeds. If no matching backup remains, restore `src/data/benchmarks.json` and `src/data/changelog.json` together from the same Git commit. Orphaned `.tmp` files are not used by recovery and can be removed after the process has stopped.
+
+AA stopped providing the intelligence estimate flag in November 2026, so the importer and client no longer classify intelligence scores as measured or estimated. Do not infer that provenance from a missing flag. Local decode-time and subscription estimates retain their separate attribution.
+
 The dedicated changelog is at `/?page=changelog`, with filters for additions, updates, and removals. Its check time belongs to the published data update. The snapshot timestamp records when we fetched AA, not when AA last measured each model. Updates depend on when Artificial Analysis publishes new measurements. Provider announcements alone do not change the benchmark snapshot. Newly added families appear in the full model browser; the curated default and notable selections stay manual.
 
 Review and merge the generated PR to publish the data through the normal deployment. The persistent local server serves `dist`, so pull the merged changes, validate and rebuild, then restart the local service to update the local site. The sync command does not merge, deploy, or restart that service.
@@ -142,7 +148,11 @@ Review and merge the generated PR to publish the data through the normal deploym
 pnpm check
 pnpm test
 pnpm build
+pnpm exec playwright install chromium
+pnpm test:browser
 ```
+
+The browser suite serves the production build on isolated port 4391. It checks prerendered content and inline CSS, DOM reuse during hydration, font-independent startup, saved dark views, history restoration, and phone chart navigation. CI runs the same suite in Chromium after building.
 
 Focused tests cover frontier dominance, ties and missing measurements, reasoning filters, grouped bar ordering, and URL state round-tripping.
 

@@ -14,7 +14,9 @@
     "data:sync": "node --experimental-strip-types scripts/sync-data.ts",
     "local:start": "zsh scripts/local-service.sh start",
     "local:stop": "zsh scripts/local-service.sh stop",
-    "local:status": "zsh scripts/local-service.sh status"
+    "local:status": "zsh scripts/local-service.sh status",
+    "data:recover": "node --experimental-strip-types scripts/recover-benchmarks.ts",
+    "test:browser": "playwright test"
   },
   "packageManager": "pnpm@12.4.1",
   "dependencies": {
@@ -25,6 +27,7 @@
     "react-dom": "^19.3.1"
   },
   "devDependencies": {
+    "@playwright/test": "^1.64.1",
     "@tailwindcss/vite": "^4.3.3",
     "@types/d3-array": "^3.2.2",
     "@types/d3-scale": "^4.0.9",

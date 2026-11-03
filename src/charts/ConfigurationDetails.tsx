@@ -1,7 +1,9 @@
 import { PricingDetails, taskCostLabel } from './PricingDetails';
 import { X } from 'lucide-react';
 import { Logo } from '../Logo';
-import { format, formatModelValue, modelColor, type Model } from '../models';
+import type { Model } from '../models';
+import { modelColor } from '../model-presentation';
+import { format, formatModelValue } from '../formatModel';
 import { metrics, type ScoreMetric, type Metric } from '../chart-definitions';
 
 /** The same compact selection overlay on desktop and mobile. */

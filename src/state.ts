@@ -1,4 +1,5 @@
-import { defaultSelected, families } from './models';
+import { families } from './models';
+import { defaultSelected } from './model-presentation';
 import { metrics, views, type Metric, type ViewId } from './chart-definitions';
 import { readSubscriptionPlans, type PricingSettings } from './data/subscriptions';
 import { effortGroup, efforts } from './data/efforts';

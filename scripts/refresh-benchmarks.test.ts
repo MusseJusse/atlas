@@ -141,3 +141,29 @@ it('retains the original snapshot backup and reports both errors if rollback als
     await rm(directory, { recursive: true, force: true });
   }
 });
+
+it.each([false, true])('rejects an inconsistent data pair before fetching, checkOnly=%s', async (checkOnly) => {
+  const directory = await mkdtemp(join(tmpdir(), 'model-refresh-mismatch-'));
+  const snapshotPath = pathToFileURL(join(directory, 'benchmarks.json'));
+  const historyPath = pathToFileURL(join(directory, 'changelog.json'));
+  const snapshot = await fetchSnapshot(sourceFixture([structuredClone(aaModels[0]!)]).fetcher);
+  const originalSnapshot = JSON.stringify(snapshot);
+  const originalHistory = JSON.stringify({
+    source: snapshot.source,
+    baselineFetchedAt: '2026-01-01T00:00:00.000Z',
+    updates: [],
+  });
+  const fetcher = vi.fn<typeof fetch>();
+  try {
+    await writeFile(snapshotPath, originalSnapshot);
+    await writeFile(historyPath, originalHistory);
+    await expect(refreshBenchmarks({ snapshotPath, historyPath, fetcher, checkOnly }))
+      .rejects.toThrow('pnpm data:recover');
+    expect(fetcher).not.toHaveBeenCalled();
+    expect(await readFile(snapshotPath, 'utf8')).toBe(originalSnapshot);
+    expect(await readFile(historyPath, 'utf8')).toBe(originalHistory);
+    expect((await readdir(directory)).sort()).toEqual(['benchmarks.json', 'changelog.json']);
+  } finally {
+    await rm(directory, { recursive: true, force: true });
+  }
+});

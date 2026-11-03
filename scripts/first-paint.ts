@@ -26,16 +26,31 @@ export function firstPaint(): Plugin {
         } finally {
           await server.close();
         }
-        return html
-          .replace('<div id="root"></div>', () => `<div id="root">${markup}</div>`)
-          .replace(/<link\b[^>]*rel="stylesheet"[^>]*>/g, (link) => {
-            const href = /href="([^"]+)"/.exec(link)?.[1];
-            const asset = Object.values(bundle ?? {}).find(
-              (entry) => entry.type === 'asset' && href?.endsWith(`/${entry.fileName}`),
-            );
-            return asset?.type === 'asset' ? `<style>${asset.source}</style>` : link;
-          });
+        const styles = new Map(Object.values(bundle ?? {}).flatMap((entry) =>
+          entry.type === 'asset' && entry.fileName.endsWith('.css')
+            ? [[entry.fileName, String(entry.source)] as const]
+            : [],
+        ));
+        return injectFirstPaint(html, markup, styles);
       },
     },
   };
+}
+
+/** Fail the build if the HTML template or emitted styles no longer match the prerender path. */
+export function injectFirstPaint(html: string, markup: string, styles: ReadonlyMap<string, string>) {
+  const root = '<div id="root"></div>';
+  if (html.split(root).length !== 2 || !markup.trim())
+    throw new Error('First paint requires exactly one empty root and nonempty rendered markup.');
+  let inlined = 0;
+  const result = html.replace(root, () => `<div id="root">${markup}</div>`)
+    .replace(/<link\b[^>]*rel="stylesheet"[^>]*>/g, (link) => {
+      const href = /href="([^"]+)"/.exec(link)?.[1];
+      const asset = [...styles].find(([fileName]) => href?.endsWith(`/${fileName}`));
+      if (!asset || !asset[1].trim()) throw new Error(`First paint could not inline stylesheet: ${href}`);
+      inlined++;
+      return `<style>${asset[1]}</style>`;
+    });
+  if (!inlined) throw new Error('First paint did not find an emitted stylesheet.');
+  return result;
 }

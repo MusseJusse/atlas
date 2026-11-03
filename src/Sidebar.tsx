@@ -1,7 +1,8 @@
 import { memo, useEffect, useRef, useState } from 'react';
 import { RotateCcw, Search } from 'lucide-react';
 import { defaults, type Settings } from './state';
-import { efforts, families, modelColor, shortName } from './models';
+import { efforts, families } from './models';
+import { modelColor, shortName } from './model-presentation';
 import { Logo } from './Logo';
 import { Selection } from './Selection';
 import { codingOnlyDescription } from './data/coding-only';
