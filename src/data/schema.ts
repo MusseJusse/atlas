@@ -15,7 +15,6 @@ export const modelSchema = z.strictObject({
   effort: text,
   effortLabel: text,
   effortOrder: z.number().nonnegative(),
-  estimated: z.boolean(),
   intelligence: z.number().nullable(),
   omniscience: z.number().min(-100).max(100).nullable().default(null),
   terminalBench40: z.number().min(0).max(1).nullable().default(null),

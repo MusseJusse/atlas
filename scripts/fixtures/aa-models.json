@@ -25,7 +25,6 @@
       "level": 60
     },
     "intelligenceIndex": 39.456167472527,
-    "intelligenceIndexIsEstimated": false,
     "intelligenceIndexCost": {
       "total": 476.89044593693893,
       "output": 303.7362672
@@ -88,7 +87,6 @@
     "deprecated": true,
     "isReasoning": false,
     "intelligenceIndex": 6.69669796944385,
-    "intelligenceIndexIsEstimated": true,
     "timescaleData": {
       "medianOutputSpeed": 51.790790075056,
       "medianTimeToFirstChunk": 2.97946403999999
@@ -127,7 +125,6 @@
       "level": 40
     },
     "intelligenceIndex": 10.7770340974661,
-    "intelligenceIndexIsEstimated": false,
     "intelligenceIndexCost": {
       "total": 104.943852661284,
       "output": 75.77022149999999

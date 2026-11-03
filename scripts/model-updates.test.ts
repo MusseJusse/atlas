@@ -115,7 +115,7 @@ describe('direct Artificial Analysis import', () => {
       id: 'deepseek-v4-1-flash', family: 'deepseek-v4-1-flash', name: 'DeepSeek V4.1 Flash',
       variant: 'DeepSeek V4.1 Flash (max)', lab: 'deepseek', labName: 'DeepSeek',
       released: '2026-09-10', open: true, deprecated: false,
-      effort: 'max', effortLabel: 'max', effortOrder: 60, estimated: false,
+      effort: 'max', effortLabel: 'max', effortOrder: 60,
       intelligence: 39.456167472527, omniscience: -5.3, terminalBench40: 0.4, frontierCode20: 0.6,
       codingCost: 3, codingTokens: 15000, codingTime: 150, codingTokensTotal: 3300000, codingCostTotal: 660, cost: 0.26522527009606844,
       costTotal: 476.89044593693893, tokens: 88573.99849468909, tokensTotal: 253113556,
@@ -130,7 +130,7 @@ describe('direct Artificial Analysis import', () => {
     expect(models[1]).toMatchObject({
       effort: 'none', effortLabel: 'Non-reasoning', effortOrder: 0,
       cost: null, costTotal: null, tokens: null, tokensTotal: null, speed: 51.790790075056, time: null,
-      deprecated: true, estimated: true,
+      deprecated: true,
     });
     expect(models[2]).toMatchObject({ effort: 'high', effortOrder: 40 });
     const missingSpeed = sourceFixture([aaModels[0]!, { ...aaModels[1]!, timescaleData: {} }]);

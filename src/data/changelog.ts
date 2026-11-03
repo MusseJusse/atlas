@@ -15,7 +15,6 @@ export const fieldLabels = {
   effort: 'Reasoning ID',
   effortLabel: 'Reasoning',
   effortOrder: 'Reasoning order',
-  estimated: 'Estimated',
   intelligence: 'Intelligence',
   omniscience: 'AA-Omniscience',
   terminalBench40: 'Terminal-Bench 4.0',
