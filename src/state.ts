@@ -1,8 +1,9 @@
 import { defaultSelected, families } from './models';
 import { metrics, views, type Metric, type ViewId } from './chart-definitions';
+import { readSubscriptionPlans, type PricingSettings } from './data/subscriptions';
 import { effortGroup, efforts } from './data/efforts';
 
-export type Settings = {
+export type Settings = PricingSettings & {
   selected: string[];
   excluded: string[];
   frontier: boolean;
@@ -18,6 +19,9 @@ export const defaults: Settings = {
   excluded: ['none', 'max'],
   frontier: false,
   codingOnly: false,
+  pricingMode: 'api',
+  subscriptionPlans: {},
+  countResets: false,
   labels: true,
   grouped: true,
   descending: null,
@@ -43,6 +47,9 @@ export function readSettings(search: string): Settings {
     excluded: excluded === null
       ? defaults.excluded
       : readIds(excluded.split(',').map(effortGroup).join(','), efforts),
+    pricingMode: params.get('pricing') === 'subscription' ? 'subscription' : 'api',
+    subscriptionPlans: readSubscriptionPlans(params.getAll('plan')),
+    countResets: params.get('resets') === 'true',
     frontier: params.get('frontier') === 'true',
     codingOnly: params.get('codingOnly') === 'true',
     labels: params.get('labels') !== 'false',
@@ -69,6 +76,10 @@ export function writeSettings(settings: Settings, view: ViewId) {
     params.set('selected', settings.selected.join(','));
   if (settings.excluded.join(',') !== defaults.excluded.join(','))
     params.set('excluded', settings.excluded.join(','));
+  if (settings.pricingMode === 'subscription') params.set('pricing', 'subscription');
+  for (const [provider, plan] of Object.entries(readSubscriptionPlans(Object.entries(settings.subscriptionPlans).map(([provider, plan]) => `${provider}:${plan}`))).sort(([a], [b]) => a.localeCompare(b)))
+    params.append('plan', `${provider}:${plan}`);
+  if (settings.countResets) params.set('resets', 'true');
   if (settings.frontier) params.set('frontier', 'true');
   if (settings.codingOnly) params.set('codingOnly', 'true');
   if (!settings.labels) params.set('labels', 'false');

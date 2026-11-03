@@ -37,6 +37,8 @@ export const codingAgents: Model[] = source.configurations.map((configuration) =
     codingCostTotal: null,
     codingScore: configuration.indexScore === null ? null : configuration.indexScore * 100,
     cost: configuration.cost,
+    inputPrice: null,
+    outputPrice: null,
     costTotal: null,
     tokens: null,
     tokensTotal: null,

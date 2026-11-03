@@ -1,5 +1,7 @@
 import { lazy, Suspense, useCallback, useEffect, useMemo, useState } from 'react';
 import { ArrowDown, Ellipsis, SlidersHorizontal } from 'lucide-react';
+import { PricingControls } from './PricingControls';
+import { pricingDisclosure, subscriptionRows, usesSubscriptionPricing } from './data/subscriptions';
 import { Chart } from './Charts';
 import { codingOnlyRows } from './data/coding-only';
 import { Sidebar } from './Sidebar';
@@ -106,11 +108,14 @@ function Benchmarks() {
   const datasetViews = useMemo(() => chartViews(settings.codingOnly), [settings.codingOnly]);
   const view = datasetViews.find((view) => view.id === active) ?? datasetViews[0]!;
   const { score } = resolveView(view, settings);
-  const activeRows = settings.codingOnly ? codingRows : rows;
+  const pricedRows = useMemo(() => subscriptionRows(rows, settings),
+    [rows, settings.pricingMode, settings.subscriptionPlans, settings.countResets]);
+  const subscriptionActive = usesSubscriptionPricing(view.id, settings);
+  const activeRows = settings.codingOnly ? codingRows : subscriptionActive ? pricedRows : rows;
   const activeFetchedAt = settings.codingOnly ? codingFetchedAt : fetchedAt;
   const frontier = useMemo(
-    () => new Set(paretoFrontier(activeRows, view.metric, (model) => model[score]).map((model) => model.family)),
-    [activeRows, view.metric, score],
+    () => new Set(paretoFrontier(subscriptionActive ? activeRows.filter((row) => row.taskPricing?.basis === 'subscription') : activeRows, view.metric, (model) => model[score]).map((model) => model.family)),
+    [activeRows, view.metric, score, subscriptionActive],
   );
 
   useEffect(() => {
@@ -207,6 +212,9 @@ function Benchmarks() {
                 </button>
               ))}
             </nav>
+            {!settings.codingOnly && (view.id === 'cost-intelligence' || view.id === 'cost-task') && (
+              <PricingControls settings={settings} update={update} />
+            )}
           </div>
           <div
             className="relative min-h-0 snap-y snap-proximity overflow-y-auto rounded-b-xl [scrollbar-width:thin] [scrollbar-color:var(--line-2)_var(--panel)] mobile:snap-none mobile:overflow-visible"
@@ -214,6 +222,9 @@ function Benchmarks() {
           >
             {datasetViews.map((view) => {
               const { scatter, linear } = resolveView(view, settings);
+              const subscription = usesSubscriptionPricing(view.id, settings);
+              const chartRows = settings.codingOnly ? codingRows : subscription ? pricedRows : rows;
+              const hasFallback = chartRows.some((row) => row.cost !== null && row.taskPricing?.basis === 'api-fallback');
               return (
                 <section
                   className="chart-section flex h-full snap-start flex-col px-6 pt-5 pb-4 short:pt-4 short:pb-3 [&+section]:border-t [&+section]:border-line mobile:h-auto mobile:scroll-mt-[180px] mobile:px-4 mobile:pb-6"
@@ -303,11 +314,20 @@ function Benchmarks() {
                       )}
                     </div>
                   </div>
+                  {subscription && (
+                    <p className="mt-0 mb-2 shrink-0 text-[11px] leading-5 text-fg-2">
+                      Estimated subscription · One model uses full allowance · {settings.countResets ? 'Bonus resets on where supported' : 'Bonus resets off'}
+                      {hasFallback && ' · Includes API fallback'}
+                      {scatter && settings.frontier && ' · Frontier compares subscription estimates only'}
+                      {scatter && !linear && chartRows.some((row) => row.cost === 0) && ' · Zero costs omitted on log scale'}
+                    </p>
+                  )}
                   <Chart
                     active={mobile || active === view.id}
                     phone={phone}
                     view={view}
-                    rows={settings.codingOnly ? codingRows : rows}
+                    rows={subscription && scatter && settings.frontier ? chartRows.filter((row) => row.taskPricing?.basis === 'subscription') : chartRows}
+                    pricingContext={subscription ? pricingDisclosure(chartRows, settings.countResets) : undefined}
                     settings={settings}
                     highlighted={active === view.id ? highlighted : null}
                     onHighlight={setHighlighted}

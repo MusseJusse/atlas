@@ -1,3 +1,4 @@
+import { PricingDetails } from './PricingDetails';
 import { memo, useMemo } from 'react';
 import { Logo } from '../Logo';
 import { format, formatModelValue, modelColor, shortName } from '../models';
@@ -92,6 +93,7 @@ export const DotPlot = memo(function DotPlot({
                 className="flex flex-col gap-1.5 pb-3.5 pl-[21px] text-[13px]"
                 id={`variants-${metric}-${group.id}`}
               >
+                <PricingDetails model={model} />
                 {group.rows.map((row) => (
                   <div className="flex justify-between gap-3" key={row.id}>
                     <span className="text-fg-2">{row.effortLabel}</span>

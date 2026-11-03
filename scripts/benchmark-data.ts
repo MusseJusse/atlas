@@ -1,6 +1,7 @@
 import { readFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import type { Plugin } from 'vite';
+import { subscriptionSchema } from '../src/data/subscription-schema.ts';
 import { historySchema, modelFields, snapshotSchema } from '../src/data/schema.ts';
 
 /** Store field names once and adjacent values together so the snapshot compresses better. */
@@ -12,10 +13,17 @@ export function benchmarkData(): Plugin {
   return {
     name: 'benchmark-data',
     resolveId(id) {
+      if (id === 'virtual:subscriptions') return '\0virtual:subscriptions';
       if (id === 'virtual:benchmarks') return moduleId;
       if (id === 'virtual:changelog') return historyId;
     },
     async load(id) {
+      if (id === '\0virtual:subscriptions') {
+        const source = new URL('../src/data/subscriptions.json', import.meta.url);
+        this.addWatchFile(fileURLToPath(source));
+        const data = subscriptionSchema.parse(JSON.parse(await readFile(source, 'utf8')));
+        return `export default ${JSON.stringify(data)};`;
+      }
       if (id === historyId) {
         this.addWatchFile(fileURLToPath(historySource));
         const history = historySchema.parse(JSON.parse(await readFile(historySource, 'utf8')));

@@ -39,6 +39,8 @@ export const speedEndpoints = [
     codingTokensTotal: null,
     codingCostTotal: null,
     cost: null,
+    inputPrice: null,
+    outputPrice: null,
     costTotal: null,
     tokens: null,
     tokensTotal: null,
