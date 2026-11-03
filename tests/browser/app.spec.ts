@@ -29,6 +29,7 @@ test('production HTML includes content and CSS, and default hydration preserves 
     const main = await page.getByRole('main').elementHandle();
     expect(main).not.toBeNull();
     release();
+    await expect(page.locator('#cost-intelligence svg[role=group]')).toBeVisible();
     await page.getByRole('button', { name: 'Switch to dark mode' }).click();
     await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
     expect(await main!.evaluate((element) => element.isConnected)).toBe(true);

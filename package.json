@@ -7,7 +7,7 @@
     "dev": "vite --host 127.0.0.1 --port 4387 --strictPort",
     "build": "tsc -b && vite build",
     "preview": "vite preview --host 127.0.0.1 --port 4387 --strictPort",
-    "test": "vitest run src scripts",
+    "test": "vitest run",
     "check": "tsc -b",
     "data:refresh": "node --experimental-strip-types scripts/refresh-benchmarks.ts",
     "data:check": "pnpm data:refresh --check",
