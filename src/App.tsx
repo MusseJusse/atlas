@@ -1,4 +1,4 @@
-import { lazy, Suspense, useCallback, useEffect, useMemo, useState } from 'react';
+import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { ArrowDown, Ellipsis, SlidersHorizontal } from 'lucide-react';
 import { PricingControls } from './PricingControls';
 import { pricingDisclosure, subscriptionRows, usesSubscriptionPricing } from './data/subscriptions';
@@ -212,9 +212,6 @@ function Benchmarks() {
                 </button>
               ))}
             </nav>
-            {!settings.codingOnly && (
-              <PricingControls settings={settings} update={update} />
-            )}
           </div>
           <div
             className="relative min-h-0 snap-y snap-proximity overflow-y-auto rounded-b-xl [scrollbar-width:thin] [scrollbar-color:var(--line-2)_var(--panel)] mobile:snap-none mobile:overflow-visible"
@@ -240,6 +237,7 @@ function Benchmarks() {
                       settings={settings}
                       update={update}
                       descending={chartDescending(view.metric, phone, settings.descending)}
+                      pricing={!settings.codingOnly && (view.id === 'cost-intelligence' || view.id === 'cost-task')}
                     />
                   </div>
                   <div
@@ -322,6 +320,9 @@ function Benchmarks() {
                       {scatter && !linear && chartRows.some((row) => row.cost === 0) && ' · Zero costs omitted on log scale'}
                     </p>
                   )}
+                  {!subscription && view.metric === 'cost' && (
+                    <p className="mt-0 mb-2 shrink-0 text-[11px] leading-5 text-fg-2">API pricing</p>
+                  )}
                   <Chart
                     active={mobile || active === view.id}
                     phone={phone}
@@ -365,13 +366,46 @@ function ChartOptions({
   settings,
   update,
   descending,
+  pricing,
 }: {
   settings: Settings;
   update: (patch: Partial<Settings>) => void;
   descending: boolean;
+  pricing: boolean;
 }) {
+  const menu = useRef<HTMLDetailsElement>(null);
+  const [open, setOpen] = useState(false);
+  function fitMenu() {
+    const element = menu.current;
+    if (!element) return;
+    const feedBottom = element.closest('section')?.parentElement?.getBoundingClientRect().bottom ?? window.innerHeight;
+    const available = Math.min(window.innerHeight, feedBottom) - element.getBoundingClientRect().bottom - 18;
+    element.style.setProperty('--chart-menu-height', `${Math.max(0, available)}px`);
+  }
+  useEffect(() => {
+    if (!open) return;
+    const outside = (event: PointerEvent) => {
+      if (event.target instanceof Node && menu.current && !menu.current.contains(event.target))
+        menu.current.open = false;
+    };
+    document.addEventListener('pointerdown', outside);
+    window.addEventListener('resize', fitMenu);
+    return () => {
+      document.removeEventListener('pointerdown', outside);
+      window.removeEventListener('resize', fitMenu);
+    };
+  }, [open]);
   return (
-    <details className="group relative shrink-0">
+    <details ref={menu} className="group relative shrink-0" onToggle={(event) => {
+      setOpen(event.currentTarget.open);
+      if (event.currentTarget.open) fitMenu();
+    }} onKeyDown={(event) => {
+      if (event.key === 'Escape' && menu.current?.open) {
+        menu.current.open = false;
+        menu.current.querySelector('summary')?.focus();
+        event.stopPropagation();
+      }
+    }}>
       <summary
         className="flex size-10 cursor-pointer list-none items-center justify-center rounded-md text-fg-2 group-open:bg-surface group-open:text-accent hover:bg-surface hover:text-accent focus-visible:outline-2 focus-visible:outline-accent focus-visible:outline-offset-2 [&::-webkit-details-marker]:hidden"
         aria-label="Chart settings"
@@ -380,9 +414,11 @@ function ChartOptions({
         <Ellipsis size={19} aria-hidden="true" />
       </summary>
       <div
-        className="absolute top-[calc(100%+6px)] right-0 z-20 flex w-[220px] max-w-[calc(100vw-48px)] flex-col items-start gap-1 rounded-lg border border-line bg-panel p-3 shadow-lg"
+        className={`absolute top-[calc(100%+6px)] right-0 z-20 flex ${pricing ? 'w-[310px]' : 'w-[220px]'} max-w-[calc(100vw-48px)] flex-col items-start gap-1 overflow-y-auto overscroll-contain rounded-lg border border-line bg-panel p-3 shadow-lg`}
+        style={{ maxHeight: 'var(--chart-menu-height, 60dvh)' }}
         aria-label="Chart settings"
       >
+        {pricing && <PricingControls settings={settings} update={update} />}
         <span className="px-1 pt-1 text-[11px] text-fg-2">Scatter charts</span>
         <button
           className="inline-flex min-h-10 items-center gap-2 px-1 text-[12px] text-fg hover:text-accent"
