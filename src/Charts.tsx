@@ -7,7 +7,6 @@ import {
   useState,
   type MouseEvent,
 } from 'react';
-import { pricingSvgLines } from './data/subscriptions';
 import { flushSync } from 'react-dom';
 import { resolveChartInteraction } from './chart-interactions';
 import { useHydrated } from './useHydrated';
@@ -70,9 +69,6 @@ export const Chart = memo(function Chart({
   const ready = hydrated && (active || visited);
   const { scatter, linear, score } = resolveView(view, settings);
   const { ref, width, height } = useSize(ready && (scatter || !phone));
-
-  const disclosureLines = pricingContext ? pricingSvgLines(pricingContext, width) : [];
-  const disclosureHeight = disclosureLines.length * 13 + 12;
 
   // Desktop sections have a fixed height, so charts can mount just before scrolling into view.
   // Keep visited charts mounted to preserve pinned details and avoid navigation fetches.
@@ -181,7 +177,7 @@ export const Chart = memo(function Chart({
                   linear={linear}
                   settings={settings}
                   width={width}
-                  height={pricingContext ? Math.max(160, height - disclosureHeight) : height}
+                  height={height}
                   interactions={interactions}
                 />
               ) : (
@@ -190,13 +186,10 @@ export const Chart = memo(function Chart({
                   metric={view.metric}
                   settings={settings}
                   width={width}
-                  height={pricingContext ? Math.max(160, height - disclosureHeight) : height}
+                  height={height}
                   interactions={interactions}
                 />
               )}
-              {pricingContext && <text x={8} y={height - disclosureHeight + 13} fill="var(--fg-2)" fontSize={10}>
-                {disclosureLines.map((line, index) => <tspan key={index} x={8} dy={index ? 13 : 0}>{line}</tspan>)}
-              </text>}
             </svg>
           ))}
         {(scatter || !phone) && activeModel && (
