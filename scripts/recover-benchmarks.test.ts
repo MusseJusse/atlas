@@ -18,6 +18,8 @@ it('recovers an interrupted replacement, preserves staging files, and is safe to
     await writeFile(snapshotPath, JSON.stringify(replaced));
     await writeFile(historyPath, JSON.stringify({ source: original.source, baselineFetchedAt: original.fetchedAt, updates: [] }));
     await writeFile(backupPath, JSON.stringify(original));
+    const malformedBackup = new URL(`${snapshotPath.href}.truncated.backup`);
+    await writeFile(malformedBackup, '{\"models\":');
     await writeFile(new URL(`${historyPath.href}.interrupted.tmp`), 'unfinished staging file');
     const options = { snapshotPath, historyPath };
     // Ambiguous backups must never cause an arbitrary restore.
@@ -29,7 +31,8 @@ it('recovers an interrupted replacement, preserves staging files, and is safe to
     expect(await recoverBenchmarks(options)).toBe(true);
     expect(JSON.parse(await readFile(snapshotPath, 'utf8'))).toEqual(original);
     expect(await recoverBenchmarks(options)).toBe(false);
-    expect((await readdir(directory)).sort()).toEqual(['benchmarks.json', 'changelog.json', 'changelog.json.interrupted.tmp']);
+    expect(await readFile(malformedBackup, 'utf8')).toBe('{\"models\":');
+    expect((await readdir(directory)).sort()).toEqual(['benchmarks.json', 'benchmarks.json.truncated.backup', 'changelog.json', 'changelog.json.interrupted.tmp']);
     // Without a matching backup, do not invent history or accept an inconsistent pair.
     await writeFile(snapshotPath, JSON.stringify(replaced));
     await expect(recoverBenchmarks(options)).rejects.toThrow('found 0');

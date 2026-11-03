@@ -21,7 +21,16 @@ export async function recoverBenchmarks({
   for (const name of await readdir(directory)) {
     if (!name.startsWith(prefix) || !name.endsWith('.backup')) continue;
     const backup = new URL(encodeURIComponent(name), directory);
-    const parsed = snapshotSchema.safeParse(JSON.parse(await readFile(backup, 'utf8')));
+    const contents = await readFile(backup, 'utf8');
+    let candidate: unknown;
+    try {
+      candidate = JSON.parse(contents);
+    } catch (error) {
+      // An interrupted backup write can leave truncated JSON alongside a usable backup.
+      if (error instanceof SyntaxError) continue;
+      throw error;
+    }
+    const parsed = snapshotSchema.safeParse(candidate);
     if (parsed.success && parsed.data.fetchedAt === expected) backups.push(backup);
   }
   if (backups.length !== 1)
