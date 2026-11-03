@@ -3,6 +3,7 @@ import { ArrowDown, Ellipsis, SlidersHorizontal } from 'lucide-react';
 import { PricingControls } from './PricingControls';
 import { pricingDisclosure, subscriptionRows, usesSubscriptionPricing } from './data/subscriptions';
 import { Chart } from './Charts';
+import { visibleChartRows } from './chart-rows';
 import { codingOnlyRows } from './data/coding-only';
 import { Sidebar } from './Sidebar';
 import { Selection } from './Selection';
@@ -101,8 +102,8 @@ function Benchmarks() {
     if (!mobile) setMobileOpen(false);
   }, [mobile]);
   const rows = useMemo(
-    () => visibleModels(settings.selected, settings.excluded),
-    [settings.selected, settings.excluded],
+    () => visibleModels(settings.selected, []),
+    [settings.selected],
   );
   const codingRows = useMemo(() => codingOnlyRows(rows), [rows]);
   const datasetViews = useMemo(() => chartViews(settings.codingOnly), [settings.codingOnly]);
@@ -111,7 +112,11 @@ function Benchmarks() {
   const pricedRows = useMemo(() => subscriptionRows(rows, settings),
     [rows, settings.pricingMode, settings.subscriptionPlans, settings.countResets]);
   const subscriptionActive = usesSubscriptionPricing(view.id, settings);
-  const activeRows = settings.codingOnly ? codingRows : subscriptionActive ? pricedRows : rows;
+  const rowsByView = useMemo(() => new Map(datasetViews.map((view) => {
+    const source = settings.codingOnly ? codingRows : usesSubscriptionPricing(view.id, settings) ? pricedRows : rows;
+    return [view.id, visibleChartRows(source, view, settings)];
+  })), [datasetViews, rows, codingRows, pricedRows, settings]);
+  const activeRows = rowsByView.get(view.id)!;
   const activeFetchedAt = settings.codingOnly ? codingFetchedAt : fetchedAt;
   const frontier = useMemo(
     () => new Set(paretoFrontier(subscriptionActive ? activeRows.filter((row) => row.taskPricing?.basis === 'subscription') : activeRows, view.metric, (model) => model[score]).map((model) => model.family)),
@@ -220,7 +225,7 @@ function Benchmarks() {
             {datasetViews.map((view) => {
               const { scatter, linear } = resolveView(view, settings);
               const subscription = usesSubscriptionPricing(view.id, settings);
-              const chartRows = settings.codingOnly ? codingRows : subscription ? pricedRows : rows;
+              const chartRows = rowsByView.get(view.id)!;
               const hasFallback = !(scatter && settings.frontier) && chartRows.some((row) => row.cost !== null && row.taskPricing?.basis === 'api-fallback');
               return (
                 <section
