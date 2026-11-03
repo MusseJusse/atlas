@@ -1,4 +1,5 @@
 import snapshot from 'virtual:subscriptions';
+import benchmark from 'virtual:benchmarks';
 import type { Model } from './schema';
 import type { SubscriptionModel, SubscriptionSnapshot } from './subscription-schema';
 
@@ -65,13 +66,14 @@ export function resetBoost(provider: string, periodDays: number, source: Subscri
 }
 
 /** Resolve only the main Intelligence Index task costs, preserving every measured API value. */
-export function subscriptionRows(rows: Model[], settings: PricingSettings): Model[] {
+export function subscriptionRows(rows: Model[], settings: PricingSettings, benchmarkSourceHash = benchmark.sourceHash): Model[] {
   if (settings.pricingMode === 'api') return rows;
   return rows.map((model) => {
     const data = byFamily.get(model.family);
     const planId = settings.subscriptionPlans[data?.provider ?? ''] ?? data?.defaultPlan;
     const plan = data?.plans.find((plan) => plan.id === planId);
-    const reason = !data ? 'No subscription estimate for this model.'
+    const reason = benchmarkSourceHash !== snapshot.benchmarkSourceHash ? 'Benchmark data refreshed. Subscription pricing needs recapture.'
+      : !data ? 'No subscription estimate for this model.'
       : !plan ? 'Selected plan has no estimate for this model.'
       : model.inputPrice !== data.apiPrices.input || model.outputPrice !== data.apiPrices.output
         ? 'API prices changed since the subscription capture.' : null;
@@ -99,7 +101,7 @@ export function pricingDisclosure(rows: Model[], countResets: boolean) {
   return [
     'Estimated subscription. One model uses the full allowance. External coding token mix, shared across efforts.',
     `Pricing captured ${snapshot.capturedAt.slice(0, 10)}. ${plans.length ? plans.join('; ') : 'No supported plan estimates.'}`,
-    `${countResets ? 'Source-linked bonus resets included where supported' : 'Bonus resets excluded'}. API fallback for unsupported models.`,
+    `${countResets ? 'Source-linked bonus resets included where supported' : 'Bonus resets excluded'}. ${rows.some((row) => row.taskPricing?.basis === 'api-fallback') ? 'Includes API fallback.' : 'Subscription estimates only.'}`,
   ];
 }
 

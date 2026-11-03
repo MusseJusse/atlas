@@ -93,3 +93,15 @@ it('changes costs with source-supported resets and scopes conversion to full-ind
     expect(usesSubscriptionPricing(id, settings)).toBe(false);
   expect(pricingDisclosure([baseline!], false).join(' ')).toContain('External coding token mix');
 });
+
+it('fails closed on any benchmark revision, including unseen cache-price changes', () => {
+  const [priced] = subscriptionRows([sol], settings, 'changed-cache-price-source');
+  expect(priced?.cost).toBe(sol.cost);
+  expect(priced?.taskPricing).toEqual({ basis: 'api-fallback', reason: 'Benchmark data refreshed. Subscription pricing needs recapture.' });
+});
+
+it('only discloses fallback when the rendered chart rows contain fallback models', () => {
+  const rows = subscriptionRows([sol, { ...sol, family: 'unknown' }], settings);
+  expect(pricingDisclosure(rows, false).join(' ')).toContain('Includes API fallback');
+  expect(pricingDisclosure(rows.filter((row) => row.taskPricing?.basis === 'subscription'), false).join(' ')).not.toContain('Includes API fallback');
+});

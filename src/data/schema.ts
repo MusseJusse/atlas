@@ -130,4 +130,4 @@ export type Model = Pick<SnapshotModel, (typeof modelFields)[number]> & {
     baselineFetchedAt: string;
   };
 };
-export type Snapshot = Pick<BenchmarkSnapshot, 'fetchedAt' | 'codingSource'> & { models: Model[] };
+export type Snapshot = Pick<BenchmarkSnapshot, 'fetchedAt' | 'codingSource' | 'sourceHash'> & { models: Model[] };

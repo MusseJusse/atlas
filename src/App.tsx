@@ -224,7 +224,7 @@ function Benchmarks() {
               const { scatter, linear } = resolveView(view, settings);
               const subscription = usesSubscriptionPricing(view.id, settings);
               const chartRows = settings.codingOnly ? codingRows : subscription ? pricedRows : rows;
-              const hasFallback = chartRows.some((row) => row.cost !== null && row.taskPricing?.basis === 'api-fallback');
+              const hasFallback = !(scatter && settings.frontier) && chartRows.some((row) => row.cost !== null && row.taskPricing?.basis === 'api-fallback');
               return (
                 <section
                   className="chart-section flex h-full snap-start flex-col px-6 pt-5 pb-4 short:pt-4 short:pb-3 [&+section]:border-t [&+section]:border-line mobile:h-auto mobile:scroll-mt-[180px] mobile:px-4 mobile:pb-6"
@@ -327,7 +327,7 @@ function Benchmarks() {
                     phone={phone}
                     view={view}
                     rows={subscription && scatter && settings.frontier ? chartRows.filter((row) => row.taskPricing?.basis === 'subscription') : chartRows}
-                    pricingContext={subscription ? pricingDisclosure(chartRows, settings.countResets) : undefined}
+                    pricingContext={subscription ? pricingDisclosure(scatter && settings.frontier ? chartRows.filter((row) => row.taskPricing?.basis === 'subscription') : chartRows, settings.countResets) : undefined}
                     settings={settings}
                     highlighted={active === view.id ? highlighted : null}
                     onHighlight={setHighlighted}

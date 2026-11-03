@@ -9,6 +9,7 @@ export const subscriptionSchema = z.object({
   sourceGeneratedAt: z.iso.datetime(),
   source: z.url(),
   sourceHash: z.string().regex(/^[a-f0-9]{64}$/),
+  benchmarkSourceHash: z.string().regex(/^[a-f0-9]{64}$/),
   methodology: z.url(),
   models: z.array(z.object({
     family: text,
