@@ -1,6 +1,6 @@
 # Horizontal ranking review
 
-The user rejected the table-first ranking and raised the target to 9/10 from every council member in every category. Previous 8-level approvals do not satisfy this request.
+All four council members score every category at least 9/10 on the same frozen implementation, `2714f8a`. The user rejected the earlier table-first ranking and raised the target to 9/10 in every category. The final result meets that target.
 
 Rankings now use horizontal model rows on a shared scale. Dots show every measured configuration, the range connects configurations, and a faint bar marks the first value in the chosen direction on the active scale. Linear charts retain a zero reference. Models default to their best measurement first. Signed scores keep their zero reference. Model rows expand to exact reasoning values and selectable configuration details. View data remains a secondary disclosure. There is no automatic table fallback at any width or selection size.
 
@@ -47,7 +47,7 @@ Rebased onto current main `8f33ad0`, preserving the updated benchmark data, outp
 
 ## Round 2 partial result and compact scatter fix
 
-Terra scored navigation, hierarchy, controls, accessibility and theme consistency 9/10, with chart readability and mobile responsiveness 8.5/10, overall 8.5/10. Its only required change was a larger readable compact scatter. Other round-2 reports are pending.
+Terra scored navigation, hierarchy, controls, accessibility and theme consistency 9/10, with chart readability and mobile responsiveness 8.5/10, overall 8.5/10. Its only required change was a larger readable compact scatter. The other round-2 reports are recorded below.
 
 The compact scatter now has at least 360px of plot height on desktop and 320px on phones. The entire card can scroll, keeping the named legend without squeezing the plot. A browser test checks 901px, 390px and 320px, including plot height, rendered axis text height, and an SVG screen scale of one.
 
@@ -85,9 +85,32 @@ Fresh evidence includes `navigation-desktop901.png`, `navigation-desktop901-sett
 
 | Delegate | Round 1 overall | Round 2 overall | Focused recheck overall | Final frozen pass |
 | --- | --- | --- | --- | --- |
-| DeepSeek V4.1 Flash | 8.5 | 8.7 | no score | pending |
-| GPT Sol | no score | 8.9 | 9 | pending |
-| Kimi K3.1 Pro | 8.8 | 8.7 | 9.1 | pending |
-| GPT-6.1 Terra | 8 | 8.5 | 9 | pending |
+| DeepSeek V4.1 Flash | 8.5 | 8.7 | no score | 9 |
+| GPT Sol | no score | 8.9 | 9 | 9 |
+| Kimi K3.1 Pro | 8.8 | 8.7 | 9.1 | 9.1 |
+| GPT-6.1 Terra | 8 | 8.5 | 9 | 9 |
 
-The final pass reviews one frozen implementation. No code or evidence changes will be made while those reviews run. The 9-in-every-category target is not yet achieved.
+All four final reviews confirmed the exact same HEAD before and after: `2714f8a5b9503e72c1afbbcb29009b9b8d966318`. Code and evidence remained unchanged throughout. Every member found no bounded required fix.
+
+## Final category scores
+
+| Category | DeepSeek | Sol | Kimi | Terra |
+| --- | --- | --- | --- | --- |
+| Navigation and discovery | 9 | 9 | 9.2 | 9 |
+| Hierarchy and typography | 9 | 9 | 9.1 | 9 |
+| Chart/data readability | 9 | 9 | 9.2 | 9 |
+| Controls and feedback | 9 | 9 | 9.1 | 9 |
+| Mobile responsiveness | 9 | 9 | 9.1 | 9 |
+| Accessibility | 9 | 9 | 9.1 | 9 |
+| Light/dark consistency | 9 | 9 | 9.2 | 9 |
+| Overall | 9 | 9 | 9.1 | 9 |
+
+All 28 category scores meet the requested minimum. These scores are design review judgments, not accessibility certification.
+
+DeepSeek inspected 33 screenshots, source and browser assertions, then independently ran type checking, all 182 unit tests, production build and all 20 production browser tests. Live checks confirmed complete API/subscription legends, correct overflow cues, the shared label breakpoint, estimate provenance/counts and 320px layouts.
+
+Sol inspected the supplied captures and source, and independently exercised final fixes and focus behavior at 901px, 1280px and 320px. Terra and Kimi inspected the final source and requested captures. They did not independently rerun full suites during the frozen pass. No reviewer used a real screen reader or completed a full WCAG, zoom/reflow or cross-engine audit. Validation is Chromium-based.
+
+DeepSeek noted two non-blocking details: Terra and Astra share a legend color but retain explicit names/logos, and phones use the Atlas home link for the Benchmarks route. These did not lower any category below 9.
+
+Only review documentation changes follow the approved implementation. No application source, test or screenshot changes are included in that final documentation update.

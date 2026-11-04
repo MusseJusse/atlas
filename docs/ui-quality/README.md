@@ -40,10 +40,10 @@ Additional captures cover [phone overview](navigation-phone-overview.png), [phon
 
 The new acceptance criterion is at least 8/10 from every council member in every category: navigation and discovery, hierarchy and typography, chart/data readability, controls and feedback, mobile responsiveness, accessibility, and visual consistency in light/dark themes. Earlier aggregate approvals do not establish this category-level result.
 
-The historical category-level target was met: all four members score each of the seven categories at least 8/10. See [the final matrix and review history](category-review.md). Current verification includes 181 unit tests and 16 production browser tests.
+The historical category-level target was met: all four members score each of the seven categories at least 8/10. See [the final matrix and review history](category-review.md). Verification at that historical stage included 181 unit tests and 16 production browser tests.
 
 ## Current 9-level target
 
-The user rejected the table-first result and now requires every council member to score every category at least 9/10. That target is pending. The horizontal ranking rebuild, latest scores, findings, and fixes are documented in [horizontal-review.md](horizontal-review.md). Older 8-level approvals do not satisfy it.
+The user rejected the table-first result and now requires every council member to score every category at least 9/10. All four members now meet that target on the same frozen implementation, `2714f8a`. The horizontal ranking rebuild, latest scores, findings, and fixes are documented in [horizontal-review.md](horizontal-review.md). Older 8-level approvals do not satisfy it.
 
 The current branch passes type checking, 182 unit tests, production build, and 20 production Chromium tests after rebase onto `8f33ad0`. Captures show the application with real data.
