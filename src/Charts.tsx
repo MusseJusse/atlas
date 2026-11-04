@@ -10,7 +10,7 @@ import {
 import { flushSync } from 'react-dom';
 import { resolveChartInteraction } from './chart-interactions';
 import { useHydrated } from './useHydrated';
-import type { Model } from './models';
+import { selectionFamily, type Model } from './models';
 import { modelColor, shortName } from './model-presentation';
 import { scoreLabels, metrics, resolveView, type View } from './chart-definitions';
 import type { Settings } from './state';
@@ -121,7 +121,8 @@ export const Chart = memo(function Chart({
     togglePin: (model) => setPinnedId((previous) => previous === model.id ? null : model.id),
     highlight: (id) => flushSync(() => onHighlight(id)),
   };
-  const modelCount = new Set(validRows.map((row) => row.family)).size;
+  const modelCount = new Set(validRows.map(selectionFamily)).size;
+  const seriesCount = new Set(validRows.map((row) => row.family)).size;
   const legend = [...new Map(validRows.map((row) => [row.codingAgent ? row.id : row.family, row])).values()];
 
   function closeOnBackground(event: MouseEvent<SVGSVGElement>) {
@@ -202,7 +203,7 @@ export const Chart = memo(function Chart({
       </div>
       {/* Reserve the mobile legend's height in the initial HTML before hydration. */}
       {scatter && (
-        <div className={`${width < 600 || !settings.labels ? 'grid' : 'hidden plot-mobile:grid'} grid-cols-2 gap-x-3 gap-y-0.5 pt-2.5`}>
+        <div className={`${width < 600 || !settings.labels ? 'grid' : 'hidden plot-mobile:grid'} scatter-legend ${width >= 480 ? 'grid-cols-3 phone:grid-cols-2' : 'grid-cols-2'} gap-x-3 gap-y-0.5 pt-2.5`}>
           {legend.map((model) => (
             <button
               className="flex min-h-11 items-center gap-[7px] overflow-hidden text-left text-[13px] font-[550] whitespace-nowrap text-fg"
@@ -225,7 +226,7 @@ export const Chart = memo(function Chart({
         </div>
       )}
       {ready && validRows.length > 0 && <details className="measurement-disclosure">
-        <summary>View data · {modelCount} {modelCount === 1 ? 'model' : 'models'} with data · {validRows.length} {validRows.length === 1 ? 'configuration' : 'configurations'}</summary>
+        <summary>View data · {modelCount} {modelCount === 1 ? 'model' : 'models'} with data{seriesCount > modelCount && ` · ${seriesCount} series`} · {validRows.length} {validRows.length === 1 ? 'configuration' : 'configurations'}</summary>
         {table}
       </details>}
     </div>

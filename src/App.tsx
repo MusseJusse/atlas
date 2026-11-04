@@ -100,7 +100,10 @@ function Benchmarks() {
     const feed = chartFeed.current;
     const section = feed?.querySelector<HTMLElement>(`#${active}`);
     if (!feed || !section) return;
-    const check = () => setMoreBelow(Boolean(section.querySelector('.ranking')) && feed.scrollHeight - feed.scrollTop - feed.clientHeight > 8);
+    const check = () => {
+      const end = section.querySelector('.measurement-disclosure') ?? section.lastElementChild;
+      setMoreBelow(end != null && end.getBoundingClientRect().bottom > feed.getBoundingClientRect().bottom + 2);
+    };
     const observer = new ResizeObserver(check);
     observer.observe(feed);
     observer.observe(section);
@@ -223,7 +226,7 @@ function Benchmarks() {
                       pricing={!settings.codingOnly && (view.id === 'cost-intelligence' || view.id === 'cost-task')}
                     />
                   </div>
-                  {scatter && <p className="chart-guidance">Higher and further left is better.{linear || phone ? '' : ' Log scale shows equal cost ratios.'}</p>}
+                  {scatter && <p className="chart-guidance">Higher and further left is better.{linear || phone ? '' : ' Log scale shows equal cost ratios.'}{view.metric === 'cost' && !subscription && ' API pricing.'}</p>}
                   {view.metric === 'omniscience' && <p className="chart-guidance">Correct answers raise the score. Incorrect answers lower it.</p>}
                   <div
                     className={`flex min-h-[58px] shrink-0 short:min-h-12 short:py-1 flex-wrap items-center justify-between gap-x-4 gap-y-1 py-2 text-[12px] ${!scatter && view.mode !== 'optional-scatter' && view.metric !== 'cost' ? 'hidden' : !scatter ? 'ranking-toolbar' : ''}`}
@@ -304,9 +307,6 @@ function Benchmarks() {
                       {scatter && !linear && chartRows.some((row) => row.cost === 0) && ' · Zero costs omitted on log scale'}
                     </p>
                   )}
-                  {!subscription && view.metric === 'cost' && scatter && (
-                    <p className="mt-0 mb-2 shrink-0 text-[11px] leading-5 text-fg-2">API pricing</p>
-                  )}
                   <Chart
                     presentation={ranking}
                     active={active === view.id}
@@ -321,7 +321,7 @@ function Benchmarks() {
               );
             })}
           </div>
-          {moreBelow && <div className="ranking-scroll-cue" aria-hidden="true">Scroll for more models <ArrowDown size={13} /></div>}
+          {moreBelow && <div className="chart-scroll-cue" aria-hidden="true">Scroll for more <ArrowDown size={13} /></div>}
           </div>
         </main>
       </div>
@@ -389,7 +389,7 @@ function ChartOptions({
   }, [open]);
   if (scatter && phone && !pricing) return null;
   return (
-    <details ref={menu} className="group relative shrink-0" onToggle={(event) => {
+    <details ref={menu} className={`group relative shrink-0 ${scatter && !pricing ? 'label-options-only' : ''}`} onToggle={(event) => {
       setOpen(event.currentTarget.open);
       if (event.currentTarget.open) fitMenu();
     }} onKeyDown={(event) => {
@@ -414,7 +414,7 @@ function ChartOptions({
         {pricing && <PricingControls settings={settings} update={update} />}
         {scatter && !phone && <>
         <button
-          className="inline-flex min-h-10 items-center gap-2 px-1 text-[12px] text-fg hover:text-accent"
+          className="direct-label-option inline-flex min-h-10 items-center gap-2 px-1 text-[12px] text-fg hover:text-accent"
           aria-pressed={settings.labels}
           onClick={() => update({ labels: !settings.labels })}
         >

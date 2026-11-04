@@ -2,7 +2,7 @@
 
 The user rejected the table-first ranking and raised the target to 9/10 from every council member in every category. Previous 8-level approvals do not satisfy this request.
 
-Rankings now use horizontal model rows on a shared scale. Dots show every measured configuration, the range connects configurations, and a faint bar runs from zero to the first value in the chosen direction. Models default to their best measurement first. Signed scores keep their zero reference. Model rows expand to exact reasoning values and selectable configuration details. View data remains a secondary disclosure. There is no automatic table fallback at any width or selection size.
+Rankings now use horizontal model rows on a shared scale. Dots show every measured configuration, the range connects configurations, and a faint bar marks the first value in the chosen direction on the active scale. Linear charts retain a zero reference. Models default to their best measurement first. Signed scores keep their zero reference. Model rows expand to exact reasoning values and selectable configuration details. View data remains a secondary disclosure. There is no automatic table fallback at any width or selection size.
 
 The previous implementation is recorded in `before-horizontal-ranking.png`. Current application captures:
 
@@ -14,7 +14,7 @@ The previous implementation is recorded in `before-horizontal-ranking.png`. Curr
 
 Validation before the first 9-level review: type checking, 179 unit tests, production build, and 17 production Chromium tests pass. Browser coverage checks all configurations remain plotted, table completeness on disclosure, grouped cost/intelligence ordering in both directions, signed positions, keyboard expansion/selection/close focus, all seven views, history, narrow layout, and existing Efficiency/Changelog behavior. Vite's existing bundle-size warnings remain.
 
-Council round 1 for the new target is pending. Categories remain navigation and discovery, hierarchy and typography, chart/data readability, controls and feedback, mobile responsiveness, accessibility, and light/dark consistency. Reviewers must assess visual quality as well as correctness, and identify concrete changes needed for any score below 9.
+Council round 1 for the new target was requested on `35d1e18`. Categories remain navigation and discovery, hierarchy and typography, chart/data readability, controls and feedback, mobile responsiveness, accessibility, and light/dark consistency. Reviewers must assess visual quality as well as correctness, and identify concrete changes needed for any score below 9.
 
 ## Round 1 scores
 
@@ -41,7 +41,7 @@ Sol's run failed at the provider usage limit. No approval is inferred from that 
 - Replaced the phone Efficiency fieldset boundary with a named threshold group, fixing its legend collision. Narrow resource navigation uses two columns. Axis text is 12px and the compact visual key stays together.
 - Desktop configuration choices and details now share a row. Phone details remain stacked. Negative bars round their data end; faint fills have lower opacity.
 
-Round 2 is pending. Fresh captures include desktop/320px linear costs in both themes, phone expansion, and the corrected Efficiency layout. Validation before rebase: 181 unit tests, type checking, build, and 18 production browser tests pass. Rebase validation and captures will be refreshed against latest main.
+Round 2 was requested on `167148e`. Fresh captures include desktop/320px linear costs in both themes, phone expansion, and the corrected Efficiency layout. Validation before rebase: 181 unit tests, type checking, build, and 18 production browser tests pass. Rebase validation and captures will be refreshed against latest main.
 
 Rebased onto current main `8f33ad0`, preserving the updated benchmark data, output-speed fix and OpenAI/Anthropic default selection. Post-rebase checks pass: type checking, 182 unit tests, production build, and 18 production browser tests. All current captures were regenerated after this rebase. Baseline images retain the earlier snapshot, so comparisons demonstrate layout changes rather than identical metric values.
 
@@ -61,4 +61,33 @@ Terra rechecked `d9afba8` and scored every category and overall 9/10. It inspect
 
 Sol's fresh round-2 review of `167148e` scored navigation, hierarchy, readability, controls and mobile 9, themes 9.2, accessibility 8.5 and overall 8.9. It independently passed the 18 browser tests and exercised all seven views in both themes at 320, 390, 901 and 1280px. Its only required fix was Escape from a ranking inspector losing focus to BODY, because the shared close handler only targeted SVG controls.
 
-The shared Escape handler now restores focus to either the selected SVG control or the selected HTML configuration button before removing details. The keyboard test checks both click-close and Escape-close, including focus, pressed state and inspector removal. `horizontal-escape-focus.png` captures the returned focus ring. Type checking, build and all 19 browser tests pass. Sol's focused recheck is pending. DeepSeek and Kimi round-2 results are pending.
+The shared Escape handler now restores focus to either the selected SVG control or the selected HTML configuration button before removing details. The keyboard test checks both click-close and Escape-close, including focus, pressed state and inspector removal. `horizontal-escape-focus.png` captures the returned focus ring. Type checking, build and all 19 browser tests pass. Later recheck results are recorded below.
+
+## Completed rechecks and DeepSeek round 2
+
+Sol rechecked `9d9086f` in the live production preview. It confirmed click-close and Escape-close restore visible configuration focus, clear the pin, and remove the inspector. Every category and overall now scores 9, with themes 9.2. This was a focused recheck; other scores retained its earlier assessment.
+
+Kimi rechecked `9d9086f` and independently measured compact scatter at 901/390/320px, confirming minimum height, 1:1 SVG scale, 16px rendered axis glyph bounds and no horizontal overflow. It reproduced click-close and Escape-close focus restoration. Its latest scores are navigation 9.2, hierarchy 9.1, readability 9.1, controls 9.1, mobile 9.1, accessibility 9.1, themes 9.2, overall 9.1. It did not rerun full suites during this focused recheck.
+
+DeepSeek's round-2 review inspected `167148e` and the later `9d9086f` tree. On current `9d9086f` it scored navigation 9, hierarchy 9, readability 8.5, controls 8.5, mobile 9, accessibility 9, themes 9, overall 8.7. The earlier target's accessibility was 8.5 and overall 8.6. It independently passed type checking, all 182 unit tests, build and all 19 browser tests. It exercised seven views, both themes, four viewport widths, dense selection, history, pins and focus. No screen-reader certification is claimed.
+
+DeepSeek found three remaining clarity issues. The compact scatter legend clipped its last entry with no overflow cue; Model labels remained available where direct labels cannot render; and the derived Ultrafast speed endpoint counted as an extra selected model with only a tilde identifying its estimate.
+
+## Final frozen review candidate
+
+The fixes retain all series and measurements:
+
+- Compact legends use three columns where chart width permits. API provenance shares the existing guidance line. At 901x900 all seven selected model names and View data fit inside the card. Overflow cues now cover both rankings and scatter, and measure the actual content end so padding does not create a false cue.
+- Model labels and any label-only menu use the same 600px content-width condition as the scatter. Compact pricing menus retain their meaningful controls. The browser test checks the label setting is absent at 901px and affects the chart at desktop width.
+- Data counts use the parent picker identity for speed endpoints. The time view now says 7 models with data and 8 series. Estimated speed endpoint is visible on its row and in the exact-value table; the accessible row name explicitly says estimated. A production browser test checks a Sol-only selection counts one model and two series.
+
+Fresh evidence includes `navigation-desktop901.png`, `navigation-desktop901-settings.png`, `horizontal-time.png`, and `horizontal-time-data.png`. All other affected captures were regenerated. Type checking, 182 unit tests, production build and all 20 production Chromium tests pass.
+
+| Delegate | Round 1 overall | Round 2 overall | Focused recheck overall | Final frozen pass |
+| --- | --- | --- | --- | --- |
+| DeepSeek V4.1 Flash | 8.5 | 8.7 | no score | pending |
+| GPT Sol | no score | 8.9 | 9 | pending |
+| Kimi K3.1 Pro | 8.8 | 8.7 | 9.1 | pending |
+| GPT-6.1 Terra | 8 | 8.5 | 9 | pending |
+
+The final pass reviews one frozen implementation. No code or evidence changes will be made while those reviews run. The 9-in-every-category target is not yet achieved.

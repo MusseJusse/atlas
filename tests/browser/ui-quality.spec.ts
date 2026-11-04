@@ -28,7 +28,7 @@ test('broad ranking selection keeps every configuration plotted with optional ex
   await page.getByRole('button', { name: 'Select all', exact: true }).first().click();
   const ranking = page.locator('#intelligence');
   await expect(ranking.locator('.ranking')).toBeVisible();
-  await expect(page.locator('.ranking-scroll-cue')).toBeVisible();
+  await expect(page.locator('.chart-scroll-cue')).toBeVisible();
   expect(await ranking.locator('.ranking-rows').evaluate((element) => element.scrollHeight - element.clientHeight)).toBeLessThanOrEqual(1);
   const dots = await ranking.locator('[data-configuration]').count();
   expect(dots).toBeGreaterThan(60);
@@ -255,7 +255,19 @@ test('cost scale changes retain exact measurements and the compact scatter keeps
   await page.setViewportSize({ width: 901, height: 900 });
   await page.goto('/');
   const overview = page.locator('#cost-intelligence');
-  await expect(overview.getByRole('button', { name: 'GPT-6.1 Sol', exact: true })).toBeVisible();
+  const legend = overview.locator('.scatter-legend');
+  const selectedNames = await page.locator('#model-filters button[title$="configurations"][aria-pressed="true"]').allTextContents();
+  expect(selectedNames).toHaveLength(7);
+  await expect(legend.getByRole('button')).toHaveCount(selectedNames.length);
+  for (const name of selectedNames) await expect(legend.getByRole('button', { name: name.trim(), exact: true })).toBeInViewport({ ratio: 1 });
+  await expect(overview.locator('.measurement-disclosure summary')).toBeInViewport({ ratio: 1 });
+  await expect(page.locator('.chart-scroll-cue')).toHaveCount(0);
+  await overview.locator('summary[aria-label="Chart settings"]').click();
+  await expect(overview.getByRole('button', { name: 'Model labels', exact: true })).toHaveCount(0);
+  await page.setViewportSize({ width: 1280, height: 900 });
+  await expect(overview.getByRole('button', { name: 'Model labels', exact: true })).toBeVisible();
+  await overview.getByRole('button', { name: 'Model labels', exact: true }).click();
+  await expect(overview.locator('svg[role=group]').getByText('GPT-6.1 Sol', { exact: true })).toHaveCount(0);
 });
 
 
@@ -269,4 +281,16 @@ test('compact scatter uses readable plot dimensions without scaling its axis tex
     expect((await svg.boundingBox())!.height).toBeGreaterThanOrEqual(minimumHeight - 1);
     expect(await svg.locator('text').first().evaluate((element) => element.getBoundingClientRect().height)).toBeGreaterThanOrEqual(12);
   }
+});
+
+
+test('time estimates retain their parent model count and identify the derived endpoint', async ({ page }) => {
+  await page.goto('/?chart=time-task&selected=gpt-6-1-sol');
+  const chart = page.locator('#time-task');
+  await expect(chart.locator('.measurement-disclosure summary')).toContainText('1 model with data · 2 series');
+  const endpoint = chart.locator('.ranking-row').filter({ hasText: 'GPT-6.1 Sol Ultrafast' });
+  await expect(endpoint).toContainText('Estimated speed endpoint');
+  await expect(endpoint).toHaveAccessibleName(/Lowest estimated/);
+  await chart.locator('.measurement-disclosure summary').click();
+  await expect(chart.getByRole('row', { name: /GPT-6.1 Sol Ultrafast Estimated speed endpoint/ })).toBeVisible();
 });

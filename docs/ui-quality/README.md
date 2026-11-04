@@ -46,4 +46,4 @@ The historical category-level target was met: all four members score each of the
 
 The user rejected the table-first result and now requires every council member to score every category at least 9/10. That target is pending. The horizontal ranking rebuild, latest scores, findings, and fixes are documented in [horizontal-review.md](horizontal-review.md). Older 8-level approvals do not satisfy it.
 
-The current branch passes type checking, 182 unit tests, production build, and 18 production Chromium tests after rebase onto `8f33ad0`. Captures show the application with real data.
+The current branch passes type checking, 182 unit tests, production build, and 20 production Chromium tests after rebase onto `8f33ad0`. Captures show the application with real data.

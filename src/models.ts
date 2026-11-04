@@ -40,11 +40,16 @@ export const families = [
     .map((model) => [model.family, { family: model.family, model, variants: [model] }])).values(),
 ];
 export const familyMap = new Map(families.map((family) => [family.family, family]));
+/** Speed endpoints share their parent model's picker control. */
+export function selectionFamily(model: Pick<Model, 'family'>) {
+  return endpointParents.get(model.family) ?? model.family;
+}
+
 /** Null measurements stay absent from charts; they are never plotted as zero. */
 export function visibleModels(selected: string[], excluded: string[]) {
   const selectedFamilies = new Set(selected);
   return filterReasoning(allModels.filter((model) =>
-    selectedFamilies.has(endpointParents.get(model.family) ?? model.family)), excluded);
+    selectedFamilies.has(selectionFamily(model))), excluded);
 }
 
 /** Keep configurations with a higher score than every better alternative for the metric. */

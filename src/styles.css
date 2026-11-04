@@ -447,9 +447,17 @@
 .benchmark-feed::-webkit-scrollbar-thumb { background: var(--line-2); border: 2px solid var(--panel); border-radius: 8px; }
 @media (width <= 900px) { .benchmark-feed { scrollbar-gutter: auto; } }
 
-.ranking-scroll-cue { position: absolute; bottom: 0; inset-inline: 0; display: flex; justify-content: center; align-items: center; gap: 6px; padding: 16px 12px 8px; border-radius: 0 0 12px 12px; background: linear-gradient(transparent, var(--panel) 45%); color: var(--fg-2); font-size: 12px; pointer-events: none; }
-@media (width <= 900px) { .ranking-scroll-cue { display: none; } }
+.chart-scroll-cue { position: absolute; bottom: 0; inset-inline: 0; display: flex; justify-content: center; align-items: center; gap: 6px; padding: 16px 12px 8px; border-radius: 0 0 12px 12px; background: linear-gradient(transparent, var(--panel) 45%); color: var(--fg-2); font-size: 12px; pointer-events: none; }
+@media (width <= 900px) { .chart-scroll-cue { display: none; } }
 
 .chart-section:has(.scatter-plot) { height: auto; min-height: 100%; }
 .scatter-plot { min-height: 360px; }
 @media (width <= 600px) { .scatter-plot { min-height: 320px; } }
+
+/* Direct labels need the same 600px of chart width used by Scatter. */
+.chart-section { container-type: inline-size; }
+.direct-label-option, .label-options-only { display: none; }
+@container (width >= 600px) {
+  .direct-label-option { display: inline-flex; }
+  .label-options-only { display: block; }
+}
