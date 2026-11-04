@@ -250,3 +250,16 @@ test('cost scale changes retain exact measurements and the compact scatter keeps
   const overview = page.locator('#cost-intelligence');
   await expect(overview.getByRole('button', { name: 'GPT-6.1 Sol', exact: true })).toBeVisible();
 });
+
+
+test('compact scatter uses readable plot dimensions without scaling its axis text', async ({ page }) => {
+  for (const [width, minimumHeight] of [[901, 360], [390, 320], [320, 320]]) {
+    await page.setViewportSize({ width, height: 800 });
+    await page.goto('/');
+    const svg = page.locator('#cost-intelligence svg[role=group]');
+    await expect(svg).toBeVisible();
+    await expect.poll(() => svg.evaluate((element) => (element as SVGSVGElement).getScreenCTM()!.a)).toBeCloseTo(1, 2);
+    expect((await svg.boundingBox())!.height).toBeGreaterThanOrEqual(minimumHeight - 1);
+    expect(await svg.locator('text').first().evaluate((element) => element.getBoundingClientRect().height)).toBeGreaterThanOrEqual(12);
+  }
+});

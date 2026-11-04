@@ -449,3 +449,7 @@
 
 .ranking-scroll-cue { position: absolute; bottom: 0; inset-inline: 0; display: flex; justify-content: center; align-items: center; gap: 6px; padding: 16px 12px 8px; border-radius: 0 0 12px 12px; background: linear-gradient(transparent, var(--panel) 45%); color: var(--fg-2); font-size: 12px; pointer-events: none; }
 @media (width <= 900px) { .ranking-scroll-cue { display: none; } }
+
+.chart-section:has(.scatter-plot) { height: auto; min-height: 100%; }
+.scatter-plot { min-height: 360px; }
+@media (width <= 600px) { .scatter-plot { min-height: 320px; } }

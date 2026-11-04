@@ -44,3 +44,13 @@ Sol's run failed at the provider usage limit. No approval is inferred from that 
 Round 2 is pending. Fresh captures include desktop/320px linear costs in both themes, phone expansion, and the corrected Efficiency layout. Validation before rebase: 181 unit tests, type checking, build, and 18 production browser tests pass. Rebase validation and captures will be refreshed against latest main.
 
 Rebased onto current main `8f33ad0`, preserving the updated benchmark data, output-speed fix and OpenAI/Anthropic default selection. Post-rebase checks pass: type checking, 182 unit tests, production build, and 18 production browser tests. All current captures were regenerated after this rebase. Baseline images retain the earlier snapshot, so comparisons demonstrate layout changes rather than identical metric values.
+
+## Round 2 partial result and compact scatter fix
+
+Terra scored navigation, hierarchy, controls, accessibility and theme consistency 9/10, with chart readability and mobile responsiveness 8.5/10, overall 8.5/10. Its only required change was a larger readable compact scatter. Other round-2 reports are pending.
+
+The compact scatter now has at least 360px of plot height on desktop and 320px on phones. The entire card can scroll, keeping the named legend without squeezing the plot. A browser test checks 901px, 390px and 320px, including plot height, rendered axis text height, and an SVG screen scale of one.
+
+Capture scripts now wait for SVG viewBox dimensions to match the measured viewport before taking evidence. The previous 901px capture caught the initial measurement state and made the chart look reduced. The corrected capture shows a 553px by 360px SVG at a screen scale of one. The application also has the larger minimum plot height, so this is a layout improvement as well as a capture correction.
+
+Added dedicated desktop and phone Total tokens captures. Current validation: type checking and production build pass, with all 19 production browser tests passing. The last complete unit run passed all 182 tests; this change only touches chart sizing and screenshot evidence.

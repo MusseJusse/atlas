@@ -147,7 +147,7 @@ export const Chart = memo(function Chart({
       }}
     >
       <div
-        className={`relative min-h-0 ${scatter ? "flex-1 mobile:aspect-[1/1.2] mobile:flex-none" : "contents"}`}
+        className={`relative min-h-0 ${scatter ? "scatter-plot flex-1 mobile:aspect-[1/1.2] mobile:flex-none" : "contents"}`}
         ref={ref}
       >
         {ready &&
