@@ -63,8 +63,8 @@ export function Efficiency() {
         }}
       >
         <aside aria-label="Efficiency controls" className="min-h-0 min-w-0 overflow-y-auto pt-2 mobile:contents">
-          <fieldset className="efficiency-filters m-0 min-w-0 border-0 p-0">
-            <legend className="mb-3 text-[13px] font-semibold">Intelligence Index</legend>
+          <div role="group" aria-labelledby="efficiency-threshold-title" className="efficiency-filters m-0 min-w-0">
+            <h2 id="efficiency-threshold-title" className="m-0 mb-2 text-[13px] font-semibold">Intelligence threshold</h2>
             <div className="efficiency-thresholds flex flex-col gap-1">
               {lines.map((line) => (
                 <label key={line.threshold} className="flex min-h-11 cursor-pointer items-center gap-2 text-[13px]">
@@ -91,7 +91,7 @@ export function Efficiency() {
                 </label>
               ))}
             </div>
-          </fieldset>
+          </div>
           <div className="efficiency-details-slot">
             {active && (
               <aside

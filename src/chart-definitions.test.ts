@@ -45,6 +45,7 @@ it('changes the score bar metric without changing chart IDs or unrelated benchma
   expect(coding.find((view) => view.id === 'intelligence'))
     .toMatchObject({ label: 'Coding score', metric: 'codingIndex' });
   expect(coding.find((view) => view.id === 'omniscience')?.metric).toBe('omniscience');
+  expect(coding.find((view) => view.id === 'cost-intelligence')?.label).toBe('Cost vs coding score');
   expect(chartViews(false)).toEqual(views);
 });
 

@@ -28,6 +28,8 @@ test('broad ranking selection keeps every configuration plotted with optional ex
   await page.getByRole('button', { name: 'Select all', exact: true }).first().click();
   const ranking = page.locator('#intelligence');
   await expect(ranking.locator('.ranking')).toBeVisible();
+  await expect(page.locator('.ranking-scroll-cue')).toBeVisible();
+  expect(await ranking.locator('.ranking-rows').evaluate((element) => element.scrollHeight - element.clientHeight)).toBeLessThanOrEqual(1);
   const dots = await ranking.locator('[data-configuration]').count();
   expect(dots).toBeGreaterThan(60);
   await expect(ranking.locator('.measurement-table')).not.toBeVisible();
@@ -217,6 +219,7 @@ test('ranking expansion and configuration details work entirely from the keyboar
   await page.goto('/?chart=omniscience');
   const ranking = page.locator('#omniscience .ranking');
   const first = ranking.locator('.ranking-row').first();
+  await expect(first).toHaveAccessibleName(/rank 1, AA-Omniscience Index.*Highest.*configurations, range.*Show configurations/);
   await first.focus();
   await page.keyboard.press('Enter');
   await expect(first).toHaveAttribute('aria-expanded', 'true');
@@ -231,4 +234,19 @@ test('ranking expansion and configuration details work entirely from the keyboar
   const signed = await ranking.locator('[data-configuration]').evaluateAll((dots) => dots.map((dot) => Number.parseFloat((dot as HTMLElement).style.left)));
   expect(signed.every((position) => position >= 0 && position <= 100)).toBe(true);
   await expect(ranking.locator('.ranking-ticks')).toContainText('-');
+});
+
+
+test('cost scale changes retain exact measurements and the compact scatter keeps named models', async ({ page }) => {
+  await page.goto('/?chart=cost-task');
+  const chart = page.locator('#cost-task');
+  const scale = chart.getByRole('group', { name: 'Cost per task axis scale' });
+  await expect(scale.getByRole('button', { name: 'Log', exact: true })).toHaveAttribute('aria-pressed', 'true');
+  const ids = await chart.locator('[data-configuration]').evaluateAll((dots) => dots.map((dot) => dot.getAttribute('data-configuration')));
+  await scale.getByRole('button', { name: 'Linear', exact: true }).click();
+  expect(await chart.locator('[data-configuration]').evaluateAll((dots) => dots.map((dot) => dot.getAttribute('data-configuration')))).toEqual(ids);
+  await page.setViewportSize({ width: 901, height: 900 });
+  await page.goto('/');
+  const overview = page.locator('#cost-intelligence');
+  await expect(overview.getByRole('button', { name: 'GPT-6.1 Sol', exact: true })).toBeVisible();
 });

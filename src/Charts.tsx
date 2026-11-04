@@ -181,7 +181,7 @@ export const Chart = memo(function Chart({
               />
               <Scatter rows={prepared.rows} metric={view.metric} scoreMetric={score} linear={linear} settings={settings} width={width} height={height} interactions={interactions} />
             </svg>
-          ) : <Ranking rows={prepared.rows} metric={view.metric} grouped={settings.grouped} descending={descending} interactions={interactions} score={settings.codingOnly ? score : undefined} />)}
+          ) : <Ranking rows={prepared.rows} metric={view.metric} grouped={settings.grouped} descending={descending} interactions={interactions} score={settings.codingOnly ? score : undefined} logarithmic={view.metric === 'cost' && !linear && validRows.every((row) => row.value > 0)} />)}
         {scatter && activeModel && (
           <aside
             className={`configuration-details${pinned ? '' : ' pointer-events-none'}`}
@@ -202,7 +202,7 @@ export const Chart = memo(function Chart({
       </div>
       {/* Reserve the mobile legend's height in the initial HTML before hydration. */}
       {scatter && (
-        <div className="hidden plot-mobile:grid grid-cols-2 gap-x-3 gap-y-0.5 pt-2.5">
+        <div className={`${width < 600 || !settings.labels ? 'grid' : 'hidden plot-mobile:grid'} grid-cols-2 gap-x-3 gap-y-0.5 pt-2.5`}>
           {legend.map((model) => (
             <button
               className="flex min-h-11 items-center gap-[7px] overflow-hidden text-left text-[13px] font-[550] whitespace-nowrap text-fg"
@@ -225,7 +225,7 @@ export const Chart = memo(function Chart({
         </div>
       )}
       {ready && validRows.length > 0 && <details className="measurement-disclosure">
-        <summary>View data · {modelCount} {modelCount === 1 ? 'model' : 'models'} · {validRows.length} {validRows.length === 1 ? 'configuration' : 'configurations'}</summary>
+        <summary>View data · {modelCount} {modelCount === 1 ? 'model' : 'models'} with data · {validRows.length} {validRows.length === 1 ? 'configuration' : 'configurations'}</summary>
         {table}
       </details>}
     </div>

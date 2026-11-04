@@ -50,7 +50,7 @@ export type View = Omit<(typeof views)[number], 'metric' | 'label'> & { metric: 
 export function chartViews(codingOnly: boolean): View[] {
   return views.map((view) => codingOnly && view.id === 'intelligence'
     ? { ...view, metric: 'codingIndex', label: metrics.codingIndex.label }
-    : view);
+    : codingOnly && view.id === 'cost-intelligence' ? { ...view, label: 'Cost vs coding score' } : view);
 }
 
 /** Resolve controls and rendering from the same view, including per-view axis choices. */

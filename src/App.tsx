@@ -89,10 +89,25 @@ function Benchmarks() {
   const search = typeof location === 'undefined' ? '' : location.search;
   const [settings, setSettings] = useState(() => readSettings(search));
   const [mobileOpen, setMobileOpen] = useState(false);
+  const chartFeed = useRef<HTMLDivElement>(null);
+  const [moreBelow, setMoreBelow] = useState(false);
   const [highlighted, setHighlighted] = useState<string | null>(null);
   const mobile = useMediaQuery('(max-width: 900px)');
   const phone = useMediaQuery('(max-width: 600px)');
   const { active, navigate } = useChartNavigation();
+  useEffect(() => { chartFeed.current?.scrollTo({ top: 0 }); }, [active]);
+  useEffect(() => {
+    const feed = chartFeed.current;
+    const section = feed?.querySelector<HTMLElement>(`#${active}`);
+    if (!feed || !section) return;
+    const check = () => setMoreBelow(Boolean(section.querySelector('.ranking')) && feed.scrollHeight - feed.scrollTop - feed.clientHeight > 8);
+    const observer = new ResizeObserver(check);
+    observer.observe(feed);
+    observer.observe(section);
+    feed.addEventListener('scroll', check, { passive: true });
+    check();
+    return () => { observer.disconnect(); feed.removeEventListener('scroll', check); };
+  }, [active, settings]);
   const update = useCallback(
     (patch: Partial<Settings>) => setSettings((current) => ({ ...current, ...patch })),
     [],
@@ -174,11 +189,14 @@ function Benchmarks() {
             </button>
             <ChartNavigation views={datasetViews} active={active} navigate={navigate} />
           </div>
-          <div
-            className="relative min-h-0 overflow-y-auto rounded-b-xl [scrollbar-width:thin] [scrollbar-color:var(--line-2)_var(--panel)] mobile:overflow-visible"
+          <div className="relative min-h-0">
+          <div ref={chartFeed}
+            className="benchmark-feed h-full relative min-h-0 overflow-y-auto rounded-b-xl [scrollbar-width:thin] [scrollbar-color:var(--line-2)_var(--panel)] mobile:overflow-visible"
           >
             {datasetViews.map((view) => {
               const { scatter, linear } = resolveView(view, settings);
+              const rankingLogAvailable = view.metric === 'cost' && rowsByView.get(view.id)!.every((row) => row.cost === null || row.cost > 0);
+              const displayLinear = scatter ? linear : linear || !rankingLogAvailable;
               const subscription = usesSubscriptionPricing(view.id, settings);
               const chartRows = rowsByView.get(view.id)!;
               const ranking = rankingPresentation(view, settings);
@@ -208,7 +226,7 @@ function Benchmarks() {
                   {scatter && <p className="chart-guidance">Higher and further left is better.{linear || phone ? '' : ' Log scale shows equal cost ratios.'}</p>}
                   {view.metric === 'omniscience' && <p className="chart-guidance">Correct answers raise the score. Incorrect answers lower it.</p>}
                   <div
-                    className={`flex min-h-[58px] shrink-0 short:min-h-12 short:py-1 flex-wrap items-center justify-between gap-x-4 gap-y-1 py-2 text-[12px] ${!scatter && view.mode !== 'optional-scatter' ? 'hidden' : ''}`}
+                    className={`flex min-h-[58px] shrink-0 short:min-h-12 short:py-1 flex-wrap items-center justify-between gap-x-4 gap-y-1 py-2 text-[12px] ${!scatter && view.mode !== 'optional-scatter' && view.metric !== 'cost' ? 'hidden' : !scatter ? 'ranking-toolbar' : ''}`}
                   >
                     {scatter ? (
                       <button
@@ -220,11 +238,7 @@ function Benchmarks() {
                         <Selection checked={settings.frontier} />
                         Efficient frontier
                       </button>
-                    ) : (
-                      <span className="text-fg-2 mobile:hidden">
-                        {settings.grouped ? 'Grouped by model' : 'All configurations'}
-                      </span>
-                    )}
+                    ) : view.metric === 'cost' && !subscription ? <span className="text-fg-2">API pricing</span> : null}
                     <div className="ml-auto flex items-center gap-5 phone:gap-3">
                       {view.mode === 'optional-scatter' && (
                         <div
@@ -248,7 +262,7 @@ function Benchmarks() {
                           </button>
                         </div>
                       )}
-                      {scatter && (
+                      {(scatter || view.metric === 'cost') && (
                         <div
                           className="flex items-center gap-2"
                           role="group"
@@ -258,7 +272,7 @@ function Benchmarks() {
                           <div className="flex gap-1 rounded-md bg-surface p-1">
                             <button
                               className="min-h-8 rounded-sm px-2.5 text-[12px] text-fg-2 aria-pressed:bg-panel aria-pressed:font-medium aria-pressed:text-accent"
-                              aria-pressed={linear}
+                              aria-pressed={displayLinear}
                               onClick={() =>
                                 update({ linear: [...new Set([...settings.linear, view.id])] })
                               }
@@ -267,7 +281,9 @@ function Benchmarks() {
                             </button>
                             <button
                               className="min-h-8 rounded-sm px-2.5 text-[12px] text-fg-2 aria-pressed:bg-panel aria-pressed:font-medium aria-pressed:text-accent"
-                              aria-pressed={!linear}
+                              aria-pressed={!displayLinear}
+                              disabled={!scatter && !rankingLogAvailable}
+                              title={!scatter && !rankingLogAvailable ? 'Zero costs require a linear scale' : undefined}
                               onClick={() =>
                                 update({ linear: settings.linear.filter((id) => id !== view.id) })
                               }
@@ -288,7 +304,7 @@ function Benchmarks() {
                       {scatter && !linear && chartRows.some((row) => row.cost === 0) && ' · Zero costs omitted on log scale'}
                     </p>
                   )}
-                  {!subscription && view.metric === 'cost' && (
+                  {!subscription && view.metric === 'cost' && scatter && (
                     <p className="mt-0 mb-2 shrink-0 text-[11px] leading-5 text-fg-2">API pricing</p>
                   )}
                   <Chart
@@ -304,6 +320,8 @@ function Benchmarks() {
                 </section>
               );
             })}
+          </div>
+          {moreBelow && <div className="ranking-scroll-cue" aria-hidden="true">Scroll for more models <ArrowDown size={13} /></div>}
           </div>
         </main>
       </div>
