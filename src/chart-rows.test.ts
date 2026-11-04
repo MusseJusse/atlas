@@ -2,7 +2,7 @@ import { expect, it } from 'vitest';
 import { visibleChartRows } from './chart-rows';
 import { chartViews, views } from './chart-definitions';
 import { codingOnlyRows } from './data/coding-only';
-import { models, visibleModels, type Model } from './models';
+import { models, type Model } from './models';
 import { readSettings } from './state';
 
 const costView = views.find((view) => view.id === 'cost-intelligence')!;
@@ -12,9 +12,10 @@ const max: Model = { ...models[0]!, id: 'max', family: 'test', effort: 'max', in
 const high: Model = { ...max, id: 'high', effort: 'high', intelligence: 28 };
 const none: Model = { ...max, id: 'none', effort: 'none' };
 
-it('keeps DeepSeek Max on cost vs intelligence with the reported filters', () => {
-  const rows = visibleModels(['deepseek-v4-1-flash-1017'], []);
-  expect(rows.find((row) => row.effort === 'high')?.cost).toBeNull();
+// Effect hosts now measure the DeepSeek high tier, so this regression on PR #78 uses synthetic rows:
+// a Max tier with measurements, and a cheaper tier missing the cost axis.
+it('keeps Max visible when other tiers lack chart measurements', () => {
+  const rows = [max, { ...high, cost: null }, none];
   expect(visibleChartRows(rows, costView, settings).map((row) => row.effort)).toEqual(['max']);
   expect(visibleChartRows(rows, intelligenceView, settings).map((row) => row.effort)).toEqual(['high']);
 });
