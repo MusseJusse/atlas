@@ -3,6 +3,7 @@ import type { Metric } from './chart-definitions';
 
 // Intl construction dominates repeated chart formatting. There are only a few precision pairs.
 const numberFormats = new Map<number, Intl.NumberFormat>();
+const smallCostFormat = new Intl.NumberFormat('en-US', { maximumSignificantDigits: 3 });
 function formatNumber(value: number, maximumFractionDigits: number, minimumFractionDigits = 0) {
   const key = maximumFractionDigits * 10 + minimumFractionDigits;
   let formatter = numberFormats.get(key);
@@ -34,6 +35,9 @@ export function format(
         : `${Math.floor(seconds / 3600)}h ${Math.floor((seconds % 3600) / 60)}m`;
   }
   if (metric === 'cost' || metric === 'costTotal') {
+    // Subscription estimates can be far below a millidollar. Preserve their scale
+    // rather than rounding distinct log ticks to the same label or to zero.
+    if (value !== 0 && Math.abs(value) < 0.001) return '$' + smallCostFormat.format(value);
     if (compact && value >= 1000) return `$${+(value / 1000).toFixed(1)}k`;
     return (
       '$' +

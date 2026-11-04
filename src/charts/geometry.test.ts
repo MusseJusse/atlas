@@ -3,7 +3,7 @@ import { models, type Model } from '../models';
 import { speedEndpoints } from '../data/speed-endpoints';
 import { barDomain, linearScale, logScale } from '../scales';
 import { scatterDomain } from '../scatter-data';
-import { barGeometry, measureRows, measureScatterRows, rangeGeometry, scatterGeometry } from './geometry';
+import { barGeometry, measureRows, measureScatterRows, rangeGeometry, scatterGeometry, spacedAxisTicks } from './geometry';
 
 const base = models[0]!;
 function model(id: string, family: string, cost: number | null, intelligence = 40): Model {
@@ -110,4 +110,15 @@ it('thins dense model labels within bounds without dropping points or series', (
     expect(label.y).toBeGreaterThanOrEqual(geometry.top);
     expect(label.y).toBeLessThanOrEqual(geometry.bottom);
   }
+});
+
+
+it('spaces precise axis labels without changing the underlying tick positions', () => {
+  const values = [0.0005, 0.001, 0.002, 0.005];
+  const positions = new Map(values.map((value, index) => [value, index * 32]));
+  const labels = spacedAxisTicks(values, (value) => positions.get(value)!, 'cost');
+  expect(labels.length).toBeGreaterThan(1);
+  expect(labels.length).toBeLessThan(values.length);
+  expect(new Set(labels.map((tick) => tick.label)).size).toBe(labels.length);
+  for (const tick of labels) expect(tick.x).toBe(positions.get(tick.value));
 });

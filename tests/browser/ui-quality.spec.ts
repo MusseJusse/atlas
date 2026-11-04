@@ -127,3 +127,17 @@ test('phone chart categories expose every choice without overflow or a dropdown'
   await navigation.getByRole('button', { name: 'Scores', exact: true }).click();
   await expect(navigation.getByRole('button', { name: 'Omniscience', exact: true })).toHaveAttribute('aria-current', 'page');
 });
+
+
+test('low subscription price ticks are distinct and have room for their precision', async ({ page }) => {
+  await page.goto('/?pricing=subscription');
+  await expect(page.locator('#cost-intelligence svg[role=group]')).toBeVisible();
+  await page.evaluate(() => document.fonts.ready);
+  const labels = await page.locator('#cost-intelligence svg g[transform] text[y="26"]').evaluateAll((elements) =>
+    elements.map((element) => ({ text: element.textContent, left: element.getBoundingClientRect().left, right: element.getBoundingClientRect().right })),
+  );
+  expect(labels.length).toBeGreaterThan(3);
+  expect(new Set(labels.map((label) => label.text)).size).toBe(labels.length);
+  expect(labels.some((label) => label.text === '$0.0005')).toBe(true);
+  for (let index = 1; index < labels.length; index++) expect(labels[index]!.left - labels[index - 1]!.right).toBeGreaterThanOrEqual(4);
+});
