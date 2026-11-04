@@ -62,30 +62,38 @@ test('phone pages and expanded changelog values fit a narrow viewport', async ({
 });
 
 
-test('phone dense tables match their order control and show table-specific guidance', async ({ page }) => {
+test('phone intelligence and cost tables match grouped sort controls in both directions', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
-  await page.goto('/?chart=intelligence');
-  await page.getByRole('button', { name: /Models.*Edit selection/ }).click();
-  await page.getByRole('button', { name: 'Select all', exact: true }).first().click();
-  await page.getByRole('button', { name: 'Done', exact: true }).click();
-  const ranking = page.locator('#intelligence');
-  await expect(ranking).toContainText('Compare every measured configuration in the table.');
-  await expect(ranking).not.toContainText('Expand a model');
-  const maximums = () => ranking.locator('tbody tr').evaluateAll((rows) => {
-    const groups = new Map<string, number>();
-    for (const row of rows) {
-      const name = row.querySelector('th')!.textContent!;
-      const value = Number(row.querySelectorAll('td')[1]!.textContent);
-      groups.set(name, Math.max(groups.get(name) ?? -Infinity, value));
-    }
-    return [...groups.values()];
-  });
-  const initial = await maximums();
-  expect(initial).toEqual(initial.toSorted((a, b) => b - a));
-  await ranking.locator('summary[aria-label="Chart settings"]').click();
-  await expect(ranking.getByRole('button', { name: 'Highest first', exact: true })).toBeVisible();
-  await ranking.getByRole('button', { name: 'Highest first', exact: true }).click();
-  await expect(ranking.getByRole('button', { name: 'Lowest first', exact: true })).toBeVisible();
-  const reversed = await maximums();
-  expect(reversed).toEqual(reversed.toSorted((a, b) => a - b));
+  for (const [chart, defaultDescending] of [['intelligence', true], ['cost-task', false]] as const) {
+    await page.goto(`/?chart=${chart}`);
+    await page.getByRole('button', { name: /Models.*Edit selection/ }).click();
+    await page.getByRole('button', { name: 'Select all', exact: true }).first().click();
+    await page.getByRole('button', { name: 'Done', exact: true }).click();
+    const ranking = page.locator(`#${chart}`);
+    await expect(ranking).toContainText('Compare every measured configuration in the table.');
+    await expect(ranking).not.toContainText('Expand a model');
+    const valuesByModel = () => ranking.locator('tbody tr').evaluateAll((rows) => {
+      const groups = new Map<string, number[]>();
+      for (const row of rows) {
+        const name = row.querySelector('th')!.textContent!;
+        const value = Number(row.querySelectorAll('td')[1]!.textContent!.replace(/[$,]/g, ''));
+        const values = groups.get(name) ?? [];
+        values.push(value);
+        groups.set(name, values);
+      }
+      return [...groups.values()];
+    });
+    const assertOrder = (groups: number[][], descending: boolean) => {
+      const compare = (a: number, b: number) => (a - b) * (descending ? -1 : 1);
+      const best = groups.map((values) => descending ? Math.max(...values) : Math.min(...values));
+      expect(best).toEqual(best.toSorted(compare));
+      for (const values of groups) expect(values).toEqual(values.toSorted(compare));
+    };
+    assertOrder(await valuesByModel(), defaultDescending);
+    await ranking.locator('summary[aria-label="Chart settings"]').click();
+    const initialLabel = defaultDescending ? 'Highest first per model' : 'Lowest first per model';
+    await expect(ranking.getByRole('button', { name: initialLabel, exact: true })).toBeVisible();
+    await ranking.getByRole('button', { name: initialLabel, exact: true }).click();
+    assertOrder(await valuesByModel(), !defaultDescending);
+  }
 });

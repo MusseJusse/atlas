@@ -9,7 +9,8 @@ import type { MeasuredRow } from './geometry';
 export function MeasurementTable({ rows, metric, score, settings, descending }: {
   rows: MeasuredRow[]; metric: Metric; score?: ScoreMetric; settings: Settings; descending: boolean;
 }) {
-  const ordered = barGroups(rows, metric, settings.grouped, descending).flatMap((group) => group.rows);
+  const ordered = barGroups(rows, metric, settings.grouped, descending, descending ? 'maximum' : 'minimum')
+    .flatMap((group) => group.rows.toSorted((a, b) => (a.value - b.value) * (descending ? -1 : 1)));
   return <div className="measurement-table" role="region" aria-label={`${metrics[metric].label} data`} tabIndex={0}>
     <table>
       <caption className="sr-only">{metrics[metric].label} for every displayed configuration</caption>

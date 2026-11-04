@@ -211,6 +211,7 @@ function Benchmarks() {
                       settings={settings}
                       update={update}
                       descending={ranking.descending}
+                      groupedTable={ranking.dense && settings.grouped}
                       scatter={scatter}
                       phone={phone}
                       pricing={!settings.codingOnly && (view.id === 'cost-intelligence' || view.id === 'cost-task')}
@@ -350,6 +351,7 @@ function ChartOptions({
   update,
   descending,
   pricing,
+  groupedTable,
   scatter,
   phone,
 }: {
@@ -357,6 +359,7 @@ function ChartOptions({
   update: (patch: Partial<Settings>) => void;
   descending: boolean;
   pricing: boolean;
+  groupedTable: boolean;
   scatter: boolean;
   phone: boolean;
 }) {
@@ -437,7 +440,7 @@ function ChartOptions({
             style={{ transform: descending ? 'rotate(180deg)' : undefined }}
             aria-hidden="true"
           />
-          {descending ? 'Highest first' : 'Lowest first'}
+          {descending ? 'Highest first' : 'Lowest first'}{groupedTable ? ' per model' : ''}
         </button>
         </>}
       </div>
