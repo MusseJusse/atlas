@@ -231,6 +231,13 @@ test('ranking expansion and configuration details work entirely from the keyboar
   await ranking.getByRole('button', { name: 'Clear selected configuration' }).click();
   await expect(configuration).toBeFocused();
   await expect(configuration).toHaveAttribute('aria-pressed', 'false');
+  await page.keyboard.press('Enter');
+  const close = ranking.getByRole('button', { name: 'Clear selected configuration' });
+  await close.focus();
+  await page.keyboard.press('Escape');
+  await expect(configuration).toBeFocused();
+  await expect(configuration).toHaveAttribute('aria-pressed', 'false');
+  await expect(ranking.getByRole('complementary', { name: 'Selected configuration' })).toHaveCount(0);
   const signed = await ranking.locator('[data-configuration]').evaluateAll((dots) => dots.map((dot) => Number.parseFloat((dot as HTMLElement).style.left)));
   expect(signed.every((position) => position >= 0 && position <= 100)).toBe(true);
   await expect(ranking.locator('.ranking-ticks')).toContainText('-');

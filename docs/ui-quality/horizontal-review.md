@@ -54,3 +54,11 @@ The compact scatter now has at least 360px of plot height on desktop and 320px o
 Capture scripts now wait for SVG viewBox dimensions to match the measured viewport before taking evidence. The previous 901px capture caught the initial measurement state and made the chart look reduced. The corrected capture shows a 553px by 360px SVG at a screen scale of one. The application also has the larger minimum plot height, so this is a layout improvement as well as a capture correction.
 
 Added dedicated desktop and phone Total tokens captures. Current validation: type checking and production build pass, with all 19 production browser tests passing. The last complete unit run passed all 182 tests; this change only touches chart sizing and screenshot evidence.
+
+## Focused Terra approval and Sol focus finding
+
+Terra rechecked `d9afba8` and scored every category and overall 9/10. It inspected the source, browser assertion and six requested images, including the new Total tokens captures. It did not independently run tests, exercise a live browser or test a screen reader. Accessibility and themes retained its earlier scores.
+
+Sol's fresh round-2 review of `167148e` scored navigation, hierarchy, readability, controls and mobile 9, themes 9.2, accessibility 8.5 and overall 8.9. It independently passed the 18 browser tests and exercised all seven views in both themes at 320, 390, 901 and 1280px. Its only required fix was Escape from a ranking inspector losing focus to BODY, because the shared close handler only targeted SVG controls.
+
+The shared Escape handler now restores focus to either the selected SVG control or the selected HTML configuration button before removing details. The keyboard test checks both click-close and Escape-close, including focus, pressed state and inspector removal. `horizontal-escape-focus.png` captures the returned focus ring. Type checking, build and all 19 browser tests pass. Sol's focused recheck is pending. DeepSeek and Kimi round-2 results are pending.

@@ -134,7 +134,7 @@ export const Chart = memo(function Chart({
 
   function clearSelection() {
     // Keep keyboard users in the chart when removing the inspector's focused control.
-    ref.current?.querySelector<SVGGElement>('g[aria-pressed="true"]')?.focus({ preventScroll: true });
+    ref.current?.querySelector<SVGGElement | HTMLButtonElement>('g[aria-pressed="true"], .ranking-configurations button[aria-pressed="true"]')?.focus({ preventScroll: true });
     setPinnedId(null);
     setHoveredId(null);
   }
