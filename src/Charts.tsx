@@ -11,14 +11,14 @@ import { flushSync } from 'react-dom';
 import { resolveChartInteraction } from './chart-interactions';
 import { useHydrated } from './useHydrated';
 import type { Model } from './models';
-import { shortName } from './model-presentation';
+import { modelColor, shortName } from './model-presentation';
 import { scoreLabels, metrics, resolveView, type View } from './chart-definitions';
-import type { Settings } from './state';
+import { chartDescending, type Settings } from './state';
 import { Logo } from './Logo';
 import { ConfigurationDetails } from './charts/ConfigurationDetails';
 import { Scatter } from './charts/Scatter';
 import { Bars } from './charts/Bars';
-import { DotPlot } from './charts/DotPlot';
+import { Ranking } from './charts/Ranking';
 import { measureRows, measureScatterRows } from './charts/geometry';
 import type { Interactions } from './charts/interactions';
 
@@ -101,7 +101,6 @@ export const Chart = memo(function Chart({
   }, [active, visited]);
   const [hoveredId, setHoveredId] = useState<string | null>(null);
   const [pinnedId, setPinnedId] = useState<string | null>(null);
-  const [expanded, setExpanded] = useState<string | null>(null);
   const prepared = useMemo(
     () =>
       scatter
@@ -219,13 +218,9 @@ export const Chart = memo(function Chart({
       </div>
       {ready && validRows.length > 0 && !scatter && phone && (
         <div className="hidden phone:block">
-          <DotPlot
-            rows={validRows}
-            metric={view.metric}
-            settings={settings}
-            expanded={expanded}
-            onExpand={setExpanded}
-          />
+          {!prepared.scatter && <Ranking rows={prepared.rows} metric={view.metric} grouped={settings.grouped}
+            descending={chartDescending(view.metric, true, settings.descending)} interactions={interactions}
+            score={settings.codingOnly ? score : undefined} logarithmic={false} />}
         </div>
       )}
       {/* Reserve the mobile legend's height in the initial HTML before hydration. */}
@@ -239,6 +234,7 @@ export const Chart = memo(function Chart({
               onClick={() => interactions.togglePin(model)}
             >
               <Logo model={model} />
+              <span aria-hidden="true" className="hidden phone:block size-2 shrink-0 rounded-full" style={{ background: modelColor(model) }} />
               {model.codingAgent ? (
                 <span className="min-w-0">
                   <span className="block truncate">{shortName(model)}</span>

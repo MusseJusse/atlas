@@ -3,6 +3,7 @@ import { ArrowDown, Ellipsis, SlidersHorizontal } from 'lucide-react';
 import { PricingControls } from './PricingControls';
 import { pricingDisclosure, subscriptionRows, usesSubscriptionPricing } from './data/subscriptions';
 import { Chart } from './Charts';
+import { ChartNavigation } from './ChartNavigation';
 import { visibleChartRows } from './chart-rows';
 import { codingOnlyRows } from './data/coding-only';
 import { Sidebar } from './Sidebar';
@@ -201,9 +202,9 @@ function Benchmarks() {
               <span>{settings.selected.length} selected</span>
               <span className="ml-auto text-accent">Edit selection</span>
             </button>
-            <nav
-              ref={chartNavigation}
-              className="flex min-w-0 gap-6 overflow-x-auto border-b border-line [scrollbar-width:thin] [scrollbar-color:var(--line-2)_transparent] compact:gap-5"
+            <div ref={chartNavigation}><nav
+
+              className="flex mobile:hidden min-w-0 gap-6 overflow-x-auto border-b border-line [scrollbar-width:thin] [scrollbar-color:var(--line-2)_transparent] compact:gap-5"
               aria-label="Chart views"
             >
               {datasetViews.map((view) => (
@@ -217,6 +218,7 @@ function Benchmarks() {
                 </button>
               ))}
             </nav>
+            <div className="hidden mobile:block"><ChartNavigation views={datasetViews} active={active} navigate={navigate} /></div></div>
           </div>
           <div
             className="relative min-h-0 snap-y snap-proximity overflow-y-auto rounded-b-xl [scrollbar-width:thin] [scrollbar-color:var(--line-2)_var(--panel)] mobile:snap-none mobile:overflow-visible"
