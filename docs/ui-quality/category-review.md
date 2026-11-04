@@ -1,4 +1,6 @@
-# Category review
+Current acceptance requires 9/10 in every category. The results below document the earlier 8-level target. See [the current horizontal-chart review](horizontal-review.md).
+
+# Historical 8-level category review
 
 The user rejected the chart dropdown and requested at least 8/10 in every category from every council member. The dropdown is now replaced with visible desktop navigation and phone category/chart rows.
 

@@ -42,3 +42,5 @@ Sol's run failed at the provider usage limit. No approval is inferred from that 
 - Desktop configuration choices and details now share a row. Phone details remain stacked. Negative bars round their data end; faint fills have lower opacity.
 
 Round 2 is pending. Fresh captures include desktop/320px linear costs in both themes, phone expansion, and the corrected Efficiency layout. Validation before rebase: 181 unit tests, type checking, build, and 18 production browser tests pass. Rebase validation and captures will be refreshed against latest main.
+
+Rebased onto current main `8f33ad0`, preserving the updated benchmark data, output-speed fix and OpenAI/Anthropic default selection. Post-rebase checks pass: type checking, 182 unit tests, production build, and 18 production browser tests. All current captures were regenerated after this rebase. Baseline images retain the earlier snapshot, so comparisons demonstrate layout changes rather than identical metric values.

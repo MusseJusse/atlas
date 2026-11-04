@@ -1,6 +1,6 @@
 # UI review evidence
 
-The before images show `origin/main` at `b17dca3`. The after images show this branch with the same benchmark snapshot. Desktop captures use 1280 × 800; phone captures use 390 × 844. These are browser screenshots of the application, not design mocks.
+The before images show `origin/main` at `b17dca3`. Current after images show this branch rebased onto `main` at `8f33ad0`, including its newer benchmark data and default model selection. Values and selected models can differ. Desktop captures use 1280 × 800; phone captures use 390 × 844. These are browser screenshots of the application, not design mocks.
 
 | View | Before | After |
 | --- | --- | --- |
@@ -13,15 +13,15 @@ The before images show `origin/main` at `b17dca3`. The after images show this br
 
 Additional checks show [dark mode](after-dark.png) , [all-model ranking](after-dense.png), and [phone dense ranking with its sort control](after-dense-mobile-settings.png).
 
-Rankings use tables when model labels would collide at the available width, or when the selection exceeds 12 groups or 60 configurations. Tables retain every measured configuration. Model groups rank by their best value; configurations within a model use the selected value order. The settings control, table order, and guidance use the same presentation decision. Chart choices are visible on desktop; phones use visible category and chart rows instead of a dropdown. Explicit sort choices override the default.
+Rankings now remain horizontal charts at every width and selection size. Each model row shows all measured configurations, their range, and the highest or lowest value in the chosen order. Exact values are available through row expansion and View data. There is no automatic table fallback. Chart choices are visible on desktop; phones use visible category and chart rows instead of a dropdown. Explicit sort choices override the default.
 
-The initial council baseline was 6/10 from DeepSeek V4.1 Flash and 6.5/10 from GPT Sol, Kimi K3.1 Pro, and GPT-6.1 Terra. Those first reviews used an earlier running snapshot. The paired screenshots above use the latest `main` consistently.
+The initial council baseline was 6/10 from DeepSeek V4.1 Flash and 6.5/10 from GPT Sol, Kimi K3.1 Pro, and GPT-6.1 Terra. Those first reviews used an earlier running snapshot. Current captures have since been refreshed against the newer main snapshot.
 
 Validation covers type checking, unit tests, a production build, and production Chromium tests. Browser tests check hydration, stalled fonts, URL/history restoration, all chart choices, phone model selection, dense table completeness and sorting, Efficiency layout, and 320px overflow.
 
-## Council result
+## Historical 8-level council result
 
-All reviewers' latest approvals reached the target: DeepSeek V4.1 Flash 8/10, GPT Sol 8/10, Kimi K3.1 Pro 9/10, and GPT-6.1 Terra 8/10.
+The earlier aggregate target reached: DeepSeek V4.1 Flash 8/10, GPT Sol 8/10, Kimi K3.1 Pro 9/10, and GPT-6.1 Terra 8/10.
 
 | Delegate | Baseline | Implementation | Ordering | Label fit | Final ordering |
 | --- | --- | --- | --- | --- | --- |
@@ -40,4 +40,10 @@ Additional captures cover [phone overview](navigation-phone-overview.png), [phon
 
 The new acceptance criterion is at least 8/10 from every council member in every category: navigation and discovery, hierarchy and typography, chart/data readability, controls and feedback, mobile responsiveness, accessibility, and visual consistency in light/dark themes. Earlier aggregate approvals do not establish this category-level result.
 
-The category-level target is now met: all four members score each of the seven categories at least 8/10. See [the final matrix and review history](category-review.md). Current verification includes 181 unit tests and 16 production browser tests.
+The historical category-level target was met: all four members score each of the seven categories at least 8/10. See [the final matrix and review history](category-review.md). Current verification includes 181 unit tests and 16 production browser tests.
+
+## Current 9-level target
+
+The user rejected the table-first result and now requires every council member to score every category at least 9/10. That target is pending. The horizontal ranking rebuild, latest scores, findings, and fixes are documented in [horizontal-review.md](horizontal-review.md). Older 8-level approvals do not satisfy it.
+
+The current branch passes type checking, 182 unit tests, production build, and 18 production Chromium tests after rebase onto `8f33ad0`. Captures show the application with real data.
