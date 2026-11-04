@@ -233,13 +233,13 @@ function Benchmarks() {
                   >
                     {scatter ? (
                       <button
-                        className="inline-flex min-h-10 min-w-0 flex-[1_1_360px] items-start gap-2 py-2 text-left text-fg aria-pressed:text-accent hover:text-accent"
+                        className="inline-flex min-h-10 items-center gap-2 text-fg aria-pressed:text-accent hover:text-accent"
                         aria-pressed={settings.frontier}
-                        title="Configurations with no better and cheaper alternative."
+                        title="Pareto Frontier connects configurations with no better and cheaper alternative."
                         onClick={() => update({ frontier: !settings.frontier })}
                       >
-                        <span className="mt-[3px] flex shrink-0"><Selection checked={settings.frontier} /></span>
-                        <span>Pareto Frontier<span className="text-fg-2"> connects configurations with no better and cheaper alternative.</span></span>
+                        <Selection checked={settings.frontier} />
+                        Pareto Frontier
                       </button>
                     ) : view.metric === 'cost' && !subscription ? <span className="text-fg-2">API pricing</span> : null}
                     <div className="ml-auto flex items-center gap-5 phone:gap-3">
