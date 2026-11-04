@@ -41,9 +41,8 @@
       "output": 88573.99849468909
     },
     "intelligenceIndexTimePerTask": 361.81506607584737,
-    "timescaleData": {
-      "medianOutputSpeed": 175.852558774099,
-      "medianTimeToFirstChunk": 1.23437171299997
+    "headline": {
+      "outputSpeed": 175.852558774099
     },
     "price1mInputTokens": 0.3,
     "price1mOutputTokens": 1.2,
@@ -87,9 +86,8 @@
     "deprecated": true,
     "isReasoning": false,
     "intelligenceIndex": 6.69669796944385,
-    "timescaleData": {
-      "medianOutputSpeed": 51.790790075056,
-      "medianTimeToFirstChunk": 2.97946403999999
+    "headline": {
+      "outputSpeed": 51.790790075056
     },
     "price1mInputTokens": 0.6,
     "price1mOutputTokens": 1.8,
@@ -141,9 +139,8 @@
       "output": 26155.726977249793
     },
     "intelligenceIndexTimePerTask": 58.509642803636325,
-    "timescaleData": {
-      "medianOutputSpeed": 448.952932795582,
-      "medianTimeToFirstChunk": 7.47917194699994
+    "headline": {
+      "outputSpeed": 448.952932795582
     },
     "price1mInputTokens": 0.25,
     "price1mOutputTokens": 0.75,

@@ -133,12 +133,12 @@ describe('direct Artificial Analysis import', () => {
       deprecated: true,
     });
     expect(models[2]).toMatchObject({ effort: 'high', effortOrder: 40 });
-    const missingSpeed = sourceFixture([aaModels[0]!, { ...aaModels[1]!, timescaleData: {} }]);
+    const missingSpeed = sourceFixture([aaModels[0]!, { ...aaModels[1]!, headline: null }]);
     expect((await fetchSnapshot(missingSpeed.fetcher)).models[1]!.speed).toBeNull();
     const source = sourceFixture([{
       ...aaModels[0]!, effort: undefined, intelligenceIndex: 0, price1mInputTokens: 0,
       intelligenceIndexCost: { ...aaModels[0]!.intelligenceIndexCost!, total: 0 },
-      timescaleData: { ...aaModels[0]!.timescaleData, medianOutputSpeed: 0 },
+      headline: { ...aaModels[0]!.headline!, outputSpeed: 0 },
     }]);
     expect((await fetchSnapshot(source.fetcher)).models[0]).toMatchObject({
       effort: 'default', effortLabel: 'Default', effortOrder: 35,
