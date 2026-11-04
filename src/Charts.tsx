@@ -154,10 +154,10 @@ export const Chart = memo(function Chart({
         if (event.key === 'Escape') clearSelection();
       }}
     >
-      <div className={bars ? 'bar-scroll shrink-0 overflow-x-auto' : 'contents'}>
+      <div className={bars ? 'bar-scroll min-h-0 flex-1 overflow-x-auto' : 'contents'}>
       <div
         style={bars ? { minWidth: Math.max(1, new Set(validRows.map((row) => settings.grouped ? row.family : row.id)).size) * 120 } : undefined}
-        className={`relative min-h-0 ${bars ? 'bar-plot h-[440px] w-full shrink-0' : scatter ? "scatter-plot flex-1 mobile:aspect-[1/1.2] mobile:flex-none" : "contents"}`}
+        className={`relative min-h-0 ${bars ? 'bar-plot h-full w-full' : scatter ? "scatter-plot flex-1 mobile:aspect-[1/1.2] mobile:flex-none" : "contents"}`}
         ref={ref}
       >
         {ready &&

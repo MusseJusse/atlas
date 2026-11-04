@@ -377,3 +377,24 @@ test('dense desktop bars retain every configuration in a horizontally scrollable
   await expect(section.locator('tbody tr')).toHaveCount(count);
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
 });
+
+
+test('desktop bars expand with the available card height', async ({ page }) => {
+  const plot = page.locator('#intelligence .bar-plot');
+  const heights: number[] = [];
+  for (const height of [800, 1200]) {
+    await page.setViewportSize({ width: 1600, height });
+    await page.goto('/?chart=intelligence&bars=true');
+    await expect(plot.locator('svg[role=group]')).toBeVisible();
+    const bounds = await plot.boundingBox();
+    heights.push(bounds!.height);
+    const section = page.locator('#intelligence');
+    const card = await section.boundingBox();
+    const summary = await section.locator('.measurement-disclosure summary').boundingBox();
+    expect(card!.y + card!.height - summary!.y - summary!.height).toBeLessThan(24);
+  }
+  expect(heights[1]! - heights[0]!).toBeGreaterThan(380);
+  await page.getByRole('button', { name: 'Ranking', exact: true }).click();
+  await expect(page.locator('#intelligence .ranking')).toBeVisible();
+  await expect(plot).toHaveCount(0);
+});

@@ -1,6 +1,6 @@
 # UI review evidence
 
-Desktop presentation now supports both [Ranking and Bars](desktop-presentation.md). The preference persists in the URL; phones retain rankings. Current validation passes 183 unit tests and 23 browser tests.
+Desktop presentation now supports both [Ranking and Bars](desktop-presentation.md). The preference persists in the URL; phones retain rankings. Bars now expand to fill the available card height. Current validation passes 183 unit tests and 24 browser tests.
 
 Latest follow-up: [aligned ranking markers](aligned-markers.md) removes vertical staggering after user feedback. New screenshots cover both reported phone views, narrow layout, desktop and dark mode. Current validation passes 182 unit tests and 21 browser tests.
 

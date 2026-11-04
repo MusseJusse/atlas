@@ -462,5 +462,5 @@
   .label-options-only { display: block; }
 }
 
-.chart-section:has(.bar-plot) { height: auto; min-height: 100%; }
-.bar-scroll { scrollbar-width: auto; scrollbar-color: var(--line-2) var(--panel); }
+.chart-section:has(.bar-plot) { height: 100%; min-height: 560px; }
+.bar-scroll { min-height: 320px; scrollbar-width: auto; scrollbar-color: var(--line-2) var(--panel); }
