@@ -7,6 +7,7 @@ import { metrics, type Metric } from '../chart-definitions';
 import type { Settings } from '../state';
 import { pinHandlers, type Interactions } from './interactions';
 import { barGeometry, type MeasuredRow } from './geometry';
+import { durationTicks } from './ranking-geometry';
 
 export function Bars({
   rows,
@@ -45,7 +46,7 @@ export function Bars({
       <text x={left} y={17} fill="var(--fg-2)" fontSize={12}>
         {metrics[metric].unit}
       </text>
-      {y.ticks(4).map((tick) => (
+      {(metric === 'time' ? durationTicks(Math.max(...rows.map((row) => row.value)) * 1.15) : y.ticks(4)).map((tick) => (
         <g key={tick} transform={`translate(0,${y(tick)})`}>
           <line x1={left} x2={right} stroke="var(--line)" strokeDasharray="2 6" />
           <text x={left - 10} y={4} textAnchor="end" fill="var(--fg-3)" fontSize={11}>

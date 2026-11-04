@@ -464,3 +464,8 @@
 
 .chart-section:has(.bar-plot) { height: 100%; min-height: 560px; }
 .bar-scroll { min-height: 320px; scrollbar-width: auto; scrollbar-color: var(--line-2) var(--panel); }
+
+@media (width > 900px) and (height <= 700px) {
+  .chart-section:has(.bar-plot) { min-height: 0; }
+  .bar-scroll { min-height: 180px; }
+}

@@ -117,7 +117,8 @@ export function barGeometry(
   const groups = barGroups(rows, metric, grouped, descending, sortBy);
   const values = rows.map((row) => row.value);
   // Leave room for negative value labels above the reasoning marks and model names.
-  const labelSpace = values.some((value) => value < 0) ? 42 : 0;
+  const negativeCount = Math.max(0, ...groups.map((group) => group.rows.filter((row) => row.value < 0).length));
+  const labelSpace = negativeCount ? Math.max(42, negativeCount * 17 + 16) : 0;
   const y = linearScale(
     barDomain(values, 0.15),
     [bottom - labelSpace, top],
@@ -143,7 +144,7 @@ export function barGeometry(
       const negative = row.value < 0;
       let labelY = y(row.value) + (negative ? 16 : -8);
       while (
-        barWidth > 8 &&
+        !negative && barWidth > 8 &&
         valueLabels.some(
           (label) =>
             Math.abs(label.x - labelX) < (label.width + textWidth) / 2 + 4 &&
@@ -151,9 +152,21 @@ export function barGeometry(
         )
       )
         labelY += negative ? 17 : -17;
-      if (barWidth > 8) valueLabels.push({ x: labelX, y: labelY, width: textWidth });
+      if (!negative && barWidth > 8) valueLabels.push({ x: labelX, y: labelY, width: textWidth });
       return { row, x, labelX, labelY, text };
     });
+    // Negative annotations share a band below the deepest bar. Deeper values
+    // may move down for collisions, but never above shallower annotations.
+    const negativeBars = bars.filter((bar) => bar.row.value < 0).toSorted((a, b) => b.row.value - a.row.value);
+    let negativeY = Math.max(...negativeBars.map((bar) => y(bar.row.value)), 0) + 16;
+    for (const bar of negativeBars) {
+      const textWidth = bar.text.length * 6.4;
+      while (barWidth > 8 && valueLabels.some((label) =>
+        Math.abs(label.x - bar.labelX) < (label.width + textWidth) / 2 + 4 && Math.abs(label.y - negativeY) < 17,
+      )) negativeY += 17;
+      bar.labelY = negativeY;
+      if (barWidth > 8) valueLabels.push({ x: bar.labelX, y: negativeY, width: textWidth });
+    }
     return { ...group, center, groupWidth, barWidth, bars };
   });
   return { left, right, top, bottom, y, positioned };

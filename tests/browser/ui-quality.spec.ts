@@ -398,3 +398,33 @@ test('desktop bars expand with the available card height', async ({ page }) => {
   await expect(page.locator('#intelligence .ranking')).toBeVisible();
   await expect(plot).toHaveCount(0);
 });
+
+
+test('short desktop bar labels clear the card edge and negative annotations respect depth', async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 640 });
+  for (const chart of ['intelligence', 'omniscience', 'tokens-task']) {
+    await page.goto(`/?chart=${chart}&bars=true&scatter=false`);
+    const section = page.locator(`#${chart}`);
+    const svg = section.locator('.bar-plot svg');
+    await expect(svg).toBeVisible();
+    await expect.poll(() => svg.evaluate((node) => (node as SVGSVGElement).getScreenCTM()!.a)).toBeCloseTo(1, 2);
+    const labels = await svg.locator('text[font-size="16"]').evaluateAll((nodes) => nodes.map((node) => node.getBoundingClientRect().bottom));
+    const feed = await page.locator('.benchmark-feed').boundingBox();
+    expect(Math.max(...labels)).toBeLessThan(feed!.y + feed!.height);
+    await expect(page.locator('.chart-scroll-cue')).toHaveCount(0);
+  }
+  await page.setViewportSize({ width: 1280, height: 900 });
+  await page.goto('/?chart=omniscience&bars=true');
+  const negatives = await page.locator('#omniscience svg g[role=button]').evaluateAll((nodes) => nodes.flatMap((node) => {
+    const text = node.querySelector('text:last-child');
+    const value = Number(text?.textContent);
+    return value < 0 ? [{ value, top: text!.getBoundingClientRect().top }] : [];
+  }));
+  expect(negatives.length).toBeGreaterThan(1);
+  const ordered = negatives.toSorted((a, b) => b.value - a.value);
+  for (let index = 1; index < ordered.length; index++) expect(ordered[index]!.top).toBeGreaterThanOrEqual(ordered[index - 1]!.top - 0.1);
+  await page.goto('/?chart=time-task&bars=true');
+  const ticks = await page.locator('#time-task svg > g[transform] text').allTextContents();
+  expect(ticks).toContain('5m');
+  expect(ticks).not.toContain('8.3m');
+});

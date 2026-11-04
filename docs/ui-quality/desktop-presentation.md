@@ -24,3 +24,6 @@ Full-height bar captures:
 - [Short desktop](full-height-bars-short.png)
 
 The added browser check resizes the desktop from 800px to 1200px high and verifies the plot grows with the card, then switches back to Ranking. Type checking, build and all 24 browser tests pass for this sizing follow-up; the last full unit run passed all 183 tests.
+
+
+The [post-change council review](post-bars-council.md) found two readability issues in round 5. Follow-up fixes keep model names inside short desktop cards and order negative annotations by depth. Time bars also use familiar duration ticks. Latest validation passes type checking, 184 unit tests, build and all 25 browser tests; the next council pass is pending.

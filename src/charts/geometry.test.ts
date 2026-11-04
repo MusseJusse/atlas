@@ -60,7 +60,7 @@ it('keeps negative bars below zero, reserves label space and avoids overlapping 
   })), 'omniscience');
   const original = structuredClone(rows);
   const geometry = barGeometry(rows, 'omniscience', 320, 640, true, false);
-  const reference = linearScale(barDomain(rows.map((row) => row.value), 0.15), [640 - 96 - 42, 50]);
+  const reference = linearScale(barDomain(rows.map((row) => row.value), 0.15), [640 - 96 - 50, 50]);
   for (const row of rows) {
     expect(geometry.y(row.value)).toBe(reference(row.value));
     if (row.value < 0) expect(geometry.y(row.value)).toBeGreaterThan(geometry.y(0));
@@ -121,4 +121,21 @@ it('spaces precise axis labels without changing the underlying tick positions', 
   expect(labels.length).toBeLessThan(values.length);
   expect(new Set(labels.map((tick) => tick.label)).size).toBe(labels.length);
   for (const tick of labels) expect(tick.x).toBe(positions.get(tick.value));
+});
+
+
+it('orders negative annotations by depth in a separate band, with exact bar-centered X positions', () => {
+  const rows = measureRows([-18.1, -13.6, -12.8, -13].map((omniscience, index) => ({
+    ...base, id: `negative-${index}`, family: 'negative', omniscience, effortOrder: index,
+  })), 'omniscience');
+  const geometry = barGeometry(rows, 'omniscience', 220, 320, true, true);
+  const group = geometry.positioned[0]!;
+  const ordered = group.bars.toSorted((a, b) => b.row.value - a.row.value);
+  const deepestEnd = Math.max(...ordered.map((bar) => geometry.y(bar.row.value)));
+  for (const [index, bar] of ordered.entries()) {
+    expect(bar.labelY).toBeGreaterThan(deepestEnd);
+    expect(bar.labelY).toBeLessThan(geometry.bottom);
+    expect(bar.labelX).toBeCloseTo(bar.x + group.barWidth / 2);
+    if (index > 0) expect(bar.labelY).toBeGreaterThanOrEqual(ordered[index - 1]!.labelY);
+  }
 });
