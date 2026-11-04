@@ -1,3 +1,4 @@
+import { shortName } from './model-presentation';
 import type { Model } from './data/schema';
 
 type Measurement = {
@@ -60,4 +61,31 @@ export function resolveView(view: View, settings: { scatter: boolean; linear: re
     linear: settings.linear.includes(view.id),
     score: settings.codingOnly ? 'codingIndex' as const : 'intelligence' as const,
   };
+}
+
+
+/** Keep table choice, guidance, and ordering consistent, using measured rows and label space. */
+export function rankingPresentation(rows: readonly Model[], view: View, settings: {
+  scatter: boolean; linear: readonly ViewId[]; descending: boolean | null; grouped: boolean;
+}, phone: boolean, width = 960) {
+  const scatter = resolveView(view, settings).scatter;
+  const measured = rows.filter((row) => row[view.metric] != null);
+  const groups = new Map<string, { model: Model; count: number }>();
+  for (const model of measured) {
+    const id = settings.grouped ? model.family : model.id;
+    const group = groups.get(id) ?? { model, count: 0 };
+    group.count++;
+    groups.set(id, group);
+  }
+  const totalWeight = [...groups.values()].reduce((total, group) => total + Math.max(3, group.count), 0);
+  const crowdedLabels = !phone && [...groups.values()].some(({ model, count }) => {
+    const name = shortName(model);
+    const split = name.lastIndexOf(' ');
+    const longestLine = split > 0 ? Math.max(split, name.length - split - 1) : name.length;
+    const groupWidth = (Math.max(0, width - 82) * Math.max(3, count)) / totalWeight;
+    // Conservative estimate for 16px DM Sans labels plus space between adjacent names.
+    return groupWidth < longestLine * 8.5 + 18;
+  });
+  const dense = !scatter && (groups.size > 12 || measured.length > 60 || crowdedLabels);
+  return { dense, descending: settings.descending ?? ((dense || phone) && metrics[view.metric].higherIsBetter) };
 }

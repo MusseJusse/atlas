@@ -115,7 +115,7 @@ export function Bars({
                       y={bottom + 15}
                       textAnchor="middle"
                       fill="var(--fg-3)"
-                      fontSize={9}
+                      fontSize={11}
                     >
                       {effortMark}
                     </text>

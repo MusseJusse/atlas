@@ -98,3 +98,16 @@ it('places signed phone ranges within bounds and keeps a zero reference', () => 
     expect(geometry.position(row.value)).toBeLessThanOrEqual(100);
   }
 });
+
+
+it('thins dense model labels within bounds without dropping points or series', () => {
+  const rows = measureScatterRows(Array.from({ length: 80 }, (_, index) =>
+    model(`dense-${index}`, `family-${index}`, index + 1, 40 + index / 10)), 'cost', false);
+  const geometry = scatterGeometry(rows, 'cost', 960, 400, true, false);
+  expect(geometry.series).toHaveLength(rows.length);
+  expect(geometry.labels.length).toBeLessThan(20);
+  for (const label of geometry.labels) {
+    expect(label.y).toBeGreaterThanOrEqual(geometry.top);
+    expect(label.y).toBeLessThanOrEqual(geometry.bottom);
+  }
+});

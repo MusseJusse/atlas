@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import snapshot from 'virtual:benchmarks';
-import { Brand } from './Brand';
-import { ThemeToggle } from './ThemeToggle';
+import { SiteHeader } from './SiteHeader';
 import { costMultiplier, efficiencySeries, elapsedTimeSinceFirstRecord } from './efficiency-data';
 import { readEfficiencySettings, writeEfficiencySettings } from './efficiency-state';
 import { EfficiencyChart, efficiencyColors, recordKey } from './EfficiencyChart';
@@ -53,15 +52,7 @@ export function Efficiency() {
   return (
     <div className="grid h-dvh grid-rows-[var(--header-height)_minmax(0,1fr)] mobile:block mobile:h-auto">
       <a href="#efficiency-workspace" className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-30 focus:rounded-md focus:bg-panel focus:p-3">Skip to efficiency</a>
-      <header className="flex items-center gap-8 border-b border-line px-7 mobile:sticky mobile:top-0 mobile:z-[8] mobile:h-[var(--header-height)] mobile:gap-4 mobile:bg-bg mobile:px-4">
-        <Brand />
-        <nav aria-label="Sections" className="flex items-center gap-6 text-[12px] phone:gap-3 phone:text-[11px]">
-          <a href="/" className="flex min-h-11 items-center text-fg-2 phone:hidden">Benchmarks</a>
-          <a href="?page=efficiency" aria-current="page" className="flex min-h-11 items-center font-semibold text-fg">Efficiency</a>
-          <a href="?page=changelog" className="flex min-h-11 items-center text-fg-2 hover:text-accent">Changelog</a>
-        </nav>
-        <ThemeToggle className="ml-auto flex size-10 shrink-0 items-center justify-center rounded-md text-fg-2 hover:bg-hover hover:text-accent" showTitle />
-      </header>
+      <SiteHeader page="efficiency" />
       <main
         id="efficiency-workspace"
         tabIndex={-1}
@@ -139,9 +130,10 @@ export function Efficiency() {
         <section aria-labelledby="efficiency-title" className="flex min-h-0 min-w-0 flex-col overflow-y-auto rounded-xl bg-panel px-6 pt-5 pb-4 mobile:contents">
           <div className="efficiency-heading">
             <h1 id="efficiency-title" className="m-0 text-[25px] leading-tight font-[550] tracking-[-0.8px] phone:text-[22px]">
-              Cost at each intelligence threshold
+              Cost efficiency over time
             </h1>
-            <p className="mt-2 mb-0 text-[11px] text-fg-2">Cost per Intelligence Index task, USD · Log scale</p>
+            <p className="mt-2 mb-0 text-[13px] leading-5 text-fg-2">Lowest measured task cost at each score threshold, by model release date. Current measurements, not historical API prices.</p>
+            <p className="mt-1 mb-2 text-[12px] text-fg-2">USD per task · Log scale · Select a point for details.</p>
           </div>
           <div
             ref={chart}

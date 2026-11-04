@@ -11,10 +11,11 @@ import { flushSync } from 'react-dom';
 import { resolveChartInteraction } from './chart-interactions';
 import { useHydrated } from './useHydrated';
 import type { Model } from './models';
-import { shortName } from './model-presentation';
+import { modelColor, shortName } from './model-presentation';
 import { scoreLabels, metrics, resolveView, type View } from './chart-definitions';
 import type { Settings } from './state';
 import { Logo } from './Logo';
+import { MeasurementTable } from './charts/MeasurementTable';
 import { ConfigurationDetails } from './charts/ConfigurationDetails';
 import { Scatter } from './charts/Scatter';
 import { Bars } from './charts/Bars';
@@ -30,6 +31,8 @@ function useSize(enabled: boolean) {
     const element = ref.current;
     if (!element) return;
     const resize = (width: number, height: number) => {
+      // Hidden, previously visited sections have no layout until selected again.
+      if (width <= 0 || height <= 0) return;
       width = Math.round(width);
       height = Math.round(height);
       setSize((previous) =>
@@ -54,6 +57,7 @@ function useSize(enabled: boolean) {
 
 export const Chart = memo(function Chart({
   active,
+  presentation,
   phone,
   view,
   rows,
@@ -63,6 +67,7 @@ export const Chart = memo(function Chart({
   onHighlight,
 }: {
   active: boolean;
+  presentation: { dense: boolean; descending: boolean };
   phone: boolean;
   view: View;
   rows: Model[];
@@ -110,6 +115,8 @@ export const Chart = memo(function Chart({
     [rows, view.metric, scatter, linear, score],
   );
   const validRows = prepared.rows;
+  const { dense: denseRanking, descending } = presentation;
+  const table = <MeasurementTable rows={validRows} metric={view.metric} score={scatter ? score : undefined} settings={settings} descending={descending} />;
   const { pinned, activeModel } = resolveChartInteraction(validRows, pinnedId, hoveredId);
   const interactions: Interactions = {
     pinned,
@@ -144,18 +151,18 @@ export const Chart = memo(function Chart({
       }}
     >
       <div
-        className={`relative min-h-0 flex-1 mobile:aspect-[1/1.2] mobile:flex-none ${!scatter && (!ready || validRows.length > 0) ? 'phone:pointer-events-none phone:invisible phone:absolute phone:h-px phone:w-full phone:aspect-auto' : ''}`}
+        className={`relative min-h-0 flex-1 mobile:aspect-[1/1.2] mobile:flex-none ${denseRanking ? 'hidden' : ''} ${!scatter && (!ready || validRows.length > 0) ? 'phone:pointer-events-none phone:invisible phone:absolute phone:h-px phone:w-full phone:aspect-auto' : ''}`}
         ref={ref}
       >
         {ready &&
           (validRows.length === 0 ? (
             <div className="flex h-full flex-col items-center justify-center gap-2.5">
               <strong className="text-[17px] font-medium">No models to display</strong>
-              <span className="m-0 text-[12px] text-fg-2">
-                Select a model with measurements for this view.
+              <span className="m-0 max-w-[45ch] text-center text-[13px] leading-6 text-fg-2">
+                Choose models in the model filters or enable more reasoning levels. Some models have no measurements for this view.
               </span>
             </div>
-          ) : (scatter || !phone) && (
+          ) : (scatter || !phone) && !denseRanking && (
             <svg
               className="absolute inset-0 block size-full font-sans [&_g[role=button]:focus]:[outline:none]"
               viewBox={`0 0 ${width} ${height}`}
@@ -217,7 +224,8 @@ export const Chart = memo(function Chart({
           </aside>
         )}
       </div>
-      {ready && validRows.length > 0 && !scatter && phone && (
+      {ready && denseRanking && <div className="dense-ranking"><p className="mt-0 mb-3 text-[13px] text-fg-2">Showing {validRows.length} configurations as a table to keep every value readable.</p>{table}</div>}
+      {ready && validRows.length > 0 && !scatter && !denseRanking && phone && (
         <div className="hidden phone:block">
           <DotPlot
             rows={validRows}
@@ -228,16 +236,18 @@ export const Chart = memo(function Chart({
           />
         </div>
       )}
+      {ready && !scatter && !phone && !denseRanking && validRows.length > 0 && <p className="mt-2 mb-0 shrink-0 text-[12px] text-fg-2">Reasoning: N none · L low · M medium · H high · X xhigh · Mx max</p>}
       {/* Reserve the mobile legend's height in the initial HTML before hydration. */}
-      {scatter && settings.labels && (
+      {scatter && (
         <div className="hidden plot-mobile:grid grid-cols-2 gap-x-3 gap-y-0.5 pt-2.5">
           {legend.map((model) => (
             <button
-              className="flex min-h-8 items-center gap-[7px] overflow-hidden text-left text-[13px] font-[550] whitespace-nowrap text-fg"
+              className="flex min-h-11 items-center gap-[7px] overflow-hidden text-left text-[13px] font-[550] whitespace-nowrap text-fg"
               key={model.codingAgent ? model.id : model.family}
               aria-label={model.codingAgent?.configuration}
               onClick={() => interactions.togglePin(model)}
             >
+              <span className="size-2 shrink-0 rounded-full" style={{ background: modelColor(model) }} aria-hidden="true" />
               <Logo model={model} />
               {model.codingAgent ? (
                 <span className="min-w-0">
@@ -251,6 +261,10 @@ export const Chart = memo(function Chart({
           ))}
         </div>
       )}
+      {ready && validRows.length > 0 && !denseRanking && <details className="measurement-disclosure">
+        <summary>View data · {new Set(validRows.map((row) => row.family)).size} models · {validRows.length} configurations</summary>
+        {table}
+      </details>}
     </div>
   );
 });

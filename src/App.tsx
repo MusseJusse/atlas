@@ -3,6 +3,7 @@ import { ArrowDown, Ellipsis, SlidersHorizontal } from 'lucide-react';
 import { PricingControls } from './PricingControls';
 import { pricingDisclosure, subscriptionRows, usesSubscriptionPricing } from './data/subscriptions';
 import { Chart } from './Charts';
+import { ChartPicker } from './ChartPicker';
 import { visibleChartRows } from './chart-rows';
 import { codingOnlyRows } from './data/coding-only';
 import { Sidebar } from './Sidebar';
@@ -10,11 +11,10 @@ import { Selection } from './Selection';
 import { useMediaQuery } from './useMediaQuery';
 import { useChartNavigation } from './useChartNavigation';
 import { codingFetchedAt, fetchedAt, paretoFrontier, visibleModels } from './models';
-import { chartViews, resolveView, views } from './chart-definitions';
-import { chartDescending, readSettings, readView, writeSettings, type Settings } from './state';
-import { ThemeToggle } from './ThemeToggle';
+import { chartViews, rankingPresentation, resolveView } from './chart-definitions';
+import { readSettings, readView, writeSettings, type Settings } from './state';
+import { SiteHeader } from './SiteHeader';
 import { formatUtcDate } from './formatDate';
-import { Brand } from './Brand';
 
 const loadChangelog = () => import('./Changelog');
 const loadEfficiency = () => import('./Efficiency');
@@ -89,10 +89,21 @@ function Benchmarks() {
   const search = typeof location === 'undefined' ? '' : location.search;
   const [settings, setSettings] = useState(() => readSettings(search));
   const [mobileOpen, setMobileOpen] = useState(false);
+  const workspace = useRef<HTMLElement>(null);
+  const [chartWidth, setChartWidth] = useState(960);
   const [highlighted, setHighlighted] = useState<string | null>(null);
   const mobile = useMediaQuery('(max-width: 900px)');
   const phone = useMediaQuery('(max-width: 600px)');
-  const { active, navigate, feed, chartNavigation } = useChartNavigation(mobile);
+  const { active, navigate } = useChartNavigation();
+  useEffect(() => {
+    const element = workspace.current;
+    if (!element) return;
+    const measure = () => setChartWidth(Math.max(0, element.clientWidth - (mobile ? 32 : 48)));
+    measure();
+    const observer = new ResizeObserver(measure);
+    observer.observe(element);
+    return () => observer.disconnect();
+  }, [mobile]);
   const update = useCallback(
     (patch: Partial<Settings>) => setSettings((current) => ({ ...current, ...patch })),
     [],
@@ -143,36 +154,7 @@ function Benchmarks() {
       >
         Skip to benchmarks
       </a>
-      <header className="flex items-center gap-8 border-b border-line px-7 compact:gap-6 mobile:sticky mobile:top-0 mobile:z-[8] mobile:h-[var(--header-height)] mobile:gap-4 mobile:bg-bg mobile:px-4">
-        <Brand />
-        <nav className="flex items-center gap-6 phone:gap-3" aria-label="Sections">
-          <button
-            className="min-h-11 text-[12px] font-semibold text-fg phone:hidden"
-            aria-current="page"
-            onClick={() => navigate(views[0].id)}
-          >
-            Benchmarks
-          </button>
-          <a
-            href="?page=efficiency"
-            className="flex min-h-11 items-center text-[12px] text-fg-2 hover:text-accent"
-          >
-            Efficiency
-          </a>
-          <a
-            href="?page=changelog"
-            className="flex min-h-11 items-center text-[12px] text-fg-2 hover:text-accent"
-          >
-            Changelog
-          </a>
-        </nav>
-        <div className="ml-auto flex items-center gap-3 phone:gap-0">
-          <ThemeToggle
-            className="flex size-10 items-center justify-center rounded-md text-fg-2 hover:bg-hover hover:text-accent"
-            showTitle
-          />
-        </div>
-      </header>
+      <SiteHeader page="benchmarks" />
       <div className="grid min-h-0 grid-cols-[var(--sidebar-width)_minmax(0,1fr)] gap-6 px-7 pt-6 pb-2 short:pt-4 compact:gap-5 compact:px-5 mobile:block mobile:px-4 mobile:pt-4 mobile:pb-0">
         <Sidebar
           settings={settings}
@@ -183,6 +165,7 @@ function Benchmarks() {
           onHighlight={setHighlighted}
         />
         <main
+          ref={workspace}
           id="benchmark-workspace"
           tabIndex={-1}
           className="grid min-h-0 min-w-0 grid-rows-[auto_minmax(0,1fr)] rounded-xl bg-panel [outline:none] mobile:block"
@@ -201,35 +184,21 @@ function Benchmarks() {
               <span>{settings.selected.length} selected</span>
               <span className="ml-auto text-accent">Edit selection</span>
             </button>
-            <nav
-              ref={chartNavigation}
-              className="flex min-w-0 gap-6 overflow-x-auto border-b border-line [scrollbar-width:thin] [scrollbar-color:var(--line-2)_transparent] compact:gap-5"
-              aria-label="Chart views"
-            >
-              {datasetViews.map((view) => (
-                <button
-                  key={view.id}
-                  className="min-h-[50px] shrink-0 short:min-h-11 border-b-2 border-transparent text-[12px] text-fg-2 aria-[current=page]:border-accent aria-[current=page]:font-semibold aria-[current=page]:text-accent hover:text-accent"
-                  aria-current={active === view.id ? 'page' : undefined}
-                  onClick={() => navigate(view.id)}
-                >
-                  {view.label}
-                </button>
-              ))}
-            </nav>
+            <ChartPicker views={datasetViews} active={active} navigate={navigate} />
           </div>
           <div
-            className="relative min-h-0 snap-y snap-proximity overflow-y-auto rounded-b-xl [scrollbar-width:thin] [scrollbar-color:var(--line-2)_var(--panel)] mobile:snap-none mobile:overflow-visible"
-            ref={feed}
+            className="relative min-h-0 overflow-y-auto rounded-b-xl [scrollbar-width:thin] [scrollbar-color:var(--line-2)_var(--panel)] mobile:overflow-visible"
           >
             {datasetViews.map((view) => {
               const { scatter, linear } = resolveView(view, settings);
               const subscription = usesSubscriptionPricing(view.id, settings);
               const chartRows = rowsByView.get(view.id)!;
+              const ranking = rankingPresentation(chartRows, view, settings, phone, chartWidth);
               const hasFallback = !(scatter && settings.frontier) && chartRows.some((row) => row.cost !== null && row.taskPricing?.basis === 'api-fallback');
               return (
                 <section
-                  className="chart-section flex h-full snap-start flex-col px-6 pt-5 pb-4 short:pt-4 short:pb-3 [&+section]:border-t [&+section]:border-line mobile:h-auto mobile:scroll-mt-[180px] mobile:px-4 mobile:pb-6"
+                  hidden={active !== view.id}
+                  className="chart-section flex h-full flex-col px-6 pt-5 pb-4 short:pt-4 short:pb-3 mobile:h-auto mobile:px-4 mobile:pb-6"
                   id={view.id}
                   key={view.id}
                   aria-label={view.label}
@@ -241,10 +210,17 @@ function Benchmarks() {
                     <ChartOptions
                       settings={settings}
                       update={update}
-                      descending={chartDescending(view.metric, phone, settings.descending)}
+                      descending={ranking.descending}
+                      scatter={scatter}
+                      phone={phone}
                       pricing={!settings.codingOnly && (view.id === 'cost-intelligence' || view.id === 'cost-task')}
                     />
                   </div>
+                  <p className="chart-guidance">
+                    {scatter ? `Points show reasoning configurations. Higher and further left is better.${linear || phone ? '' : ' Log scale shows equal cost ratios.'}`
+                      : view.metric === 'omniscience' ? 'Factual reliability. Correct answers raise the score; errors lower it. Higher is better.'
+                      : `${view.metric === 'intelligence' || view.metric === 'codingIndex' ? 'Higher' : 'Lower'} is better. ${ranking.dense ? 'Compare every measured configuration in the table.' : phone ? 'Expand a model to compare reasoning levels.' : 'Compare reasoning configurations.'}`}
+                  </p>
                   <div
                     className={`flex min-h-[58px] shrink-0 short:min-h-12 short:py-1 flex-wrap items-center justify-between gap-x-4 gap-y-1 py-2 text-[12px] ${!scatter && view.mode !== 'optional-scatter' ? 'mobile:hidden' : ''}`}
                   >
@@ -252,11 +228,11 @@ function Benchmarks() {
                       <button
                         className="inline-flex min-h-10 items-center gap-2 text-fg aria-pressed:text-accent hover:text-accent"
                         aria-pressed={settings.frontier}
-                        title="Show configurations with no better and cheaper alternative."
+                        title="Configurations with no better and cheaper alternative."
                         onClick={() => update({ frontier: !settings.frontier })}
                       >
                         <Selection checked={settings.frontier} />
-                        Pareto frontier
+                        Efficient frontier
                       </button>
                     ) : (
                       <span className="text-fg-2 mobile:hidden">
@@ -317,6 +293,7 @@ function Benchmarks() {
                       )}
                     </div>
                   </div>
+                  {scatter && settings.frontier && <p className="mt-0 mb-2 shrink-0 text-[12px] text-fg-2">Frontier connects configurations with no better and cheaper alternative.</p>}
                   {subscription && (
                     <p className="mt-0 mb-2 shrink-0 text-[11px] leading-5 text-fg-2">
                       Estimated subscription · One model uses full allowance · {settings.countResets ? 'Bonus resets on where supported' : 'Bonus resets off'}
@@ -329,7 +306,8 @@ function Benchmarks() {
                     <p className="mt-0 mb-2 shrink-0 text-[11px] leading-5 text-fg-2">API pricing</p>
                   )}
                   <Chart
-                    active={mobile || active === view.id}
+                    presentation={ranking}
+                    active={active === view.id}
                     phone={phone}
                     view={view}
                     rows={subscription && scatter && settings.frontier ? chartRows.filter((row) => row.taskPricing?.basis === 'subscription') : chartRows}
@@ -372,11 +350,15 @@ function ChartOptions({
   update,
   descending,
   pricing,
+  scatter,
+  phone,
 }: {
   settings: Settings;
   update: (patch: Partial<Settings>) => void;
   descending: boolean;
   pricing: boolean;
+  scatter: boolean;
+  phone: boolean;
 }) {
   const menu = useRef<HTMLDetailsElement>(null);
   const [open, setOpen] = useState(false);
@@ -400,6 +382,7 @@ function ChartOptions({
       window.removeEventListener('resize', fitMenu);
     };
   }, [open]);
+  if (scatter && phone && !pricing) return null;
   return (
     <details ref={menu} className="group relative shrink-0" onToggle={(event) => {
       setOpen(event.currentTarget.open);
@@ -424,16 +407,18 @@ function ChartOptions({
         aria-label="Chart settings"
       >
         {pricing && <PricingControls settings={settings} update={update} />}
-        <span className="px-1 pt-1 text-[11px] text-fg-2">Scatter charts</span>
+        {scatter && !phone && <>
         <button
           className="inline-flex min-h-10 items-center gap-2 px-1 text-[12px] text-fg hover:text-accent"
           aria-pressed={settings.labels}
           onClick={() => update({ labels: !settings.labels })}
         >
           <Selection checked={settings.labels} />
-          Labels
+          Model labels
         </button>
-        <span className="mt-2 px-1 text-[11px] text-fg-2">Bar charts</span>
+        </>}
+        {!scatter && <>
+        {!phone && <>
         <button
           className="inline-flex min-h-10 items-center gap-2 px-1 text-[12px] text-fg hover:text-accent"
           aria-pressed={settings.grouped}
@@ -442,6 +427,7 @@ function ChartOptions({
           <Selection checked={settings.grouped} />
           Group by model
         </button>
+        </>}
         <button
           className="inline-flex min-h-10 items-center gap-2 px-1 text-[12px] text-fg hover:text-accent"
           onClick={() => update({ descending: !descending })}
@@ -451,8 +437,9 @@ function ChartOptions({
             style={{ transform: descending ? 'rotate(180deg)' : undefined }}
             aria-hidden="true"
           />
-          {descending ? 'Highest first' : 'Highest last'}
+          {descending ? 'Highest first' : 'Lowest first'}
         </button>
+        </>}
       </div>
     </details>
   );

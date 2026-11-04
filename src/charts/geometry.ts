@@ -60,9 +60,9 @@ export function scatterGeometry(
     .map((series) => ({ ...series, end: series.rows.at(-1)! }))
     .sort((a, b) => y(a.end.score) - y(b.end.score));
   const agentLabels = rows.some((row) => row.codingAgent);
-  const labelCapacity = Math.max(1, Math.floor((bottom - top) / 40) + 1);
-  // Keep agent names and tool names apart in dense selections. Every point remains interactive.
-  const labelStep = agentLabels ? Math.ceil(labelPositions.length / labelCapacity) : 1;
+  const labelCapacity = Math.max(1, Math.floor((bottom - top) / (agentLabels ? 40 : 24)) + 1);
+  // Thin labels to fit the available height in every dataset. Every point remains interactive.
+  const labelStep = Math.ceil(labelPositions.length / labelCapacity);
   const visibleLabels = labelPositions.filter((_, index) => index % Math.max(1, labelStep) === 0);
   const labelSpacing = Math.min(agentLabels ? 40 : 24, (bottom - top) / Math.max(1, visibleLabels.length - 1));
   let lastY = top - labelSpacing;

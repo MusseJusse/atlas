@@ -2,6 +2,7 @@ import { renderToStaticMarkup } from 'react-dom/server';
 import { afterEach, expect, it, vi } from 'vitest';
 import { Chart } from './Charts';
 import { models, views, type Model } from './models';
+import { rankingPresentation } from './chart-definitions';
 import { defaults } from './state';
 import { useHydrated } from './useHydrated';
 
@@ -15,6 +16,7 @@ function renderChart(rows: Model[], phone: boolean, view = rangeView) {
   return renderToStaticMarkup(
     <Chart
       active
+      presentation={rankingPresentation(rows, view, defaults, phone)}
       phone={phone}
       view={view}
       rows={rows}
@@ -29,7 +31,7 @@ it.each([true, false])('shows the existing empty state for range charts, phone=%
   for (const rows of [[], [{ ...models[0]!, intelligence: null }]]) {
     const markup = renderChart(rows, phone);
     expect(markup).toContain('No models to display');
-    expect(markup).toContain('Select a model with measurements for this view.');
+    expect(markup).toContain('Choose models in the model filters or enable more reasoning levels.');
     expect(markup).not.toContain('phone:invisible');
     expect(markup).not.toContain('<svg');
     expect(markup).not.toContain('tabular-nums');
@@ -55,7 +57,7 @@ it('keeps subscription provenance inside the SVG and fallback points out of fron
   const rows = subscriptionRows(models.filter((row) => ['gpt-6-1-sol', 'gpt-6-1-terra'].includes(row.family)), settings);
   // App passes only supported estimates to subscription frontier charts.
   const eligible = rows.filter((row) => row.taskPricing?.basis === 'subscription');
-  const markup = renderToStaticMarkup(<Chart active phone={false} view={views[0]} rows={eligible} settings={settings}
+  const markup = renderToStaticMarkup(<Chart active presentation={rankingPresentation(eligible, views[0], settings, false)} phone={false} view={views[0]} rows={eligible} settings={settings}
     pricingContext={pricingDisclosure(rows, false)} highlighted={null} onHighlight={() => {}} />);
   expect(markup).toContain('<metadata>');
   expect(markup).toContain('One model uses the full allowance');

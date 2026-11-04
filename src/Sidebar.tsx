@@ -34,7 +34,7 @@ export const Sidebar = memo(function Sidebar({
     function keyboard(event: KeyboardEvent) {
       const typing =
         event.target instanceof HTMLInputElement || event.target instanceof HTMLTextAreaElement;
-      if (event.key === '/' && !typing) {
+      if (event.key === '/' && !typing && panel.current?.getClientRects().length) {
         event.preventDefault();
         input.current?.focus();
       }
@@ -166,7 +166,7 @@ export const Sidebar = memo(function Sidebar({
         className="flex gap-1 rounded-md bg-surface p-1"
       >
         <button
-          className="min-h-8 flex-1 rounded-sm text-[11px] text-fg-2 aria-pressed:bg-panel aria-pressed:font-medium aria-pressed:text-accent mobile:min-h-11 mobile:text-[13px]"
+          className="min-h-8 flex-1 rounded-sm text-[12px] text-fg-2 aria-pressed:bg-panel aria-pressed:font-medium aria-pressed:text-accent mobile:min-h-11 mobile:text-[13px]"
           aria-pressed={
             settings.selected.length === defaults.selected.length &&
             defaults.selected.every((id) => settings.selected.includes(id))
@@ -176,14 +176,14 @@ export const Sidebar = memo(function Sidebar({
           Default
         </button>
         <button
-          className="min-h-8 flex-1 rounded-sm text-[11px] text-fg-2 aria-pressed:bg-panel aria-pressed:font-medium aria-pressed:text-accent mobile:min-h-11 mobile:text-[13px]"
+          className="min-h-8 flex-1 rounded-sm text-[12px] text-fg-2 aria-pressed:bg-panel aria-pressed:font-medium aria-pressed:text-accent mobile:min-h-11 mobile:text-[13px]"
           aria-pressed={settings.selected.length === families.length}
           onClick={() => update({ selected: families.map((family) => family.family) })}
         >
-          All
+          Select all
         </button>
         <button
-          className="min-h-8 flex-1 rounded-sm text-[11px] text-fg-2 aria-pressed:bg-panel aria-pressed:font-medium aria-pressed:text-accent mobile:min-h-11 mobile:text-[13px]"
+          className="min-h-8 flex-1 rounded-sm text-[12px] text-fg-2 aria-pressed:bg-panel aria-pressed:font-medium aria-pressed:text-accent mobile:min-h-11 mobile:text-[13px]"
           aria-pressed={settings.selected.length === 0}
           onClick={() => update({ selected: [] })}
         >
@@ -200,20 +200,21 @@ export const Sidebar = memo(function Sidebar({
                   className="-my-1 min-h-6 min-w-6 text-right text-[11.5px] text-fg-3 aria-pressed:text-accent mobile:my-0 mobile:min-h-8 mobile:text-[14px]"
                   onClick={() => toggleGroup(section.items.map((family) => family.family))}
                 >
-                  All
+                  {section.items.every((family) => settings.selected.includes(family.family)) ? 'Clear' : 'Select all'}
                 </button>
               )}
             </div>
             {section.items.map((family) => (
               <button
                 key={family.family}
-                className={`group flex min-h-8 w-full items-center gap-2 rounded-md px-1 text-left text-[12px] text-fg-2 hover:bg-hover hover:text-fg aria-pressed:text-fg mobile:min-h-11 mobile:text-[15px] ${settings.frontier && settings.selected.includes(family.family) ? (frontier.has(family.family) ? 'font-[550]' : 'opacity-50 hover:opacity-100 focus-visible:opacity-100') : ''}`}
+                className={`group flex min-h-8 w-full items-center gap-2 rounded-md px-1 text-left text-[13px] text-fg-2 hover:bg-hover hover:text-fg aria-pressed:text-fg mobile:min-h-11 mobile:text-[15px] ${settings.frontier && settings.selected.includes(family.family) ? (frontier.has(family.family) ? 'font-[550]' : 'opacity-50 hover:opacity-100 focus-visible:opacity-100') : ''}`}
                 aria-pressed={settings.selected.includes(family.family)}
                 onClick={() => toggle(family.family)}
                 onMouseEnter={() => onHighlight(family.family)}
                 onMouseLeave={() => onHighlight(null)}
                 title={`${family.model.name} · ${family.variants.length} configurations`}
               >
+                <Selection checked={settings.selected.includes(family.family)} />
                 <Logo model={family.model} size={13} />
                 <span className="flex-1 overflow-hidden text-ellipsis whitespace-nowrap">
                   {shortName(family.model)}
@@ -248,7 +249,7 @@ export const Sidebar = memo(function Sidebar({
         </span>
       </button>
       <div>
-        <h3 className="text-[12px] font-[550] mobile:text-[14px]">Reasoning</h3>
+        <h3 className="text-[12px] font-[550] mobile:text-[14px]">Reasoning effort</h3>
         <div className="mt-2 grid grid-cols-3 gap-1 mobile:flex mobile:flex-wrap">
           {efforts.map((effort) => (
             <button
@@ -274,7 +275,7 @@ export const Sidebar = memo(function Sidebar({
           aria-expanded={browse}
           onClick={() => setBrowse(!browse)}
         >
-          {browse ? 'Show fewer models' : 'Show all models'}
+          {browse ? 'Close catalogue' : 'Browse all models'}
         </button>
         {browse && (
           <div className="flex gap-3.5">
