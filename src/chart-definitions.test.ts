@@ -49,29 +49,11 @@ it('changes the score bar metric without changing chart IDs or unrelated benchma
 });
 
 
-it('uses the better-first table order on both screen sizes and respects explicit sort', async () => {
-  const { models } = await import('./models');
-  const rows = Array.from({ length: 13 }, (_, index) => ({ ...models[0]!, id: `dense-${index}`, family: `dense-${index}`, intelligence: 42, cost: 1 }));
+it('ranks best first consistently and respects the explicit direction', () => {
   const settings = readSettings('');
-  const intelligence = views.find((view) => view.id === 'intelligence')!;
-  const cost = views.find((view) => view.id === 'cost-task')!;
-  for (const phone of [false, true]) {
-    expect(rankingPresentation(rows, intelligence, settings, phone)).toEqual({ dense: true, descending: true });
-    expect(rankingPresentation(rows, cost, settings, phone)).toEqual({ dense: true, descending: false });
-    expect(rankingPresentation(rows, intelligence, { ...settings, descending: false }, phone).descending).toBe(false);
+  for (const view of views) {
+    const higher = ['intelligence', 'omniscience'].includes(view.id);
+    expect(rankingPresentation(view, settings)).toEqual({ descending: higher });
+    expect(rankingPresentation(view, { descending: !higher })).toEqual({ descending: !higher });
   }
-});
-
-
-it('ignores unmeasured models at the table boundary and switches before labels crowd', async () => {
-  const { models } = await import('./models');
-  const view = views.find((view) => view.id === 'intelligence')!;
-  const settings = readSettings('');
-  const measured = [{ ...models[0]!, name: 'A', intelligence: 42 }];
-  const unavailable = Array.from({ length: 20 }, (_, index) => ({ ...models[0]!, id: `missing-${index}`, family: `missing-${index}`, intelligence: null }));
-  expect(rankingPresentation([...measured, ...unavailable], view, settings, false, 960))
-    .toEqual(rankingPresentation(measured, view, settings, false, 960));
-  const longNames = Array.from({ length: 10 }, (_, index) => ({ ...models[0]!, id: `wide-${index}`, family: `wide-${index}`, name: 'Muse Wonder Full', intelligence: 42 }));
-  expect(rankingPresentation(longNames, view, settings, false, 900).dense).toBe(true);
-  expect(rankingPresentation(longNames, view, settings, false, 1600).dense).toBe(false);
 });

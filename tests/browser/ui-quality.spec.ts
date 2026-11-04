@@ -16,22 +16,24 @@ test('every chart is discoverable by keyboard and exactly one chart stays visibl
     await expect(button).toHaveAttribute('aria-current', 'page');
     await expect(page.locator('.chart-section:visible')).toHaveCount(1);
     const section = page.locator(`#${id}`);
-    await expect(section.locator('svg[role=group], .measurement-table').first()).toBeVisible();
+    await expect(section.locator('svg[role=group], .ranking').first()).toBeVisible();
     await button.focus();
     await expect(button).toBeFocused();
   }
   expect(errors).toEqual([]);
 });
 
-test('broad ranking selection retains every measured row in a readable table', async ({ page }) => {
+test('broad ranking selection keeps every configuration plotted with optional exact data', async ({ page }) => {
   await page.goto('/?chart=intelligence');
   await page.getByRole('button', { name: 'Select all', exact: true }).first().click();
   const ranking = page.locator('#intelligence');
-  await expect(ranking).toContainText(/Showing \d+ configurations as a table/);
-  const count = Number((await ranking.innerText()).match(/Showing (\d+) configurations/)![1]);
-  await expect(ranking.locator('tbody tr')).toHaveCount(count);
-  expect(count).toBeGreaterThan(60);
-  await expect(ranking.getByRole('columnheader', { name: 'Reasoning', exact: true })).toBeVisible();
+  await expect(ranking.locator('.ranking')).toBeVisible();
+  const dots = await ranking.locator('[data-configuration]').count();
+  expect(dots).toBeGreaterThan(60);
+  await expect(ranking.locator('.measurement-table')).not.toBeVisible();
+  await ranking.locator('.measurement-disclosure summary').click();
+  await expect(ranking.locator('tbody tr')).toHaveCount(dots);
+
 });
 
 test('mobile efficiency puts the heading and chart before optional details without blank space', async ({ page }) => {
@@ -65,7 +67,7 @@ test('phone pages and expanded changelog values fit a narrow viewport', async ({
 });
 
 
-test('phone intelligence and cost tables match grouped sort controls in both directions', async ({ page }) => {
+test('phone intelligence and cost charts match exact data and grouped sort controls', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   for (const [chart, defaultDescending] of [['intelligence', true], ['cost-task', false]] as const) {
     await page.goto(`/?chart=${chart}`);
@@ -73,8 +75,8 @@ test('phone intelligence and cost tables match grouped sort controls in both dir
     await page.getByRole('button', { name: 'Select all', exact: true }).first().click();
     await page.getByRole('button', { name: 'Done', exact: true }).click();
     const ranking = page.locator(`#${chart}`);
-    await expect(ranking).toContainText('Compare every measured configuration in the table.');
-    await expect(ranking).not.toContainText('Expand a model');
+    await expect(ranking.locator('.ranking')).toBeVisible();
+    await ranking.locator('.measurement-disclosure summary').click();
     const valuesByModel = () => ranking.locator('tbody tr').evaluateAll((rows) => {
       const groups = new Map<string, number[]>();
       for (const row of rows) {
@@ -92,12 +94,17 @@ test('phone intelligence and cost tables match grouped sort controls in both dir
       expect(best).toEqual(best.toSorted(compare));
       for (const values of groups) expect(values).toEqual(values.toSorted(compare));
     };
+    const chartValues = () => ranking.locator('.ranking-row').evaluateAll((buttons) => buttons.map((button) => Number(button.getAttribute('data-best-value'))));
+    const initialValues = await chartValues();
+    expect(initialValues).toEqual(initialValues.toSorted((a, b) => (a - b) * (defaultDescending ? -1 : 1)));
     assertOrder(await valuesByModel(), defaultDescending);
     await ranking.locator('summary[aria-label="Chart settings"]').click();
     const initialLabel = defaultDescending ? 'Highest first per model' : 'Lowest first per model';
     await expect(ranking.getByRole('button', { name: initialLabel, exact: true })).toBeVisible();
     await ranking.getByRole('button', { name: initialLabel, exact: true }).click();
     assertOrder(await valuesByModel(), !defaultDescending);
+    const reversed = await chartValues();
+    expect(reversed).toEqual(reversed.toSorted((a, b) => (a - b) * (defaultDescending ? 1 : -1)));
   }
 });
 
@@ -184,12 +191,13 @@ test('desktop chart navigation fits at the compact layout boundary', async ({ pa
   }
 });
 
-test('Task tokens names its actual dense table view when switching from scatter', async ({ page }) => {
+test('Task tokens switches between scatter and a graphical ranking', async ({ page }) => {
   await page.goto('/?chart=tokens-task&scatter=true');
   const type = page.getByRole('group', { name: 'Tokens per task view type' });
-  await type.getByRole('button', { name: 'Table', exact: true }).click();
-  await expect(type.getByRole('button', { name: 'Table', exact: true })).toHaveAttribute('aria-pressed', 'true');
-  await expect(page.locator('#tokens-task .measurement-table')).toBeVisible();
+  await type.getByRole('button', { name: 'Rankings', exact: true }).click();
+  await expect(type.getByRole('button', { name: 'Rankings', exact: true })).toHaveAttribute('aria-pressed', 'true');
+  await expect(page.locator('#tokens-task .ranking')).toBeVisible();
+  await expect(page.locator('#tokens-task .measurement-table')).not.toBeVisible();
   await expect(page.locator('#tokens-task svg[role=group]')).toHaveCount(0);
 });
 
@@ -202,4 +210,25 @@ test('phone range rows show an expansion indicator and reveal reasoning values',
   await row.click();
   await expect(row).toHaveAttribute('aria-expanded', 'true');
   await expect(page.locator(`#${await row.getAttribute('aria-controls')}`)).toBeVisible();
+});
+
+
+test('ranking expansion and configuration details work entirely from the keyboard', async ({ page }) => {
+  await page.goto('/?chart=omniscience');
+  const ranking = page.locator('#omniscience .ranking');
+  const first = ranking.locator('.ranking-row').first();
+  await first.focus();
+  await page.keyboard.press('Enter');
+  await expect(first).toHaveAttribute('aria-expanded', 'true');
+  const configuration = ranking.locator('.ranking-configurations button').first();
+  await page.keyboard.press('Tab');
+  await expect(configuration).toBeFocused();
+  await page.keyboard.press('Enter');
+  await expect(ranking.getByRole('complementary', { name: 'Selected configuration' })).toBeVisible();
+  await ranking.getByRole('button', { name: 'Clear selected configuration' }).click();
+  await expect(configuration).toBeFocused();
+  await expect(configuration).toHaveAttribute('aria-pressed', 'false');
+  const signed = await ranking.locator('[data-configuration]').evaluateAll((dots) => dots.map((dot) => Number.parseFloat((dot as HTMLElement).style.left)));
+  expect(signed.every((position) => position >= 0 && position <= 100)).toBe(true);
+  await expect(ranking.locator('.ranking-ticks')).toContainText('-');
 });

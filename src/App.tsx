@@ -89,21 +89,10 @@ function Benchmarks() {
   const search = typeof location === 'undefined' ? '' : location.search;
   const [settings, setSettings] = useState(() => readSettings(search));
   const [mobileOpen, setMobileOpen] = useState(false);
-  const workspace = useRef<HTMLElement>(null);
-  const [chartWidth, setChartWidth] = useState(960);
   const [highlighted, setHighlighted] = useState<string | null>(null);
   const mobile = useMediaQuery('(max-width: 900px)');
   const phone = useMediaQuery('(max-width: 600px)');
   const { active, navigate } = useChartNavigation();
-  useEffect(() => {
-    const element = workspace.current;
-    if (!element) return;
-    const measure = () => setChartWidth(Math.max(0, element.clientWidth - (mobile ? 32 : 48)));
-    measure();
-    const observer = new ResizeObserver(measure);
-    observer.observe(element);
-    return () => observer.disconnect();
-  }, [mobile]);
   const update = useCallback(
     (patch: Partial<Settings>) => setSettings((current) => ({ ...current, ...patch })),
     [],
@@ -165,7 +154,6 @@ function Benchmarks() {
           onHighlight={setHighlighted}
         />
         <main
-          ref={workspace}
           id="benchmark-workspace"
           tabIndex={-1}
           className="grid min-h-0 min-w-0 grid-rows-[auto_minmax(0,1fr)] rounded-xl bg-panel [outline:none] mobile:block"
@@ -193,9 +181,7 @@ function Benchmarks() {
               const { scatter, linear } = resolveView(view, settings);
               const subscription = usesSubscriptionPricing(view.id, settings);
               const chartRows = rowsByView.get(view.id)!;
-              const ranking = rankingPresentation(chartRows, view, settings, phone, chartWidth);
-              const nonScatterRanking = scatter && view.mode === 'optional-scatter'
-                ? rankingPresentation(chartRows, view, { ...settings, scatter: false }, phone, chartWidth) : ranking;
+              const ranking = rankingPresentation(view, settings);
               const hasFallback = !(scatter && settings.frontier) && chartRows.some((row) => row.cost !== null && row.taskPricing?.basis === 'api-fallback');
               return (
                 <section
@@ -213,19 +199,16 @@ function Benchmarks() {
                       settings={settings}
                       update={update}
                       descending={ranking.descending}
-                      groupedTable={ranking.dense && settings.grouped}
+                      groupedTable={settings.grouped}
                       scatter={scatter}
                       phone={phone}
                       pricing={!settings.codingOnly && (view.id === 'cost-intelligence' || view.id === 'cost-task')}
                     />
                   </div>
-                  <p className="chart-guidance">
-                    {scatter ? `Points show reasoning configurations. Higher and further left is better.${linear || phone ? '' : ' Log scale shows equal cost ratios.'}`
-                      : view.metric === 'omniscience' ? 'Factual reliability. Correct answers raise the score; errors lower it. Higher is better.'
-                      : `${view.metric === 'intelligence' || view.metric === 'codingIndex' ? 'Higher' : 'Lower'} is better. ${ranking.dense ? 'Compare every measured configuration in the table.' : phone ? 'Expand a model to compare reasoning levels.' : 'Compare reasoning configurations.'}`}
-                  </p>
+                  {scatter && <p className="chart-guidance">Higher and further left is better.{linear || phone ? '' : ' Log scale shows equal cost ratios.'}</p>}
+                  {view.metric === 'omniscience' && <p className="chart-guidance">Correct answers raise the score. Incorrect answers lower it.</p>}
                   <div
-                    className={`flex min-h-[58px] shrink-0 short:min-h-12 short:py-1 flex-wrap items-center justify-between gap-x-4 gap-y-1 py-2 text-[12px] ${!scatter && view.mode !== 'optional-scatter' ? 'mobile:hidden' : ''}`}
+                    className={`flex min-h-[58px] shrink-0 short:min-h-12 short:py-1 flex-wrap items-center justify-between gap-x-4 gap-y-1 py-2 text-[12px] ${!scatter && view.mode !== 'optional-scatter' ? 'hidden' : ''}`}
                   >
                     {scatter ? (
                       <button
@@ -254,7 +237,7 @@ function Benchmarks() {
                             aria-pressed={!settings.scatter}
                             onClick={() => update({ scatter: false })}
                           >
-                            {nonScatterRanking.dense ? 'Table' : phone ? 'Ranges' : 'Bars'}
+                            Rankings
                           </button>
                           <button
                             className="min-h-8 rounded-sm px-2.5 text-[12px] text-fg-2 aria-pressed:bg-panel aria-pressed:font-medium aria-pressed:text-accent"
@@ -311,7 +294,6 @@ function Benchmarks() {
                   <Chart
                     presentation={ranking}
                     active={active === view.id}
-                    phone={phone}
                     view={view}
                     rows={subscription && scatter && settings.frontier ? chartRows.filter((row) => row.taskPricing?.basis === 'subscription') : chartRows}
                     pricingContext={subscription ? pricingDisclosure(scatter && settings.frontier ? chartRows.filter((row) => row.taskPricing?.basis === 'subscription') : chartRows, settings.countResets) : undefined}

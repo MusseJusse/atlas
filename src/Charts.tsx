@@ -18,8 +18,7 @@ import { Logo } from './Logo';
 import { MeasurementTable } from './charts/MeasurementTable';
 import { ConfigurationDetails } from './charts/ConfigurationDetails';
 import { Scatter } from './charts/Scatter';
-import { Bars } from './charts/Bars';
-import { DotPlot } from './charts/DotPlot';
+import { Ranking } from './charts/Ranking';
 import { measureRows, measureScatterRows } from './charts/geometry';
 import type { Interactions } from './charts/interactions';
 
@@ -58,7 +57,6 @@ function useSize(enabled: boolean) {
 export const Chart = memo(function Chart({
   active,
   presentation,
-  phone,
   view,
   rows,
   settings,
@@ -67,8 +65,7 @@ export const Chart = memo(function Chart({
   onHighlight,
 }: {
   active: boolean;
-  presentation: { dense: boolean; descending: boolean };
-  phone: boolean;
+  presentation: { descending: boolean };
   view: View;
   rows: Model[];
   settings: Settings;
@@ -80,10 +77,9 @@ export const Chart = memo(function Chart({
   const hydrated = useHydrated();
   const ready = hydrated && (active || visited);
   const { scatter, linear, score } = resolveView(view, settings);
-  const { ref, width, height } = useSize(ready && (scatter || !phone));
+  const { ref, width, height } = useSize(ready && scatter);
 
-  // Desktop sections have a fixed height, so charts can mount just before scrolling into view.
-  // Keep visited charts mounted to preserve pinned details and avoid navigation fetches.
+  // Keep visited charts mounted to preserve selected details across navigation.
   useEffect(() => {
     if (visited) return;
     if (active) {
@@ -106,7 +102,6 @@ export const Chart = memo(function Chart({
   }, [active, visited]);
   const [hoveredId, setHoveredId] = useState<string | null>(null);
   const [pinnedId, setPinnedId] = useState<string | null>(null);
-  const [expanded, setExpanded] = useState<string | null>(null);
   const prepared = useMemo(
     () =>
       scatter
@@ -115,7 +110,7 @@ export const Chart = memo(function Chart({
     [rows, view.metric, scatter, linear, score],
   );
   const validRows = prepared.rows;
-  const { dense: denseRanking, descending } = presentation;
+  const { descending } = presentation;
   const table = <MeasurementTable rows={validRows} metric={view.metric} score={scatter ? score : undefined} settings={settings} descending={descending} />;
   const { pinned, activeModel } = resolveChartInteraction(validRows, pinnedId, hoveredId);
   const interactions: Interactions = {
@@ -152,7 +147,7 @@ export const Chart = memo(function Chart({
       }}
     >
       <div
-        className={`relative min-h-0 flex-1 mobile:aspect-[1/1.2] mobile:flex-none ${denseRanking ? 'hidden' : ''} ${!scatter && (!ready || validRows.length > 0) ? 'phone:pointer-events-none phone:invisible phone:absolute phone:h-px phone:w-full phone:aspect-auto' : ''}`}
+        className={`relative min-h-0 ${scatter ? "flex-1 mobile:aspect-[1/1.2] mobile:flex-none" : "contents"}`}
         ref={ref}
       >
         {ready &&
@@ -163,7 +158,7 @@ export const Chart = memo(function Chart({
                 Choose models in the model filters or enable more reasoning levels. Some models have no measurements for this view.
               </span>
             </div>
-          ) : (scatter || !phone) && !denseRanking && (
+          ) : prepared.scatter ? (
             <svg
               className="absolute inset-0 block size-full font-sans [&_g[role=button]:focus]:[outline:none]"
               viewBox={`0 0 ${width} ${height}`}
@@ -184,30 +179,10 @@ export const Chart = memo(function Chart({
                 height={height}
                 fill="var(--panel)"
               />
-              {prepared.scatter ? (
-                <Scatter
-                  rows={prepared.rows}
-                  metric={view.metric}
-                  scoreMetric={score}
-                  linear={linear}
-                  settings={settings}
-                  width={width}
-                  height={height}
-                  interactions={interactions}
-                />
-              ) : (
-                <Bars
-                  rows={prepared.rows}
-                  metric={view.metric}
-                  settings={settings}
-                  width={width}
-                  height={height}
-                  interactions={interactions}
-                />
-              )}
+              <Scatter rows={prepared.rows} metric={view.metric} scoreMetric={score} linear={linear} settings={settings} width={width} height={height} interactions={interactions} />
             </svg>
-          ))}
-        {(scatter || !phone) && activeModel && (
+          ) : <Ranking rows={prepared.rows} metric={view.metric} grouped={settings.grouped} descending={descending} interactions={interactions} score={settings.codingOnly ? score : undefined} />)}
+        {scatter && activeModel && (
           <aside
             className={`configuration-details${pinned ? '' : ' pointer-events-none'}`}
             data-placement={scatter ? 'bottom-right' : settings.descending ? 'top-right' : 'top-left'}
@@ -225,19 +200,6 @@ export const Chart = memo(function Chart({
           </aside>
         )}
       </div>
-      {ready && denseRanking && <div className="dense-ranking"><p className="mt-0 mb-3 text-[13px] text-fg-2">Showing {validRows.length} configurations as a table to keep every value readable.</p>{table}</div>}
-      {ready && validRows.length > 0 && !scatter && !denseRanking && phone && (
-        <div className="hidden phone:block">
-          <DotPlot
-            rows={validRows}
-            metric={view.metric}
-            settings={settings}
-            expanded={expanded}
-            onExpand={setExpanded}
-          />
-        </div>
-      )}
-      {ready && !scatter && !phone && !denseRanking && validRows.length > 0 && <p className="mt-2 mb-0 shrink-0 text-[12px] text-fg-2">Reasoning: N none · L low · M medium · H high · X xhigh · Mx max</p>}
       {/* Reserve the mobile legend's height in the initial HTML before hydration. */}
       {scatter && (
         <div className="hidden plot-mobile:grid grid-cols-2 gap-x-3 gap-y-0.5 pt-2.5">
@@ -262,7 +224,7 @@ export const Chart = memo(function Chart({
           ))}
         </div>
       )}
-      {ready && validRows.length > 0 && !denseRanking && <details className="measurement-disclosure">
+      {ready && validRows.length > 0 && <details className="measurement-disclosure">
         <summary>View data · {modelCount} {modelCount === 1 ? 'model' : 'models'} · {validRows.length} {validRows.length === 1 ? 'configuration' : 'configurations'}</summary>
         {table}
       </details>}
