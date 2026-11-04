@@ -126,6 +126,7 @@ export const Chart = memo(function Chart({
     togglePin: (model) => setPinnedId((previous) => previous === model.id ? null : model.id),
     highlight: (id) => flushSync(() => onHighlight(id)),
   };
+  const modelCount = new Set(validRows.map((row) => row.family)).size;
   const legend = [...new Map(validRows.map((row) => [row.codingAgent ? row.id : row.family, row])).values()];
 
   function closeOnBackground(event: MouseEvent<SVGSVGElement>) {
@@ -262,7 +263,7 @@ export const Chart = memo(function Chart({
         </div>
       )}
       {ready && validRows.length > 0 && !denseRanking && <details className="measurement-disclosure">
-        <summary>View data · {new Set(validRows.map((row) => row.family)).size} models · {validRows.length} configurations</summary>
+        <summary>View data · {modelCount} {modelCount === 1 ? 'model' : 'models'} · {validRows.length} {validRows.length === 1 ? 'configuration' : 'configurations'}</summary>
         {table}
       </details>}
     </div>
