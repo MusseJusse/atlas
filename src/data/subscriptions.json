@@ -1,8 +1,8 @@
 {
-  "capturedAt": "2026-11-03T11:17:39.481Z",
-  "sourceGeneratedAt": "2026-11-03T10:54:20.494Z",
+  "capturedAt": "2026-11-04T10:26:07.210Z",
+  "sourceGeneratedAt": "2026-11-04T10:13:39.772Z",
   "source": "https://mypriors.com/api/snapshot?view=core",
-  "sourceHash": "d59e9fb288131aabebf8f11443c4935a3e0d0a1125eeedb6dd0fa4b9d52fc38f",
+  "sourceHash": "72583757bf04e95045f797c04aa4e14bbb4c1aaf5bd1446bcefa5fe3667d8091",
   "methodology": "https://github.com/Fei2411/real-api-pricing/blob/main/CONVENTIONS.md",
   "models": [
     {
@@ -352,7 +352,7 @@
         "input": 4,
         "output": 20,
         "cached": 0.2,
-        "cacheWrite": 5.0
+        "cacheWrite": 5
       },
       "plans": [
         {
@@ -1521,5 +1521,5 @@
       ]
     }
   ],
-  "benchmarkSourceHash": "edccf2762942a859b59c2cbe819ff28b5a720618b42b1b4fe9d3203e40b32707"
+  "benchmarkSourceHash": "500115c0ebe39a51c4737e3bd71c91eb83a7fd10cd81a1bd080330e190f0abb5"
 }
