@@ -10,6 +10,7 @@ export const frontierFamilies = [
   'claude-opus-5-5',
   'claude-fable-5-1',
   'gemini-4-carbon',
+  'gemini-4-argon',
   'grok-4-7',
   'muse-wonder-full',
 ];
@@ -21,7 +22,15 @@ export const notableFamilies = [
   'qwen3-8-max-0902',
   'qwen3-8-27b',
 ];
-export const defaultSelected = frontierFamilies.filter((id) => id !== 'claude-sonnet-5-5');
+// Gemini, Grok, Muse and Sonnet 5.5 stay in the Frontier picker but load unselected.
+const defaultOff = new Set([
+  'claude-sonnet-5-5',
+  'gemini-4-carbon',
+  'gemini-4-argon',
+  'grok-4-7',
+  'muse-wonder-full',
+]);
+export const defaultSelected = frontierFamilies.filter((id) => !defaultOff.has(id));
 const colors: Record<string, [string, string]> = {
   'gpt-6-astra': ['#303840', '#f1f3f5'],
   'gpt-6-1-sol': ['#586878', '#c5cbd3'],
