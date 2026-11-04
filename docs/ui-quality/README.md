@@ -1,5 +1,7 @@
 # UI review evidence
 
+Desktop presentation now supports both [Ranking and Bars](desktop-presentation.md). The preference persists in the URL; phones retain rankings. Current validation passes 183 unit tests and 23 browser tests.
+
 Latest follow-up: [aligned ranking markers](aligned-markers.md) removes vertical staggering after user feedback. New screenshots cover both reported phone views, narrow layout, desktop and dark mode. Current validation passes 182 unit tests and 21 browser tests.
 
 The before images show `origin/main` at `b17dca3`. Current after images show this branch rebased onto `main` at `8f33ad0`, including its newer benchmark data and default model selection. Values and selected models can differ. Desktop captures use 1280 × 800; phone captures use 390 × 844. These are browser screenshots of the application, not design mocks.

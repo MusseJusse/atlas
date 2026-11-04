@@ -31,7 +31,7 @@ export function Bars({
   }
 
   const { left, right, top, bottom, y, positioned } = useMemo(
-    () => barGeometry(rows, metric, width, height, settings.grouped, settings.descending ?? false),
+    () => barGeometry(rows, metric, width, height, settings.grouped, settings.descending ?? false, settings.descending ? 'maximum' : 'minimum'),
     [rows, metric, width, height, settings.grouped, settings.descending],
   );
   const { activeModel } = interactions;

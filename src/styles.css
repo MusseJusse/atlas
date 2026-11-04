@@ -461,3 +461,6 @@
   .direct-label-option { display: inline-flex; }
   .label-options-only { display: block; }
 }
+
+.chart-section:has(.bar-plot) { height: auto; min-height: 100%; }
+.bar-scroll { scrollbar-width: auto; scrollbar-color: var(--line-2) var(--panel); }

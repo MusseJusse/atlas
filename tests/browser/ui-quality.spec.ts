@@ -323,3 +323,57 @@ test('close ranking configurations stay on their range line on phones and deskto
     }
   }
 });
+
+
+test('desktop rankings can switch to bars across metrics and keep the choice in saved URLs', async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 800 });
+  for (const id of ['intelligence', 'omniscience', 'tokens-task', 'tokens-total', 'cost-task', 'time-task']) {
+    await page.goto(`/?chart=${id}&scatter=false`);
+    const section = page.locator(`#${id}`);
+    await expect(section.locator('.ranking')).toBeVisible();
+    const configurations = await section.locator('[data-configuration]').count();
+    await section.getByRole('button', { name: 'Bars', exact: true }).click();
+    const svg = section.locator('svg[role=group]');
+    await expect(svg).toBeVisible();
+    await expect(svg.locator('g[role=button]')).toHaveCount(configurations);
+    await expect(section.locator('.ranking')).toHaveCount(0);
+    await expect(page).toHaveURL(/bars=true/);
+    if (id === 'intelligence') {
+      await page.reload();
+      await expect(svg).toBeVisible();
+      const bar = svg.locator('g[role=button]').first();
+      await bar.focus();
+      await page.keyboard.press('Enter');
+      await expect(section.getByRole('complementary', { name: 'Selected configuration' })).toBeVisible();
+      await section.getByRole('button', { name: 'Clear selected configuration' }).focus();
+      await page.keyboard.press('Escape');
+      await expect(bar).toBeFocused();
+      await expect(bar).toHaveAttribute('aria-pressed', 'false');
+    }
+    await section.getByRole('button', { name: /^Rankings?$/ }).click();
+    await expect(section.locator('.ranking')).toBeVisible();
+    await expect(section.locator('svg[role=group]')).toHaveCount(0);
+  }
+  await page.setViewportSize({ width: 393, height: 852 });
+  await page.goto('/?chart=intelligence&bars=true');
+  await expect(page.locator('#intelligence .ranking')).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Bars', exact: true })).toHaveCount(0);
+});
+
+test('dense desktop bars retain every configuration in a horizontally scrollable plot', async ({ page }) => {
+  await page.goto('/?chart=intelligence&bars=true');
+  await page.getByRole('button', { name: 'Select all', exact: true }).first().click();
+  const section = page.locator('#intelligence');
+  await expect(section.locator('svg[role=group]')).toBeVisible();
+  const count = await section.locator('svg g[role=button]').count();
+  expect(count).toBeGreaterThan(60);
+  expect(await section.locator('.bar-scroll').evaluate((element) => element.scrollWidth > element.clientWidth)).toBe(true);
+  const lastBar = section.locator('svg g[role=button]').last();
+  await lastBar.focus();
+  await page.keyboard.press('Enter');
+  await expect(section.getByRole('complementary', { name: 'Selected configuration' })).toBeInViewport({ ratio: 1 });
+  await page.keyboard.press('Escape');
+  await section.locator('.measurement-disclosure summary').click();
+  await expect(section.locator('tbody tr')).toHaveCount(count);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+});

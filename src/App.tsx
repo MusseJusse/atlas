@@ -198,6 +198,7 @@ function Benchmarks() {
           >
             {datasetViews.map((view) => {
               const { scatter, linear } = resolveView(view, settings);
+              const bars = !scatter && !mobile && settings.bars;
               const rankingLogAvailable = view.metric === 'cost' && rowsByView.get(view.id)!.every((row) => row.cost === null || row.cost > 0);
               const displayLinear = scatter ? linear : linear || !rankingLogAvailable;
               const subscription = usesSubscriptionPricing(view.id, settings);
@@ -216,6 +217,11 @@ function Benchmarks() {
                     <h2 className="m-0 text-[25px] leading-tight font-[550] tracking-[-0.8px] phone:text-[22px]">
                       {view.label}
                     </h2>
+                    <div className="flex shrink-0 items-center gap-2">
+                    {!mobile && !scatter && view.mode !== 'optional-scatter' && <div className="flex gap-1 rounded-md bg-surface p-1" role="group" aria-label={`${view.label} presentation`}>
+                      <button className="min-h-8 rounded-sm px-3 text-[12px] text-fg-2 aria-pressed:bg-panel aria-pressed:text-accent" aria-pressed={!bars} onClick={() => update({ bars: false })}>Ranking</button>
+                      <button className="min-h-8 rounded-sm px-3 text-[12px] text-fg-2 aria-pressed:bg-panel aria-pressed:text-accent" aria-pressed={bars} onClick={() => update({ bars: true })}>Bars</button>
+                    </div>}
                     <ChartOptions
                       settings={settings}
                       update={update}
@@ -225,11 +231,12 @@ function Benchmarks() {
                       phone={phone}
                       pricing={!settings.codingOnly && (view.id === 'cost-intelligence' || view.id === 'cost-task')}
                     />
+                    </div>
                   </div>
                   {scatter && <p className="chart-guidance">Higher and further left is better.{linear || phone ? '' : ' Log scale shows equal cost ratios.'}{view.metric === 'cost' && !subscription && ' API pricing.'}</p>}
                   {view.metric === 'omniscience' && <p className="chart-guidance">Correct answers raise the score. Incorrect answers lower it.</p>}
                   <div
-                    className={`flex min-h-[58px] shrink-0 short:min-h-12 short:py-1 flex-wrap items-center justify-between gap-x-4 gap-y-1 py-2 text-[12px] ${!scatter && view.mode !== 'optional-scatter' && view.metric !== 'cost' ? 'hidden' : !scatter ? 'ranking-toolbar' : ''}`}
+                    className={`flex min-h-[58px] shrink-0 short:min-h-12 short:py-1 flex-wrap items-center justify-between gap-x-4 gap-y-1 py-2 text-[12px] ${!scatter && view.mode !== 'optional-scatter' && (view.metric !== 'cost' || bars) ? 'hidden' : !scatter ? 'ranking-toolbar' : ''}`}
                   >
                     {scatter ? (
                       <button
@@ -251,11 +258,12 @@ function Benchmarks() {
                         >
                           <button
                             className="min-h-8 rounded-sm px-2.5 text-[12px] text-fg-2 aria-pressed:bg-panel aria-pressed:font-medium aria-pressed:text-accent"
-                            aria-pressed={!settings.scatter}
-                            onClick={() => update({ scatter: false })}
+                            aria-pressed={!settings.scatter && !bars}
+                            onClick={() => update({ scatter: false, bars: false })}
                           >
                             Rankings
                           </button>
+                          {!mobile && <button className="min-h-8 rounded-sm px-2.5 text-[12px] text-fg-2 aria-pressed:bg-panel aria-pressed:font-medium aria-pressed:text-accent" aria-pressed={bars} onClick={() => update({ scatter: false, bars: true })}>Bars</button>}
                           <button
                             className="min-h-8 rounded-sm px-2.5 text-[12px] text-fg-2 aria-pressed:bg-panel aria-pressed:font-medium aria-pressed:text-accent"
                             aria-pressed={settings.scatter}
@@ -265,7 +273,7 @@ function Benchmarks() {
                           </button>
                         </div>
                       )}
-                      {(scatter || view.metric === 'cost') && (
+                      {(scatter || (view.metric === 'cost' && !bars)) && (
                         <div
                           className="flex items-center gap-2"
                           role="group"
@@ -298,6 +306,7 @@ function Benchmarks() {
                       )}
                     </div>
                   </div>
+                  {bars && view.metric === 'cost' && !subscription && <p className="mt-1 mb-2 text-[12px] text-fg-2">API pricing</p>}
                   {subscription && (
                     <p className="mt-0 mb-2 shrink-0 text-[11px] leading-5 text-fg-2">
                       Estimated subscription · One model uses full allowance · {settings.countResets ? 'Bonus resets on where supported' : 'Bonus resets off'}

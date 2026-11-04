@@ -108,12 +108,13 @@ export function barGeometry(
   height: number,
   grouped: boolean,
   descending: boolean,
+  sortBy: 'minimum' | 'maximum' = 'maximum',
 ) {
   const left = width < 600 ? 46 : 64;
   const right = width - 18;
   const top = metric === 'omniscience' ? 50 : 30;
   const bottom = height - 96;
-  const groups = barGroups(rows, metric, grouped, descending);
+  const groups = barGroups(rows, metric, grouped, descending, sortBy);
   const values = rows.map((row) => row.value);
   // Leave room for negative value labels above the reasoning marks and model names.
   const labelSpace = values.some((value) => value < 0) ? 42 : 0;

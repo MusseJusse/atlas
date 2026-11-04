@@ -58,3 +58,11 @@ it('ranks best first consistently and respects the explicit direction', () => {
     expect(rankingPresentation(view, { descending: !higher })).toEqual({ descending: !higher });
   }
 });
+
+
+it('keeps the desktop bars preference in saved views while defaulting to rankings', () => {
+  const settings = readSettings('?bars=true');
+  expect(settings.bars).toBe(true);
+  expect(readSettings(writeSettings(settings, 'intelligence')).bars).toBe(true);
+  expect(readSettings('/').bars).toBe(false);
+});

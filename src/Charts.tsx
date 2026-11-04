@@ -18,6 +18,8 @@ import { Logo } from './Logo';
 import { MeasurementTable } from './charts/MeasurementTable';
 import { ConfigurationDetails } from './charts/ConfigurationDetails';
 import { Scatter } from './charts/Scatter';
+import { Bars } from './charts/Bars';
+import { useMediaQuery } from './useMediaQuery';
 import { Ranking } from './charts/Ranking';
 import { measureRows, measureScatterRows } from './charts/geometry';
 import type { Interactions } from './charts/interactions';
@@ -77,7 +79,9 @@ export const Chart = memo(function Chart({
   const hydrated = useHydrated();
   const ready = hydrated && (active || visited);
   const { scatter, linear, score } = resolveView(view, settings);
-  const { ref, width, height } = useSize(ready && scatter);
+  const desktop = useMediaQuery('(min-width: 901px)');
+  const bars = !scatter && desktop && settings.bars;
+  const { ref, width, height } = useSize(ready && (scatter || bars));
 
   // Keep visited charts mounted to preserve selected details across navigation.
   useEffect(() => {
@@ -140,6 +144,9 @@ export const Chart = memo(function Chart({
     setHoveredId(null);
   }
 
+  const details = activeModel && <ConfigurationDetails model={activeModel} metric={view.metric}
+    score={settings.codingOnly || scatter ? score : undefined} pinned={Boolean(pinned)} onClose={clearSelection} />;
+
   return (
     <div
       className="relative flex min-h-0 min-w-0 flex-1 flex-col"
@@ -147,8 +154,10 @@ export const Chart = memo(function Chart({
         if (event.key === 'Escape') clearSelection();
       }}
     >
+      <div className={bars ? 'bar-scroll shrink-0 overflow-x-auto' : 'contents'}>
       <div
-        className={`relative min-h-0 ${scatter ? "scatter-plot flex-1 mobile:aspect-[1/1.2] mobile:flex-none" : "contents"}`}
+        style={bars ? { minWidth: Math.max(1, new Set(validRows.map((row) => settings.grouped ? row.family : row.id)).size) * 120 } : undefined}
+        className={`relative min-h-0 ${bars ? 'bar-plot h-[440px] w-full shrink-0' : scatter ? "scatter-plot flex-1 mobile:aspect-[1/1.2] mobile:flex-none" : "contents"}`}
         ref={ref}
       >
         {ready &&
@@ -159,7 +168,7 @@ export const Chart = memo(function Chart({
                 Choose models in the model filters or enable more reasoning levels. Some models have no measurements for this view.
               </span>
             </div>
-          ) : prepared.scatter ? (
+          ) : prepared.scatter || bars ? (
             <svg
               className="absolute inset-0 block size-full font-sans [&_g[role=button]:focus]:[outline:none]"
               viewBox={`0 0 ${width} ${height}`}
@@ -180,7 +189,8 @@ export const Chart = memo(function Chart({
                 height={height}
                 fill="var(--panel)"
               />
-              <Scatter rows={prepared.rows} metric={view.metric} scoreMetric={score} linear={linear} settings={settings} width={width} height={height} interactions={interactions} />
+              {prepared.scatter ? <Scatter rows={prepared.rows} metric={view.metric} scoreMetric={score} linear={linear} settings={settings} width={width} height={height} interactions={interactions} />
+                : <Bars rows={prepared.rows} metric={view.metric} settings={{ ...settings, descending }} width={width} height={height} interactions={interactions} />}
             </svg>
           ) : <Ranking rows={prepared.rows} metric={view.metric} grouped={settings.grouped} descending={descending} interactions={interactions} score={settings.codingOnly ? score : undefined} logarithmic={view.metric === 'cost' && !linear && validRows.every((row) => row.value > 0)} />)}
         {scatter && activeModel && (
@@ -191,16 +201,13 @@ export const Chart = memo(function Chart({
             aria-label="Selected configuration"
             tabIndex={pinned ? 0 : undefined}
           >
-            <ConfigurationDetails
-              model={activeModel}
-              metric={view.metric}
-              score={settings.codingOnly || scatter ? score : undefined}
-              pinned={Boolean(pinned)}
-              onClose={clearSelection}
-            />
+            {details}
           </aside>
         )}
       </div>
+      </div>
+      {bars && activeModel && <aside className={`configuration-details${pinned ? '' : ' pointer-events-none'}`} data-placement="top-right" aria-label="Selected configuration" tabIndex={pinned ? 0 : undefined}>{details}</aside>}
+      {bars && validRows.length > 0 && <p className="mt-2 mb-0 text-[12px] text-fg-2">Reasoning: N none · L low · M medium · H high · X xhigh · Mx max{width > (ref.current?.parentElement?.clientWidth ?? width) + 2 && ' · Scroll horizontally for more models.'}</p>}
       {/* Reserve the mobile legend's height in the initial HTML before hydration. */}
       {scatter && (
         <div className={`${width < 600 || !settings.labels ? 'grid' : 'hidden plot-mobile:grid'} scatter-legend ${width >= 480 ? 'grid-cols-3 phone:grid-cols-2' : 'grid-cols-2'} gap-x-3 gap-y-0.5 pt-2.5`}>
