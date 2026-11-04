@@ -34,19 +34,21 @@ Kimi found selected non-frontier sidebar rows were half-transparent in frontier 
 
 Latest checks: type checking, 181 unit tests, production build, and 13 production browser tests pass.
 
-## Latest category scores
+## Final category scores
+
+All 28 scores meet the user's minimum of 8/10.
 
 | Category | DeepSeek | GPT Sol | Kimi | GPT-6.1 Terra |
 | --- | --- | --- | --- | --- |
-| Navigation and discovery | pending | 8.5 | 9.2 | 8.5 |
-| Hierarchy and typography | pending | 8.2 | 8.6 | 8 |
-| Chart/data readability | pending | 8.0 | 8.4 | 8 |
-| Controls and feedback | pending | 8.2 | 8.5 | 8 |
-| Mobile responsiveness | pending | 8.2 | 8.8 | 8 |
-| Accessibility | pending | 8.0 | 8.1 | 8 |
-| Light/dark consistency | pending | 8.3 | 8.5 | 8 |
+| Navigation and discovery | 8.5 | 8.5 | 9.2 | 8.5 |
+| Hierarchy and typography | 8.5 | 8.2 | 8.6 | 8 |
+| Chart/data readability | 8.5 | 8.0 | 8.4 | 8 |
+| Controls and feedback | 8.5 | 8.2 | 8.5 | 8 |
+| Mobile responsiveness | 8.5 | 8.2 | 8.8 | 8 |
+| Accessibility | 8.5 | 8.0 | 8.1 | 8 |
+| Light/dark consistency | 9.0 | 8.3 | 8.5 | 8 |
 
-Kimi rechecked `d4d090d` and found no remaining sub-8 category. It inspected source, browser-test code, and screenshots without rerunning the suite. DeepSeek remains pending, so the full every-member/every-category criterion is not yet established.
+Each member completed an initial category audit and a focused recheck after its blocking findings were fixed. Scores reflect each reviewer's inspected revision; later changes include the documentation, committed evidence, and singular-label correction.
 
 ## Compact navigation and control feedback
 
@@ -55,3 +57,9 @@ DeepSeek's first category audit found navigation overflow near 901px and a dense
 The production browser suite checks all seven navigation choices remain inside the navigation bounds at 901, 920, 940, 960, and 1280px. It also verifies Scatter-to-Table labeling and visible phone expansion with exact reasoning values. Type checking, 181 unit tests, build, and all 16 production browser tests pass. DeepSeek's category recheck is pending.
 
 Evidence: `navigation-desktop901.png`, `navigation-token-table.png`, and `navigation-phone-range-expanded.png`.
+
+## Final verification
+
+DeepSeek rechecked `06d97fd` and returned 8.5 for the first six categories and 9.0 for light/dark consistency, with no sub-8 blocker. It independently reran type checking, all 181 unit tests, the production build, and all 16 production browser tests. It also swept navigation widths from 901 through 1280px, including the 940/941px gap boundary, and repeated the narrow-width sweep with both fonts blocked. All navigation choices fit without document overflow.
+
+The later `de3b17e` correction changes only singular data labels, and the evidence captures were committed separately. The assessment is a council UI review, not a claim of comprehensive accessibility certification.

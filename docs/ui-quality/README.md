@@ -39,3 +39,5 @@ The dropdown was removed after user feedback. All seven desktop views are direct
 Additional captures cover [phone overview](navigation-phone-overview.png), [phone scores](navigation-phone-scores.png), [phone resources](navigation-phone-resources.png), [320px resources](navigation-phone320-resources.png), [model picker](navigation-model-picker.png), [keyboard focus](navigation-keyboard-focus.png), [coding-only data](navigation-coding.png), [subscription pricing](navigation-subscription.png), and [empty selection](navigation-empty.png).
 
 The new acceptance criterion is at least 8/10 from every council member in every category: navigation and discovery, hierarchy and typography, chart/data readability, controls and feedback, mobile responsiveness, accessibility, and visual consistency in light/dark themes. Earlier aggregate approvals do not establish this category-level result.
+
+The category-level target is now met: all four members score each of the seven categories at least 8/10. See [the final matrix and review history](category-review.md). Current verification includes 181 unit tests and 16 production browser tests.
