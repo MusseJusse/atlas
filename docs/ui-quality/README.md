@@ -1,5 +1,7 @@
 # UI review evidence
 
+Latest follow-up: [aligned ranking markers](aligned-markers.md) removes vertical staggering after user feedback. New screenshots cover both reported phone views, narrow layout, desktop and dark mode. Current validation passes 182 unit tests and 21 browser tests.
+
 The before images show `origin/main` at `b17dca3`. Current after images show this branch rebased onto `main` at `8f33ad0`, including its newer benchmark data and default model selection. Values and selected models can differ. Desktop captures use 1280 × 800; phone captures use 390 × 844. These are browser screenshots of the application, not design mocks.
 
 | View | Before | After |
@@ -46,4 +48,4 @@ The historical category-level target was met: all four members score each of the
 
 The user rejected the table-first result and now requires every council member to score every category at least 9/10. All four members now meet that target on the same frozen implementation, `2714f8a`. The horizontal ranking rebuild, latest scores, findings, and fixes are documented in [horizontal-review.md](horizontal-review.md). Older 8-level approvals do not satisfy it.
 
-The current branch passes type checking, 182 unit tests, production build, and 20 production Chromium tests after rebase onto `8f33ad0`. Captures show the application with real data.
+The current branch passes type checking, 182 unit tests, production build, and 21 production Chromium tests after rebase onto `8f33ad0`. Captures show the application with real data.

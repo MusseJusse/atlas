@@ -397,10 +397,12 @@
 .ranking-zero { border-color: var(--line-2); }
 .ranking-bar { position: absolute; top: 14px; height: 20px; background: color-mix(in srgb, var(--model-color) 12%, transparent); border-radius: 0 3px 3px 0; }
 .ranking-negative { border-radius: 3px 0 0 3px; }
-.ranking-range { position: absolute; top: 22px; height: 4px; background: var(--model-color); border-radius: 3px; }
-.ranking-dot { position: absolute; top: 24px; width: 10px; height: 10px; transform: translate(-50%, -50%); border: 1.5px solid var(--model-color); background: var(--panel); border-radius: 50%; }
+.ranking-range { position: absolute; top: 50%; transform: translateY(-50%); height: 4px; background: var(--model-color); border-radius: 3px; }
+.ranking-dot { position: absolute; top: 50%; width: 8px; height: 8px; transform: translate(-50%, -50%); border: 1.5px solid var(--model-color); background: var(--panel); border-radius: 50%; }
 .ranking-best { background: var(--model-color); box-shadow: 0 0 0 2px var(--panel); }
 .ranking-value { display: flex; align-items: center; justify-content: flex-end; gap: 10px; font-size: 14px; font-variant-numeric: tabular-nums; }
+.ranking-value > span { display: flex; flex-direction: column; align-items: flex-end; }
+.ranking-value small { color: var(--fg-2); font-size: 11px; }
 .ranking-value b { font-weight: 550; }
 .ranking-value svg { color: var(--fg-2); flex-shrink: 0; }
 .ranking-expanded { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: start; gap: 16px; padding: 4px 8px 16px 42px; }
@@ -423,8 +425,6 @@
  .ranking-value { grid-column: 2; grid-row: 1; font-size: 14px; gap: 7px; }
  .ranking-gridline { inset-block: 8px 0; }
  .ranking-bar { top: 10px; height: 16px; }
- .ranking-range { top: 16px; }
- .ranking-dot { top: 18px; }
  .ranking-rows { overflow: visible; }
  .ranking-expanded { display: block; padding-left: 8px; }
  .ranking-inspector { margin-top: 12px; }

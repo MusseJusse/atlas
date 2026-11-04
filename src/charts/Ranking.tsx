@@ -8,7 +8,7 @@ import { metrics, type Metric, type ScoreMetric } from '../chart-definitions';
 import { barDomain, linearScale, logScale } from '../scales';
 import { ConfigurationDetails } from './ConfigurationDetails';
 import { spacedAxisTicks, type MeasuredRow } from './geometry';
-import { dodgeConfigurations, durationTicks } from './ranking-geometry';
+import { overlappingConfigurations, durationTicks } from './ranking-geometry';
 import type { Interactions } from './interactions';
 
 /** One shared scale, one row per model, and every measured reasoning configuration. */
@@ -58,10 +58,10 @@ export function Ranking({ rows, metric, grouped, descending, interactions, score
         const open = expanded === group.id;
         const zero = logarithmic ? 0 : position(0);
         const endpoint = position(best.value);
-        const markers = dodgeConfigurations(group.rows.map((row) => ({ id: row.id, x: position(row.value) * plotWidth / 100 })));
+        const overlapCount = overlappingConfigurations(group.rows.map((row) => ({ id: row.id, x: position(row.value) * plotWidth / 100 })));
         const selected = interactions.pinned && group.rows.some((row) => row.id === interactions.pinned?.id);
         return <div className="ranking-model" key={group.id} style={{ '--model-color': modelColor(best) } as CSSProperties}>
-          <button className="ranking-row ranking-grid" aria-label={`${best.name}, rank ${index + 1}, ${metrics[metric].label}. ${descending ? 'Highest' : 'Lowest'} ${metric === 'time' && best.timeEstimate ? 'estimated ' : ''}${formatModelValue(best, metric)}. ${group.rows.length} ${group.rows.length === 1 ? 'configuration' : 'configurations'}, range ${format(group.minimum, metric)} to ${format(group.maximum, metric)}. ${open ? 'Hide' : 'Show'} configurations.`} data-highlighted={interactions.highlighted === best.family || undefined} onPointerEnter={() => interactions.highlight(best.family)} onPointerLeave={() => interactions.highlight(null)} onFocus={() => interactions.highlight(best.family)} onBlur={() => interactions.highlight(null)} data-best-value={best.value} aria-expanded={open} aria-controls={`ranking-${metric}-${group.id}`}
+          <button className="ranking-row ranking-grid" aria-label={`${best.name}, rank ${index + 1}, ${metrics[metric].label}. ${descending ? 'Highest' : 'Lowest'} ${metric === 'time' && best.timeEstimate ? 'estimated ' : ''}${formatModelValue(best, metric)}. ${group.rows.length} ${group.rows.length === 1 ? 'configuration' : 'configurations'}, range ${format(group.minimum, metric)} to ${format(group.maximum, metric)}. ${overlapCount > 1 ? `${overlapCount} configurations overlap visually. ` : ''}${open ? 'Hide' : 'Show'} configurations.`} data-highlighted={interactions.highlighted === best.family || undefined} onPointerEnter={() => interactions.highlight(best.family)} onPointerLeave={() => interactions.highlight(null)} onFocus={() => interactions.highlight(best.family)} onBlur={() => interactions.highlight(null)} data-best-value={best.value} aria-expanded={open} aria-controls={`ranking-${metric}-${group.id}`}
             onClick={(event) => {
               setExpanded(open ? null : group.id);
               if (!open) {
@@ -74,9 +74,9 @@ export function Ranking({ rows, metric, grouped, descending, interactions, score
               {ticks.map((tick) => <span className={`ranking-gridline${tick === 0 ? ' ranking-zero' : ''}`} key={tick} style={{ left: `${position(tick)}%` }} />)}
               <span className={`ranking-bar${best.value < 0 ? ' ranking-negative' : ''}`} style={{ left: `${Math.min(zero, endpoint)}%`, width: `${Math.abs(endpoint - zero)}%` }} />
               <span className="ranking-range" style={{ left: `${position(group.minimum)}%`, width: `${position(group.maximum) - position(group.minimum)}%` }} />
-              {group.rows.map((row) => <span className={`ranking-dot${row.id === best.id ? ' ranking-best' : ''}`} data-configuration={row.id} key={row.id} style={{ left: `${position(row.value)}%`, width: markers.get(row.id)!.size, height: markers.get(row.id)!.size, marginTop: markers.get(row.id)!.offset }} />)}
+              {[...group.rows.filter((row) => row.id !== best.id), best].map((row) => <span className={`ranking-dot${row.id === best.id ? ' ranking-best' : ''}`} data-configuration={row.id} key={row.id} style={{ left: `${position(row.value)}%` }} />)}
             </span>
-            <span className="ranking-value"><b>{formatModelValue(best, metric)}</b><ChevronDown data-expand-indicator size={14} aria-hidden="true" style={{ transform: open ? 'rotate(180deg)' : undefined }} /></span>
+            <span className="ranking-value"><span><b>{formatModelValue(best, metric)}</b>{overlapCount > 1 && <small title="Expand the row to compare the exact reasoning values">{overlapCount} overlap</small>}</span><ChevronDown data-expand-indicator size={14} aria-hidden="true" style={{ transform: open ? 'rotate(180deg)' : undefined }} /></span>
           </button>
           {open && <div id={`ranking-${metric}-${group.id}`} className="ranking-expanded">
             <div className="ranking-configurations" role="group" aria-label={`${best.name} reasoning configurations`}>

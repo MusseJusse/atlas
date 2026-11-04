@@ -1,5 +1,7 @@
 # Horizontal ranking review
 
+A later user-requested [marker-alignment follow-up](aligned-markers.md) removes the vertical staggering discussed in this history. The scores below remain the record for the explicitly identified frozen revision.
+
 All four council members score every category at least 9/10 on the same frozen implementation, `2714f8a`. The user rejected the earlier table-first ranking and raised the target to 9/10 in every category. The final result meets that target.
 
 Rankings now use horizontal model rows on a shared scale. Dots show every measured configuration, the range connects configurations, and a faint bar marks the first value in the chosen direction on the active scale. Linear charts retain a zero reference. Models default to their best measurement first. Signed scores keep their zero reference. Model rows expand to exact reasoning values and selectable configuration details. View data remains a secondary disclosure. There is no automatic table fallback at any width or selection size.

@@ -1,17 +1,13 @@
 import { expect, it } from 'vitest';
-import { dodgeConfigurations, durationTicks } from './ranking-geometry';
+import { overlappingConfigurations, durationTicks } from './ranking-geometry';
 
-it('dodges overlapping configurations deterministically within the plot row', () => {
-  const points = Array.from({ length: 7 }, (_, index) => ({ id: String(index), x: 0 }));
-  const dodged = dodgeConfigurations(points);
-  expect(dodgeConfigurations(points.toReversed())).toEqual(dodged);
-  const markers = [...dodged.values()];
-  for (const marker of markers) expect(Math.abs(marker.offset) + marker.size / 2).toBeLessThan(16);
-  for (let index = 1; index < markers.length; index++) {
-    expect(markers[index]!.offset - markers[index - 1]!.offset).toBeGreaterThan(markers[index]!.size);
-  }
-  expect(dodgeConfigurations([{ id: 'a', x: 0 }, { id: 'b', x: 12 }]).get('a')?.offset).toBe(0);
-  expect(points.every((point) => point.x === 0)).toBe(true);
+it('counts close configurations without changing their positions', () => {
+  const points = [{ id: 'a', x: 0 }, { id: 'b', x: 4 }, { id: 'c', x: 20 }, { id: 'd', x: 24 }, { id: 'e', x: 40 }];
+  expect(overlappingConfigurations(points)).toBe(4);
+  expect(overlappingConfigurations(points.toReversed())).toBe(4);
+  expect(overlappingConfigurations([{ id: 'a', x: 0 }, { id: 'b', x: 10 }])).toBe(0);
+  expect(overlappingConfigurations(Array.from({ length: 7 }, (_, index) => ({ id: String(index), x: 0 })))).toBe(7);
+  expect(points.map((point) => point.x)).toEqual([0, 4, 20, 24, 40]);
 });
 
 it('uses whole five-minute ticks for a twenty-minute task range', () => {

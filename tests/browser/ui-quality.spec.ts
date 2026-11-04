@@ -294,3 +294,31 @@ test('time estimates retain their parent model count and identify the derived en
   await chart.locator('.measurement-disclosure summary').click();
   await expect(chart.getByRole('row', { name: /GPT-6.1 Sol Ultrafast Estimated speed endpoint/ })).toBeVisible();
 });
+
+
+test('close ranking configurations stay on their range line on phones and desktop', async ({ page }) => {
+  for (const width of [393, 320, 1280]) {
+    await page.setViewportSize({ width, height: 852 });
+    for (const chart of ['intelligence', 'omniscience']) {
+      await page.goto(`/?chart=${chart}`);
+      const section = page.locator(`#${chart}`);
+      const astra = section.locator('.ranking-model').filter({ has: page.locator('.ranking-row', { hasText: 'GPT-6 Astra' }) });
+      await expect(astra.locator('.ranking-row')).toBeVisible();
+      if (width === 393) await expect(astra.locator('.ranking-value')).toContainText('overlap');
+      const geometry = await section.locator('.ranking-model').evaluateAll((models) => models.map((model) => {
+        const line = model.querySelector('.ranking-range')!.getBoundingClientRect();
+        return [...model.querySelectorAll('.ranking-dot')].map((dot) => {
+          const box = dot.getBoundingClientRect();
+          return Math.abs(box.top + box.height / 2 - line.top - line.height / 2);
+        });
+      }));
+      expect(geometry.flat().every((distance) => distance < 0.1)).toBe(true);
+      const count = await section.locator('[data-configuration]').count();
+      await astra.locator('.ranking-row').click();
+      await expect(astra.locator('.ranking-configurations button')).toHaveCount(4);
+      await section.locator('.measurement-disclosure summary').click();
+      await expect(section.locator('tbody tr')).toHaveCount(count);
+      expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+    }
+  }
+});

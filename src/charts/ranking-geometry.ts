@@ -1,19 +1,16 @@
-/** Keep exact X coordinates while separating nearby configurations inside a row. */
-export function dodgeConfigurations(points: readonly { id: string; x: number }[]) {
-  const sorted = points.toSorted((a, b) => a.x - b.x || a.id.localeCompare(b.id));
-  const clusters: (typeof sorted)[] = [];
-  for (const point of sorted) {
-    const cluster = clusters.at(-1);
-    if (cluster && point.x - cluster.at(-1)!.x < 10) cluster.push(point);
-    else clusters.push([point]);
+/** Count configurations whose markers overlap at the current scale. Never move their coordinates. */
+export function overlappingConfigurations(points: readonly { id: string; x: number }[]) {
+  const sorted = points.toSorted((a, b) => a.x - b.x);
+  const overlapping = new Set<string>();
+  for (let index = 1; index < sorted.length; index++) {
+    const previous = sorted[index - 1]!;
+    const current = sorted[index]!;
+    if (current.x - previous.x < 10) {
+      overlapping.add(previous.id);
+      overlapping.add(current.id);
+    }
   }
-  return new Map(clusters.flatMap((cluster) => {
-    const step = Math.min(10, 30 / cluster.length);
-    return cluster.map((point, index) => [point.id, {
-      offset: (index - (cluster.length - 1) / 2) * step,
-      size: Math.min(8, step - 1),
-    }] as const);
-  }));
+  return overlapping.size;
 }
 
 /** Prefer familiar seconds/minutes/hours instead of decimal-minute intervals. */
