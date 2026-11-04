@@ -33,7 +33,7 @@ it.each([true, false])('shows the existing empty state for range charts, phone=%
     expect(markup).toContain('No models to display');
     expect(markup).toContain('Choose models in the model filters or enable more reasoning levels.');
     expect(markup).not.toContain('phone:invisible');
-    expect(markup).not.toContain('<svg');
+    expect(markup).not.toMatch(/<svg[^>]*role="group"/);
     expect(markup).not.toContain('tabular-nums');
   }
 });
@@ -41,7 +41,7 @@ it.each([true, false])('shows the existing empty state for range charts, phone=%
 it('keeps populated phone ranges without mounting the desktop chart', () => {
   const markup = renderChart([{ ...models[0]!, intelligence: 42 }], true);
   expect(markup).toContain('aria-expanded="false"');
-  expect(markup).not.toContain('<svg');
+  expect(markup).not.toMatch(/<svg[^>]*role="group"/);
   expect(markup).not.toContain('No models to display');
 });
 

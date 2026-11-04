@@ -164,3 +164,42 @@ test('efficient frontier leaves selected model names and controls fully opaque',
   const opacity = await rows.evaluateAll((buttons) => buttons.map((button) => getComputedStyle(button).opacity));
   expect(opacity.every((value) => value === '1')).toBe(true);
 });
+
+
+test('desktop chart navigation fits at the compact layout boundary', async ({ page }) => {
+  for (const width of [901, 920, 940, 960, 1280]) {
+    await page.setViewportSize({ width, height: 900 });
+    await page.goto('/');
+    const navigation = page.getByRole('navigation', { name: 'Chart views' });
+    await expect(navigation.getByRole('button')).toHaveCount(7);
+    const bounds = await navigation.boundingBox();
+    const buttons = await navigation.getByRole('button').evaluateAll((elements) => elements.map((element) => ({
+      left: element.getBoundingClientRect().left, right: element.getBoundingClientRect().right,
+    })));
+    for (const button of buttons) {
+      expect(button.left).toBeGreaterThanOrEqual(bounds!.x - 0.5);
+      expect(button.right).toBeLessThanOrEqual(bounds!.x + bounds!.width + 0.5);
+    }
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+  }
+});
+
+test('Task tokens names its actual dense table view when switching from scatter', async ({ page }) => {
+  await page.goto('/?chart=tokens-task&scatter=true');
+  const type = page.getByRole('group', { name: 'Tokens per task view type' });
+  await type.getByRole('button', { name: 'Table', exact: true }).click();
+  await expect(type.getByRole('button', { name: 'Table', exact: true })).toHaveAttribute('aria-pressed', 'true');
+  await expect(page.locator('#tokens-task .measurement-table')).toBeVisible();
+  await expect(page.locator('#tokens-task svg[role=group]')).toHaveCount(0);
+});
+
+test('phone range rows show an expansion indicator and reveal reasoning values', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto('/?chart=intelligence&selected=gpt-6-1-sol');
+  const row = page.locator('#intelligence button[aria-expanded]').first();
+  await expect(row.locator('[data-expand-indicator]')).toBeVisible();
+  await expect(row).toHaveAttribute('aria-expanded', 'false');
+  await row.click();
+  await expect(row).toHaveAttribute('aria-expanded', 'true');
+  await expect(page.locator(`#${await row.getAttribute('aria-controls')}`)).toBeVisible();
+});

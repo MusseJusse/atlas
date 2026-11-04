@@ -386,3 +386,7 @@
 @media (width < 380px) {
   .efficiency-thresholds { grid-template-columns:repeat(2,minmax(0,1fr)); }
 }
+
+@media (900px < width <= 940px) {
+  .chart-navigation-desktop { gap: 4px; }
+}

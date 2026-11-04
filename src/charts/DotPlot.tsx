@@ -1,5 +1,6 @@
 import { PricingDetails } from './PricingDetails';
 import { memo, useMemo } from 'react';
+import { ChevronDown } from 'lucide-react';
 import { Logo } from '../Logo';
 import { modelColor, shortName } from '../model-presentation';
 import { format, formatModelValue } from '../formatModel';
@@ -53,10 +54,11 @@ export const DotPlot = memo(function DotPlot({
                   {shortName(model)}{metric === 'cost' && model.taskPricing?.basis === 'api-fallback' && ' · API'}
                 </span>
               </span>
-              <span className="text-[13px] text-fg-2 tabular-nums">
+              <span className="flex items-center gap-2 text-[13px] text-fg-2 tabular-nums">
                 {metric === 'time' && model.timeEstimate && '~'}
                 {format(minimum, metric)}
                 {minimum !== group.maximum && ` to ${format(group.maximum, metric)}`}
+                <ChevronDown data-expand-indicator size={14} aria-hidden="true" className="shrink-0" style={{ transform: open ? 'rotate(180deg)' : undefined }} />
               </span>
               <span
                 className="relative col-span-full mx-[5px] h-3 [background:linear-gradient(var(--line-2),var(--line-2))_center/100%_1px_no-repeat]"

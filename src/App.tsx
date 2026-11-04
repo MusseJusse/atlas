@@ -194,6 +194,8 @@ function Benchmarks() {
               const subscription = usesSubscriptionPricing(view.id, settings);
               const chartRows = rowsByView.get(view.id)!;
               const ranking = rankingPresentation(chartRows, view, settings, phone, chartWidth);
+              const nonScatterRanking = scatter && view.mode === 'optional-scatter'
+                ? rankingPresentation(chartRows, view, { ...settings, scatter: false }, phone, chartWidth) : ranking;
               const hasFallback = !(scatter && settings.frontier) && chartRows.some((row) => row.cost !== null && row.taskPricing?.basis === 'api-fallback');
               return (
                 <section
@@ -245,14 +247,14 @@ function Benchmarks() {
                         <div
                           className="flex gap-1 rounded-md bg-surface p-1"
                           role="group"
-                          aria-label="Tokens per task chart type"
+                          aria-label="Tokens per task view type"
                         >
                           <button
                             className="min-h-8 rounded-sm px-2.5 text-[12px] text-fg-2 aria-pressed:bg-panel aria-pressed:font-medium aria-pressed:text-accent"
                             aria-pressed={!settings.scatter}
                             onClick={() => update({ scatter: false })}
                           >
-                            Bars
+                            {nonScatterRanking.dense ? 'Table' : phone ? 'Ranges' : 'Bars'}
                           </button>
                           <button
                             className="min-h-8 rounded-sm px-2.5 text-[12px] text-fg-2 aria-pressed:bg-panel aria-pressed:font-medium aria-pressed:text-accent"
