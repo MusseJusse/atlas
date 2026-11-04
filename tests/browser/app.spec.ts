@@ -85,10 +85,40 @@ test('phone navigation scrolls to the requested chart and closes the model sheet
   await expect(page.getByRole('dialog', { name: 'Model filters' })).toBeVisible();
   await page.getByRole('button', { name: 'Done', exact: true }).click();
   await expect(page.getByRole('dialog', { name: 'Model filters' })).toHaveCount(0);
-  const button = page.getByRole('navigation', { name: 'Chart views' }).getByRole('button', { name: 'Time per task', exact: true });
+  const navigation = page.getByRole('navigation', { name: 'Chart views' });
+  await navigation.getByRole('button', { name: 'Resources', exact: true }).click();
+  const button = navigation.getByRole('button', { name: 'Task time', exact: true });
   await button.click();
   await expect(button).toHaveAttribute('aria-current', 'page');
   await expect(page).toHaveURL(/chart=time-task/);
   await expect.poll(() => page.locator('#time-task').evaluate((section) => Math.round(section.getBoundingClientRect().top))).toBeLessThan(220);
   await expect(page.locator('#time-task').getByRole('button').first()).toBeVisible();
+});
+
+test('phone rankings plot configurations and expand without horizontal overflow', async ({ page }) => {
+  await page.setViewportSize({ width: 320, height: 740 });
+  await page.goto('/?chart=intelligence');
+  const ranking = page.locator('#intelligence .ranking');
+  const row = ranking.locator('.ranking-row').first();
+  await expect(row).toBeVisible();
+  await expect(row.locator('[data-configuration]').first()).toBeVisible();
+  await row.click();
+  await expect(row).toHaveAttribute('aria-expanded', 'true');
+  await expect(ranking.locator('.ranking-configurations button').first()).toBeVisible();
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+});
+
+test('phone efficiency shows the chart before optional details', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto('/?page=efficiency');
+  await expect(page.locator('.efficiency-plot svg')).toBeVisible();
+  const positions = await page.evaluate(() => ({
+    title: document.querySelector('.efficiency-heading')!.getBoundingClientRect().top,
+    filters: document.querySelector('.efficiency-filters')!.getBoundingClientRect().top,
+    plot: document.querySelector('.efficiency-plot')!.getBoundingClientRect().top,
+    details: document.querySelector('.efficiency-details-slot')!.getBoundingClientRect().height,
+  }));
+  expect(positions.title).toBeLessThan(positions.filters);
+  expect(positions.filters).toBeLessThan(positions.plot);
+  expect(positions.details).toBe(0);
 });

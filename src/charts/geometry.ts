@@ -1,7 +1,7 @@
 import { barDomain, linearScale, logScale } from '../scales';
 import { scatterDomain, scatterRows } from '../scatter-data';
 import { barGroups, paretoFrontier, type Model } from '../models';
-import { formatModelValue } from '../formatModel';
+import { format, formatModelValue } from '../formatModel';
 import type { Metric, ScoreMetric } from '../chart-definitions';
 
 export type MeasuredRow = Model & { value: number };
@@ -168,4 +168,19 @@ export function rangeGeometry(
   const [min, max] = barDomain(rows.map((row) => row.value));
   const position = linearScale([min, max], [0, 100]);
   return { groups, min, max, position };
+}
+
+/** Keep tick labels readable when precise low prices need more characters. */
+export function spacedAxisTicks(values: number[], position: (value: number) => number, metric: Metric) {
+  let edge = -Infinity;
+  const used = new Set<string>();
+  return values.flatMap((value) => {
+    const label = format(value, metric, true);
+    const x = position(value);
+    const halfWidth = label.length * 3.5;
+    if (used.has(label) || x - halfWidth < edge + 10) return [];
+    edge = x + halfWidth;
+    used.add(label);
+    return [{ value, label, x }];
+  });
 }

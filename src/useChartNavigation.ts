@@ -20,7 +20,7 @@ export function useChartNavigation(mobile: boolean) {
     readView(typeof location === 'undefined' ? '' : location.search),
   );
   const feed = useRef<HTMLDivElement>(null);
-  const chartNavigation = useRef<HTMLElement>(null);
+  const chartNavigation = useRef<HTMLDivElement>(null);
   const [target, setTarget] = useState<{ id: ViewId } | null>(null);
 
   const navigate = useCallback((id: ViewId) => {
@@ -40,7 +40,7 @@ export function useChartNavigation(mobile: boolean) {
   }, [navigate]);
 
   useEffect(() => {
-    const navigation = chartNavigation.current;
+    const navigation = chartNavigation.current?.querySelector<HTMLElement>('nav');
     const button = navigation?.querySelector<HTMLButtonElement>('[aria-current="page"]');
     if (!navigation || !button) return;
     const bounds = navigation.getBoundingClientRect();
