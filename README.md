@@ -183,7 +183,7 @@ Local Chromium results against `f2a4a2b`, with no CPU or network throttling:
 
 The first local page load recorded first contentful paint at 148 ms before and 68 ms after. A later cached reload recorded 60 ms and 40 ms. These are local samples, not a network or device performance guarantee.
 
-The grouped Chart selector shows one chart at a time. Visited charts stay mounted while hidden so pinned details survive navigation. Dense rankings switch to a scrollable data table; every chart also offers a View data disclosure with named reasoning configurations. Phones render the dot plots without also building hidden SVG bar charts. Chart geometry and number formatters are reused across hover updates.
+Chart navigation shows every view on desktop. Phones show Overview, Scores, and Resources with visible chart choices beneath the active category. Only one chart appears at a time. Visited charts stay mounted while hidden so pinned details survive navigation. Dense rankings switch to a scrollable data table; every chart also offers a View data disclosure with named reasoning configurations. Phones render the dot plots without also building hidden SVG bar charts. Chart geometry and number formatters are reused across hover updates.
 
 ## PageSpeed validation
 

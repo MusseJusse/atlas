@@ -3,7 +3,7 @@ import { ArrowDown, Ellipsis, SlidersHorizontal } from 'lucide-react';
 import { PricingControls } from './PricingControls';
 import { pricingDisclosure, subscriptionRows, usesSubscriptionPricing } from './data/subscriptions';
 import { Chart } from './Charts';
-import { ChartPicker } from './ChartPicker';
+import { ChartNavigation } from './ChartNavigation';
 import { visibleChartRows } from './chart-rows';
 import { codingOnlyRows } from './data/coding-only';
 import { Sidebar } from './Sidebar';
@@ -184,7 +184,7 @@ function Benchmarks() {
               <span>{settings.selected.length} selected</span>
               <span className="ml-auto text-accent">Edit selection</span>
             </button>
-            <ChartPicker views={datasetViews} active={active} navigate={navigate} />
+            <ChartNavigation views={datasetViews} active={active} navigate={navigate} />
           </div>
           <div
             className="relative min-h-0 overflow-y-auto rounded-b-xl [scrollbar-width:thin] [scrollbar-color:var(--line-2)_var(--panel)] mobile:overflow-visible"

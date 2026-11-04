@@ -6,17 +6,20 @@ test('every chart is discoverable by keyboard and exactly one chart stays visibl
   page.on('console', (message) => { if (message.type() === 'error') errors.push(message.text()); });
   await page.route('**/_vercel/**', (route) => route.fulfill({ status: 204, body: '' }));
   await page.goto('/');
-  const picker = page.getByRole('combobox', { name: 'Chart', exact: true });
-  const choices = await picker.locator('option').evaluateAll((options) => options.map((option) => option.getAttribute('value')!));
+  const navigation = page.getByRole('navigation', { name: 'Chart views' });
+  const choices = await navigation.getByRole('button').evaluateAll((buttons) => buttons.map((button) => button.getAttribute('aria-controls')!));
   expect(choices).toHaveLength(7);
   for (const id of choices) {
-    await picker.selectOption(id);
+    const button = navigation.locator(`button[aria-controls="${id}"]:visible`);
+    await expect(button).toBeVisible();
+    await button.click();
+    await expect(button).toHaveAttribute('aria-current', 'page');
     await expect(page.locator('.chart-section:visible')).toHaveCount(1);
     const section = page.locator(`#${id}`);
     await expect(section.locator('svg[role=group], .measurement-table').first()).toBeVisible();
+    await button.focus();
+    await expect(button).toBeFocused();
   }
-  await picker.focus();
-  await expect(picker).toBeFocused();
   expect(errors).toEqual([]);
 });
 
@@ -96,4 +99,31 @@ test('phone intelligence and cost tables match grouped sort controls in both dir
     await ranking.getByRole('button', { name: initialLabel, exact: true }).click();
     assertOrder(await valuesByModel(), !defaultDescending);
   }
+});
+
+
+test('phone chart categories expose every choice without overflow or a dropdown', async ({ page }) => {
+  await page.setViewportSize({ width: 320, height: 740 });
+  await page.goto('/');
+  const navigation = page.getByRole('navigation', { name: 'Chart views' });
+  await expect(navigation.locator('select')).toHaveCount(0);
+  for (const [category, ids] of [
+    ['Scores', ['intelligence', 'omniscience']],
+    ['Resources', ['tokens-task', 'tokens-total', 'cost-task', 'time-task']],
+  ] as const) {
+    await navigation.getByRole('button', { name: category, exact: true }).click();
+    for (const id of ids) {
+      const choice = navigation.locator(`button[aria-controls="${id}"]:visible`);
+      await choice.click();
+      await expect(choice).toHaveAttribute('aria-current', 'page');
+      await expect(page.locator('.chart-section:visible')).toHaveCount(1);
+      const bounds = await choice.boundingBox();
+      expect(bounds!.height).toBeGreaterThanOrEqual(44);
+      expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+    }
+  }
+  await navigation.getByRole('button', { name: 'Scores', exact: true }).click();
+  await navigation.getByRole('button', { name: 'Omniscience', exact: true }).click();
+  await navigation.getByRole('button', { name: 'Scores', exact: true }).click();
+  await expect(navigation.getByRole('button', { name: 'Omniscience', exact: true })).toHaveAttribute('aria-current', 'page');
 });

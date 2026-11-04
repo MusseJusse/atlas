@@ -262,27 +262,28 @@
   text-decoration-color: var(--accent);
   text-underline-offset: 10px;
 }
-.chart-picker {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  min-height: 66px;
-  border-bottom: 1px solid var(--line);
+/* Navigation stays visible. Category rows replace overflow on compact screens. */
+.chart-navigation { border-bottom: 1px solid var(--line); }
+.chart-navigation-desktop { display: flex; justify-content: space-between; gap: 12px; }
+.chart-navigation button {
+  position: relative;
+  min-height: 56px;
+  padding: 0 4px;
   color: var(--fg-2);
   font-size: 13px;
+  white-space: nowrap;
 }
-.chart-picker select {
-  min-width: 0;
-  max-width: 100%;
-  min-height: 40px;
-  border: 1px solid var(--line-2);
-  border-radius: 6px;
-  background: var(--panel);
-  color: var(--fg);
-  font: inherit;
-  font-weight: 550;
-  padding: 8px 32px 8px 12px;
+.chart-navigation button:hover { color: var(--fg); }
+.chart-navigation button[aria-current] { color: var(--accent); font-weight: 600; }
+.chart-navigation button[aria-current]::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  inset-inline: 0;
+  height: 2px;
+  background: var(--accent);
 }
+.chart-navigation-phone { display: none; }
 .chart-guidance {
   flex-shrink: 0;
   margin: 6px 0 0;
@@ -347,12 +348,13 @@
   gap: 12px;
   font-size: 12px;
 }
- .chart-picker {
-  min-height: 60px;
-}
- .chart-picker select {
-  flex: 1;
-}
+ .chart-navigation-desktop { display: none; }
+ .chart-navigation-phone { display: block; }
+ .chart-categories, .chart-subnavigation { display: flex; justify-content: space-between; gap: 12px; }
+ .chart-navigation button { min-height: 44px; }
+ .chart-categories button { flex: 1; }
+ .chart-subnavigation { gap: 8px; border-top: 1px solid var(--line); }
+ .chart-subnavigation button { padding-inline: 0; font-size: 12px; }
  .measurement-table {
   max-height: 420px;
 }
