@@ -379,3 +379,10 @@
 @media (width <= 900px) { .dense-ranking .measurement-table {
   max-height: 600px;
 } }
+
+@media (width <= 900px) {
+  .efficiency-thresholds { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:0 12px; }
+}
+@media (width < 380px) {
+  .efficiency-thresholds { grid-template-columns:repeat(2,minmax(0,1fr)); }
+}

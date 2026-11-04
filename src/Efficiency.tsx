@@ -3,7 +3,7 @@ import snapshot from 'virtual:benchmarks';
 import { SiteHeader } from './SiteHeader';
 import { costMultiplier, efficiencySeries, elapsedTimeSinceFirstRecord } from './efficiency-data';
 import { readEfficiencySettings, writeEfficiencySettings } from './efficiency-state';
-import { EfficiencyChart, efficiencyColors, recordKey } from './EfficiencyChart';
+import { EfficiencyChart, efficiencyColors, efficiencyPatterns, recordKey } from './EfficiencyChart';
 import { ConfigurationDetails } from './charts/ConfigurationDetails';
 import { resolveChartInteraction } from './chart-interactions';
 import { formatUtcDate } from './formatDate';
@@ -65,9 +65,9 @@ export function Efficiency() {
         <aside aria-label="Efficiency controls" className="min-h-0 min-w-0 overflow-y-auto pt-2 mobile:contents">
           <fieldset className="efficiency-filters m-0 min-w-0 border-0 p-0">
             <legend className="mb-3 text-[13px] font-semibold">Intelligence Index</legend>
-            <div className="flex flex-col gap-1 mobile:flex-row mobile:flex-wrap mobile:gap-x-5 mobile:gap-y-0">
+            <div className="efficiency-thresholds flex flex-col gap-1">
               {lines.map((line) => (
-                <label key={line.threshold} className="flex min-h-11 cursor-pointer items-center gap-3 text-[13px]">
+                <label key={line.threshold} className="flex min-h-11 cursor-pointer items-center gap-2 text-[13px]">
                   <input
                     type="checkbox"
                     checked={settings.thresholds.includes(line.threshold)}
@@ -81,8 +81,13 @@ export function Efficiency() {
                     className="m-0 size-3.5 shrink-0"
                     style={{ accentColor: efficiencyColors[line.threshold] }}
                   />
-                  <span className="inline-flex items-center gap-2"><span aria-hidden="true" className="size-2" style={{ background: efficiencyColors[line.threshold] }} />≥ {line.threshold}</span>
-                  {!line.points.length && <span className="text-[11px] text-fg-2">No data</span>}
+                  <svg aria-hidden="true" width="28" height="12" viewBox="0 0 28 12" className="shrink-0" style={{ color: efficiencyColors[line.threshold] }}>
+                    <line x1="0" x2="28" y1="6" y2="6" stroke="currentColor" strokeWidth="2" strokeDasharray={efficiencyPatterns[line.threshold]} />
+                  </svg>
+                  <span className="flex flex-col">
+                    <span>≥ {line.threshold}</span>
+                    {!line.points.length && <span className="whitespace-nowrap text-[11px] text-fg-2">No data</span>}
+                  </span>
                 </label>
               ))}
             </div>

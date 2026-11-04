@@ -18,6 +18,16 @@ export const efficiencyColors = {
   60: 'light-dark(#65516f, #ccb6d9)',
 } as const;
 
+// Match the legend samples so thresholds remain identifiable without color.
+export const efficiencyPatterns = {
+  10: undefined,
+  20: '8 4',
+  30: '2 4',
+  40: '8 3 2 3',
+  50: '14 4',
+  60: '14 3 2 3 2 3',
+} as const;
+
 export type EfficiencyRecord = { threshold: EfficiencyLine['threshold']; point: EfficiencyPoint };
 
 export function recordKey({ threshold, point }: EfficiencyRecord) {
@@ -94,7 +104,7 @@ export function EfficiencyChart({ lines, selected, fetchedAt, active, highlighte
           }}
         >
           <desc id={`${id}-description`}>
-            Each line shows records for an intelligence threshold. Focus a point for details, press Enter or Space to pin it, and Escape to clear the selection.
+            Each line shows records for an intelligence threshold. Line patterns match the threshold controls. Focus a point for details, press Enter or Space to pin it, and Escape to clear the selection.
           </desc>
           <rect className="chart-background" width={size.width} height={size.height} fill="var(--panel)" />
           <g aria-hidden="true" fill="var(--fg-2)">
@@ -113,7 +123,7 @@ export function EfficiencyChart({ lines, selected, fetchedAt, active, highlighte
           </g>
           {selected.map((line) => (
             <g key={line.threshold} style={{ color: efficiencyColors[line.threshold], opacity: highlightedThreshold !== null && highlightedThreshold !== line.threshold ? 0.65 : 1 }}>
-              <path d={geometry.path(line.points)} fill="none" stroke="currentColor" strokeWidth={highlightedThreshold === line.threshold ? 3 : 1.7} aria-hidden="true" />
+              <path d={geometry.path(line.points)} fill="none" stroke="currentColor" strokeDasharray={efficiencyPatterns[line.threshold]} strokeWidth={highlightedThreshold === line.threshold ? 3 : 1.7} aria-hidden="true" />
               {line.points.map((point) => {
                 const record = { threshold: line.threshold, point };
                 const key = recordKey(record);

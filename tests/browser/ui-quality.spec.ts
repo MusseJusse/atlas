@@ -141,3 +141,16 @@ test('low subscription price ticks are distinct and have room for their precisio
   expect(labels.some((label) => label.text === '$0.0005')).toBe(true);
   for (let index = 1; index < labels.length; index++) expect(labels[index]!.left - labels[index - 1]!.right).toBeGreaterThanOrEqual(4);
 });
+
+
+test('efficiency line patterns identify thresholds without depending only on color', async ({ page }) => {
+  await page.goto('/?page=efficiency');
+  await expect(page.locator('.efficiency-plot svg[role=group]')).toBeVisible();
+  const legends = await page.locator('.efficiency-thresholds label').evaluateAll((labels) => labels.map((label) => ({
+    threshold: label.querySelector('input')!.getAttribute('aria-label')!.match(/(\d+)$/)![1],
+    pattern: label.querySelector('line')!.getAttribute('stroke-dasharray') ?? 'solid',
+  })));
+  expect(new Set(legends.map((legend) => legend.pattern)).size).toBe(6);
+  const plotted = await page.locator('.efficiency-plot svg > g > path').evaluateAll((paths) => paths.map((path) => path.getAttribute('stroke-dasharray') ?? 'solid'));
+  expect(plotted).toEqual(legends.map((legend) => legend.pattern));
+});
