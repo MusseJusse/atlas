@@ -165,9 +165,9 @@ test('efficiency line patterns identify thresholds without depending only on col
 });
 
 
-test('efficient frontier leaves selected model names and controls fully opaque', async ({ page }) => {
+test('Pareto frontier leaves selected model names and controls fully opaque', async ({ page }) => {
   await page.goto('/?frontier=true');
-  await expect(page.getByRole('button', { name: 'Efficient frontier', exact: true })).toHaveAttribute('aria-pressed', 'true');
+  await expect(page.getByRole('button', { name: 'Pareto Frontier', exact: true })).toHaveAttribute('aria-pressed', 'true');
   const rows = page.locator('#model-filters button[title$="configurations"][aria-pressed="true"]');
   expect(await rows.count()).toBeGreaterThan(1);
   const opacity = await rows.evaluateAll((buttons) => buttons.map((button) => getComputedStyle(button).opacity));

@@ -239,7 +239,7 @@ function Benchmarks() {
                         onClick={() => update({ frontier: !settings.frontier })}
                       >
                         <Selection checked={settings.frontier} />
-                        Efficient frontier
+                        Pareto Frontier
                       </button>
                     ) : view.metric === 'cost' && !subscription ? <span className="text-fg-2">API pricing</span> : null}
                     <div className="ml-auto flex items-center gap-5 phone:gap-3">
@@ -298,12 +298,12 @@ function Benchmarks() {
                       )}
                     </div>
                   </div>
-                  {scatter && settings.frontier && <p className="mt-0 mb-2 shrink-0 text-[12px] text-fg-2">Frontier connects configurations with no better and cheaper alternative.</p>}
+                  {scatter && settings.frontier && <p className="mt-0 mb-2 shrink-0 text-[12px] text-fg-2">Pareto Frontier connects configurations with no better and cheaper alternative.</p>}
                   {subscription && (
                     <p className="mt-0 mb-2 shrink-0 text-[11px] leading-5 text-fg-2">
                       Estimated subscription · One model uses full allowance · {settings.countResets ? 'Bonus resets on where supported' : 'Bonus resets off'}
                       {hasFallback && ' · Includes API fallback'}
-                      {scatter && settings.frontier && ' · Frontier compares subscription estimates only'}
+                      {scatter && settings.frontier && ' · Pareto Frontier compares subscription estimates only'}
                       {scatter && !linear && chartRows.some((row) => row.cost === 0) && ' · Zero costs omitted on log scale'}
                     </p>
                   )}
