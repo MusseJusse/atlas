@@ -6,13 +6,13 @@ The user rejected the chart dropdown and requested at least 8/10 in every catego
 
 | Category | DeepSeek | GPT Sol | Kimi | GPT-6.1 Terra |
 | --- | --- | --- | --- | --- |
-| Navigation and discovery | pending | 8.5 | 9.2 | 8.5 |
-| Hierarchy and typography | pending | 8.2 | 8.6 | 8 |
-| Chart/data readability | pending | 8.0 | 8.3 | 7.5 |
-| Controls and feedback | pending | 8.2 | 8.5 | 8 |
-| Mobile responsiveness | pending | 8.2 | 8.8 | 8 |
-| Accessibility | pending | 7.5 | 7.5 | 8 |
-| Light/dark consistency | pending | 8.3 | 8.5 | 8 |
+| Navigation and discovery | 7.5 | 8.5 | 9.2 | 8.5 |
+| Hierarchy and typography | 8.5 | 8.2 | 8.6 | 8 |
+| Chart/data readability | 8.5 | 8.0 | 8.3 | 7.5 |
+| Controls and feedback | 7.5 | 8.2 | 8.5 | 8 |
+| Mobile responsiveness | 8.5 | 8.2 | 8.8 | 8 |
+| Accessibility | 8.5 | 7.5 | 7.5 | 8 |
+| Light/dark consistency | 9 | 8.3 | 8.5 | 8 |
 
 Terra's blocker was duplicate rounded subscription price ticks. Commit `134e3d6` preserves small costs with three significant digits and spaces labels to prevent overlap. Unit tests cover low-cost precision; the browser test checks distinct rendered labels and their actual separation. The subscription screenshot has been refreshed. Terra's category recheck is pending.
 
@@ -47,3 +47,11 @@ Latest checks: type checking, 181 unit tests, production build, and 13 productio
 | Light/dark consistency | pending | 8.3 | 8.5 | 8 |
 
 Kimi rechecked `d4d090d` and found no remaining sub-8 category. It inspected source, browser-test code, and screenshots without rerunning the suite. DeepSeek remains pending, so the full every-member/every-category criterion is not yet established.
+
+## Compact navigation and control feedback
+
+DeepSeek's first category audit found navigation overflow near 901px and a dense table labeled as Bars. It also requested a visible expansion affordance for phone ranges. Commit `06d97fd` reduces desktop navigation gaps only in the narrow breakpoint band, labels the tokens destination Table/Ranges/Bars according to its actual presentation, and adds a chevron that changes with row expansion.
+
+The production browser suite checks all seven navigation choices remain inside the navigation bounds at 901, 920, 940, 960, and 1280px. It also verifies Scatter-to-Table labeling and visible phone expansion with exact reasoning values. Type checking, 181 unit tests, build, and all 16 production browser tests pass. DeepSeek's category recheck is pending.
+
+Evidence: `navigation-desktop901.png`, `navigation-token-table.png`, and `navigation-phone-range-expanded.png`.
