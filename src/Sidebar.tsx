@@ -207,7 +207,7 @@ export const Sidebar = memo(function Sidebar({
             {section.items.map((family) => (
               <button
                 key={family.family}
-                className={`group flex min-h-8 w-full items-center gap-2 rounded-md px-1 text-left text-[13px] text-fg-2 hover:bg-hover hover:text-fg aria-pressed:text-fg mobile:min-h-11 mobile:text-[15px] ${settings.frontier && settings.selected.includes(family.family) ? (frontier.has(family.family) ? 'font-[550]' : 'opacity-50 hover:opacity-100 focus-visible:opacity-100') : ''}`}
+                className={`group flex min-h-8 w-full items-center gap-2 rounded-md px-1 text-left text-[13px] text-fg-2 hover:bg-hover hover:text-fg aria-pressed:text-fg mobile:min-h-11 mobile:text-[15px] ${settings.frontier && settings.selected.includes(family.family) && frontier.has(family.family) ? 'font-[550]' : ''}`}
                 aria-pressed={settings.selected.includes(family.family)}
                 onClick={() => toggle(family.family)}
                 onMouseEnter={() => onHighlight(family.family)}

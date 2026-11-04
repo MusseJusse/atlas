@@ -154,3 +154,13 @@ test('efficiency line patterns identify thresholds without depending only on col
   const plotted = await page.locator('.efficiency-plot svg > g > path').evaluateAll((paths) => paths.map((path) => path.getAttribute('stroke-dasharray') ?? 'solid'));
   expect(plotted).toEqual(legends.map((legend) => legend.pattern));
 });
+
+
+test('efficient frontier leaves selected model names and controls fully opaque', async ({ page }) => {
+  await page.goto('/?frontier=true');
+  await expect(page.getByRole('button', { name: 'Efficient frontier', exact: true })).toHaveAttribute('aria-pressed', 'true');
+  const rows = page.locator('#model-filters button[title$="configurations"][aria-pressed="true"]');
+  expect(await rows.count()).toBeGreaterThan(1);
+  const opacity = await rows.evaluateAll((buttons) => buttons.map((button) => getComputedStyle(button).opacity));
+  expect(opacity.every((value) => value === '1')).toBe(true);
+});
