@@ -44,11 +44,45 @@ The target was not met. Sol and DeepSeek independently measured positive value a
 
 ## Changes for round 7
 
-Positive annotations now stop below the unit heading. Higher values take priority when annotations cannot all fit; hover, focus and pinning reveal an omitted value while clearing the other annotations in that model. Bar geometry and exact measurements are unchanged. Packing retains the vertical order of visible values, and the corrected negative band remains intact.
+Positive annotations stop below the unit heading. Higher values take priority when annotations cannot all fit; hover, focus and pinning reveal an omitted value while clearing the other annotations in that model. The intended ordering guarantee did not hold in the real chart, as round 7 found below.
 
 - [Intelligence at 1280x640](bounded-bars-short.png)
 - [Omniscience at 1280x640](bounded-signed-short.png)
 - [Omniscience at 1280x800](bounded-signed-standard.png)
 - [Keyboard focus reveals an omitted value](bounded-focused-value.png)
 
-Type checking, all 185 unit tests, production build and all 26 production Chromium tests pass. The added browser assertion checks all annotation bounds against the unit heading at 640px and 800px for both score views, then focuses every bar and repeats the check. Geometry coverage checks the heading boundary, highest-value priority, vertical ordering and retention of every bar. Round 7 is pending; no approval is inferred from prior scores.
+Type checking, all 185 unit tests, production build and all 26 production Chromium tests passed. The added browser assertion checked all annotation bounds against the unit heading at 640px and 800px for both score views, then focused every bar and repeated the check. Its coverage did not catch positive annotation inversions.
+
+## Round 7 results
+
+All four reviewed frozen `dd4c0dc`. Every cell shows Bars / Ranking.
+
+| Category | DeepSeek | Sol | Kimi | Terra |
+| --- | --- | --- | --- | --- |
+| Navigation and discovery | 9.2 / 9.2 | 9.2 / 9.2 | 9.3 / 9.4 | 9 / 9 |
+| Hierarchy and typography | 9 / 9.3 | 9.1 / 9.2 | 9.2 / 9.3 | 9 / 9 |
+| Chart/data readability | 8.7 / 9.4 | 8.8 / 9.2 | 9.1 / 9.4 | 8.7 / 9 |
+| Controls and feedback | 9 / 9.2 | 9.1 / 9.1 | 9.2 / 9.3 | 9 / 9 |
+| Mobile responsiveness | 9.4 / 9.4 | 9.1 / 9.1 | 9.3 / 9.4 | 9 / 9 |
+| Accessibility | 9 / 9.2 | 9 / 9 | 9.1 / 9.2 | 9 / 9 |
+| Light/dark consistency | 9.2 / 9.2 | 9.2 / 9.2 | 9.3 / 9.3 | 9 / 9 |
+| Overall | 8.9 / 9.3 | 9 / 9.1 | 9.2 / 9.3 | 8.9 / 9 |
+
+Ranking met the threshold for all four reviewers, while Bars did not. Sol and DeepSeek independently reproduced lower positive values annotated above higher values within Fable and Terra. Terra also found the short signed chart too compressed, with unused space below negative labels. Kimi approved both views and verified annotation bounds and focus behavior live, but those checks did not detect the ordering defect.
+
+DeepSeek independently passed type checking, 185 unit tests and 26 production Chromium tests, with live width/height probes. Kimi independently passed TypeScript checking and 185 unit tests and probed interactions and geometry live. Sol performed focused live checks. Terra inspected source and all current screenshots. No assistive-technology certification was performed.
+
+## Changes for round 8
+
+Positive values now stay at their bar ends rather than moving upward for collisions. This preserves magnitude order directly. If text cannot fit, the higher value remains visible; every value is available through focus, hover and exact data. Width estimates account for narrow decimal points, retaining more labels without collision.
+
+The negative label band uses its actual packed height instead of reserving one row per configuration. Omniscience uses the same top inset as other Bars. This gives the short signed chart more space for measured bars while preserving the common scale, negative label order, unit clearance and model names. All 28 score labels are visible in the new 640px and 800px captures.
+
+- [Intelligence at 1280x640](ordered-bars-short.png)
+- [Omniscience at 1280x640](ordered-signed-short.png)
+- [Omniscience at 1280x800](ordered-signed-standard.png)
+- [Focused configuration](ordered-focused-value.png)
+
+The browser assertion now checks every model's visible positive values for magnitude order, including the production Fable and Terra cases at 640px and 800px. It also checks pairwise text collisions, unit/plot bounds, highest-value visibility, every focused bar and the short signed chart's usable plotting extent.
+
+Latest `main` at `e0bcacd` is merged. Its mobile axis spacing fix and two mobile browser tests are retained alongside this branch's existing chart navigation and rankings. Type checking, all 185 unit tests, production build and all 28 production Chromium tests pass. Round 8 is pending; previous scores do not imply approval of this revision.
