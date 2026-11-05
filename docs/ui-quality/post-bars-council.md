@@ -85,4 +85,25 @@ The negative label band uses its actual packed height instead of reserving one r
 
 The browser assertion now checks every model's visible positive values for magnitude order, including the production Fable and Terra cases at 640px and 800px. It also checks pairwise text collisions, unit/plot bounds, highest-value visibility, every focused bar and the short signed chart's usable plotting extent.
 
-Latest `main` at `e0bcacd` is merged. Its mobile axis spacing fix and two mobile browser tests are retained alongside this branch's existing chart navigation and rankings. Type checking, all 185 unit tests, production build and all 28 production Chromium tests pass. Round 8 is pending; previous scores do not imply approval of this revision.
+Latest `main` at `e0bcacd` is merged. Its mobile axis spacing fix and two mobile browser tests are retained alongside this branch's existing chart navigation and rankings. Type checking, all 185 unit tests, production build and all 28 production Chromium tests pass.
+
+## Round 8 results
+
+All four independently reviewed frozen implementation `0b93210c4286e5589eac1e9fcba565285222d086` and verified it before and after. Every category meets 9 for both Bars and Ranking. No required fix remains. Cells show Bars / Ranking.
+
+| Category | DeepSeek | Sol | Kimi | Terra |
+| --- | --- | --- | --- | --- |
+| Navigation and discovery | 9.4 / 9.4 | 9.2 / 9.2 | 9.4 / 9.5 | 9 / 9 |
+| Hierarchy and typography | 9.2 / 9.3 | 9.1 / 9.2 | 9.2 / 9.4 | 9 / 9 |
+| Chart/data readability | 9.2 / 9.3 | 9.1 / 9.3 | 9.4 / 9.5 | 9 / 9 |
+| Controls and feedback | 9.3 / 9.3 | 9.1 / 9.2 | 9.3 / 9.4 | 9 / 9 |
+| Mobile responsiveness | 9.4 / 9.4 | 9.1 / 9.1 | 9.4 / 9.4 | 9 / 9 |
+| Accessibility | 9 / 9.1 | 9 / 9 | 9.2 / 9.3 | 9 / 9 |
+| Light/dark consistency | 9.3 / 9.3 | 9.2 / 9.2 | 9.4 / 9.4 | 9 / 9 |
+| Overall | 9.2 / 9.3 | 9.1 / 9.2 | 9.3 / 9.4 | 9 / 9 |
+
+DeepSeek independently passed type checking, all 185 unit tests and all 28 production Chromium tests, using the frozen build. It checked real chart geometry and interactions at short, standard, large, compact and phone sizes. Kimi independently passed type checking and 185 unit tests, inspected every current capture and exercised 112 focused score bars plus responsive and Ranking interactions. Sol performed live probes of the prior defects, keyboard paths and phone fallback. Terra inspected the changed source, assertions and all current captures without live probes or suite runs.
+
+The live checks confirm all 28 Intelligence and Omniscience labels at 640px and 800px, without inversions, collisions or heading intersections. The short signed plot's usable extent is 0.581, versus 0.703 at 800px. Full-height Bars, flat exact-position Ranking markers, mobile 32px axis spacing, Pareto hover copy and keyboard focus remain intact. Compact and cost views can omit labels when text cannot fit; every bar and exact value remains available through focus, hover, pinning and the data disclosure.
+
+These are UI review judgments with Chromium checks, source inspection and actual application captures. None performed a screen-reader or other assistive-technology certification. The commit recording these results changes documentation only; the reviewed implementation and screenshots remain unchanged.
