@@ -430,7 +430,7 @@ test('short desktop bar labels clear the card edge and negative annotations resp
 });
 
 
-test('bar value annotations clear the unit heading at short and standard desktop heights', async ({ page }) => {
+test('bar annotations clear the heading and retain value order at short and standard desktop heights', async ({ page }) => {
   for (const height of [640, 800]) {
     await page.setViewportSize({ width: 1280, height });
     for (const chart of ['intelligence', 'omniscience']) {
@@ -441,13 +441,43 @@ test('bar value annotations clear the unit heading at short and standard desktop
       const checkLabels = () => svg.evaluate((element) => {
         const unit = element.querySelector('text[font-size="12"][y="17"]')!.getBoundingClientRect();
         const plot = element.getBoundingClientRect();
-        return [...element.querySelectorAll('g[role=button] text[font-size="11"]')].every((node) => {
+        const labels = [...element.querySelectorAll('g[role=button] text[font-size="11"]')];
+        return labels.every((node, index) => {
           const box = node.getBoundingClientRect();
           const intersects = box.left < unit.right && box.right > unit.left && box.top < unit.bottom && box.bottom > unit.top;
-          return !intersects && box.top >= plot.top && box.bottom <= plot.bottom;
+          const collides = labels.slice(index + 1).some((other) => {
+            const bounds = other.getBoundingClientRect();
+            return box.left < bounds.right && box.right > bounds.left && box.top < bounds.bottom && box.bottom > bounds.top;
+          });
+          return !intersects && !collides && box.top >= plot.top && box.bottom <= plot.bottom;
         });
       });
       expect(await checkLabels()).toBe(true);
+      // Production Fable and Terra configurations caught inversions missed by
+      // the synthetic fixture. Check every model, including omitted labels.
+      const groups = await svg.evaluate((element) =>
+        [...element.querySelectorAll('g')].filter((group) => group.querySelector(':scope > g[role=button]'))
+          .map((group) => [...group.querySelectorAll(':scope > g[role=button]')].map((bar) => {
+            const value = Number(bar.getAttribute('aria-label')!.split(' ').at(-1));
+            const label = bar.querySelectorAll('text').length === 2 ? bar.querySelector('text:last-child') : null;
+            return { value, top: label?.getBoundingClientRect().top ?? null };
+          })),
+      );
+      for (const group of groups) {
+        const positive = group.filter((bar) => bar.value >= 0).toSorted((a, b) => b.value - a.value);
+        if (!positive.length) continue;
+        expect(positive[0]!.top).not.toBeNull();
+        const visible = positive.filter((bar) => bar.top !== null);
+        for (let index = 1; index < visible.length; index++) expect(visible[index]!.top!).toBeGreaterThanOrEqual(visible[index - 1]!.top! - 0.1);
+      }
+      if (chart === 'omniscience' && height === 640) {
+        const extent = await svg.evaluate((element) => {
+          const bars = [...element.querySelectorAll('g[role=button] > rect:nth-child(2)')].map((bar) => bar.getBoundingClientRect());
+          const available = element.querySelector('g[role=button] > rect')!.getBoundingClientRect().height;
+          return (Math.max(...bars.map((bar) => bar.bottom)) - Math.min(...bars.map((bar) => bar.top))) / available;
+        });
+        expect(extent).toBeGreaterThan(0.55);
+      }
       const bars = svg.locator('g[role=button]');
       const count = await bars.count();
       for (let index = 0; index < count; index++) {

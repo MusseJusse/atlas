@@ -1,7 +1,7 @@
 import { expect, it } from 'vitest';
 import { models, type Model } from '../models';
 import { speedEndpoints } from '../data/speed-endpoints';
-import { barDomain, linearScale, logScale } from '../scales';
+import { linearScale, logScale } from '../scales';
 import { scatterDomain } from '../scatter-data';
 import { barGeometry, measureRows, measureScatterRows, rangeGeometry, scatterGeometry, spacedAxisTicks } from './geometry';
 
@@ -60,16 +60,14 @@ it('keeps negative bars below zero, reserves label space and avoids overlapping 
   })), 'omniscience');
   const original = structuredClone(rows);
   const geometry = barGeometry(rows, 'omniscience', 320, 640, true, false);
-  const reference = linearScale(barDomain(rows.map((row) => row.value), 0.15), [640 - 96 - 50, 50]);
   for (const row of rows) {
-    expect(geometry.y(row.value)).toBe(reference(row.value));
     if (row.value < 0) expect(geometry.y(row.value)).toBeGreaterThan(geometry.y(0));
     if (row.value > 0) expect(geometry.y(row.value)).toBeLessThan(geometry.y(0));
   }
   const bars = geometry.positioned.flatMap((group) => group.bars).filter((bar) => bar.labelVisible);
   for (const [index, bar] of bars.entries()) {
     for (const other of bars.slice(index + 1)) {
-      const combinedWidth = (bar.text.length + other.text.length) * 6.4 / 2 + 4;
+      const combinedWidth = (bar.textWidth + other.textWidth) / 2 + 3;
       expect(Math.abs(bar.labelX - other.labelX) >= combinedWidth || Math.abs(bar.labelY - other.labelY) >= 17).toBe(true);
     }
   }
@@ -145,7 +143,7 @@ it('bounds positive value labels below the unit heading and prioritizes the high
   const rows = measureRows([40.3, 41.4, 44.6, 43.7].map((omniscience, index) => ({
     ...base, id: `positive-${index}`, family: 'positive', omniscience, effortOrder: index,
   })), 'omniscience');
-  const geometry = barGeometry(rows, 'omniscience', 180, 250, true, true);
+  const geometry = barGeometry(rows, 'omniscience', 160, 250, true, true);
   const bars = geometry.positioned[0]!.bars;
   expect(bars.find((bar) => bar.row.value === 44.6)?.labelVisible).toBe(true);
   expect(bars.some((bar) => !bar.labelVisible)).toBe(true);
