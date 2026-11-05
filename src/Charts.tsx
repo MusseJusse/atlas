@@ -192,7 +192,7 @@ export const Chart = memo(function Chart({
               {prepared.scatter ? <Scatter rows={prepared.rows} metric={view.metric} scoreMetric={score} linear={linear} settings={settings} width={width} height={height} interactions={interactions} />
                 : <Bars rows={prepared.rows} metric={view.metric} settings={{ ...settings, descending }} width={width} height={height} interactions={interactions} />}
             </svg>
-          ) : <Ranking rows={prepared.rows} metric={view.metric} grouped={settings.grouped} descending={descending} interactions={interactions} score={settings.codingOnly ? score : undefined} logarithmic={view.metric === 'cost' && !linear && validRows.every((row) => row.value > 0)} />)}
+          ) : <Ranking rows={prepared.rows} metric={view.metric} grouped={settings.grouped} descending={descending} highestLast={settings.highestLast} interactions={interactions} score={settings.codingOnly ? score : undefined} logarithmic={view.metric === 'cost' && !linear && validRows.every((row) => row.value > 0)} />)}
         {scatter && activeModel && (
           <aside
             className={`configuration-details${pinned ? '' : ' pointer-events-none'}`}
@@ -207,7 +207,7 @@ export const Chart = memo(function Chart({
       </div>
       </div>
       {bars && activeModel && <aside className={`configuration-details${pinned ? '' : ' pointer-events-none'}`} data-placement="top-right" aria-label="Selected configuration" tabIndex={pinned ? 0 : undefined}>{details}</aside>}
-      {bars && validRows.length > 0 && <p className="mt-2 mb-0 text-[12px] text-fg-2">Reasoning: N none · L low · M medium · H high · X xhigh · Mx max{width > (ref.current?.parentElement?.clientWidth ?? width) + 2 && ' · Scroll horizontally for more models.'}</p>}
+      {bars && validRows.length > 0 && width > (ref.current?.parentElement?.clientWidth ?? width) + 2 && <p className="mt-2 mb-0 text-[12px] text-fg-2">Scroll horizontally for more models.</p>}
       {/* Reserve the mobile legend's height in the initial HTML before hydration. */}
       {scatter && (
         <div className={`${width < 600 || !settings.labels ? 'grid' : 'hidden plot-mobile:grid'} scatter-legend ${width >= 480 ? 'grid-cols-3 phone:grid-cols-2' : 'grid-cols-2'} gap-x-3 gap-y-0.5 pt-2.5`}>

@@ -32,8 +32,8 @@ export function Bars({
   }
 
   const { left, right, top, bottom, y, positioned } = useMemo(
-    () => barGeometry(rows, metric, width, height, settings.grouped, settings.descending ?? false, settings.descending ? 'maximum' : 'minimum'),
-    [rows, metric, width, height, settings.grouped, settings.descending],
+    () => barGeometry(rows, metric, width, height, settings.grouped, settings.descending ?? false, settings.highestLast || settings.descending ? 'maximum' : 'minimum'),
+    [rows, metric, width, height, settings.grouped, settings.descending, settings.highestLast],
   );
   const { activeModel } = interactions;
   const visibleFamily = rows.some((row) => row.family === hoveredFamily) ? hoveredFamily : null;

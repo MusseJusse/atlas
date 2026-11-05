@@ -441,17 +441,21 @@ function ChartOptions({
           Group by model
         </button>
         </>}
-        <button
-          className="inline-flex min-h-10 items-center gap-2 px-1 text-[12px] text-fg hover:text-accent"
-          onClick={() => update({ descending: !descending })}
-        >
-          <ArrowDown
-            size={14}
-            style={{ transform: descending ? 'rotate(180deg)' : undefined }}
-            aria-hidden="true"
-          />
-          {descending ? 'Highest first' : 'Lowest first'}{groupedTable ? ' per model' : ''}
-        </button>
+        <div role="group" aria-label="Sort order" className="flex flex-col items-start">
+          {[
+            { label: 'Highest first', descending: true, highestLast: false },
+            { label: 'Lowest first', descending: false, highestLast: false },
+            ...(groupedTable ? [{ label: 'Highest last', descending: false, highestLast: true }] : []),
+          ].map((option) => <button
+            key={option.label}
+            className="inline-flex min-h-10 items-center gap-2 px-1 text-[12px] text-fg hover:text-accent"
+            aria-pressed={option.highestLast === (settings.highestLast && groupedTable) && option.descending === descending}
+            onClick={() => update({ descending: option.descending, highestLast: option.highestLast })}
+          >
+            <Selection checked={option.highestLast === (settings.highestLast && groupedTable) && option.descending === descending} />
+            {option.label}{groupedTable ? ' per model' : ''}
+          </button>)}
+        </div>
         </>}
       </div>
     </details>

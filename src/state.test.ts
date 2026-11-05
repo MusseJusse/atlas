@@ -55,6 +55,13 @@ describe('URL settings', () => {
     expect(readSettings('/')).toEqual(defaults);
   });
 
+  it('preserves highest-last model ordering in shared URLs', () => {
+    const settings = readSettings('?sort=highest-last&bars=true');
+    expect(settings.highestLast).toBe(true);
+    expect(settings.descending).toBe(false);
+    expect(readSettings(writeSettings(settings, 'intelligence'))).toEqual(settings);
+  });
+
   it.each(['', '&sort=unknown', '&sort=asc', '&sort=desc'])(
     'round-trips normalized settings and preserves the sort choice %s',
     (sort) => {

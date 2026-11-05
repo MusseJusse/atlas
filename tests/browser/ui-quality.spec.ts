@@ -103,7 +103,7 @@ test('phone intelligence and cost charts match exact data and grouped sort contr
     await ranking.locator('summary[aria-label="Chart settings"]').click();
     const initialLabel = defaultDescending ? 'Highest first per model' : 'Lowest first per model';
     await expect(ranking.getByRole('button', { name: initialLabel, exact: true })).toBeVisible();
-    await ranking.getByRole('button', { name: initialLabel, exact: true }).click();
+    await ranking.getByRole('button', { name: defaultDescending ? 'Lowest first per model' : 'Highest first per model', exact: true }).click();
     assertOrder(await valuesByModel(), !defaultDescending);
     const reversed = await chartValues();
     expect(reversed).toEqual(reversed.toSorted((a, b) => (a - b) * (defaultDescending ? 1 : -1)));
@@ -487,4 +487,42 @@ test('bar annotations clear the heading and retain value order at short and stan
       }
     }
   }
+});
+
+test('highest-last sorts model maxima consistently in Bars, Ranking and exact data', async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 800 });
+  await page.goto('/?chart=intelligence&bars=true');
+  const section = page.locator('#intelligence');
+  await expect(section.getByText('Reasoning:', { exact: false })).toHaveCount(0);
+  await section.locator('summary[aria-label="Chart settings"]').click();
+  await section.getByRole('button', { name: 'Highest last per model', exact: true }).click();
+  await expect(section.getByRole('button', { name: 'Highest last per model', exact: true })).toHaveAttribute('aria-pressed', 'true');
+  await expect(page).toHaveURL(/sort=highest-last/);
+  await section.locator('summary[aria-label="Chart settings"]').click();
+  const barGroups = await section.locator('svg g').evaluateAll((groups) => groups.flatMap((group) => {
+    const bars = [...group.querySelectorAll(':scope > g[role=button]')];
+    return bars.length ? [bars.map((bar) => Number(bar.getAttribute('aria-label')!.split(' ').at(-1)))] : [];
+  }));
+  const maxima = barGroups.map((values) => Math.max(...values));
+  expect(maxima.length).toBeGreaterThan(1);
+  expect(maxima).toEqual(maxima.toSorted((a, b) => a - b));
+  await section.getByRole('button', { name: 'Ranking', exact: true }).click();
+  await expect(section.locator('.ranking-row')).toHaveCount(maxima.length);
+  const rankingValues = () => section.locator('.ranking-row').evaluateAll((rows) => rows.map((row) => Number(Number(row.getAttribute('data-best-value')).toFixed(1))));
+  expect(await rankingValues()).toEqual(maxima);
+  await page.reload();
+  await expect(section.locator('.ranking-row')).toHaveCount(maxima.length);
+  expect(await rankingValues()).toEqual(maxima);
+  await section.locator('.measurement-disclosure summary').click();
+  const tableMaxima = await section.locator('tbody tr').evaluateAll((rows) => {
+    const groups = new Map<string, number[]>();
+    for (const row of rows) {
+      const name = row.querySelector('th')!.textContent!;
+      const values = groups.get(name) ?? [];
+      values.push(Number(row.querySelectorAll('td')[1]!.textContent));
+      groups.set(name, values);
+    }
+    return [...groups.values()].map((values) => Math.max(...values));
+  });
+  expect(tableMaxima).toEqual(maxima);
 });

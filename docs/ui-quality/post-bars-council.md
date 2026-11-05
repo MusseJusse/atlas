@@ -107,3 +107,9 @@ DeepSeek independently passed type checking, all 185 unit tests and all 28 produ
 The live checks confirm all 28 Intelligence and Omniscience labels at 640px and 800px, without inversions, collisions or heading intersections. The short signed plot's usable extent is 0.581, versus 0.703 at 800px. Full-height Bars, flat exact-position Ranking markers, mobile 32px axis spacing, Pareto hover copy and keyboard focus remain intact. Compact and cost views can omit labels when text cannot fit; every bar and exact value remains available through focus, hover, pinning and the data disclosure.
 
 These are UI review judgments with Chromium checks, source inspection and actual application captures. None performed a screen-reader or other assistive-technology certification. The commit recording these results changes documentation only; the reviewed implementation and screenshots remain unchanged.
+
+## Requested follow-up after round 8
+
+The reasoning-abbreviation footer is removed. The horizontal scroll cue remains when a Bars selection exceeds the available width. Chart settings now offers Highest first, Lowest first and Highest last per model as explicit selected options. Highest last orders model groups by their maximum measured value ascending, so the strongest group is last. It does not reorder configurations inside each Bars group.
+
+The choice persists as `sort=highest-last` and applies consistently to Bars, Ranking and View data. Ranking displays the maximum configuration for this mode. Type checking, build, 186 unit tests and 29 production Chromium tests pass, including model-maximum ordering across both presentations, exact data and URL reload. The round 8 council scores above apply to the earlier frozen revision; this requested follow-up has focused automated validation rather than another council review.
