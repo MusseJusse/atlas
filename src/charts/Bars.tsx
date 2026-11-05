@@ -73,10 +73,11 @@ export function Bars({
               height={height - top}
               fill="transparent"
             />
-            {group.bars.map(({ row, x: barX, labelX, labelY, text }) => {
+            {group.bars.map(({ row, x: barX, labelX, labelY, text, labelVisible }) => {
               const barY = y(row.value);
               const effortMark =
                 row.effort === 'max' ? 'Mx' : row.effortLabel.charAt(0).toUpperCase();
+              const showValue = activeModel?.family === row.family ? activeModel.id === row.id : labelVisible;
               const visibleLabel = group.barWidth > 8 ? `${effortMark}${text}, ` : '';
               return (
                 <g
@@ -121,7 +122,7 @@ export function Bars({
                       {effortMark}
                     </text>
                   )}
-                  {group.barWidth > 8 && (
+                  {showValue && (
                     <text
                       x={labelX}
                       y={labelY}

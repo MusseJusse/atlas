@@ -66,7 +66,7 @@ it('keeps negative bars below zero, reserves label space and avoids overlapping 
     if (row.value < 0) expect(geometry.y(row.value)).toBeGreaterThan(geometry.y(0));
     if (row.value > 0) expect(geometry.y(row.value)).toBeLessThan(geometry.y(0));
   }
-  const bars = geometry.positioned.flatMap((group) => group.bars);
+  const bars = geometry.positioned.flatMap((group) => group.bars).filter((bar) => bar.labelVisible);
   for (const [index, bar] of bars.entries()) {
     for (const other of bars.slice(index + 1)) {
       const combinedWidth = (bar.text.length + other.text.length) * 6.4 / 2 + 4;
@@ -138,4 +138,22 @@ it('orders negative annotations by depth in a separate band, with exact bar-cent
     expect(bar.labelX).toBeCloseTo(bar.x + group.barWidth / 2);
     if (index > 0) expect(bar.labelY).toBeGreaterThanOrEqual(ordered[index - 1]!.labelY);
   }
+});
+
+
+it('bounds positive value labels below the unit heading and prioritizes the highest values', () => {
+  const rows = measureRows([40.3, 41.4, 44.6, 43.7].map((omniscience, index) => ({
+    ...base, id: `positive-${index}`, family: 'positive', omniscience, effortOrder: index,
+  })), 'omniscience');
+  const geometry = barGeometry(rows, 'omniscience', 180, 250, true, true);
+  const bars = geometry.positioned[0]!.bars;
+  expect(bars.find((bar) => bar.row.value === 44.6)?.labelVisible).toBe(true);
+  expect(bars.some((bar) => !bar.labelVisible)).toBe(true);
+  for (const bar of bars.filter((bar) => bar.labelVisible)) {
+    expect(bar.labelY).toBeGreaterThanOrEqual(36);
+    expect(bar.labelY).toBeLessThan(geometry.y(bar.row.value));
+  }
+  const visible = bars.filter((bar) => bar.labelVisible).toSorted((a, b) => a.row.value - b.row.value);
+  for (let index = 1; index < visible.length; index++) expect(visible[index]!.labelY).toBeLessThanOrEqual(visible[index - 1]!.labelY);
+  expect(bars).toHaveLength(rows.length);
 });

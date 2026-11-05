@@ -141,19 +141,8 @@ export function barGeometry(
         left + textWidth / 2,
         Math.min(right - textWidth / 2, x + barWidth / 2),
       );
-      const negative = row.value < 0;
-      let labelY = y(row.value) + (negative ? 16 : -8);
-      while (
-        !negative && barWidth > 8 &&
-        valueLabels.some(
-          (label) =>
-            Math.abs(label.x - labelX) < (label.width + textWidth) / 2 + 4 &&
-            Math.abs(label.y - labelY) < 17,
-        )
-      )
-        labelY += negative ? 17 : -17;
-      if (!negative && barWidth > 8) valueLabels.push({ x: labelX, y: labelY, width: textWidth });
-      return { row, x, labelX, labelY, text };
+      const labelY = y(row.value) + (row.value < 0 ? 16 : -8);
+      return { row, x, labelX, labelY, text, labelVisible: barWidth > 8 };
     });
     // Negative annotations share a band below the deepest bar. Deeper values
     // may move down for collisions, but never above shallower annotations.
@@ -169,6 +158,24 @@ export function barGeometry(
     }
     return { ...group, center, groupWidth, barWidth, bars };
   });
+  // Pack toward the top in value order. If the heading leaves no more room,
+  // higher values replace conflicting lower labels, available on hover/focus.
+  const positiveBars = positioned
+    .flatMap((group) => group.bars.filter((bar) => bar.row.value >= 0 && bar.labelVisible))
+    .toSorted((a, b) => a.row.value - b.row.value);
+  const positiveLabels: typeof positiveBars = [];
+  const minimumLabelY = 36;
+  for (const bar of positiveBars) {
+    const textWidth = bar.text.length * 6.4;
+    bar.labelY = Math.max(minimumLabelY, bar.labelY);
+    const collisions = () => positiveLabels.filter((label) => label.labelVisible &&
+      Math.abs(label.labelX - bar.labelX) < (label.text.length * 6.4 + textWidth) / 2 + 4 &&
+      Math.abs(label.labelY - bar.labelY) < 17,
+    );
+    while (collisions().length && bar.labelY - 17 >= minimumLabelY) bar.labelY -= 17;
+    for (const label of collisions()) label.labelVisible = false;
+    positiveLabels.push(bar);
+  }
   return { left, right, top, bottom, y, positioned };
 }
 

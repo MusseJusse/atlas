@@ -428,3 +428,33 @@ test('short desktop bar labels clear the card edge and negative annotations resp
   expect(ticks).toContain('5m');
   expect(ticks).not.toContain('8.3m');
 });
+
+
+test('bar value annotations clear the unit heading at short and standard desktop heights', async ({ page }) => {
+  for (const height of [640, 800]) {
+    await page.setViewportSize({ width: 1280, height });
+    for (const chart of ['intelligence', 'omniscience']) {
+      await page.goto(`/?chart=${chart}&bars=true`);
+      const svg = page.locator(`#${chart} .bar-plot svg`);
+      await expect(svg).toBeVisible();
+      await expect.poll(() => svg.evaluate((node) => (node as SVGSVGElement).getScreenCTM()!.a)).toBeCloseTo(1, 2);
+      const checkLabels = () => svg.evaluate((element) => {
+        const unit = element.querySelector('text[font-size="12"][y="17"]')!.getBoundingClientRect();
+        const plot = element.getBoundingClientRect();
+        return [...element.querySelectorAll('g[role=button] text[font-size="11"]')].every((node) => {
+          const box = node.getBoundingClientRect();
+          const intersects = box.left < unit.right && box.right > unit.left && box.top < unit.bottom && box.bottom > unit.top;
+          return !intersects && box.top >= plot.top && box.bottom <= plot.bottom;
+        });
+      });
+      expect(await checkLabels()).toBe(true);
+      const bars = svg.locator('g[role=button]');
+      const count = await bars.count();
+      for (let index = 0; index < count; index++) {
+        await bars.nth(index).focus();
+        await expect(bars.nth(index).locator('text')).toHaveCount(2);
+        expect(await checkLabels()).toBe(true);
+      }
+    }
+  }
+});
