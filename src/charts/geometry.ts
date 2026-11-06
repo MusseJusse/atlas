@@ -31,10 +31,10 @@ export function scatterGeometry(
   linear: boolean,
 ) {
   const mobile = width < 600;
-  const left = mobile ? 46 : 64;
+  const left = mobile ? 40 : 64;
   // Keep room for selected model names; longer agent labels retain the full gutter.
   const labelWidth = Math.min(235, Math.max(160, ...rows.map((row) => shortName(row).length * 7 + 62)));
-  const right = width - (labelsEnabled && !mobile ? labelWidth : 24);
+  const right = width - (labelsEnabled && !mobile ? labelWidth : mobile ? 16 : 24);
   const top = 30;
   const bottom = Math.max(130, height - 60);
   const domain = scatterDomain(rows, metric, linear);

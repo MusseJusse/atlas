@@ -243,19 +243,19 @@
   border-bottom: 1px solid var(--line);
   background: var(--bg);
 }
-.site-header nav {
+.site-header > nav {
   display: flex;
   align-items: center;
   gap: 24px;
   font-size: 13px;
   color: var(--fg-2);
 }
-.site-header nav a {
+.site-header > nav a {
   display: flex;
   min-height: 44px;
   align-items: center;
 }
-.site-header nav [aria-current='page'] {
+.site-header > nav [aria-current='page'] {
   color: var(--fg);
   font-weight: 600;
   text-decoration: underline;
@@ -313,7 +313,7 @@
   gap: 16px;
   padding: 0 16px;
 }
- .site-header nav {
+ .site-header > nav {
   gap: 12px;
   font-size: 12px;
 }
@@ -330,7 +330,7 @@
   .site-header { gap: 10px; }
   .site-header > a { gap: 0; }
   .site-header > a > svg { display: none; }
-  .site-header nav { gap: 10px; font-size: 11px; }
+  .site-header > nav { gap: 10px; font-size: 11px; }
 }
 
 @media (width <= 900px) {
@@ -484,4 +484,55 @@
   .chart-navigation button { min-height: 40px; }
   .chart-guidance { margin-block: 4px; }
   .chart-section { padding-top: 12px; }
+}
+
+/* Continuous chart canvas, selected in the compact layout comparison. */
+.benchmark-layout { --header-height: 48px; --sidebar-width: 268px; }
+.benchmark-workspace { gap: 0; }
+.benchmark-workspace > #model-filters { padding: 20px 4px 16px 28px; }
+.benchmark-workspace > main { border-left: 1px solid var(--line); }
+.benchmark-layout .chart-section { padding: 12px 20px; }
+.benchmark-layout > footer { padding-block: 6px; }
+.workspace-navigation { padding-inline: 20px; }
+.header-chart-navigation { display: none; min-width: 0; flex: 1; }
+.pricing-name-narrow { display: none; }
+@media (width >= 1280px) {
+  .benchmark-layout .site-header { gap: 24px; }
+  .header-chart-navigation { display: block; padding-left: 16px; border-left: 1px solid var(--line); }
+  .header-chart-navigation .chart-navigation { border: 0; }
+  .header-chart-navigation .chart-navigation-desktop { display: flex; justify-content: space-between; gap: 12px; }
+  .header-chart-navigation .chart-navigation button { min-height: 44px; padding-inline: 0; font-size: 12px; }
+  .benchmark-layout .workspace-navigation { display: none; }
+  .benchmark-workspace > main { grid-template-rows: minmax(0, 1fr); }
+}
+@media (width <= 900px) {
+  .benchmark-layout { --header-height: 64px; }
+  .benchmark-workspace > #model-filters { padding: 0 16px calc(24px + env(safe-area-inset-bottom)); }
+  .benchmark-workspace > main { border: 0; }
+  .benchmark-layout .chart-section { padding: 12px 16px 24px; }
+  .workspace-navigation { position: sticky; top: var(--header-height); z-index: 6; padding-inline: 16px; background: var(--panel); }
+  .chart-category-row { display: flex; gap: 8px; }
+  .chart-category-row .chart-categories { display: grid; grid-template-columns: 1.35fr 1fr 1.15fr; flex: 1; gap: 8px; min-width: 0; }
+  .chart-categories button { white-space: normal; font-size: 12px; line-height: 1.15; padding: 0; }
+  .chart-category-row .model-picker { display: flex; flex: 0 0 66px; flex-direction: column; justify-content: center; align-items: center; gap: 2px; min-height: 44px; border-right: 1px solid var(--line); }
+  .chart-navigation .model-picker[aria-expanded] { color: var(--fg); font-weight: 500; }
+  .chart-navigation .model-picker::after { display: none; }
+  .benchmark-layout > footer { padding: 20px 16px calc(20px + env(safe-area-inset-bottom)); background: var(--panel); }
+}
+@media (width <= 600px) {
+  .benchmark-layout .chart-section:has(.scatter-plot) .chart-settings-trigger { width: auto; padding-inline: 8px; }
+  .benchmark-layout .chart-section:has(.scatter-plot) .settings-label { display: inline; }
+}
+@media (width < 360px) {
+  .pricing-name-wide { display: none; }
+  .pricing-name-narrow { display: inline; }
+}
+.benchmark-layout .site-header :focus-visible { outline-offset: 0; }
+
+@media (width <= 600px) {
+  .benchmark-layout .chart-section { padding-top: 8px; }
+  .benchmark-layout .scatter-plot { min-height: 374px; }
+  .benchmark-layout .chart-section:has(.scatter-plot) .chart-heading { row-gap: 4px; }
+  .chart-toolbar [aria-label$="axis scale"] > div { padding: 2px; }
+  .chart-toolbar [aria-label$="axis scale"] button { border-radius: 4px; }
 }

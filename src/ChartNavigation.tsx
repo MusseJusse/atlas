@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, type ReactNode } from 'react';
 import type { View, ViewId } from './chart-definitions';
 
 const groups = [
@@ -11,17 +11,20 @@ const groups = [
 ] as const satisfies readonly { label: string; charts: readonly { id: ViewId; label: string }[] }[];
 
 /** Expose every chart on desktop; phones keep its category and choices visible together. */
-export function ChartNavigation({ views, active, navigate }: {
-  views: View[]; active: ViewId; navigate: (id: ViewId) => void;
+export function ChartNavigation({ views, active, navigate, modelPicker }: {
+  views: View[]; active: ViewId; navigate: (id: ViewId) => void; modelPicker?: ReactNode;
 }) {
   const currentGroup = groups.find((group) => group.charts.some((chart) => chart.id === active)) ?? groups[0];
-  const lastVisited = useRef(new Map<string, ViewId>());
+  const lastVisited = useRef(new Map<(typeof groups)[number]['label'], ViewId>());
   useEffect(() => {
     lastVisited.current.set(currentGroup.label, active);
   }, [active, currentGroup.label]);
-  const label = (chart: (typeof groups)[number]['charts'][number]) =>
-    chart.id === 'intelligence' && views.find((view) => view.id === chart.id)?.metric === 'codingIndex'
-      ? 'Coding score' : chart.id === 'cost-intelligence' && views.find((view) => view.id === chart.id)?.label === 'Cost vs coding score' ? 'Cost vs coding score' : chart.label;
+  function label(chart: (typeof groups)[number]['charts'][number]) {
+    const view = views.find((view) => view.id === chart.id);
+    if (chart.id === 'cost-intelligence') return view?.label ?? chart.label;
+    if (chart.id === 'intelligence' && view?.metric === 'codingIndex') return 'Coding score';
+    return chart.label;
+  }
   const chartButton = (chart: (typeof groups)[number]['charts'][number]) => (
     <button key={chart.id} type="button" aria-current={active === chart.id ? 'page' : undefined}
       aria-controls={chart.id} onClick={() => navigate(chart.id)}>
@@ -34,10 +37,13 @@ export function ChartNavigation({ views, active, navigate }: {
       {groups.flatMap((group) => group.charts.map(chartButton))}
     </div>
     <div className="chart-navigation-phone">
-      <div className="chart-categories" role="group" aria-label="Chart categories">
-        {groups.map((group) => <button key={group.label} type="button"
+      <div className="chart-category-row">
+        {modelPicker}
+        <div className="chart-categories" role="group" aria-label="Chart categories">
+          {groups.map((group) => <button key={group.label} type="button"
           aria-current={group === currentGroup ? 'true' : undefined}
-          onClick={() => { if (group !== currentGroup) navigate(lastVisited.current.get(group.label) ?? group.charts[0].id); }}>{group.label}</button>)}
+          onClick={() => { if (group !== currentGroup) navigate(lastVisited.current.get(group.label) ?? group.charts[0].id); }}>{group.charts.length === 1 ? label(group.charts[0]) : group.label}</button>)}
+        </div>
       </div>
       {currentGroup.charts.length > 1 && <div className="chart-subnavigation" role="group" aria-label={`${currentGroup.label} charts`}>
         {currentGroup.charts.map(chartButton)}

@@ -112,7 +112,7 @@ test('phone chart categories expose every choice without overflow or a dropdown'
   await expect(navigation.getByRole('button', { name: 'Omniscience', exact: true })).toHaveAttribute('aria-current', 'page');
   await navigation.getByRole('button', { name: 'Resources', exact: true }).click();
   await expect(navigation.locator('button[aria-controls="time-task"]:visible')).toHaveAttribute('aria-current', 'page');
-  await navigation.getByRole('button', { name: 'Overview', exact: true }).click();
+  await navigation.getByRole('button', { name: 'Cost vs intelligence', exact: true }).click();
   await navigation.getByRole('button', { name: 'Scores', exact: true }).click();
   await expect(navigation.getByRole('button', { name: 'Omniscience', exact: true })).toHaveAttribute('aria-current', 'page');
 });
@@ -255,7 +255,7 @@ test('cost scale changes retain exact measurements and the compact scatter keeps
 
 
 test('compact scatter uses readable plot dimensions without scaling its axis text', async ({ page }) => {
-  for (const [width, minimumHeight] of [[901, 360], [390, 320], [320, 320]]) {
+  for (const [width, minimumHeight] of [[901, 360], [390, 400], [320, 374]]) {
     await page.setViewportSize({ width, height: 800 });
     await page.goto('/');
     const svg = page.locator('#cost-intelligence svg[role=group]');
@@ -501,7 +501,7 @@ test('phone header retains the current section and scatter controls have touch r
     await expect(page.getByRole('navigation', { name: 'Sections' }).getByRole('link', { name: 'Benchmarks' })).toHaveAttribute('aria-current', 'page');
     const section = page.locator('#cost-intelligence');
     await expect(section.locator('.chart-settings-trigger')).toHaveAccessibleName('Pricing settings');
-    if (width >= 360) await expect(section.locator('.chart-settings-trigger')).toContainText('Pricing');
+    if (width >= 360) await expect(section.locator('.chart-settings-trigger')).toContainText('API pricing');
     const launcher = page.getByRole('button', { name: /Models.*Edit selection/ });
     expect((await launcher.boundingBox())!.height).toBeGreaterThanOrEqual(44);
     const controls = section.locator('.chart-toolbar button, .chart-settings-trigger');
@@ -606,5 +606,26 @@ test('phone scatter uses large touch targets and selects the nearest dense confi
     await expect(point).toHaveAttribute('aria-pressed', 'true');
     await page.keyboard.press('Escape');
     await page.mouse.move(0, 0);
+  }
+});
+
+test('continuous canvas gives the plot room and keeps one visible navigation across breakpoints', async ({ page }) => {
+  for (const [width, height, minimumWidth, minimumSpan] of [[1280, 800, 730, 540], [390, 844, 300, 340]]) {
+    await page.setViewportSize({ width, height });
+    await page.goto('/');
+    await expect(page.getByRole('navigation', { name: 'Chart views' })).toHaveCount(1);
+    const plot = page.locator('#cost-intelligence svg[role=group]');
+    await expect(plot).toBeVisible();
+    const geometry = await plot.evaluate((svg) => {
+      const ticks = Array.from(svg.querySelectorAll('g[transform] > text[y="4"]'));
+      const zero = ticks.find((tick) => tick.textContent === '0')!;
+      const sixty = ticks.find((tick) => tick.textContent === '60')!;
+      const axis = Array.from(svg.querySelectorAll('line[x1][x2][y1][y2]')).find((line) => line.getAttribute('y1') === line.getAttribute('y2'))!;
+      return { width: axis.getBoundingClientRect().width, span: zero.getBoundingClientRect().y - sixty.getBoundingClientRect().y };
+    });
+    expect(geometry.width).toBeGreaterThanOrEqual(minimumWidth);
+    expect(geometry.span).toBeGreaterThanOrEqual(minimumSpan);
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+    await expect(page.locator('.header-chart-navigation')).toBeVisible({ visible: width >= 1280 });
   }
 });
