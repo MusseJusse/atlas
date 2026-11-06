@@ -24,7 +24,7 @@ test('every chart is discoverable by keyboard and exactly one chart stays visibl
 });
 
 test('broad ranking selection keeps every configuration plotted with optional exact data', async ({ page }) => {
-  await page.goto('/?chart=intelligence');
+  await page.goto('/?chart=intelligence&bars=false');
   await page.getByRole('button', { name: 'Select all', exact: true }).first().click();
   const ranking = page.locator('#intelligence');
   await expect(ranking.locator('.ranking')).toBeVisible();
@@ -217,7 +217,7 @@ test('phone range rows show an expansion indicator and reveal reasoning values',
 
 
 test('ranking expansion and configuration details work entirely from the keyboard', async ({ page }) => {
-  await page.goto('/?chart=omniscience');
+  await page.goto('/?chart=omniscience&bars=false');
   const ranking = page.locator('#omniscience .ranking');
   const first = ranking.locator('.ranking-row').first();
   await expect(first).toHaveAccessibleName(/rank 1, AA-Omniscience Index.*Highest.*configurations, range.*Show configurations/);
@@ -246,7 +246,7 @@ test('ranking expansion and configuration details work entirely from the keyboar
 
 
 test('cost scale changes retain exact measurements and the compact scatter keeps named models', async ({ page }) => {
-  await page.goto('/?chart=cost-task');
+  await page.goto('/?chart=cost-task&bars=false');
   const chart = page.locator('#cost-task');
   const scale = chart.getByRole('group', { name: 'Cost per task axis scale' });
   await expect(scale.getByRole('button', { name: 'Log', exact: true })).toHaveAttribute('aria-pressed', 'true');
@@ -286,7 +286,7 @@ test('compact scatter uses readable plot dimensions without scaling its axis tex
 
 
 test('time estimates retain their parent model count and identify the derived endpoint', async ({ page }) => {
-  await page.goto('/?chart=time-task&selected=gpt-6-1-sol');
+  await page.goto('/?chart=time-task&selected=gpt-6-1-sol&bars=false');
   const chart = page.locator('#time-task');
   await expect(chart.locator('.measurement-disclosure summary')).toContainText('1 model with data · 2 series');
   const endpoint = chart.locator('.ranking-row').filter({ hasText: 'GPT-6.1 Sol Ultrafast' });
@@ -301,7 +301,7 @@ test('close ranking configurations stay on their range line on phones and deskto
   for (const width of [393, 320, 1280]) {
     await page.setViewportSize({ width, height: 852 });
     for (const chart of ['intelligence', 'omniscience']) {
-      await page.goto(`/?chart=${chart}`);
+      await page.goto(`/?chart=${chart}&bars=false`);
       const section = page.locator(`#${chart}`);
       const astra = section.locator('.ranking-model').filter({ has: page.locator('.ranking-row', { hasText: 'GPT-6 Astra' }) });
       await expect(astra.locator('.ranking-row')).toBeVisible();
@@ -328,7 +328,7 @@ test('close ranking configurations stay on their range line on phones and deskto
 test('desktop rankings can switch to bars across metrics and keep the choice in saved URLs', async ({ page }) => {
   await page.setViewportSize({ width: 1280, height: 800 });
   for (const id of ['intelligence', 'omniscience', 'tokens-task', 'tokens-total', 'cost-task', 'time-task']) {
-    await page.goto(`/?chart=${id}&scatter=false`);
+    await page.goto(`/?chart=${id}&scatter=false&bars=false`);
     const section = page.locator(`#${id}`);
     await expect(section.locator('.ranking')).toBeVisible();
     const configurations = await section.locator('[data-configuration]').count();
@@ -337,7 +337,7 @@ test('desktop rankings can switch to bars across metrics and keep the choice in 
     await expect(svg).toBeVisible();
     await expect(svg.locator('g[role=button]')).toHaveCount(configurations);
     await expect(section.locator('.ranking')).toHaveCount(0);
-    await expect(page).toHaveURL(/bars=true/);
+    await expect(page).not.toHaveURL(/bars=false/);
     if (id === 'intelligence') {
       await page.reload();
       await expect(svg).toBeVisible();
@@ -491,10 +491,13 @@ test('bar annotations clear the heading and retain value order at short and stan
 
 test('highest-last sorts model maxima consistently in Bars, Ranking and exact data', async ({ page }) => {
   await page.setViewportSize({ width: 1280, height: 800 });
-  await page.goto('/?chart=intelligence&bars=true');
+  await page.goto('/?chart=intelligence');
   const section = page.locator('#intelligence');
+  await expect(section.getByRole('button', { name: 'Bars', exact: true })).toHaveAttribute('aria-pressed', 'true');
   await expect(section.getByText('Reasoning:', { exact: false })).toHaveCount(0);
   await section.locator('summary[aria-label="Chart settings"]').click();
+  await expect(section.getByRole('button', { name: 'Highest last per model', exact: true })).toHaveAttribute('aria-pressed', 'true');
+  await expect(page).not.toHaveURL(/sort=/);
   await section.getByRole('button', { name: 'Highest last per model', exact: true }).click();
   await expect(section.getByRole('button', { name: 'Highest last per model', exact: true })).toHaveAttribute('aria-pressed', 'true');
   await expect(page).toHaveURL(/sort=highest-last/);

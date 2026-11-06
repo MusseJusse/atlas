@@ -67,7 +67,7 @@ export const Chart = memo(function Chart({
   onHighlight,
 }: {
   active: boolean;
-  presentation: { descending: boolean };
+  presentation: { descending: boolean; highestLast: boolean };
   view: View;
   rows: Model[];
   settings: Settings;
@@ -114,8 +114,8 @@ export const Chart = memo(function Chart({
     [rows, view.metric, scatter, linear, score],
   );
   const validRows = prepared.rows;
-  const { descending } = presentation;
-  const table = <MeasurementTable rows={validRows} metric={view.metric} score={scatter ? score : undefined} settings={settings} descending={descending} />;
+  const { descending, highestLast } = presentation;
+  const table = <MeasurementTable rows={validRows} metric={view.metric} score={scatter ? score : undefined} settings={{ ...settings, highestLast }} descending={descending} />;
   const { pinned, activeModel } = resolveChartInteraction(validRows, pinnedId, hoveredId);
   const interactions: Interactions = {
     pinned,
@@ -190,9 +190,9 @@ export const Chart = memo(function Chart({
                 fill="var(--panel)"
               />
               {prepared.scatter ? <Scatter rows={prepared.rows} metric={view.metric} scoreMetric={score} linear={linear} settings={settings} width={width} height={height} interactions={interactions} />
-                : <Bars rows={prepared.rows} metric={view.metric} settings={{ ...settings, descending }} width={width} height={height} interactions={interactions} />}
+                : <Bars rows={prepared.rows} metric={view.metric} settings={{ ...settings, descending, highestLast }} width={width} height={height} interactions={interactions} />}
             </svg>
-          ) : <Ranking rows={prepared.rows} metric={view.metric} grouped={settings.grouped} descending={descending} highestLast={settings.highestLast} interactions={interactions} score={settings.codingOnly ? score : undefined} logarithmic={view.metric === 'cost' && !linear && validRows.every((row) => row.value > 0)} />)}
+          ) : <Ranking rows={prepared.rows} metric={view.metric} grouped={settings.grouped} descending={descending} highestLast={highestLast} interactions={interactions} score={settings.codingOnly ? score : undefined} logarithmic={view.metric === 'cost' && !linear && validRows.every((row) => row.value > 0)} />)}
         {scatter && activeModel && (
           <aside
             className={`configuration-details${pinned ? '' : ' pointer-events-none'}`}

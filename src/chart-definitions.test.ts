@@ -54,15 +54,25 @@ it('ranks best first consistently and respects the explicit direction', () => {
   const settings = readSettings('');
   for (const view of views) {
     const higher = ['intelligence', 'omniscience'].includes(view.id);
-    expect(rankingPresentation(view, settings)).toEqual({ descending: higher });
-    expect(rankingPresentation(view, { descending: !higher })).toEqual({ descending: !higher });
+    expect(rankingPresentation(view, settings)).toEqual({ descending: higher, highestLast: false });
+    expect(rankingPresentation(view, { descending: !higher })).toEqual({ descending: !higher, highestLast: false });
   }
 });
 
 
-it('keeps the desktop bars preference in saved views while defaulting to rankings', () => {
-  const settings = readSettings('?bars=true');
-  expect(settings.bars).toBe(true);
-  expect(readSettings(writeSettings(settings, 'intelligence')).bars).toBe(true);
-  expect(readSettings('/').bars).toBe(false);
+it('defaults to desktop Bars and preserves explicit Ranking links', () => {
+  const settings = readSettings('?bars=false');
+  expect(settings.bars).toBe(false);
+  expect(writeSettings(settings, 'intelligence')).toContain('bars=false');
+  expect(readSettings(writeSettings(settings, 'intelligence')).bars).toBe(false);
+  expect(readSettings('/').bars).toBe(true);
+});
+
+it('uses highest-last only as the automatic Bars sort and respects explicit sort choices', () => {
+  for (const view of views) {
+    expect(rankingPresentation(view, readSettings(''), true)).toEqual({ descending: false, highestLast: true });
+    expect(rankingPresentation(view, readSettings('?sort=asc'), true)).toEqual({ descending: false, highestLast: false });
+    expect(rankingPresentation(view, readSettings('?sort=desc'), true)).toEqual({ descending: true, highestLast: false });
+    expect(rankingPresentation(view, readSettings('?sort=highest-last'), false)).toEqual({ descending: false, highestLast: true });
+  }
 });

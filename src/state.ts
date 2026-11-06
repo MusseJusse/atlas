@@ -31,7 +31,7 @@ export const defaults: Settings = {
   highestLast: false,
   linear: [],
   scatter: true,
-  bars: false,
+  bars: true,
 };
 
 /** Keep known URL IDs once, in the order they first appeared. */
@@ -63,7 +63,7 @@ export function readSettings(search: string): Settings {
     highestLast: params.get('sort') === 'highest-last',
     linear: readIds(params.get('linear') ?? '', views.map((view) => view.id)),
     scatter: params.get('scatter') !== 'false',
-    bars: params.get('bars') === 'true',
+    bars: params.get('bars') !== 'false',
   };
 }
 
@@ -95,7 +95,7 @@ export function writeSettings(settings: Settings, view: ViewId) {
   else if (settings.descending !== null) params.set('sort', settings.descending ? 'desc' : 'asc');
   if (settings.linear.length) params.set('linear', settings.linear.join(','));
   if (!settings.scatter) params.set('scatter', 'false');
-  if (settings.bars) params.set('bars', 'true');
+  if (!settings.bars) params.set('bars', 'false');
   if (view !== views[0].id) params.set('chart', view);
   return params.size ? `?${params}` : '/';
 }

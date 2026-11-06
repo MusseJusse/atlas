@@ -203,7 +203,7 @@ function Benchmarks() {
               const displayLinear = scatter ? linear : linear || !rankingLogAvailable;
               const subscription = usesSubscriptionPricing(view.id, settings);
               const chartRows = rowsByView.get(view.id)!;
-              const ranking = rankingPresentation(view, settings);
+              const ranking = rankingPresentation(view, settings, bars);
               const hasFallback = !(scatter && settings.frontier) && chartRows.some((row) => row.cost !== null && row.taskPricing?.basis === 'api-fallback');
               return (
                 <section
@@ -223,7 +223,7 @@ function Benchmarks() {
                       <button className="min-h-8 rounded-sm px-3 text-[12px] text-fg-2 aria-pressed:bg-panel aria-pressed:text-accent" aria-pressed={bars} onClick={() => update({ bars: true })}>Bars</button>
                     </div>}
                     <ChartOptions
-                      settings={settings}
+                      settings={{ ...settings, highestLast: ranking.highestLast }}
                       update={update}
                       descending={ranking.descending}
                       groupedTable={settings.grouped}

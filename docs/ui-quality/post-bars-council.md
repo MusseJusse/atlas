@@ -113,3 +113,7 @@ These are UI review judgments with Chromium checks, source inspection and actual
 The reasoning-abbreviation footer is removed. The horizontal scroll cue remains when a Bars selection exceeds the available width. Chart settings now offers Highest first, Lowest first and Highest last per model as explicit selected options. Highest last orders model groups by their maximum measured value ascending, so the strongest group is last. It does not reorder configurations inside each Bars group.
 
 The choice persists as `sort=highest-last` and applies consistently to Bars, Ranking and View data. Ranking displays the maximum configuration for this mode. Type checking, build, 186 unit tests and 29 production Chromium tests pass, including model-maximum ordering across both presentations, exact data and URL reload. The round 8 council scores above apply to the earlier frozen revision; this requested follow-up has focused automated validation rather than another council review.
+
+## Requested default changes
+
+Bars is now the desktop default. With no explicit sort, Bars orders groups by their highest configuration ascending. This default is resolved for the active presentation so it does not change Ranking or phone default ordering. Explicit URL sort choices still take precedence, and `bars=false` preserves an explicit Ranking choice. Existing `bars=true` links remain valid. Type checking, production build, 187 unit tests and 29 production Chromium tests pass. These requested changes follow the frozen council assessment above.

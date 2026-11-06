@@ -63,7 +63,8 @@ export function resolveView(view: View, settings: { scatter: boolean; linear: re
 }
 
 
-/** Rankings default to the best measured value first on every screen size. */
-export function rankingPresentation(view: View, settings: { descending: boolean | null }) {
-  return { descending: settings.descending ?? metrics[view.metric].higherIsBetter };
+/** Bars default to ascending model maxima; rankings retain better-first ordering. */
+export function rankingPresentation(view: View, settings: { descending: boolean | null; highestLast?: boolean }, bars = false) {
+  const highestLast = settings.highestLast === true || (bars && settings.descending === null);
+  return { descending: highestLast ? false : settings.descending ?? metrics[view.metric].higherIsBetter, highestLast };
 }

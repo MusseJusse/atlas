@@ -1,8 +1,8 @@
 # Desktop presentation choice
 
-Desktop metric views offer Ranking and Bars. Ranking is the default. The original vertical bars show each reasoning configuration separately, while the horizontal ranking emphasizes each model's range. Task tokens also retains its Scatter choice.
+Desktop metric views offer Ranking and Bars. Bars is the desktop default, with Highest last per model as its automatic sort. Explicit sort choices override it; Ranking retains better-first sorting. The original vertical bars show each reasoning configuration separately, while the horizontal ranking emphasizes each model's range. Task tokens also retains its Scatter choice.
 
-The shared desktop preference is saved as `bars=true` in the URL. Filters, metric selection, explicit sorting, grouping and measured configurations remain available in either presentation. Phones use rankings even when a shared URL requests bars. Bar charts expand vertically to fill the available card area, with a minimum usable height in short windows. Ranking sizing is unchanged. Wide bar charts scroll horizontally to preserve readable model names. Pinned configuration details stay inside the visible card while the chart scrolls.
+The default Bars preference needs no URL parameter. An explicit Ranking preference is saved as `bars=false`; existing `bars=true` links remain valid. Filters, metric selection, explicit sorting, grouping and measured configurations remain available in either presentation. Phones use rankings even when a shared URL requests bars. Bar charts expand vertically to fill the available card area, with a minimum usable height in short windows. Ranking sizing is unchanged. Wide bar charts scroll horizontally to preserve readable model names. Pinned configuration details stay inside the visible card while the chart scrolls.
 
 Actual application screenshots:
 
