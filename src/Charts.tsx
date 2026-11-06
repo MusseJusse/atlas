@@ -229,7 +229,7 @@ export const Chart = memo(function Chart({
                     {model.codingAgent.name}, {model.effortLabel}
                   </span>
                 </span>
-              ) : <span>{shortName(model)}{view.metric === 'cost' && model.taskPricing?.basis === 'api-fallback' && <span className="text-[10px] font-normal text-fg-2"> · API</span>}</span>}
+              ) : <span className="min-w-0 whitespace-normal leading-tight">{shortName(model)}{view.metric === 'cost' && model.taskPricing?.basis === 'api-fallback' && <span className="text-[10px] font-normal text-fg-2"> · API</span>}</span>}
             </button>;
           })}
         </div>
