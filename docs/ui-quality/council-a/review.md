@@ -167,6 +167,29 @@ The prepared contrast, geometry, pricing, filter-target, category-memory and ARI
 
 - Phone scatter targets have a 23px transparent radius. Selection resolves the closest plotted point to the pointer, rather than the last-painted overlapping hit area. Visible point centers and values stay exact. Keyboard activation still selects the focused configuration. A browser test verifies Haiku low and Luna medium separately, despite their near-overlap.
 - The page H1 precedes the sidebar's H2, and the main landmark references that title.
-- The phone Artificial Analysis footer link has a 44px minimum height. No “Pricing captured” link exists in this application; that phrase in GLM's review was inaccurate.
+- The phone Artificial Analysis footer link has a 44px minimum height. Correction: a separate “Pricing captured” link does exist inside the open pricing panel. The earlier check looked only at the footer. That panel link now also has a 44px minimum height.
 
 The final revision passes type checking, build, all 185 unit tests and all 33 production Chromium tests. The eight-state axe report was rerun against the final build: zero violations, with the documented incomplete contrast/popup checks retained. No screen-reader pass is claimed. Round 4 scores remain pending; prior scores do not approve this new revision.
+
+## Round 4 results and provider limits
+
+Sol scored `13aa1f1` 8.8 overall, with chart readability 8.7 versus the reference's 8.9. It independently verified near-overlap point selection, category memory, sheet focus restoration, ranking controls and the named pricing trigger. It identified the small Pricing captured link inside the pricing panel; the follow-up increases that existing link's height to 44px and checks it at 320 and 390px.
+
+Terra scored `13aa1f1` 8.7 overall, with chart readability 8.5 versus the reference's 8.7. It found no demonstrated functional defect requiring redesign. Its pricing probe timed out; it explicitly disclaimed drawing a product-defect conclusion from that timeout.
+
+| Round 4 current category | Sol | Terra |
+| --- | --- | --- |
+| Overall UI | 8.8 | 8.7 |
+| Navigation and discovery | 9.1 | 8.9 |
+| Hierarchy and typography | 9.0 | 8.8 |
+| Chart and data readability | 8.7 | 8.5 |
+| Controls and feedback | 9.1 | 8.9 |
+| Mobile | 8.8 | 8.6 |
+| Accessibility evidence | 8.8 | 8.5 |
+
+DeepSeek Free and GLM Free both failed round 4 at the free usage limit and gave no score. Their round 3 scores have not been reused. The user already approved available-model replacements; the remaining verified working route for this panel is Codex. Astra and Luna are available to replace the failed members, but that panel would be entirely OpenAI rather than spanning model vendors. This limitation must remain explicit.
+
+The next layout change awaits a user pick among three published static refinements, all retaining the desktop left filters. No compact-layout component changes have been implemented. The 9/10 and strict-reference-preference target remains unmet.
+
+The pricing-link fix passes the focused browser target test at 320 and 390px. The reproducible axe audit now includes the open phone pricing panel as a ninth state, covering the context the earlier eight-state audit omitted.
+The added panel audit also exposed an incomplete ARIA check on its generic labeled div. The panel now has an explicit group role with its contextual Pricing settings name, verified by the focused browser test.

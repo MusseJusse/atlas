@@ -519,6 +519,13 @@ test('phone header retains the current section and scatter controls have touch r
       expect(box!.width).toBeGreaterThanOrEqual(44);
     }
     await page.getByRole('button', { name: 'Done', exact: true }).click();
+    await section.locator('.chart-settings-trigger').click();
+    await expect(section.getByRole('group', { name: 'Pricing settings', exact: true })).toBeVisible();
+    const source = section.getByRole('link', { name: /^Pricing captured/ });
+    await source.scrollIntoViewIfNeeded();
+    expect((await source.boundingBox())!.height).toBeGreaterThanOrEqual(44);
+    await page.keyboard.press('Escape');
+    await expect(source).not.toBeVisible();
   }
 });
 

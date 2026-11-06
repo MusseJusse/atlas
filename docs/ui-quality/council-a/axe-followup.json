@@ -1291,6 +1291,221 @@
       "passedRules": 24
     },
     {
+      "scenario": "phone-pricing-light",
+      "controlsReferences": [
+        {
+          "label": "Models7 selectedEdit selection",
+          "target": "model-filters",
+          "exists": true
+        },
+        {
+          "label": "Cost vs intelligence",
+          "target": "cost-intelligence",
+          "exists": true
+        },
+        {
+          "label": "Intelligence",
+          "target": "intelligence",
+          "exists": true
+        },
+        {
+          "label": "Omniscience",
+          "target": "omniscience",
+          "exists": true
+        },
+        {
+          "label": "Tokens / task",
+          "target": "tokens-task",
+          "exists": true
+        },
+        {
+          "label": "Total tokens",
+          "target": "tokens-total",
+          "exists": true
+        },
+        {
+          "label": "Cost / task",
+          "target": "cost-task",
+          "exists": true
+        },
+        {
+          "label": "Time / task",
+          "target": "time-task",
+          "exists": true
+        }
+      ],
+      "violations": [],
+      "incomplete": [
+        {
+          "id": "aria-valid-attr-value",
+          "impact": "critical",
+          "description": "Ensure all ARIA attributes have valid values",
+          "helpUrl": "https://dequeuniversity.com/rules/axe/4.14/aria-valid-attr-value?application=axeAPI",
+          "nodes": [
+            {
+              "target": [
+                ".mobile\\:flex\\!"
+              ],
+              "failureSummary": "Fix all of the following:\n  Unable to determine if aria-controls referenced ID exists on the page while using aria-haspopup: aria-controls=\"model-filters\""
+            }
+          ]
+        },
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+          "helpUrl": "https://dequeuniversity.com/rules/axe/4.14/color-contrast?application=axeAPI",
+          "nodes": [
+            {
+              "target": [
+                "#cost-intelligence > .chart-guidance"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "target": [
+                "text[x=\"46\"]"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "target": [
+                "g[transform=\"translate(0,289)\"] > text[x=\"29\"][y=\"4\"][text-anchor=\"end\"]"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element content is too short to determine if it is actual text content"
+            },
+            {
+              "target": [
+                "g:nth-child(6) > text[x=\"29\"][y=\"4\"][text-anchor=\"end\"]"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "target": [
+                "g:nth-child(7) > text[x=\"29\"][y=\"4\"][text-anchor=\"end\"]"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "target": [
+                "g[transform=\"translate(0,159.5)\"] > text[x=\"29\"][y=\"4\"][text-anchor=\"end\"]"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "target": [
+                "g:nth-child(9) > text[x=\"29\"][y=\"4\"][text-anchor=\"end\"]"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "target": [
+                "g[transform=\"translate(0,73.16666666666666)\"] > text[x=\"29\"][y=\"4\"][text-anchor=\"end\"]"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "target": [
+                "g[transform=\"translate(0,30)\"] > text[x=\"29\"][y=\"4\"][text-anchor=\"end\"]"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "target": [
+                "g:nth-child(12) > text[y=\"26\"][font-size=\"11\"][text-anchor=\"middle\"]"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "target": [
+                "g:nth-child(13) > text[y=\"26\"][font-size=\"11\"][text-anchor=\"middle\"]"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "target": [
+                "g:nth-child(14) > text[y=\"26\"][font-size=\"11\"][text-anchor=\"middle\"]"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "target": [
+                "g:nth-child(15) > text[y=\"26\"][font-size=\"11\"][text-anchor=\"middle\"]"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "target": [
+                "g:nth-child(16) > text[y=\"26\"][font-size=\"11\"][text-anchor=\"middle\"]"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "target": [
+                "g:nth-child(17) > text[y=\"26\"][font-size=\"11\"][text-anchor=\"middle\"]"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "target": [
+                "g:nth-child(18) > text[y=\"26\"][font-size=\"11\"][text-anchor=\"middle\"]"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "target": [
+                "text[x=\"174\"]"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "target": [
+                ".grid-cols-2 > .gap-\\[7px\\].font-\\[550\\].min-h-11:nth-child(1) > .whitespace-normal.leading-tight.min-w-0"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "target": [
+                ".grid-cols-2 > .gap-\\[7px\\].font-\\[550\\].min-h-11:nth-child(2) > .whitespace-normal.leading-tight.min-w-0"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "target": [
+                ".grid-cols-2 > .gap-\\[7px\\].font-\\[550\\].min-h-11:nth-child(3) > .whitespace-normal.leading-tight.min-w-0"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "target": [
+                ".grid-cols-2 > .gap-\\[7px\\].font-\\[550\\].min-h-11:nth-child(4) > .whitespace-normal.leading-tight.min-w-0"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "target": [
+                ".grid-cols-2 > .gap-\\[7px\\].font-\\[550\\].min-h-11:nth-child(5) > .whitespace-normal.leading-tight.min-w-0"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "target": [
+                ".grid-cols-2 > .gap-\\[7px\\].font-\\[550\\].min-h-11:nth-child(6) > .whitespace-normal.leading-tight.min-w-0"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "target": [
+                ".grid-cols-2 > .gap-\\[7px\\].font-\\[550\\].min-h-11:nth-child(7) > .whitespace-normal.leading-tight.min-w-0"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            }
+          ]
+        }
+      ],
+      "passedRules": 28
+    },
+    {
       "scenario": "phone-filters-dark",
       "controlsReferences": [
         {

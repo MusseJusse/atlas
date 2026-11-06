@@ -12,6 +12,7 @@ for (const scenario of [
   { name: 'desktop-ranking-light', width: 1280, theme: 'light', path: '/?chart=intelligence&bars=false' },
   { name: 'phone-overview-dark', width: 390, theme: 'dark', path: '/' },
   { name: 'phone-ranking-dark', width: 390, theme: 'dark', path: '/?chart=intelligence' },
+  { name: 'phone-pricing-light', width: 390, theme: 'light', path: '/', pricing: true },
   { name: 'phone-filters-dark', width: 390, theme: 'dark', path: '/', filters: true },
   { name: 'narrow-subscription-light', width: 320, theme: 'light', path: '/?pricing=subscription' },
 ]) {
@@ -22,6 +23,7 @@ for (const scenario of [
   await page.locator('.chart-section:visible svg[role=group], .chart-section:visible .ranking').first().waitFor();
   await page.evaluate(() => document.fonts.ready);
   if (scenario.filters) await page.getByRole('button', { name: /Models.*Edit selection/ }).click();
+  if (scenario.pricing) await page.locator('#cost-intelligence .chart-settings-trigger').click();
   await page.addScriptTag({ path: axeSource });
   const result = await page.evaluate(async () => {
     const { violations, incomplete, passes } = await window.axe.run(document, { runOnly: { type: 'tag', values: ['wcag2a', 'wcag2aa', 'wcag21aa', 'wcag22aa'] } });

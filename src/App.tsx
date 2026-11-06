@@ -422,7 +422,8 @@ function ChartOptions({
       <div
         className={`absolute top-[calc(100%+6px)] right-0 z-20 flex ${pricing ? 'w-[310px]' : 'w-[220px]'} max-w-[calc(100vw-48px)] flex-col items-start gap-1 overflow-y-auto overscroll-contain rounded-lg border border-line bg-panel p-3 shadow-lg`}
         style={{ maxHeight: 'var(--chart-menu-height, 60dvh)' }}
-        aria-label="Chart settings"
+        role="group"
+        aria-label={scatter && phone ? 'Pricing settings' : 'Chart settings'}
       >
         {pricing && <PricingControls settings={settings} update={update} />}
         {scatter && !phone && <>
