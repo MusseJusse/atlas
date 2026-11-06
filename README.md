@@ -152,7 +152,7 @@ pnpm exec playwright install chromium
 pnpm test:browser
 ```
 
-The browser suite serves the production build on isolated port 4391. It checks prerendered content and inline CSS, DOM reuse during hydration, font-independent startup, saved dark views, history restoration, phone chart navigation, every chart choice, graphical ranking completeness, exact-value disclosure and sorting, and the mobile Efficiency layout. CI runs the same suite in Chromium after building.
+The browser suite serves the production build on isolated port 4391. It checks prerendered content and inline CSS, DOM reuse during hydration, font-independent startup, saved dark views, history restoration, phone chart navigation, every chart choice, graphical ranking completeness, configuration expansion and sorting, and the mobile Efficiency layout. CI runs the same suite in Chromium after building.
 
 Focused tests cover frontier dominance, ties and missing measurements, reasoning filters, grouped bar ordering, and URL state round-tripping.
 
@@ -183,7 +183,7 @@ Local Chromium results against `f2a4a2b`, with no CPU or network throttling:
 
 The first local page load recorded first contentful paint at 148 ms before and 68 ms after. A later cached reload recorded 60 ms and 40 ms. These are local samples, not a network or device performance guarantee.
 
-Chart navigation shows every view on desktop. Phones show Overview, Scores, and Resources with visible chart choices beneath the active category. Only one chart appears at a time. Visited charts stay mounted while hidden so pinned details survive navigation. Bars is the default desktop presentation and orders model groups by their highest configuration, strongest last, unless a URL specifies another sort. Desktop users can switch to Ranking, with horizontal model rows, shared scales, configuration dots, ranges and expandable exact values; `bars=false` preserves that choice in shared URLs. Ranking keeps its better-first default sorting. Phones retain the ranking layout. Wide bar selections scroll horizontally while keeping pinned details visible. Every chart also offers a View data disclosure. Speed endpoints share their parent picker count and carry explicit estimate labels. Compact scatter legends retain all model names and show an overflow cue when needed. Chart geometry and number formatters are reused across hover updates.
+Chart navigation shows every view on desktop. Phones show Overview, Scores, and Resources with visible chart choices beneath the active category. Only one chart appears at a time. Visited charts stay mounted while hidden so pinned details survive navigation. Bars is the default desktop presentation and orders model groups by their highest configuration, strongest last, unless a URL specifies another sort. Desktop users can switch to Ranking, with horizontal model rows, shared scales, configuration dots, ranges and expandable exact values; `bars=false` preserves that choice in shared URLs. Ranking keeps its better-first default sorting. Phones retain the ranking layout. Wide bar selections scroll horizontally while keeping pinned details visible. Speed endpoints share their parent picker count and carry explicit estimate labels. Compact scatter legends retain all model names and show an overflow cue when needed. Chart geometry and number formatters are reused across hover updates.
 
 ## PageSpeed validation
 

@@ -10,12 +10,11 @@ import {
 import { flushSync } from 'react-dom';
 import { resolveChartInteraction } from './chart-interactions';
 import { useHydrated } from './useHydrated';
-import { selectionFamily, type Model } from './models';
+import type { Model } from './models';
 import { modelColor, shortName } from './model-presentation';
 import { scoreLabels, metrics, resolveView, type View } from './chart-definitions';
 import type { Settings } from './state';
 import { Logo } from './Logo';
-import { MeasurementTable } from './charts/MeasurementTable';
 import { ConfigurationDetails } from './charts/ConfigurationDetails';
 import { Scatter } from './charts/Scatter';
 import { Bars } from './charts/Bars';
@@ -115,7 +114,6 @@ export const Chart = memo(function Chart({
   );
   const validRows = prepared.rows;
   const { descending, highestLast } = presentation;
-  const table = <MeasurementTable rows={validRows} metric={view.metric} score={scatter ? score : undefined} settings={{ ...settings, highestLast }} descending={descending} />;
   const { pinned, activeModel } = resolveChartInteraction(validRows, pinnedId, hoveredId);
   const interactions: Interactions = {
     pinned,
@@ -125,8 +123,6 @@ export const Chart = memo(function Chart({
     togglePin: (model) => setPinnedId((previous) => previous === model.id ? null : model.id),
     highlight: (id) => flushSync(() => onHighlight(id)),
   };
-  const modelCount = new Set(validRows.map(selectionFamily)).size;
-  const seriesCount = new Set(validRows.map((row) => row.family)).size;
   const legend = [...new Map(validRows.map((row) => [row.codingAgent ? row.id : row.family, row])).values()];
 
   function closeOnBackground(event: MouseEvent<SVGSVGElement>) {
@@ -232,10 +228,6 @@ export const Chart = memo(function Chart({
           ))}
         </div>
       )}
-      {ready && validRows.length > 0 && <details className="measurement-disclosure">
-        <summary>View data · {modelCount} {modelCount === 1 ? 'model' : 'models'} with data{seriesCount > modelCount && ` · ${seriesCount} series`} · {validRows.length} {validRows.length === 1 ? 'configuration' : 'configurations'}</summary>
-        {table}
-      </details>}
     </div>
   );
 });

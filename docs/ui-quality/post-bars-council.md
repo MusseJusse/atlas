@@ -117,3 +117,7 @@ The choice persists as `sort=highest-last` and applies consistently to Bars, Ran
 ## Requested default changes
 
 Bars is now the desktop default. With no explicit sort, Bars orders groups by their highest configuration ascending. This default is resolved for the active presentation so it does not change Ranking or phone default ordering. Explicit URL sort choices still take precedence, and `bars=false` preserves an explicit Ranking choice. Existing `bars=true` links remain valid. Type checking, production build, 187 unit tests and 29 production Chromium tests pass. These requested changes follow the frozen council assessment above.
+
+## Requested disclosure removal
+
+The View data disclosure, counts and underlying table are removed from the chart workspace. Exact measurements remain available through chart hover/focus, pinned configuration details and Ranking expansion. The unused table component, styles and table-specific tests are removed. Type checking, build, all 185 remaining unit tests and all 29 production Chromium tests pass. Earlier review notes and screenshots describe their named frozen revisions.

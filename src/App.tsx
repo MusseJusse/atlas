@@ -101,7 +101,7 @@ function Benchmarks() {
     const section = feed?.querySelector<HTMLElement>(`#${active}`);
     if (!feed || !section) return;
     const check = () => {
-      const end = section.querySelector('.measurement-disclosure') ?? section.lastElementChild;
+      const end = section.lastElementChild;
       setMoreBelow(end != null && end.getBoundingClientRect().bottom > feed.getBoundingClientRect().bottom + 2);
     };
     const observer = new ResizeObserver(check);

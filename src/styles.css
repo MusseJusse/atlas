@@ -298,43 +298,12 @@
 .change-fields {
   margin-top: 8px;
 }
-.change-fields summary, .measurement-disclosure summary {
+.change-fields summary {
   min-height: 40px;
   padding: 10px 0;
   cursor: pointer;
   font-size: 13px;
   color: var(--fg-2);
-}
-.measurement-disclosure {
-  flex-shrink: 0;
-}
-.measurement-table {
-  max-height: 280px;
-  overflow: auto;
-  scrollbar-width: thin;
-}
-.measurement-table table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 13px;
-  text-align: left;
-}
-.measurement-table th, .measurement-table td {
-  padding: 10px 12px;
-  border-bottom: 1px solid var(--line);
-}
-.measurement-table th {
-  font-weight: 500;
-}
-.measurement-table thead {
-  position: sticky;
-  top: 0;
-  background: var(--panel);
-  color: var(--fg-2);
-}
-.measurement-table td {
-  font-variant-numeric: tabular-nums;
-  white-space: nowrap;
 }
 @media (width <= 900px) {
  .site-header {
@@ -355,9 +324,6 @@
  .chart-categories button { flex: 1; }
  .chart-subnavigation { gap: 8px; flex-wrap: wrap; border-top: 1px solid var(--line); }
  .chart-subnavigation button { flex: 1 1 auto; padding-inline: 0; font-size: 12px; }
- .measurement-table {
-  max-height: 420px;
-}
 }
 
 @media (width <= 600px) { .site-header nav a[href='/'] {

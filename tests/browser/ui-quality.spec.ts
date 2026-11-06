@@ -23,7 +23,7 @@ test('every chart is discoverable by keyboard and exactly one chart stays visibl
   expect(errors).toEqual([]);
 });
 
-test('broad ranking selection keeps every configuration plotted with optional exact data', async ({ page }) => {
+test('broad ranking selection keeps every configuration plotted', async ({ page }) => {
   await page.goto('/?chart=intelligence&bars=false');
   await page.getByRole('button', { name: 'Select all', exact: true }).first().click();
   const ranking = page.locator('#intelligence');
@@ -32,9 +32,6 @@ test('broad ranking selection keeps every configuration plotted with optional ex
   expect(await ranking.locator('.ranking-rows').evaluate((element) => element.scrollHeight - element.clientHeight)).toBeLessThanOrEqual(1);
   const dots = await ranking.locator('[data-configuration]').count();
   expect(dots).toBeGreaterThan(60);
-  await expect(ranking.locator('.measurement-table')).not.toBeVisible();
-  await ranking.locator('.measurement-disclosure summary').click();
-  await expect(ranking.locator('tbody tr')).toHaveCount(dots);
 
 });
 
@@ -69,7 +66,7 @@ test('phone pages and expanded changelog values fit a narrow viewport', async ({
 });
 
 
-test('phone intelligence and cost charts match exact data and grouped sort controls', async ({ page }) => {
+test('phone intelligence and cost rankings match grouped sort controls', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   for (const [chart, defaultDescending] of [['intelligence', true], ['cost-task', false]] as const) {
     await page.goto(`/?chart=${chart}`);
@@ -78,33 +75,13 @@ test('phone intelligence and cost charts match exact data and grouped sort contr
     await page.getByRole('button', { name: 'Done', exact: true }).click();
     const ranking = page.locator(`#${chart}`);
     await expect(ranking.locator('.ranking')).toBeVisible();
-    await ranking.locator('.measurement-disclosure summary').click();
-    const valuesByModel = () => ranking.locator('tbody tr').evaluateAll((rows) => {
-      const groups = new Map<string, number[]>();
-      for (const row of rows) {
-        const name = row.querySelector('th')!.textContent!;
-        const value = Number(row.querySelectorAll('td')[1]!.textContent!.replace(/[$,]/g, ''));
-        const values = groups.get(name) ?? [];
-        values.push(value);
-        groups.set(name, values);
-      }
-      return [...groups.values()];
-    });
-    const assertOrder = (groups: number[][], descending: boolean) => {
-      const compare = (a: number, b: number) => (a - b) * (descending ? -1 : 1);
-      const best = groups.map((values) => descending ? Math.max(...values) : Math.min(...values));
-      expect(best).toEqual(best.toSorted(compare));
-      for (const values of groups) expect(values).toEqual(values.toSorted(compare));
-    };
     const chartValues = () => ranking.locator('.ranking-row').evaluateAll((buttons) => buttons.map((button) => Number(button.getAttribute('data-best-value'))));
     const initialValues = await chartValues();
     expect(initialValues).toEqual(initialValues.toSorted((a, b) => (a - b) * (defaultDescending ? -1 : 1)));
-    assertOrder(await valuesByModel(), defaultDescending);
     await ranking.locator('summary[aria-label="Chart settings"]').click();
     const initialLabel = defaultDescending ? 'Highest first per model' : 'Lowest first per model';
     await expect(ranking.getByRole('button', { name: initialLabel, exact: true })).toBeVisible();
     await ranking.getByRole('button', { name: defaultDescending ? 'Lowest first per model' : 'Highest first per model', exact: true }).click();
-    assertOrder(await valuesByModel(), !defaultDescending);
     const reversed = await chartValues();
     expect(reversed).toEqual(reversed.toSorted((a, b) => (a - b) * (defaultDescending ? 1 : -1)));
   }
@@ -200,7 +177,6 @@ test('Task tokens switches between scatter and a graphical ranking', async ({ pa
   await type.getByRole('button', { name: 'Rankings', exact: true }).click();
   await expect(type.getByRole('button', { name: 'Rankings', exact: true })).toHaveAttribute('aria-pressed', 'true');
   await expect(page.locator('#tokens-task .ranking')).toBeVisible();
-  await expect(page.locator('#tokens-task .measurement-table')).not.toBeVisible();
   await expect(page.locator('#tokens-task svg[role=group]')).toHaveCount(0);
 });
 
@@ -261,7 +237,6 @@ test('cost scale changes retain exact measurements and the compact scatter keeps
   expect(selectedNames).toHaveLength(7);
   await expect(legend.getByRole('button')).toHaveCount(selectedNames.length);
   for (const name of selectedNames) await expect(legend.getByRole('button', { name: name.trim(), exact: true })).toBeInViewport({ ratio: 1 });
-  await expect(overview.locator('.measurement-disclosure summary')).toBeInViewport({ ratio: 1 });
   await expect(page.locator('.chart-scroll-cue')).toHaveCount(0);
   await overview.locator('summary[aria-label="Chart settings"]').click();
   await expect(overview.getByRole('button', { name: 'Model labels', exact: true })).toHaveCount(0);
@@ -288,12 +263,11 @@ test('compact scatter uses readable plot dimensions without scaling its axis tex
 test('time estimates retain their parent model count and identify the derived endpoint', async ({ page }) => {
   await page.goto('/?chart=time-task&selected=gpt-6-1-sol&bars=false');
   const chart = page.locator('#time-task');
-  await expect(chart.locator('.measurement-disclosure summary')).toContainText('1 model with data · 2 series');
+  await expect(page.locator('#model-filters')).toContainText('1 selected');
+  await expect(chart.locator('.ranking-row')).toHaveCount(2);
   const endpoint = chart.locator('.ranking-row').filter({ hasText: 'GPT-6.1 Sol Ultrafast' });
   await expect(endpoint).toContainText('Estimated speed endpoint');
   await expect(endpoint).toHaveAccessibleName(/Lowest estimated/);
-  await chart.locator('.measurement-disclosure summary').click();
-  await expect(chart.getByRole('row', { name: /GPT-6.1 Sol Ultrafast Estimated speed endpoint/ })).toBeVisible();
 });
 
 
@@ -314,11 +288,8 @@ test('close ranking configurations stay on their range line on phones and deskto
         });
       }));
       expect(geometry.flat().every((distance) => distance < 0.1)).toBe(true);
-      const count = await section.locator('[data-configuration]').count();
       await astra.locator('.ranking-row').click();
       await expect(astra.locator('.ranking-configurations button')).toHaveCount(4);
-      await section.locator('.measurement-disclosure summary').click();
-      await expect(section.locator('tbody tr')).toHaveCount(count);
       expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
     }
   }
@@ -373,8 +344,6 @@ test('dense desktop bars retain every configuration in a horizontally scrollable
   await page.keyboard.press('Enter');
   await expect(section.getByRole('complementary', { name: 'Selected configuration' })).toBeInViewport({ ratio: 1 });
   await page.keyboard.press('Escape');
-  await section.locator('.measurement-disclosure summary').click();
-  await expect(section.locator('tbody tr')).toHaveCount(count);
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
 });
 
@@ -390,8 +359,7 @@ test('desktop bars expand with the available card height', async ({ page }) => {
     heights.push(bounds!.height);
     const section = page.locator('#intelligence');
     const card = await section.boundingBox();
-    const summary = await section.locator('.measurement-disclosure summary').boundingBox();
-    expect(card!.y + card!.height - summary!.y - summary!.height).toBeLessThan(24);
+    expect(card!.y + card!.height - bounds!.y - bounds!.height).toBeLessThan(24);
   }
   expect(heights[1]! - heights[0]!).toBeGreaterThan(380);
   await page.getByRole('button', { name: 'Ranking', exact: true }).click();
@@ -489,7 +457,7 @@ test('bar annotations clear the heading and retain value order at short and stan
   }
 });
 
-test('highest-last sorts model maxima consistently in Bars, Ranking and exact data', async ({ page }) => {
+test('highest-last sorts model maxima consistently in Bars and Ranking', async ({ page }) => {
   await page.setViewportSize({ width: 1280, height: 800 });
   await page.goto('/?chart=intelligence');
   const section = page.locator('#intelligence');
@@ -516,16 +484,5 @@ test('highest-last sorts model maxima consistently in Bars, Ranking and exact da
   await page.reload();
   await expect(section.locator('.ranking-row')).toHaveCount(maxima.length);
   expect(await rankingValues()).toEqual(maxima);
-  await section.locator('.measurement-disclosure summary').click();
-  const tableMaxima = await section.locator('tbody tr').evaluateAll((rows) => {
-    const groups = new Map<string, number[]>();
-    for (const row of rows) {
-      const name = row.querySelector('th')!.textContent!;
-      const values = groups.get(name) ?? [];
-      values.push(Number(row.querySelectorAll('td')[1]!.textContent));
-      groups.set(name, values);
-    }
-    return [...groups.values()].map((values) => Math.max(...values));
-  });
-  expect(tableMaxima).toEqual(maxima);
+
 });
