@@ -490,6 +490,20 @@
 .benchmark-layout { --header-height: 48px; --sidebar-width: 268px; }
 .benchmark-workspace { gap: 0; }
 .benchmark-workspace > #model-filters { padding: 20px 4px 16px 28px; }
+@media (width > 900px) {
+  .model-catalog {
+    scrollbar-gutter: stable;
+    scrollbar-width: auto;
+    scrollbar-color: auto;
+    /* The local cover hides the scroll cue once the last row reaches the bottom. */
+    background:
+      linear-gradient(to top, var(--bg) 30%, transparent) center bottom / 100% 24px no-repeat local,
+      linear-gradient(to top, color-mix(in srgb, var(--fg-3) 22%, transparent), transparent) center bottom / 100% 12px no-repeat scroll;
+  }
+  .model-catalog::-webkit-scrollbar { width: 8px; }
+  .model-catalog::-webkit-scrollbar-track { background: var(--bg); }
+  .model-catalog::-webkit-scrollbar-thumb { background: var(--fg-3); border: 2px solid var(--bg); border-radius: 8px; }
+}
 .benchmark-workspace > main { border-left: 1px solid var(--line); }
 .benchmark-layout .chart-section { padding: 12px 20px; }
 .benchmark-layout > footer { padding-block: 6px; }

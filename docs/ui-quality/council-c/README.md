@@ -29,15 +29,15 @@ Type checking, production build, all 185 unit tests and all 34 production Chromi
 
 ## Council review
 
-Round 5 is pending. Previous scores do not approve this layout. The full history remains in [the preceding review record](../council-a/review.md).
+Round 5 is complete and the target was not met. [Full scores and evidence boundaries](round5.md) are recorded separately. The earlier history remains in [the preceding review record](../council-a/review.md). [Round 6 evidence](../council-c-round6/) covers the small follow-up refinements.
 
 | Member | Round 4, before C | Round 5, C |
 | --- | --- | --- |
-| GPT-6.1 Sol | 8.8/10 | pending |
-| GPT-6.1 Terra | 8.7/10 | pending |
-| GPT-6 Astra | not a member | pending |
-| GPT-6 Luna | not a member | pending |
+| GPT-6.1 Sol | 8.8/10 | 9.0/10, individual target met |
+| GPT-6.1 Terra | 8.7/10 | 8.8/10 |
+| GPT-6 Astra | not a member | 9.0/10, individual target met |
+| GPT-6 Luna | not a member | 8.9/10 |
 
 DeepSeek and GLM gave no round 4 score because their free routes reached usage limits. The user approved available-model replacements. The current panel uses four different OpenAI models, so it lacks the original panel's vendor diversity. This limitation is explicit; failed reviews and past members' scores are not transferred to replacements.
 
-The target remains four independent overall scores of at least 9/10, with this UI preferred over slopalytics.com in every comparison category. No passing score has been assumed.
+The target remains four independent overall scores of at least 9/10, with this UI preferred over slopalytics.com in every comparison category. Two members passed this round; the four-member target was not met.

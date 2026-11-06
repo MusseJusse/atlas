@@ -93,15 +93,135 @@
           "nodes": [
             {
               "target": [
+                ".mb-4.last\\:mb-0:nth-child(1) > .mb-1.items-baseline.gap-2\\.5 > h3"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined due to a background gradient"
+            },
+            {
+              "target": [
+                ".mb-4.last\\:mb-0:nth-child(1) > .hover\\:text-fg.aria-pressed\\:text-fg.mobile\\:text-\\[15px\\]:nth-child(2) > .text-ellipsis.whitespace-nowrap.overflow-hidden"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined due to a background gradient"
+            },
+            {
+              "target": [
+                "button[title=\"GPT-6.1 Sol · 5 configurations\"] > .text-ellipsis.whitespace-nowrap.overflow-hidden"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined due to a background gradient"
+            },
+            {
+              "target": [
+                "button[title=\"GPT-6 Luna · 6 configurations\"] > .text-ellipsis.whitespace-nowrap.overflow-hidden"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined due to a background gradient"
+            },
+            {
+              "target": [
+                "button[title=\"GPT-6 Astra · 5 configurations\"] > .text-ellipsis.whitespace-nowrap.overflow-hidden"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined due to a background gradient"
+            },
+            {
+              "target": [
+                ".mb-4.last\\:mb-0:nth-child(1) > .hover\\:text-fg.aria-pressed\\:text-fg.mobile\\:text-\\[15px\\]:nth-child(6) > .text-ellipsis.whitespace-nowrap.overflow-hidden"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined due to a background gradient"
+            },
+            {
+              "target": [
+                ".mb-4.last\\:mb-0:nth-child(1) > .hover\\:text-fg.aria-pressed\\:text-fg.mobile\\:text-\\[15px\\]:nth-child(7) > .text-ellipsis.whitespace-nowrap.overflow-hidden"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined due to a background gradient"
+            },
+            {
+              "target": [
+                ".hover\\:text-fg.aria-pressed\\:text-fg.mobile\\:text-\\[15px\\]:nth-child(8) > .text-ellipsis.whitespace-nowrap.overflow-hidden"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined due to a background gradient"
+            },
+            {
+              "target": [
+                ".hover\\:text-fg.aria-pressed\\:text-fg.mobile\\:text-\\[15px\\]:nth-child(9) > .text-ellipsis.whitespace-nowrap.overflow-hidden"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined due to a background gradient"
+            },
+            {
+              "target": [
+                ".hover\\:text-fg.aria-pressed\\:text-fg.mobile\\:text-\\[15px\\]:nth-child(10) > .text-ellipsis.whitespace-nowrap.overflow-hidden"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined due to a background gradient"
+            },
+            {
+              "target": [
+                ".hover\\:text-fg.aria-pressed\\:text-fg.mobile\\:text-\\[15px\\]:nth-child(11) > .text-ellipsis.whitespace-nowrap.overflow-hidden"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined due to a background gradient"
+            },
+            {
+              "target": [
+                "button[title=\"Grok 4.7 · 3 configurations\"] > .text-ellipsis.whitespace-nowrap.overflow-hidden"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined due to a background gradient"
+            },
+            {
+              "target": [
+                ".hover\\:text-fg.aria-pressed\\:text-fg.mobile\\:text-\\[15px\\]:nth-child(13) > .text-ellipsis.whitespace-nowrap.overflow-hidden"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined due to a background gradient"
+            },
+            {
+              "target": [
+                ".mb-4.last\\:mb-0:nth-child(2) > .mb-1.items-baseline.gap-2\\.5 > h3"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined due to a background gradient"
+            },
+            {
+              "target": [
+                ".-my-1"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined due to a background gradient"
+            },
+            {
+              "target": [
+                ".mb-4.last\\:mb-0:nth-child(2) > .hover\\:text-fg.aria-pressed\\:text-fg.mobile\\:text-\\[15px\\]:nth-child(2) > .text-ellipsis.whitespace-nowrap.overflow-hidden"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined due to a background gradient"
+            },
+            {
+              "target": [
                 ".hover\\:text-fg.aria-pressed\\:text-fg.mobile\\:text-\\[15px\\]:nth-child(3) > .bg-hover.leading-none.font-semibold"
               ],
               "failureSummary": "Fix any of the following:\n  Element content is too short to determine if it is actual text content"
             },
             {
               "target": [
+                ".mb-4.last\\:mb-0:nth-child(2) > .hover\\:text-fg.aria-pressed\\:text-fg.mobile\\:text-\\[15px\\]:nth-child(3) > .text-ellipsis.whitespace-nowrap.overflow-hidden"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined due to a background gradient"
+            },
+            {
+              "target": [
+                ".mb-4.last\\:mb-0:nth-child(2) > .hover\\:text-fg.aria-pressed\\:text-fg.mobile\\:text-\\[15px\\]:nth-child(4) > .text-ellipsis.whitespace-nowrap.overflow-hidden"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined due to a background gradient"
+            },
+            {
+              "target": [
+                ".mb-4.last\\:mb-0:nth-child(2) > .hover\\:text-fg.aria-pressed\\:text-fg.mobile\\:text-\\[15px\\]:nth-child(5) > .text-ellipsis.whitespace-nowrap.overflow-hidden"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined due to a background gradient"
+            },
+            {
+              "target": [
                 ".hover\\:text-fg.aria-pressed\\:text-fg.mobile\\:text-\\[15px\\]:nth-child(6) > .bg-hover.leading-none.font-semibold"
               ],
               "failureSummary": "Fix any of the following:\n  Element content is too short to determine if it is actual text content"
+            },
+            {
+              "target": [
+                ".mb-4.last\\:mb-0:nth-child(2) > .hover\\:text-fg.aria-pressed\\:text-fg.mobile\\:text-\\[15px\\]:nth-child(6) > .text-ellipsis.whitespace-nowrap.overflow-hidden"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined due to a background gradient"
             },
             {
               "target": [
@@ -359,15 +479,135 @@
           "nodes": [
             {
               "target": [
+                ".mb-4.last\\:mb-0:nth-child(1) > .mb-1.items-baseline.gap-2\\.5 > h3"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined due to a background gradient"
+            },
+            {
+              "target": [
+                ".mb-4.last\\:mb-0:nth-child(1) > .hover\\:text-fg.aria-pressed\\:text-fg.mobile\\:text-\\[15px\\]:nth-child(2) > .text-ellipsis.whitespace-nowrap.overflow-hidden"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined due to a background gradient"
+            },
+            {
+              "target": [
+                "button[title=\"GPT-6.1 Sol · 5 configurations\"] > .text-ellipsis.whitespace-nowrap.overflow-hidden"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined due to a background gradient"
+            },
+            {
+              "target": [
+                "button[title=\"GPT-6 Luna · 6 configurations\"] > .text-ellipsis.whitespace-nowrap.overflow-hidden"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined due to a background gradient"
+            },
+            {
+              "target": [
+                "button[title=\"GPT-6 Astra · 5 configurations\"] > .text-ellipsis.whitespace-nowrap.overflow-hidden"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined due to a background gradient"
+            },
+            {
+              "target": [
+                ".mb-4.last\\:mb-0:nth-child(1) > .hover\\:text-fg.aria-pressed\\:text-fg.mobile\\:text-\\[15px\\]:nth-child(6) > .text-ellipsis.whitespace-nowrap.overflow-hidden"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined due to a background gradient"
+            },
+            {
+              "target": [
+                ".mb-4.last\\:mb-0:nth-child(1) > .hover\\:text-fg.aria-pressed\\:text-fg.mobile\\:text-\\[15px\\]:nth-child(7) > .text-ellipsis.whitespace-nowrap.overflow-hidden"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined due to a background gradient"
+            },
+            {
+              "target": [
+                ".hover\\:text-fg.aria-pressed\\:text-fg.mobile\\:text-\\[15px\\]:nth-child(8) > .text-ellipsis.whitespace-nowrap.overflow-hidden"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined due to a background gradient"
+            },
+            {
+              "target": [
+                ".hover\\:text-fg.aria-pressed\\:text-fg.mobile\\:text-\\[15px\\]:nth-child(9) > .text-ellipsis.whitespace-nowrap.overflow-hidden"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined due to a background gradient"
+            },
+            {
+              "target": [
+                ".hover\\:text-fg.aria-pressed\\:text-fg.mobile\\:text-\\[15px\\]:nth-child(10) > .text-ellipsis.whitespace-nowrap.overflow-hidden"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined due to a background gradient"
+            },
+            {
+              "target": [
+                ".hover\\:text-fg.aria-pressed\\:text-fg.mobile\\:text-\\[15px\\]:nth-child(11) > .text-ellipsis.whitespace-nowrap.overflow-hidden"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined due to a background gradient"
+            },
+            {
+              "target": [
+                "button[title=\"Grok 4.7 · 3 configurations\"] > .text-ellipsis.whitespace-nowrap.overflow-hidden"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined due to a background gradient"
+            },
+            {
+              "target": [
+                ".hover\\:text-fg.aria-pressed\\:text-fg.mobile\\:text-\\[15px\\]:nth-child(13) > .text-ellipsis.whitespace-nowrap.overflow-hidden"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined due to a background gradient"
+            },
+            {
+              "target": [
+                ".mb-4.last\\:mb-0:nth-child(2) > .mb-1.items-baseline.gap-2\\.5 > h3"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined due to a background gradient"
+            },
+            {
+              "target": [
+                ".-my-1"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined due to a background gradient"
+            },
+            {
+              "target": [
+                ".mb-4.last\\:mb-0:nth-child(2) > .hover\\:text-fg.aria-pressed\\:text-fg.mobile\\:text-\\[15px\\]:nth-child(2) > .text-ellipsis.whitespace-nowrap.overflow-hidden"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined due to a background gradient"
+            },
+            {
+              "target": [
                 ".hover\\:text-fg.aria-pressed\\:text-fg.mobile\\:text-\\[15px\\]:nth-child(3) > .bg-hover.leading-none.font-semibold"
               ],
               "failureSummary": "Fix any of the following:\n  Element content is too short to determine if it is actual text content"
             },
             {
               "target": [
+                ".mb-4.last\\:mb-0:nth-child(2) > .hover\\:text-fg.aria-pressed\\:text-fg.mobile\\:text-\\[15px\\]:nth-child(3) > .text-ellipsis.whitespace-nowrap.overflow-hidden"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined due to a background gradient"
+            },
+            {
+              "target": [
+                ".mb-4.last\\:mb-0:nth-child(2) > .hover\\:text-fg.aria-pressed\\:text-fg.mobile\\:text-\\[15px\\]:nth-child(4) > .text-ellipsis.whitespace-nowrap.overflow-hidden"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined due to a background gradient"
+            },
+            {
+              "target": [
+                ".mb-4.last\\:mb-0:nth-child(2) > .hover\\:text-fg.aria-pressed\\:text-fg.mobile\\:text-\\[15px\\]:nth-child(5) > .text-ellipsis.whitespace-nowrap.overflow-hidden"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined due to a background gradient"
+            },
+            {
+              "target": [
                 ".hover\\:text-fg.aria-pressed\\:text-fg.mobile\\:text-\\[15px\\]:nth-child(6) > .bg-hover.leading-none.font-semibold"
               ],
               "failureSummary": "Fix any of the following:\n  Element content is too short to determine if it is actual text content"
+            },
+            {
+              "target": [
+                ".mb-4.last\\:mb-0:nth-child(2) > .hover\\:text-fg.aria-pressed\\:text-fg.mobile\\:text-\\[15px\\]:nth-child(6) > .text-ellipsis.whitespace-nowrap.overflow-hidden"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined due to a background gradient"
             },
             {
               "target": [
@@ -645,15 +885,135 @@
           "nodes": [
             {
               "target": [
+                ".mb-4.last\\:mb-0:nth-child(1) > .mb-1.items-baseline.gap-2\\.5 > h3"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined due to a background gradient"
+            },
+            {
+              "target": [
+                ".mb-4.last\\:mb-0:nth-child(1) > .hover\\:text-fg.aria-pressed\\:text-fg.mobile\\:text-\\[15px\\]:nth-child(2) > .text-ellipsis.whitespace-nowrap.overflow-hidden"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined due to a background gradient"
+            },
+            {
+              "target": [
+                "button[title=\"GPT-6.1 Sol · 5 configurations\"] > .text-ellipsis.whitespace-nowrap.overflow-hidden"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined due to a background gradient"
+            },
+            {
+              "target": [
+                "button[title=\"GPT-6 Luna · 6 configurations\"] > .text-ellipsis.whitespace-nowrap.overflow-hidden"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined due to a background gradient"
+            },
+            {
+              "target": [
+                "button[title=\"GPT-6 Astra · 5 configurations\"] > .text-ellipsis.whitespace-nowrap.overflow-hidden"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined due to a background gradient"
+            },
+            {
+              "target": [
+                ".mb-4.last\\:mb-0:nth-child(1) > .hover\\:text-fg.aria-pressed\\:text-fg.mobile\\:text-\\[15px\\]:nth-child(6) > .text-ellipsis.whitespace-nowrap.overflow-hidden"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined due to a background gradient"
+            },
+            {
+              "target": [
+                ".mb-4.last\\:mb-0:nth-child(1) > .hover\\:text-fg.aria-pressed\\:text-fg.mobile\\:text-\\[15px\\]:nth-child(7) > .text-ellipsis.whitespace-nowrap.overflow-hidden"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined due to a background gradient"
+            },
+            {
+              "target": [
+                ".hover\\:text-fg.aria-pressed\\:text-fg.mobile\\:text-\\[15px\\]:nth-child(8) > .text-ellipsis.whitespace-nowrap.overflow-hidden"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined due to a background gradient"
+            },
+            {
+              "target": [
+                ".hover\\:text-fg.aria-pressed\\:text-fg.mobile\\:text-\\[15px\\]:nth-child(9) > .text-ellipsis.whitespace-nowrap.overflow-hidden"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined due to a background gradient"
+            },
+            {
+              "target": [
+                ".hover\\:text-fg.aria-pressed\\:text-fg.mobile\\:text-\\[15px\\]:nth-child(10) > .text-ellipsis.whitespace-nowrap.overflow-hidden"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined due to a background gradient"
+            },
+            {
+              "target": [
+                ".hover\\:text-fg.aria-pressed\\:text-fg.mobile\\:text-\\[15px\\]:nth-child(11) > .text-ellipsis.whitespace-nowrap.overflow-hidden"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined due to a background gradient"
+            },
+            {
+              "target": [
+                "button[title=\"Grok 4.7 · 3 configurations\"] > .text-ellipsis.whitespace-nowrap.overflow-hidden"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined due to a background gradient"
+            },
+            {
+              "target": [
+                ".hover\\:text-fg.aria-pressed\\:text-fg.mobile\\:text-\\[15px\\]:nth-child(13) > .text-ellipsis.whitespace-nowrap.overflow-hidden"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined due to a background gradient"
+            },
+            {
+              "target": [
+                ".mb-4.last\\:mb-0:nth-child(2) > .mb-1.items-baseline.gap-2\\.5 > h3"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined due to a background gradient"
+            },
+            {
+              "target": [
+                ".-my-1"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined due to a background gradient"
+            },
+            {
+              "target": [
+                ".mb-4.last\\:mb-0:nth-child(2) > .hover\\:text-fg.aria-pressed\\:text-fg.mobile\\:text-\\[15px\\]:nth-child(2) > .text-ellipsis.whitespace-nowrap.overflow-hidden"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined due to a background gradient"
+            },
+            {
+              "target": [
                 ".hover\\:text-fg.aria-pressed\\:text-fg.mobile\\:text-\\[15px\\]:nth-child(3) > .bg-hover.leading-none.font-semibold"
               ],
               "failureSummary": "Fix any of the following:\n  Element content is too short to determine if it is actual text content"
             },
             {
               "target": [
+                ".mb-4.last\\:mb-0:nth-child(2) > .hover\\:text-fg.aria-pressed\\:text-fg.mobile\\:text-\\[15px\\]:nth-child(3) > .text-ellipsis.whitespace-nowrap.overflow-hidden"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined due to a background gradient"
+            },
+            {
+              "target": [
+                ".mb-4.last\\:mb-0:nth-child(2) > .hover\\:text-fg.aria-pressed\\:text-fg.mobile\\:text-\\[15px\\]:nth-child(4) > .text-ellipsis.whitespace-nowrap.overflow-hidden"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined due to a background gradient"
+            },
+            {
+              "target": [
+                ".mb-4.last\\:mb-0:nth-child(2) > .hover\\:text-fg.aria-pressed\\:text-fg.mobile\\:text-\\[15px\\]:nth-child(5) > .text-ellipsis.whitespace-nowrap.overflow-hidden"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined due to a background gradient"
+            },
+            {
+              "target": [
                 ".hover\\:text-fg.aria-pressed\\:text-fg.mobile\\:text-\\[15px\\]:nth-child(6) > .bg-hover.leading-none.font-semibold"
               ],
               "failureSummary": "Fix any of the following:\n  Element content is too short to determine if it is actual text content"
+            },
+            {
+              "target": [
+                ".mb-4.last\\:mb-0:nth-child(2) > .hover\\:text-fg.aria-pressed\\:text-fg.mobile\\:text-\\[15px\\]:nth-child(6) > .text-ellipsis.whitespace-nowrap.overflow-hidden"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined due to a background gradient"
             },
             {
               "target": [
@@ -1219,15 +1579,135 @@
           "nodes": [
             {
               "target": [
+                ".mb-4.last\\:mb-0:nth-child(1) > .mb-1.items-baseline.gap-2\\.5 > h3"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined due to a background gradient"
+            },
+            {
+              "target": [
+                ".mb-4.last\\:mb-0:nth-child(1) > .hover\\:text-fg.aria-pressed\\:text-fg.mobile\\:text-\\[15px\\]:nth-child(2) > .text-ellipsis.whitespace-nowrap.overflow-hidden"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined due to a background gradient"
+            },
+            {
+              "target": [
+                "button[title=\"GPT-6.1 Sol · 5 configurations\"] > .text-ellipsis.whitespace-nowrap.overflow-hidden"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined due to a background gradient"
+            },
+            {
+              "target": [
+                "button[title=\"GPT-6 Luna · 6 configurations\"] > .text-ellipsis.whitespace-nowrap.overflow-hidden"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined due to a background gradient"
+            },
+            {
+              "target": [
+                "button[title=\"GPT-6 Astra · 5 configurations\"] > .text-ellipsis.whitespace-nowrap.overflow-hidden"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined due to a background gradient"
+            },
+            {
+              "target": [
+                ".mb-4.last\\:mb-0:nth-child(1) > .hover\\:text-fg.aria-pressed\\:text-fg.mobile\\:text-\\[15px\\]:nth-child(6) > .text-ellipsis.whitespace-nowrap.overflow-hidden"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined due to a background gradient"
+            },
+            {
+              "target": [
+                ".mb-4.last\\:mb-0:nth-child(1) > .hover\\:text-fg.aria-pressed\\:text-fg.mobile\\:text-\\[15px\\]:nth-child(7) > .text-ellipsis.whitespace-nowrap.overflow-hidden"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined due to a background gradient"
+            },
+            {
+              "target": [
+                ".hover\\:text-fg.aria-pressed\\:text-fg.mobile\\:text-\\[15px\\]:nth-child(8) > .text-ellipsis.whitespace-nowrap.overflow-hidden"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined due to a background gradient"
+            },
+            {
+              "target": [
+                ".hover\\:text-fg.aria-pressed\\:text-fg.mobile\\:text-\\[15px\\]:nth-child(9) > .text-ellipsis.whitespace-nowrap.overflow-hidden"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined due to a background gradient"
+            },
+            {
+              "target": [
+                ".hover\\:text-fg.aria-pressed\\:text-fg.mobile\\:text-\\[15px\\]:nth-child(10) > .text-ellipsis.whitespace-nowrap.overflow-hidden"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined due to a background gradient"
+            },
+            {
+              "target": [
+                ".hover\\:text-fg.aria-pressed\\:text-fg.mobile\\:text-\\[15px\\]:nth-child(11) > .text-ellipsis.whitespace-nowrap.overflow-hidden"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined due to a background gradient"
+            },
+            {
+              "target": [
+                "button[title=\"Grok 4.7 · 3 configurations\"] > .text-ellipsis.whitespace-nowrap.overflow-hidden"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined due to a background gradient"
+            },
+            {
+              "target": [
+                ".hover\\:text-fg.aria-pressed\\:text-fg.mobile\\:text-\\[15px\\]:nth-child(13) > .text-ellipsis.whitespace-nowrap.overflow-hidden"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined due to a background gradient"
+            },
+            {
+              "target": [
+                ".mb-4.last\\:mb-0:nth-child(2) > .mb-1.items-baseline.gap-2\\.5 > h3"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined due to a background gradient"
+            },
+            {
+              "target": [
+                ".-my-1"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined due to a background gradient"
+            },
+            {
+              "target": [
+                ".mb-4.last\\:mb-0:nth-child(2) > .hover\\:text-fg.aria-pressed\\:text-fg.mobile\\:text-\\[15px\\]:nth-child(2) > .text-ellipsis.whitespace-nowrap.overflow-hidden"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined due to a background gradient"
+            },
+            {
+              "target": [
                 ".hover\\:text-fg.aria-pressed\\:text-fg.mobile\\:text-\\[15px\\]:nth-child(3) > .bg-hover.leading-none.font-semibold"
               ],
               "failureSummary": "Fix any of the following:\n  Element content is too short to determine if it is actual text content"
             },
             {
               "target": [
+                ".mb-4.last\\:mb-0:nth-child(2) > .hover\\:text-fg.aria-pressed\\:text-fg.mobile\\:text-\\[15px\\]:nth-child(3) > .text-ellipsis.whitespace-nowrap.overflow-hidden"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined due to a background gradient"
+            },
+            {
+              "target": [
+                ".mb-4.last\\:mb-0:nth-child(2) > .hover\\:text-fg.aria-pressed\\:text-fg.mobile\\:text-\\[15px\\]:nth-child(4) > .text-ellipsis.whitespace-nowrap.overflow-hidden"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined due to a background gradient"
+            },
+            {
+              "target": [
+                ".mb-4.last\\:mb-0:nth-child(2) > .hover\\:text-fg.aria-pressed\\:text-fg.mobile\\:text-\\[15px\\]:nth-child(5) > .text-ellipsis.whitespace-nowrap.overflow-hidden"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined due to a background gradient"
+            },
+            {
+              "target": [
                 ".hover\\:text-fg.aria-pressed\\:text-fg.mobile\\:text-\\[15px\\]:nth-child(6) > .bg-hover.leading-none.font-semibold"
               ],
               "failureSummary": "Fix any of the following:\n  Element content is too short to determine if it is actual text content"
+            },
+            {
+              "target": [
+                ".mb-4.last\\:mb-0:nth-child(2) > .hover\\:text-fg.aria-pressed\\:text-fg.mobile\\:text-\\[15px\\]:nth-child(6) > .text-ellipsis.whitespace-nowrap.overflow-hidden"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined due to a background gradient"
             }
           ]
         }
@@ -1434,7 +1914,7 @@
           ]
         }
       ],
-      "passedRules": 24
+      "passedRules": 25
     },
     {
       "scenario": "phone-ranking-dark",
@@ -2188,7 +2668,7 @@
           ]
         }
       ],
-      "passedRules": 24
+      "passedRules": 25
     }
   ]
 }

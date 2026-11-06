@@ -210,7 +210,8 @@ export const Chart = memo(function Chart({
           {legend.map((model) => {
             const selected = Boolean(pinned && (model.codingAgent ? pinned.id === model.id : pinned.family === model.family));
             return <button
-              className="flex min-h-11 items-center gap-[7px] overflow-hidden text-left text-[13px] font-[550] whitespace-nowrap text-fg"
+              className="flex min-h-11 items-center gap-[7px] overflow-hidden text-left text-[13px] font-[550] whitespace-nowrap"
+              style={{ color: `color-mix(in srgb, ${modelColor(model)} 80%, light-dark(black, white))` }}
               key={model.codingAgent ? model.id : model.family}
               aria-label={model.codingAgent?.configuration}
               aria-pressed={selected}
