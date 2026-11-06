@@ -69,10 +69,10 @@ export function Scatter({
           </text>
         </g>
       ))}
-      {spacedAxisTicks(logTicks, x, metric).map((tick) => (
+      {spacedAxisTicks(logTicks, x, metric, mobile).map((tick) => (
         <g key={tick.value} transform={`translate(${tick.x},${bottom})`}>
           <line y2={5} stroke="var(--line-2)" />
-          <text y={26} textAnchor="middle" fill="var(--fg-3)" fontSize="12">
+          <text y={26} textAnchor="middle" fill="var(--fg-3)" fontSize={mobile ? 11 : 12}>
             {tick.label}
           </text>
         </g>
@@ -108,7 +108,7 @@ export function Scatter({
             fill="none"
             stroke={modelColor(series.rows[0]!)}
             strokeWidth="2.25"
-            opacity={settings.frontier ? (frontierFamilies.has(series.family) ? 0.25 : 0.08) : 0.45}
+            opacity={settings.frontier ? (frontierFamilies.has(series.family) ? 0.25 : 0.08) : 0.7}
           />
           {series.rows.map((model) => {
             const onFrontier = frontierIds.has(model.id);

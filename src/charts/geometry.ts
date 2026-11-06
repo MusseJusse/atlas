@@ -194,14 +194,14 @@ export function rangeGeometry(
 
 
 /** Keep tick labels readable when precise low prices need more characters. */
-export function spacedAxisTicks(values: number[], position: (value: number) => number, metric: Metric) {
+export function spacedAxisTicks(values: number[], position: (value: number) => number, metric: Metric, compact = false) {
   let edge = -Infinity;
   const used = new Set<string>();
   return values.flatMap((value) => {
     const label = format(value, metric, true);
     const x = position(value);
-    const halfWidth = label.length * 3.5;
-    if (used.has(label) || x - halfWidth < edge + 10) return [];
+    const halfWidth = label.length * (compact ? 2.8 : 3.5);
+    if (used.has(label) || x - halfWidth < edge + (compact ? 4 : 10)) return [];
     edge = x + halfWidth;
     used.add(label);
     return [{ value, label, x }];

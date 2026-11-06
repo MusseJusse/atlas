@@ -5,7 +5,7 @@ export function SiteHeader({ page }: { page: 'benchmarks' | 'efficiency' | 'chan
   return <header className="site-header">
     <Brand />
     <nav aria-label="Sections">
-      <a href="/" aria-current={page === 'benchmarks' ? 'page' : undefined} className="phone:hidden">Benchmarks</a>
+      <a href="/" aria-current={page === 'benchmarks' ? 'page' : undefined}>Benchmarks</a>
       <a href="?page=efficiency" aria-current={page === 'efficiency' ? 'page' : undefined}>Efficiency</a>
       <a href="?page=changelog" aria-current={page === 'changelog' ? 'page' : undefined}>Changelog</a>
     </nav>

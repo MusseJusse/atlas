@@ -1,5 +1,5 @@
 import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { ArrowDown, Ellipsis, SlidersHorizontal } from 'lucide-react';
+import { ArrowDown, SlidersHorizontal } from 'lucide-react';
 import { PricingControls } from './PricingControls';
 import { pricingDisclosure, subscriptionRows, usesSubscriptionPricing } from './data/subscriptions';
 import { Chart } from './Charts';
@@ -208,35 +208,22 @@ function Benchmarks() {
               return (
                 <section
                   hidden={active !== view.id}
-                  className="chart-section flex h-full flex-col px-6 pt-5 pb-4 short:pt-4 short:pb-3 mobile:h-auto mobile:px-4 mobile:pb-6"
+                  className="chart-section flex h-full flex-col px-6 pt-4 pb-4 short:pt-3 short:pb-3 mobile:h-auto mobile:px-4 mobile:pb-6"
                   id={view.id}
                   key={view.id}
                   aria-label={view.label}
                 >
-                  <div className="flex shrink-0 items-start justify-between gap-3">
+                  <div className="chart-heading flex shrink-0 flex-wrap items-center justify-between gap-x-4 gap-y-2">
                     <h2 className="m-0 text-[25px] leading-tight font-[550] tracking-[-0.8px] phone:text-[22px]">
                       {view.label}
                     </h2>
-                    <div className="flex shrink-0 items-center gap-2">
+                    <div className="chart-actions flex shrink-0 flex-wrap items-center gap-3">
                     {!mobile && !scatter && view.mode !== 'optional-scatter' && <div className="flex gap-1 rounded-md bg-surface p-1" role="group" aria-label={`${view.label} presentation`}>
                       <button className="min-h-8 rounded-sm px-3 text-[12px] text-fg-2 aria-pressed:bg-panel aria-pressed:text-accent" aria-pressed={!bars} onClick={() => update({ bars: false })}>Ranking</button>
                       <button className="min-h-8 rounded-sm px-3 text-[12px] text-fg-2 aria-pressed:bg-panel aria-pressed:text-accent" aria-pressed={bars} onClick={() => update({ bars: true })}>Bars</button>
                     </div>}
-                    <ChartOptions
-                      settings={{ ...settings, highestLast: ranking.highestLast }}
-                      update={update}
-                      descending={ranking.descending}
-                      groupedTable={settings.grouped}
-                      scatter={scatter}
-                      phone={phone}
-                      pricing={!settings.codingOnly && (view.id === 'cost-intelligence' || view.id === 'cost-task')}
-                    />
-                    </div>
-                  </div>
-                  {scatter && <p className="chart-guidance">Higher and further left is better.{linear || phone ? '' : ' Log scale shows equal cost ratios.'}{view.metric === 'cost' && !subscription && ' API pricing.'}</p>}
-                  {view.metric === 'omniscience' && <p className="chart-guidance">Correct answers raise the score. Incorrect answers lower it.</p>}
                   <div
-                    className={`flex min-h-[58px] shrink-0 short:min-h-12 short:py-1 flex-wrap items-center justify-between gap-x-4 gap-y-1 py-2 text-[12px] ${!scatter && view.mode !== 'optional-scatter' && (view.metric !== 'cost' || bars) ? 'hidden' : !scatter ? 'ranking-toolbar' : ''}`}
+                    className={`chart-toolbar flex min-h-10 shrink-0 flex-wrap items-center gap-x-4 gap-y-1 text-[12px] ${!scatter && view.mode !== 'optional-scatter' && (view.metric !== 'cost' || bars) ? 'hidden' : !scatter ? 'ranking-toolbar' : ''}`}
                   >
                     {scatter ? (
                       <button
@@ -246,7 +233,7 @@ function Benchmarks() {
                         onClick={() => update({ frontier: !settings.frontier })}
                       >
                         <Selection checked={settings.frontier} />
-                        Pareto Frontier
+                        {phone ? 'Pareto' : 'Pareto Frontier'}
                       </button>
                     ) : view.metric === 'cost' && !subscription ? <span className="text-fg-2">API pricing</span> : null}
                     <div className="ml-auto flex items-center gap-5 phone:gap-3">
@@ -257,15 +244,15 @@ function Benchmarks() {
                           aria-label="Tokens per task view type"
                         >
                           <button
-                            className="min-h-8 rounded-sm px-2.5 text-[12px] text-fg-2 aria-pressed:bg-panel aria-pressed:font-medium aria-pressed:text-accent"
+                            className="min-h-9 rounded-sm px-2.5 text-[12px] text-fg-2 aria-pressed:bg-panel aria-pressed:font-medium aria-pressed:text-accent"
                             aria-pressed={!settings.scatter && !bars}
                             onClick={() => update({ scatter: false, bars: false })}
                           >
                             Rankings
                           </button>
-                          {!mobile && <button className="min-h-8 rounded-sm px-2.5 text-[12px] text-fg-2 aria-pressed:bg-panel aria-pressed:font-medium aria-pressed:text-accent" aria-pressed={bars} onClick={() => update({ scatter: false, bars: true })}>Bars</button>}
+                          {!mobile && <button className="min-h-9 rounded-sm px-2.5 text-[12px] text-fg-2 aria-pressed:bg-panel aria-pressed:font-medium aria-pressed:text-accent" aria-pressed={bars} onClick={() => update({ scatter: false, bars: true })}>Bars</button>}
                           <button
-                            className="min-h-8 rounded-sm px-2.5 text-[12px] text-fg-2 aria-pressed:bg-panel aria-pressed:font-medium aria-pressed:text-accent"
+                            className="min-h-9 rounded-sm px-2.5 text-[12px] text-fg-2 aria-pressed:bg-panel aria-pressed:font-medium aria-pressed:text-accent"
                             aria-pressed={settings.scatter}
                             onClick={() => update({ scatter: true })}
                           >
@@ -282,7 +269,7 @@ function Benchmarks() {
                           <span className="text-[11px] text-fg-2 phone:hidden">Scale</span>
                           <div className="flex gap-1 rounded-md bg-surface p-1">
                             <button
-                              className="min-h-8 rounded-sm px-2.5 text-[12px] text-fg-2 aria-pressed:bg-panel aria-pressed:font-medium aria-pressed:text-accent"
+                              className="min-h-9 rounded-sm px-2.5 text-[12px] text-fg-2 aria-pressed:bg-panel aria-pressed:font-medium aria-pressed:text-accent"
                               aria-pressed={displayLinear}
                               onClick={() =>
                                 update({ linear: [...new Set([...settings.linear, view.id])] })
@@ -291,7 +278,7 @@ function Benchmarks() {
                               Linear
                             </button>
                             <button
-                              className="min-h-8 rounded-sm px-2.5 text-[12px] text-fg-2 aria-pressed:bg-panel aria-pressed:font-medium aria-pressed:text-accent"
+                              className="min-h-9 rounded-sm px-2.5 text-[12px] text-fg-2 aria-pressed:bg-panel aria-pressed:font-medium aria-pressed:text-accent"
                               aria-pressed={!displayLinear}
                               disabled={!scatter && !rankingLogAvailable}
                               title={!scatter && !rankingLogAvailable ? 'Zero costs require a linear scale' : undefined}
@@ -306,6 +293,19 @@ function Benchmarks() {
                       )}
                     </div>
                   </div>
+                    <ChartOptions
+                      settings={{ ...settings, highestLast: ranking.highestLast }}
+                      update={update}
+                      descending={ranking.descending}
+                      groupedTable={settings.grouped}
+                      scatter={scatter}
+                      phone={phone}
+                      pricing={!settings.codingOnly && (view.id === 'cost-intelligence' || view.id === 'cost-task')}
+                    />
+                    </div>
+                  </div>
+                  {scatter && <p className="chart-guidance">Higher and further left is better.{linear || phone ? '' : ' Log scale shows equal cost ratios.'}{view.metric === 'cost' && !subscription && ' API pricing.'}</p>}
+                  {view.metric === 'omniscience' && <p className="chart-guidance">Correct answers raise the score. Incorrect answers lower it.</p>}
                   {bars && view.metric === 'cost' && !subscription && <p className="mt-1 mb-2 text-[12px] text-fg-2">API pricing</p>}
                   {subscription && (
                     <p className="mt-0 mb-2 shrink-0 text-[11px] leading-5 text-fg-2">
@@ -408,11 +408,13 @@ function ChartOptions({
       }
     }}>
       <summary
-        className="flex size-10 cursor-pointer list-none items-center justify-center rounded-md text-fg-2 group-open:bg-surface group-open:text-accent hover:bg-surface hover:text-accent focus-visible:outline-2 focus-visible:outline-accent focus-visible:outline-offset-2 [&::-webkit-details-marker]:hidden"
+        className="chart-settings-trigger flex min-h-10 cursor-pointer list-none items-center justify-center gap-2 rounded-md px-2 text-fg-2 group-open:bg-surface group-open:text-accent hover:bg-surface hover:text-accent focus-visible:outline-2 focus-visible:outline-accent focus-visible:outline-offset-2 [&::-webkit-details-marker]:hidden"
         aria-label="Chart settings"
         title="Chart settings"
       >
-        <Ellipsis size={19} aria-hidden="true" />
+        {!scatter && <span className="sort-summary">{settings.highestLast && groupedTable ? 'Highest last' : descending ? 'Highest first' : 'Lowest first'}{groupedTable ? ' per model' : ''}</span>}
+        <SlidersHorizontal size={15} aria-hidden="true" />
+        <span className="settings-label">Settings</span>
       </summary>
       <div
         className={`absolute top-[calc(100%+6px)] right-0 z-20 flex ${pricing ? 'w-[310px]' : 'w-[220px]'} max-w-[calc(100vw-48px)] flex-col items-start gap-1 overflow-y-auto overscroll-contain rounded-lg border border-line bg-panel p-3 shadow-lg`}

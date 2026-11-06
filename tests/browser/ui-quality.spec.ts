@@ -486,3 +486,20 @@ test('highest-last sorts model maxima consistently in Bars and Ranking', async (
   expect(await rankingValues()).toEqual(maxima);
 
 });
+
+test('phone header retains the current section and scatter controls have touch room', async ({ page }) => {
+  for (const width of [320, 390]) {
+    await page.setViewportSize({ width, height: 844 });
+    await page.goto('/');
+    await expect(page.getByRole('navigation', { name: 'Sections' }).getByRole('link', { name: 'Benchmarks' })).toHaveAttribute('aria-current', 'page');
+    const section = page.locator('#cost-intelligence');
+    const controls = section.locator('.chart-toolbar button, .chart-settings-trigger');
+    for (const box of await controls.evaluateAll((elements) => elements.map((element) => element.getBoundingClientRect().toJSON()))) {
+      expect(box.height).toBeGreaterThanOrEqual(44);
+      expect(box.width).toBeGreaterThanOrEqual(44);
+    }
+    const plot = await section.locator('.scatter-plot').boundingBox();
+    expect(plot!.y).toBeLessThan(310);
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+  }
+});

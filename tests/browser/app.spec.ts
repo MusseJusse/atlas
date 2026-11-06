@@ -87,7 +87,7 @@ test('phone chart selection shows one chart and closes the model sheet', async (
   await expect(page.getByRole('dialog', { name: 'Model filters' })).toHaveCount(0);
   const navigation = page.getByRole('navigation', { name: 'Chart views' });
   await navigation.getByRole('button', { name: 'Resources', exact: true }).click();
-  await navigation.getByRole('button', { name: 'Task time', exact: true }).click();
+  await navigation.getByRole('button', { name: 'Time / task', exact: true }).click();
   await expect(navigation.locator('[aria-current=page]:visible')).toHaveAttribute('aria-controls', 'time-task');
   await expect(page.locator('#cost-intelligence')).toBeHidden();
   await expect(page).toHaveURL(/chart=time-task/);

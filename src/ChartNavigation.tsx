@@ -1,11 +1,11 @@
 import type { View, ViewId } from './chart-definitions';
 
 const groups = [
-  { label: 'Overview', charts: [{ id: 'cost-intelligence', label: 'Overview' }] },
+  { label: 'Overview', charts: [{ id: 'cost-intelligence', label: 'Cost vs intelligence' }] },
   { label: 'Scores', charts: [{ id: 'intelligence', label: 'Intelligence' }, { id: 'omniscience', label: 'Omniscience' }] },
   { label: 'Resources', charts: [
-    { id: 'tokens-task', label: 'Task tokens' }, { id: 'tokens-total', label: 'Total tokens' },
-    { id: 'cost-task', label: 'Task cost' }, { id: 'time-task', label: 'Task time' },
+    { id: 'tokens-task', label: 'Tokens / task' }, { id: 'tokens-total', label: 'Total tokens' },
+    { id: 'cost-task', label: 'Cost / task' }, { id: 'time-task', label: 'Time / task' },
   ] },
 ] as const satisfies readonly { label: string; charts: readonly { id: ViewId; label: string }[] }[];
 
@@ -16,7 +16,7 @@ export function ChartNavigation({ views, active, navigate }: {
   const currentGroup = groups.find((group) => group.charts.some((chart) => chart.id === active)) ?? groups[0];
   const label = (chart: (typeof groups)[number]['charts'][number]) =>
     chart.id === 'intelligence' && views.find((view) => view.id === chart.id)?.metric === 'codingIndex'
-      ? 'Coding score' : chart.label;
+      ? 'Coding score' : chart.id === 'cost-intelligence' && views.find((view) => view.id === chart.id)?.label === 'Cost vs coding score' ? 'Cost vs coding score' : chart.label;
   const chartButton = (chart: (typeof groups)[number]['charts'][number]) => (
     <button key={chart.id} type="button" aria-current={active === chart.id ? 'page' : undefined}
       aria-controls={chart.id} onClick={() => navigate(chart.id)}>
