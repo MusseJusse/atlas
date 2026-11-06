@@ -198,7 +198,6 @@ export function Scatter({
                 stroke={modelColor(series.end)}
                 strokeWidth="0.7"
                 strokeDasharray={modelLineDashes[series.family]}
-                opacity="0.45"
                 fill="none"
               />
               <rect

@@ -553,7 +553,7 @@ test('chart sorting and phone legend pins expose their current state', async ({ 
 });
 
 
-test('resting scatter lines meet contrast and desktop label pins match the selected family', async ({ page }) => {
+test('resting scatter lines and label connectors meet contrast and label pins match the selected family', async ({ page }) => {
   for (const theme of ['light', 'dark']) {
     await page.addInitScript((value) => localStorage.setItem('benchmark-theme', value), theme);
     await page.goto('/');
@@ -571,7 +571,7 @@ test('resting scatter lines meet contrast and desktop label pins match the selec
         return linear[0]! * 0.2126 + linear[1]! * 0.7152 + linear[2]! * 0.0722;
       }
       const background = channels(getComputedStyle(document.querySelector('#benchmark-workspace')!).backgroundColor);
-      return Array.from(document.querySelectorAll('#cost-intelligence path[stroke-width="2.25"]')).map((path) => {
+      return Array.from(document.querySelectorAll('#cost-intelligence path[stroke-width="2.25"], #cost-intelligence g[aria-label^="Select "] > path')).map((path) => {
         const style = getComputedStyle(path);
         const opacity = Number(style.opacity);
         const foreground = channels(style.stroke).map((value, index) => value * opacity + background[index]! * (1 - opacity));
@@ -579,7 +579,7 @@ test('resting scatter lines meet contrast and desktop label pins match the selec
         return (Math.max(a, b) + 0.05) / (Math.min(a, b) + 0.05);
       });
     });
-    expect(contrasts.length).toBe(7);
+    expect(contrasts.length).toBe(14);
     for (const contrast of contrasts) expect(contrast).toBeGreaterThanOrEqual(3);
     const chart = page.locator('#cost-intelligence svg[role=group]');
     const label = chart.getByRole('button', { name: 'Select GPT-6.1 Terra', exact: true });

@@ -16,13 +16,13 @@ The nine-state axe-core 4.14.0 audit was rerun on this build with zero violation
 
 ## Council status
 
-[Full round 6 scores and findings](../council-c-round6/round6.md) remain recorded. The target was not met. Round 7 is pending; no prior vote approves this revision.
+[Full round 6 scores and findings](../council-c-round6/round6.md) remain recorded. The target was not met. Round 7 is complete. Every overall score reached 9, but Luna tied reference chart readability, so the strict comparison target was not met. [Full scores and clarification](round7.md) are recorded. [Round 8 evidence](../council-c-round8/) covers the next measured-contrast refinement.
 
 | Member | Round 5 | Round 6 | Round 7 |
 | --- | --- | --- | --- |
-| GPT-6.1 Sol | 9.0 | 9.1 | pending |
-| GPT-6.1 Terra | 8.8 | 8.9 | pending |
-| GPT-6 Astra | 9.0 | 9.0 | pending |
-| GPT-6 Luna | 8.9 | 9.0, clarified | pending |
+| GPT-6.1 Sol | 9.0 | 9.1 | 9.1, pass |
+| GPT-6.1 Terra | 8.8 | 8.9 | 9.0, pass |
+| GPT-6 Astra | 9.0 | 9.0 | 9.0, pass |
+| GPT-6 Luna | 8.9 | 9.0, clarified | 9.0, chart tie, target unmet |
 
 The user approved available-model replacements after usage limits. This panel uses four OpenAI models and lacks vendor diversity. Each member must score overall UI at least 9 and prefer current over reference in every scored category. Individual category scores need not all reach 9. All four independent votes must pass before the council target is claimed.
