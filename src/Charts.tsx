@@ -11,7 +11,7 @@ import { flushSync } from 'react-dom';
 import { resolveChartInteraction } from './chart-interactions';
 import { useHydrated } from './useHydrated';
 import type { Model } from './models';
-import { modelColor, modelLineDashes, shortName } from './model-presentation';
+import { modelColor, modelTextColor, modelLineDashes, shortName } from './model-presentation';
 import { scoreLabels, metrics, resolveView, type View } from './chart-definitions';
 import type { Settings } from './state';
 import { Logo } from './Logo';
@@ -211,7 +211,7 @@ export const Chart = memo(function Chart({
             const selected = Boolean(pinned && (model.codingAgent ? pinned.id === model.id : pinned.family === model.family));
             return <button
               className="flex min-h-11 items-center gap-[7px] overflow-hidden text-left text-[13px] font-[550] whitespace-nowrap"
-              style={{ color: `color-mix(in srgb, ${modelColor(model)} 80%, light-dark(black, white))` }}
+              style={{ color: modelTextColor(model) }}
               key={model.codingAgent ? model.id : model.family}
               aria-label={model.codingAgent?.configuration}
               aria-pressed={selected}
@@ -230,7 +230,7 @@ export const Chart = memo(function Chart({
                     {model.codingAgent.name}, {model.effortLabel}
                   </span>
                 </span>
-              ) : <span className="min-w-0 whitespace-normal leading-tight">{shortName(model)}{view.metric === 'cost' && model.taskPricing?.basis === 'api-fallback' && <span className="text-[10px] font-normal text-fg-2"> · API</span>}</span>}
+              ) : <span className="min-w-0 whitespace-normal leading-tight">{shortName(model)}{view.metric === 'cost' && model.taskPricing?.basis === 'api-fallback' && <span className="inline-block whitespace-nowrap text-[10px] font-normal text-fg-2"> · API</span>}</span>}
             </button>;
           })}
         </div>

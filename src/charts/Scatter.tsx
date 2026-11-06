@@ -2,7 +2,7 @@ import { taskCostLabel } from './PricingDetails';
 import { useMemo, type MouseEvent } from 'react';
 import { format } from '../formatModel';
 import { SvgLogo } from '../Logo';
-import { modelColor, modelLineDashes, shortName } from '../model-presentation';
+import { modelColor, modelTextColor, modelLineDashes, shortName } from '../model-presentation';
 import { scoreLabels, metrics, type Metric, type ScoreMetric } from '../chart-definitions';
 import type { Settings } from '../state';
 import { nearestPoint, pinHandlers, type Interactions } from './interactions';
@@ -214,7 +214,7 @@ export function Scatter({
                 y={series.y + 4}
                 fontSize={series.end.codingAgent ? 12 : 14}
                 fontWeight="550"
-                fill="var(--fg)"
+                fill={modelTextColor(series.end)}
               >
                 {labelName}{metric === 'cost' && series.end.taskPricing?.basis === 'api-fallback' && <tspan fontSize={10}> · API</tspan>}
               </text>

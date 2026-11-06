@@ -18,13 +18,13 @@ The catalog was independently scrolled to its exact endpoint of 344px, and the i
 
 ## Council status
 
-[Full round 5 scores and findings](../council-c/round5.md) remain recorded. Sol and Astra passed at 9.0 overall, Luna scored 8.9 and Terra 8.8. The target was not met. Round 6 is pending; no earlier vote approves this revision.
+[Full round 5 scores and findings](../council-c/round5.md) remain recorded. Sol and Astra passed at 9.0 overall, Luna scored 8.9 and Terra 8.8. The target was not met. Round 6 is complete: three members passed, but the four-member target was not met. [Full scores and evidence boundaries](round6.md) include Luna's verdict clarification. [Round 7 evidence](../council-c-round7/) covers the next detail refinement.
 
 | Member | Round 5 | Round 6 |
 | --- | --- | --- |
-| GPT-6.1 Sol | 9.0 | pending |
-| GPT-6.1 Terra | 8.8 | pending |
-| GPT-6 Astra | 9.0 | pending |
-| GPT-6 Luna | 8.9 | pending |
+| GPT-6.1 Sol | 9.0 | 9.1, individual target met |
+| GPT-6.1 Terra | 8.8 | 8.9 |
+| GPT-6 Astra | 9.0 | 9.0, individual target met |
+| GPT-6 Luna | 8.9 | 9.0, clarified individual target met |
 
 The user approved available-model replacements after the original providers hit usage limits. This panel has four OpenAI models and lacks vendor diversity. All four independent overall scores must reach at least 9, with current preferred to the reference in every category, before the target is claimed.

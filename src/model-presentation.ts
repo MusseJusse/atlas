@@ -68,6 +68,9 @@ export function modelColor(model: Model) {
   const [light, dark] = colors[model.family] ?? labColors[model.lab] ?? ['#637082', '#a4adb9'];
   return `light-dark(${light}, ${dark})`;
 }
+export function modelTextColor(model: Model) {
+  return `color-mix(in srgb, ${modelColor(model)} 80%, light-dark(black, white))`;
+}
 export function shortName(model: Model) {
   return model.name.replace(/^Claude /, '');
 }
