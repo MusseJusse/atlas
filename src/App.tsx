@@ -1,4 +1,4 @@
-import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { lazy, Suspense, useCallback, useEffect, useId, useMemo, useRef, useState } from 'react';
 import { ArrowDown, SlidersHorizontal } from 'lucide-react';
 import { PricingControls } from './PricingControls';
 import { pricingDisclosure, subscriptionRows, usesSubscriptionPricing } from './data/subscriptions';
@@ -374,6 +374,7 @@ function ChartOptions({
   phone: boolean;
 }) {
   const menu = useRef<HTMLDetailsElement>(null);
+  const sortDescription = useId();
   const [open, setOpen] = useState(false);
   function fitMenu() {
     const element = menu.current;
@@ -410,9 +411,10 @@ function ChartOptions({
       <summary
         className="chart-settings-trigger flex min-h-10 cursor-pointer list-none items-center justify-center gap-2 rounded-md px-2 text-fg-2 group-open:bg-surface group-open:text-accent hover:bg-surface hover:text-accent focus-visible:outline-2 focus-visible:outline-accent focus-visible:outline-offset-2 [&::-webkit-details-marker]:hidden"
         aria-label="Chart settings"
+        aria-describedby={scatter ? undefined : sortDescription}
         title="Chart settings"
       >
-        {!scatter && <span className="sort-summary">{settings.highestLast && groupedTable ? 'Highest last' : descending ? 'Highest first' : 'Lowest first'}{groupedTable && <span className="sort-group"> per model</span>}</span>}
+        {!scatter && <span id={sortDescription} className="sort-summary">{settings.highestLast && groupedTable ? 'Highest last' : descending ? 'Highest first' : 'Lowest first'}{groupedTable && <span className="sort-group"> per model</span>}</span>}
         <SlidersHorizontal size={15} aria-hidden="true" />
         <span className="settings-label">Settings</span>
       </summary>

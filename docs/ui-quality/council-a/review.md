@@ -19,7 +19,7 @@ Round 1 independently reviewed the baseline PR 80, not these improvements. The p
 | Delegate | Round 1 overall PR 80 | Round 1 reference | Round 2 |
 | --- | --- | --- | --- |
 | DeepSeek V4.1 Flash | 8.3 | 8.4 | no score, weekly usage limit |
-| GPT Sol | no score, orchestration failed | no score | pending |
+| GPT Sol | no score, orchestration failed | no score | 8.5, target not met |
 | Kimi K3.1 Pro | 7.4 | 8.2 | no score, weekly usage limit |
 | GPT-6.1 Terra | no score, orchestration failed | no score | 8.3, target not met |
 
@@ -54,3 +54,28 @@ We retain the category navigation because it keeps every destination available w
 The scatter plot preserves exact point positions. Similar-provider series can still be hard to distinguish in narrow selections, and this remains a review concern. No values were moved to manufacture separation.
 
 DeepSeek and Kimi could not complete round 2 because OpenCode Go reached its weekly limit. No substitute models were used. A decision on restoring quota or changing council membership is pending; the four-member target remains unmet.
+
+## Sol round 2 and further fixes
+
+Sol independently scored `a8d5a09` 8.5 overall. It reviewed source and captures without browser interaction. It did not approve the target.
+
+| Category | Implementation | PR 80 | slopalytics.com |
+| --- | --- | --- | --- |
+| Overall UI | 8.5 | 8.0 | 8.3 |
+| Navigation and discovery | 9.0 | 8.0 | 8.2 |
+| Hierarchy and typography | 8.8 | 8.4 | 8.3 |
+| Chart and data readability | 8.3 | 7.9 | 8.5 |
+| Controls and feedback | 8.7 | 7.8 | 8.0 |
+| Mobile responsiveness | 8.4 | 8.0 | 8.4 |
+| Accessibility evidence | 8.0 | 7.8 | 6.5 |
+
+Verified findings now addressed:
+
+- Terra and Astra shared the OpenAI color. Terra now has a dashed line and matching legend sample. Points retain exact data positions.
+- The sort settings trigger now describes its current order through `aria-describedby`.
+- Legend buttons expose pinned state with `aria-pressed`. A model's legend button also reflects a pin made on another configuration in that family, and clicking it clears that pin.
+- A modestly shorter phone plot fits the full default legend at 390 x 844. Measured legend bottom is 836.9px, while the plot remains at least 320px high on narrow phones.
+
+New `round3-*` images show these fixes. The expanded ranking and precise subscription captures remain applicable. Type checking, build, 185 unit tests and 31 production browser tests pass. The additional browser case checks the line pattern, accessible sort description, legend pin/unpin state and complete default phone legend.
+
+Fresh Sol and Terra reviews will evaluate the next frozen revision. DeepSeek and Kimi remain unavailable; partial reviews cannot satisfy the original four-member requirement.

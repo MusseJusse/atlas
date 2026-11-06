@@ -2,7 +2,7 @@ import { taskCostLabel } from './PricingDetails';
 import { useMemo } from 'react';
 import { format } from '../formatModel';
 import { SvgLogo } from '../Logo';
-import { modelColor, shortName } from '../model-presentation';
+import { modelColor, modelLineDashes, shortName } from '../model-presentation';
 import { scoreLabels, metrics, type Metric, type ScoreMetric } from '../chart-definitions';
 import type { Settings } from '../state';
 import { pinHandlers, type Interactions } from './interactions';
@@ -108,6 +108,7 @@ export function Scatter({
             fill="none"
             stroke={modelColor(series.rows[0]!)}
             strokeWidth="2.25"
+            strokeDasharray={modelLineDashes[series.family]}
             opacity={settings.frontier ? (frontierFamilies.has(series.family) ? 0.25 : 0.08) : 0.7}
           />
           {series.rows.map((model) => {

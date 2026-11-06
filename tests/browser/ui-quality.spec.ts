@@ -506,3 +506,26 @@ test('phone header retains the current section and scatter controls have touch r
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
   }
 });
+
+test('chart sorting and phone legend pins expose their current state', async ({ page }) => {
+  await page.goto('/?chart=intelligence');
+  await expect(page.locator('#intelligence .chart-settings-trigger')).toHaveAccessibleDescription('Highest last per model');
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto('/');
+  const chart = page.locator('#cost-intelligence');
+  const terra = chart.locator('.scatter-legend').getByRole('button', { name: 'GPT-6.1 Terra', exact: true });
+  await expect(terra).toHaveAttribute('aria-pressed', 'false');
+  await expect(terra.locator('line')).toHaveAttribute('stroke-dasharray', '5 3');
+  await expect(chart.locator('path[stroke-dasharray="5 3"]')).toHaveCount(1);
+  await terra.click();
+  await expect(terra).toHaveAttribute('aria-pressed', 'true');
+  await expect(chart.locator('svg[role=group] [aria-pressed=true]')).toHaveCount(1);
+  await terra.click();
+  await expect(terra).toHaveAttribute('aria-pressed', 'false');
+  await expect(chart.locator('svg[role=group] [aria-pressed=true]')).toHaveCount(0);
+  await chart.locator('svg[role=group]').getByRole('button', { name: /^GPT-6.1 Terra,/ }).last().click();
+  await expect(terra).toHaveAttribute('aria-pressed', 'true');
+  await terra.click();
+  await expect(chart.locator('svg[role=group] [aria-pressed=true]')).toHaveCount(0);
+  await expect(chart.locator('.scatter-legend button').last()).toBeInViewport({ ratio: 1 });
+});

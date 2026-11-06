@@ -11,7 +11,7 @@ import { flushSync } from 'react-dom';
 import { resolveChartInteraction } from './chart-interactions';
 import { useHydrated } from './useHydrated';
 import type { Model } from './models';
-import { modelColor, shortName } from './model-presentation';
+import { modelColor, modelLineDashes, shortName } from './model-presentation';
 import { scoreLabels, metrics, resolveView, type View } from './chart-definitions';
 import type { Settings } from './state';
 import { Logo } from './Logo';
@@ -153,7 +153,7 @@ export const Chart = memo(function Chart({
       <div className={bars ? 'bar-scroll min-h-0 flex-1 overflow-x-auto' : 'contents'}>
       <div
         style={bars ? { minWidth: Math.max(1, new Set(validRows.map((row) => settings.grouped ? row.family : row.id)).size) * 120 } : undefined}
-        className={`relative min-h-0 ${bars ? 'bar-plot h-full w-full' : scatter ? "scatter-plot flex-1 mobile:aspect-[1/1.2] mobile:flex-none" : "contents"}`}
+        className={`relative min-h-0 ${bars ? 'bar-plot h-full w-full' : scatter ? "scatter-plot flex-1 mobile:aspect-[1/1.07] mobile:min-h-80 mobile:flex-none" : "contents"}`}
         ref={ref}
       >
         {ready &&
@@ -207,14 +207,20 @@ export const Chart = memo(function Chart({
       {/* Reserve the mobile legend's height in the initial HTML before hydration. */}
       {scatter && (
         <div className={`${width < 600 || !settings.labels ? 'grid' : 'hidden plot-mobile:grid'} scatter-legend ${width >= 480 ? 'grid-cols-3 phone:grid-cols-2' : 'grid-cols-2'} gap-x-3 gap-y-0.5 pt-2.5`}>
-          {legend.map((model) => (
-            <button
+          {legend.map((model) => {
+            const selected = Boolean(pinned && (model.codingAgent ? pinned.id === model.id : pinned.family === model.family));
+            return <button
               className="flex min-h-11 items-center gap-[7px] overflow-hidden text-left text-[13px] font-[550] whitespace-nowrap text-fg"
               key={model.codingAgent ? model.id : model.family}
               aria-label={model.codingAgent?.configuration}
-              onClick={() => interactions.togglePin(model)}
+              aria-pressed={selected}
+              onClick={() => selected ? setPinnedId(null) : interactions.togglePin(model)}
             >
-              <span className="size-2 shrink-0 rounded-full" style={{ background: modelColor(model) }} aria-hidden="true" />
+              {modelLineDashes[model.family] ? (
+                <svg width="18" height="12" viewBox="0 0 18 12" className="shrink-0" aria-hidden="true">
+                  <line x1="0" x2="18" y1="6" y2="6" stroke={modelColor(model)} strokeWidth="2.25" strokeDasharray={modelLineDashes[model.family]} />
+                </svg>
+              ) : <span className="size-2 shrink-0 rounded-full" style={{ background: modelColor(model) }} aria-hidden="true" />}
               <Logo model={model} />
               {model.codingAgent ? (
                 <span className="min-w-0">
@@ -224,8 +230,8 @@ export const Chart = memo(function Chart({
                   </span>
                 </span>
               ) : <span>{shortName(model)}{view.metric === 'cost' && model.taskPricing?.basis === 'api-fallback' && <span className="text-[10px] font-normal text-fg-2"> · API</span>}</span>}
-            </button>
-          ))}
+            </button>;
+          })}
         </div>
       )}
     </div>

@@ -71,3 +71,8 @@ export function modelColor(model: Model) {
 export function shortName(model: Model) {
   return model.name.replace(/^Claude /, '');
 }
+
+// Terra and Astra share the OpenAI color; line patterns also distinguish them without color.
+export const modelLineDashes: Readonly<Partial<Record<string, string>>> = {
+  'gpt-6-1-terra': '5 3',
+};
