@@ -2,6 +2,7 @@ import { barDomain, linearScale, logScale } from '../scales';
 import { scatterDomain, scatterRows } from '../scatter-data';
 import { barGroups, paretoFrontier, type Model } from '../models';
 import { format, formatModelValue } from '../formatModel';
+import { shortName } from '../model-presentation';
 import type { Metric, ScoreMetric } from '../chart-definitions';
 
 export type MeasuredRow = Model & { value: number };
@@ -31,7 +32,9 @@ export function scatterGeometry(
 ) {
   const mobile = width < 600;
   const left = mobile ? 46 : 64;
-  const right = width - (labelsEnabled && !mobile ? 235 : 24);
+  // Keep room for selected model names; longer agent labels retain the full gutter.
+  const labelWidth = Math.min(235, Math.max(160, ...rows.map((row) => shortName(row).length * 7 + 62)));
+  const right = width - (labelsEnabled && !mobile ? labelWidth : 24);
   const top = 30;
   const bottom = Math.max(130, height - 60);
   const domain = scatterDomain(rows, metric, linear);

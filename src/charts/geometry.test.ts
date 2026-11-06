@@ -18,7 +18,7 @@ it('prepares only measured rows, preserving zero, signed scores and estimate pro
   expect(measureRows([estimate], 'time')[0]?.timeEstimate).toBe(estimate.timeEstimate);
 });
 
-it.each([false, true])('keeps scatter coordinates, frontier and family paths on their existing scales, linear=%s', (linear) => {
+it.each([false, true])('keeps scatter coordinates, frontier and family paths on the plot scales with compact label space, linear=%s', (linear) => {
   const source = [
     model('free', 'free', 0, 35),
     model('small', 'a', 0.2, 40),
@@ -34,7 +34,7 @@ it.each([false, true])('keeps scatter coordinates, frontier and family paths on 
   for (const width of [390, 960]) {
     const geometry = scatterGeometry(rows, 'cost', width, 640, true, linear);
     const left = width < 600 ? 46 : 64;
-    const right = width - (width < 600 ? 24 : 235);
+    const right = width - (width < 600 ? 24 : 160);
     const domain = scatterDomain(rows, 'cost', linear);
     const reference = linear ? linearScale(domain, [left, right], { nice: true }) : logScale(domain, [left, right]);
     for (const row of rows) expect(geometry.x(row.value)).toBe(reference(row.value));

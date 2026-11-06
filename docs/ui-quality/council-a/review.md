@@ -103,3 +103,44 @@ https://slopalytics.com/?models=gpt-6-astra,gpt-6-1-sol,gpt-6-1-terra,gpt-6-luna
 The user approved revised council membership after provider limits. The revised council is GPT-6.1 Sol, GPT-6.1 Terra, DeepSeek V4.1 Flash via the free route, and GLM-5.3-Flash Free replacing Kimi. This retains three model vendors through the two callable tool providers. Failed Go runs remain recorded as no score. No score transfers from Kimi to GLM.
 
 These additional captures and notes do not change application source from `b23ad1b`.
+
+## Revised round 3 DeepSeek and prepared follow-up
+
+DeepSeek reviewed the matched captures at `bf05cd1`, independently passed type checking, 185 unit tests and 31 browser tests, and scored the current application 8.6 overall. The target remains unmet.
+
+| Category | Implementation | PR 80 | slopalytics.com |
+| --- | --- | --- | --- |
+| Overall UI | 8.6 | 8.0 | 8.2 |
+| Navigation and discovery | 8.8 | 7.9 | 8.0 |
+| Hierarchy and typography | 8.7 | 8.3 | 8.2 |
+| Chart and data readability | 8.4 | 7.9 | 8.5 |
+| Controls and feedback | 8.8 | 8.2 | 8.0 |
+| Mobile | 8.7 | 7.9 | 8.0 |
+| Accessibility evidence | 8.2 | 7.5 | 7.0 |
+
+The follow-up was prepared in a separate checkout so the active GLM review could retain its frozen application. `round4-*` captures show this follow-up, not the earlier reviewed application.
+
+Verified changes:
+
+- Resting series lines use full opacity. Browser pixel-color calculations require at least 3:1 contrast for all seven default series in both themes. Terra's desktop connector retains the dashed treatment.
+- The selected-model label gutter adapts between 160 and 235px. Long agent labels retain their space. At 1280 x 800, the plot axis grows from about 613px to 688px wide, and its 60-to-0 score span grows from about 401px to 429px through compact desktop spacing.
+- Phone pricing has the name “Pricing settings” and a visible Pricing label at widths of at least 360px. Narrower phones retain the icon with its accessible name.
+- The model launcher, phone reset and Done controls meet 44px height/width checks. The complete default phone legend still fits at 390px, ending at 839.9px in an 844px viewport.
+- Desktop label pins reflect the whole model family, clear a pin from any configuration in that family, and use “Select” rather than “Highlight.”
+- Categories remember the last visited chart during the current session.
+- Collapsed ranking rows omit references to panels that have not been mounted. Expanded rows reference their existing panel.
+
+Type checking, build, 185 unit tests and the full 32 browser tests passed before the final collapsed-row ARIA repair. Four focused browser tests passed after that repair, covering ranking keyboard expansion, chart contrast and family pins, phone target sizes/pricing names and category memory.
+
+## Automated accessibility audit
+
+`axe-followup.json` records axe-core 4.14.0 against eight production-build states, using WCAG 2 A/AA, 2.1 AA and 2.2 AA rule tags. It reports zero violations. It also reports incomplete contrast checks and incomplete validation of the filter popup reference. These are not a clean bill of accessibility.
+
+The additional DOM reference check found no missing `aria-controls` target after the ranking repair. We verified that `model-filters` exists and is the sheet opened by the launcher. Browser tests cover opening, focus restoration, Escape and the relevant names/states. SVG contrast/background checks remain incomplete in axe; a separate browser calculation covers resting series-line contrast. No VoiceOver/NVDA pass, forced-colors pass or conformance certification has been performed.
+
+To reproduce the audit without adding a repository dependency, install axe-core 4.14.0 in a temporary directory and pass its script path and an isolated production preview URL:
+
+```sh
+npm install --prefix /tmp/slopalytics-a11y --no-audit --no-fund axe-core@4.14.0
+node docs/ui-quality/council-a/run-axe.mjs /tmp/slopalytics-a11y/node_modules/axe-core/axe.min.js http://127.0.0.1:4493
+```

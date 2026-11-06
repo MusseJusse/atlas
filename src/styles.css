@@ -473,3 +473,15 @@
 }
 
 @media (width <= 600px) { .sort-summary .sort-group { display: none; } }
+
+@media (360px <= width <= 600px) {
+  .chart-section:has(.scatter-plot) .chart-settings-trigger { width: auto; padding-inline: 8px; }
+  .chart-section:has(.scatter-plot) .settings-label { display: inline; }
+}
+/* Preserve plot room in desktop windows without shrinking phone targets. */
+@media (width > 900px) and (height <= 900px) {
+  :root { --header-height: 64px; }
+  .chart-navigation button { min-height: 40px; }
+  .chart-guidance { margin-block: 4px; }
+  .chart-section { padding-top: 12px; }
+}

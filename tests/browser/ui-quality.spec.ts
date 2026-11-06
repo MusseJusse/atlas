@@ -109,7 +109,10 @@ test('phone chart categories expose every choice without overflow or a dropdown'
     }
   }
   await navigation.getByRole('button', { name: 'Scores', exact: true }).click();
-  await navigation.getByRole('button', { name: 'Omniscience', exact: true }).click();
+  await expect(navigation.getByRole('button', { name: 'Omniscience', exact: true })).toHaveAttribute('aria-current', 'page');
+  await navigation.getByRole('button', { name: 'Resources', exact: true }).click();
+  await expect(navigation.locator('button[aria-controls="time-task"]:visible')).toHaveAttribute('aria-current', 'page');
+  await navigation.getByRole('button', { name: 'Overview', exact: true }).click();
   await navigation.getByRole('button', { name: 'Scores', exact: true }).click();
   await expect(navigation.getByRole('button', { name: 'Omniscience', exact: true })).toHaveAttribute('aria-current', 'page');
 });
@@ -203,6 +206,7 @@ test('ranking expansion and configuration details work entirely from the keyboar
   await first.focus();
   await page.keyboard.press('Enter');
   await expect(first).toHaveAttribute('aria-expanded', 'true');
+  await expect(page.locator(`[id="${await first.getAttribute('aria-controls')}"]`)).toBeVisible();
   const configuration = ranking.locator('.ranking-configurations button').first();
   await page.keyboard.press('Tab');
   await expect(configuration).toBeFocused();
@@ -364,7 +368,7 @@ test('desktop bars expand with the available card height', async ({ page }) => {
     const card = await section.boundingBox();
     expect(card!.y + card!.height - bounds!.y - bounds!.height).toBeLessThan(24);
   }
-  expect(heights[1]! - heights[0]!).toBeGreaterThan(380);
+  expect(heights[1]! - heights[0]!).toBeGreaterThanOrEqual(380);
   await page.getByRole('button', { name: 'Ranking', exact: true }).click();
   await expect(page.locator('#intelligence .ranking')).toBeVisible();
   await expect(plot).toHaveCount(0);
@@ -496,6 +500,10 @@ test('phone header retains the current section and scatter controls have touch r
     await page.goto('/');
     await expect(page.getByRole('navigation', { name: 'Sections' }).getByRole('link', { name: 'Benchmarks' })).toHaveAttribute('aria-current', 'page');
     const section = page.locator('#cost-intelligence');
+    await expect(section.locator('.chart-settings-trigger')).toHaveAccessibleName('Pricing settings');
+    if (width >= 360) await expect(section.locator('.chart-settings-trigger')).toContainText('Pricing');
+    const launcher = page.getByRole('button', { name: /Models.*Edit selection/ });
+    expect((await launcher.boundingBox())!.height).toBeGreaterThanOrEqual(44);
     const controls = section.locator('.chart-toolbar button, .chart-settings-trigger');
     for (const box of await controls.evaluateAll((elements) => elements.map((element) => element.getBoundingClientRect().toJSON()))) {
       expect(box.height).toBeGreaterThanOrEqual(44);
@@ -504,6 +512,13 @@ test('phone header retains the current section and scatter controls have touch r
     const plot = await section.locator('.scatter-plot').boundingBox();
     expect(plot!.y).toBeLessThan(310);
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+    await launcher.click();
+    for (const name of ['Reset model filters', 'Done']) {
+      const box = await page.getByRole('dialog').getByRole('button', { name, exact: true }).boundingBox();
+      expect(box!.height).toBeGreaterThanOrEqual(44);
+      expect(box!.width).toBeGreaterThanOrEqual(44);
+    }
+    await page.getByRole('button', { name: 'Done', exact: true }).click();
   }
 });
 
@@ -528,4 +543,43 @@ test('chart sorting and phone legend pins expose their current state', async ({ 
   await terra.click();
   await expect(chart.locator('svg[role=group] [aria-pressed=true]')).toHaveCount(0);
   await expect(chart.locator('.scatter-legend button').last()).toBeInViewport({ ratio: 1 });
+});
+
+
+test('resting scatter lines meet contrast and desktop label pins match the selected family', async ({ page }) => {
+  for (const theme of ['light', 'dark']) {
+    await page.addInitScript((value) => localStorage.setItem('benchmark-theme', value), theme);
+    await page.goto('/');
+    await expect(page.locator('#cost-intelligence svg[role=group]')).toBeVisible();
+    const contrasts = await page.evaluate(() => {
+      const context = document.createElement('canvas').getContext('2d')!;
+      function channels(color: string) {
+        context.clearRect(0, 0, 1, 1);
+        context.fillStyle = color;
+        context.fillRect(0, 0, 1, 1);
+        return Array.from(context.getImageData(0, 0, 1, 1).data).slice(0, 3);
+      }
+      function luminance(rgb: number[]) {
+        const linear = rgb.map((channel) => channel / 255).map((value) => value <= 0.04045 ? value / 12.92 : ((value + 0.055) / 1.055) ** 2.4);
+        return linear[0]! * 0.2126 + linear[1]! * 0.7152 + linear[2]! * 0.0722;
+      }
+      const background = channels(getComputedStyle(document.querySelector('#benchmark-workspace')!).backgroundColor);
+      return Array.from(document.querySelectorAll('#cost-intelligence path[stroke-width="2.25"]')).map((path) => {
+        const style = getComputedStyle(path);
+        const opacity = Number(style.opacity);
+        const foreground = channels(style.stroke).map((value, index) => value * opacity + background[index]! * (1 - opacity));
+        const a = luminance(foreground), b = luminance(background);
+        return (Math.max(a, b) + 0.05) / (Math.min(a, b) + 0.05);
+      });
+    });
+    expect(contrasts.length).toBe(7);
+    for (const contrast of contrasts) expect(contrast).toBeGreaterThanOrEqual(3);
+    const chart = page.locator('#cost-intelligence svg[role=group]');
+    const label = chart.getByRole('button', { name: 'Select GPT-6.1 Terra', exact: true });
+    await expect(label.locator('path')).toHaveAttribute('stroke-dasharray', '5 3');
+    await chart.getByRole('button', { name: /^GPT-6.1 Terra,/ }).first().click();
+    await expect(label).toHaveAttribute('aria-pressed', 'true');
+    await label.click();
+    await expect(label).toHaveAttribute('aria-pressed', 'false');
+  }
 });

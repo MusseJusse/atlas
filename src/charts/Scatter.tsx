@@ -109,7 +109,7 @@ export function Scatter({
             stroke={modelColor(series.rows[0]!)}
             strokeWidth="2.25"
             strokeDasharray={modelLineDashes[series.family]}
-            opacity={settings.frontier ? (frontierFamilies.has(series.family) ? 0.25 : 0.08) : 0.7}
+            opacity={settings.frontier ? (frontierFamilies.has(series.family) ? 0.25 : 0.08) : 1}
           />
           {series.rows.map((model) => {
             const onFrontier = frontierIds.has(model.id);
@@ -176,16 +176,19 @@ export function Scatter({
               opacity={dim ? 0.2 : 1}
               role="button"
               tabIndex={0}
-              aria-label={`Highlight ${series.end.codingAgent?.configuration ?? series.end.name}`}
+              aria-label={`Select ${series.end.codingAgent?.configuration ?? series.end.name}`}
               onMouseEnter={() => interactions.highlight(series.family)}
               onMouseLeave={() => interactions.highlight(null)}
-              aria-pressed={interactions.pinned?.id === series.end.id}
-              {...pinHandlers(series.end, interactions.togglePin)}
+              aria-pressed={series.end.codingAgent ? interactions.pinned?.id === series.end.id : interactions.pinned?.family === series.family}
+              {...pinHandlers(series.end, () => interactions.togglePin(
+                !series.end.codingAgent && interactions.pinned?.family === series.family ? interactions.pinned : series.end,
+              ))}
             >
               <path
                 d={`M${x(series.end.value) + 8},${y(series.end.score)} L${right + 20},${series.y}`}
                 stroke={modelColor(series.end)}
                 strokeWidth="0.7"
+                strokeDasharray={modelLineDashes[series.family]}
                 opacity="0.45"
                 fill="none"
               />

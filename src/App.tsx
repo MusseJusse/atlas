@@ -179,7 +179,7 @@ function Benchmarks() {
           <h1 className="sr-only">Model benchmarks</h1>
           <div className="min-w-0 px-6 mobile:sticky mobile:top-[var(--header-height)] mobile:z-[6] mobile:rounded-t-xl mobile:bg-panel mobile:px-4">
             <button
-              className="hidden w-full items-center gap-2 border-b border-line py-3 text-left text-[12px] text-fg-2 mobile:flex!"
+              className="hidden min-h-11 w-full items-center gap-2 border-b border-line py-3 text-left text-[12px] text-fg-2 mobile:flex!"
               onClick={() => setMobileOpen(true)}
               aria-haspopup="dialog"
               aria-controls="model-filters"
@@ -410,13 +410,13 @@ function ChartOptions({
     }}>
       <summary
         className="chart-settings-trigger flex min-h-10 cursor-pointer list-none items-center justify-center gap-2 rounded-md px-2 text-fg-2 group-open:bg-surface group-open:text-accent hover:bg-surface hover:text-accent focus-visible:outline-2 focus-visible:outline-accent focus-visible:outline-offset-2 [&::-webkit-details-marker]:hidden"
-        aria-label="Chart settings"
+        aria-label={scatter && phone ? 'Pricing settings' : 'Chart settings'}
         aria-describedby={scatter ? undefined : sortDescription}
-        title="Chart settings"
+        title={scatter && phone ? 'Pricing settings' : 'Chart settings'}
       >
         {!scatter && <span id={sortDescription} className="sort-summary">{settings.highestLast && groupedTable ? 'Highest last' : descending ? 'Highest first' : 'Lowest first'}{groupedTable && <span className="sort-group"> per model</span>}</span>}
         <SlidersHorizontal size={15} aria-hidden="true" />
-        <span className="settings-label">Settings</span>
+        <span className="settings-label">{scatter && phone ? 'Pricing' : 'Settings'}</span>
       </summary>
       <div
         className={`absolute top-[calc(100%+6px)] right-0 z-20 flex ${pricing ? 'w-[310px]' : 'w-[220px]'} max-w-[calc(100vw-48px)] flex-col items-start gap-1 overflow-y-auto overscroll-contain rounded-lg border border-line bg-panel p-3 shadow-lg`}

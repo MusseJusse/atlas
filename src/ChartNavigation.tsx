@@ -1,3 +1,4 @@
+import { useEffect, useRef } from 'react';
 import type { View, ViewId } from './chart-definitions';
 
 const groups = [
@@ -14,6 +15,10 @@ export function ChartNavigation({ views, active, navigate }: {
   views: View[]; active: ViewId; navigate: (id: ViewId) => void;
 }) {
   const currentGroup = groups.find((group) => group.charts.some((chart) => chart.id === active)) ?? groups[0];
+  const lastVisited = useRef(new Map<string, ViewId>());
+  useEffect(() => {
+    lastVisited.current.set(currentGroup.label, active);
+  }, [active, currentGroup.label]);
   const label = (chart: (typeof groups)[number]['charts'][number]) =>
     chart.id === 'intelligence' && views.find((view) => view.id === chart.id)?.metric === 'codingIndex'
       ? 'Coding score' : chart.id === 'cost-intelligence' && views.find((view) => view.id === chart.id)?.label === 'Cost vs coding score' ? 'Cost vs coding score' : chart.label;
@@ -32,7 +37,7 @@ export function ChartNavigation({ views, active, navigate }: {
       <div className="chart-categories" role="group" aria-label="Chart categories">
         {groups.map((group) => <button key={group.label} type="button"
           aria-current={group === currentGroup ? 'true' : undefined}
-          onClick={() => { if (group !== currentGroup) navigate(group.charts[0].id); }}>{group.label}</button>)}
+          onClick={() => { if (group !== currentGroup) navigate(lastVisited.current.get(group.label) ?? group.charts[0].id); }}>{group.label}</button>)}
       </div>
       {currentGroup.charts.length > 1 && <div className="chart-subnavigation" role="group" aria-label={`${currentGroup.label} charts`}>
         {currentGroup.charts.map(chartButton)}
