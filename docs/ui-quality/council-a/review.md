@@ -79,3 +79,27 @@ Verified findings now addressed:
 New `round3-*` images show these fixes. The expanded ranking and precise subscription captures remain applicable. Type checking, build, 185 unit tests and 31 production browser tests pass. The additional browser case checks the line pattern, accessible sort description, legend pin/unpin state and complete default phone legend.
 
 Fresh Sol and Terra reviews will evaluate the next frozen revision. DeepSeek and Kimi remain unavailable; partial reviews cannot satisfy the original four-member requirement.
+
+## Round 3 Terra and revised membership
+
+Terra reviewed the application at `b23ad1b`, including the corrected captures, and scored it 8.5 overall. It did not run live browser checks. The target remains unmet.
+
+| Category | Implementation | PR 80 | slopalytics.com |
+| --- | --- | --- | --- |
+| Overall UI | 8.5 | 8.0 | 8.3 |
+| Navigation and discovery | 8.6 | 7.9 | 8.1 |
+| Hierarchy and typography | 8.6 | 8.2 | 8.2 |
+| Chart and data readability | 8.3 | 7.9 | 8.5 |
+| Controls and feedback | 8.6 | 8.0 | 8.1 |
+| Mobile | 8.4 | 7.9 | 8.3 |
+| Accessibility evidence | 7.9 | 7.5 | 7.0 |
+
+Remaining concerns are chart density on narrow phones, metric discovery through categories and the phone settings icon. The earlier unequal viewport limits the desktop comparison.
+
+New `matched-*` captures compare the current application and reference with identical 1280 x 800 desktop and 390 x 844 phone viewports, both in light mode. Both select Terra, Sol, Luna, Astra, Haiku, Fable and Opus, with Low, Medium, High and Xhigh efforts, API pricing and no Pareto line. Data snapshots can still differ. No production writes were made. Reference filter URL:
+
+https://slopalytics.com/?models=gpt-6-astra,gpt-6-1-sol,gpt-6-1-terra,gpt-6-luna,claude-opus-5-5,claude-fable-5-1,claude-haiku-5-5&hide-reasoning=none,max
+
+The user approved revised council membership after provider limits. The revised council is GPT-6.1 Sol, GPT-6.1 Terra, DeepSeek V4.1 Flash via the free route, and GLM-5.3-Flash Free replacing Kimi. This retains three model vendors through the two callable tool providers. Failed Go runs remain recorded as no score. No score transfers from Kimi to GLM.
+
+These additional captures and notes do not change application source from `b23ad1b`.
