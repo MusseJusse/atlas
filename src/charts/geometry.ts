@@ -201,7 +201,7 @@ export function spacedAxisTicks(values: number[], position: (value: number) => n
     const label = format(value, metric, true);
     const x = position(value);
     const halfWidth = label.length * (compact ? 2.8 : 3.5);
-    if (used.has(label) || x - halfWidth < edge + (compact ? 4 : 10)) return [];
+    if (used.has(label) || x - halfWidth < edge + (compact ? 6 : 10)) return [];
     edge = x + halfWidth;
     used.add(label);
     return [{ value, label, x }];

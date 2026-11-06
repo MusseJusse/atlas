@@ -412,7 +412,7 @@ function ChartOptions({
         aria-label="Chart settings"
         title="Chart settings"
       >
-        {!scatter && <span className="sort-summary">{settings.highestLast && groupedTable ? 'Highest last' : descending ? 'Highest first' : 'Lowest first'}{groupedTable ? ' per model' : ''}</span>}
+        {!scatter && <span className="sort-summary">{settings.highestLast && groupedTable ? 'Highest last' : descending ? 'Highest first' : 'Lowest first'}{groupedTable && <span className="sort-group"> per model</span>}</span>}
         <SlidersHorizontal size={15} aria-hidden="true" />
         <span className="settings-label">Settings</span>
       </summary>

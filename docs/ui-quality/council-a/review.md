@@ -18,10 +18,10 @@ Round 1 independently reviewed the baseline PR 80, not these improvements. The p
 
 | Delegate | Round 1 overall PR 80 | Round 1 reference | Round 2 |
 | --- | --- | --- | --- |
-| DeepSeek V4.1 Flash | 8.3 | 8.4 | pending |
+| DeepSeek V4.1 Flash | 8.3 | 8.4 | no score, weekly usage limit |
 | GPT Sol | no score, orchestration failed | no score | pending |
-| Kimi K3.1 Pro | 7.4 | 8.2 | pending |
-| GPT-6.1 Terra | no score, orchestration failed | no score | pending |
+| Kimi K3.1 Pro | 7.4 | 8.2 | no score, weekly usage limit |
+| GPT-6.1 Terra | no score, orchestration failed | no score | 8.3, target not met |
 
 Round 1 DeepSeek and Kimi agreed on explicit metric naming, a more compact chart header and stronger plot readability. Neither approved a 9/10 score. Kimi reviewed screenshots and source only. DeepSeek additionally checked selected interactions and geometry. Neither performed assistive-technology certification.
 
@@ -30,3 +30,27 @@ Round 2 will judge a frozen revision, actual application captures and the same c
 ## Validation
 
 Type checking, 185 unit tests, production build and 30 Chromium browser tests pass. Browser coverage includes every view, ordering and saved state, compact navigation boundaries, short chart label bounds, keyboard configuration details, phone overflow and 44px chart controls. Existing bundle-size warnings remain.
+
+## Round 2 findings and follow-up
+
+Terra reviewed `a8d5a09` from supplied captures and source. It did not run browser interactions or an accessibility audit.
+
+| Category | Implementation | PR 80 | slopalytics.com |
+| --- | --- | --- | --- |
+| Overall UI | 8.3 | 7.9 | 8.2 |
+| Navigation and discovery | 8.2 | 7.6 | 8.1 |
+| Hierarchy and typography | 8.5 | 8.1 | 8.0 |
+| Chart and data readability | 8.1 | 7.8 | 8.3 |
+| Controls and feedback | 8.3 | 7.8 | 8.0 |
+| Mobile responsiveness | 8.1 | 7.8 | 8.2 |
+| Accessibility evidence | 7.6 | 7.4 | 7.0 |
+
+The dark phone-ranking image was blank. We replaced it with a verified production-build capture and added the expanded state. A browser check of subscription ticks at 320px found a 3.64px label gap, below the existing 4px minimum. Increasing the compact spacing reserve from 4px to 6px preserves at least 4px of measured separation at 320, 390 and 1280px. All 185 unit tests and 30 browser tests pass after the fix. The phone sort trigger also omits the repeated “per model” suffix so the heading fits at 390px.
+
+The latest phone ranking, expanded ranking and subscription captures show this follow-up. Earlier screenshots retain the round 2 baseline. Terra's scores have not been carried forward as approval of these later changes.
+
+We retain the category navigation because it keeps every destination available without clipped horizontal tabs. The current metric has an active subtab and a visible chart heading. We will seek fresh judgment rather than treating this design choice as resolved by test coverage.
+
+The scatter plot preserves exact point positions. Similar-provider series can still be hard to distinguish in narrow selections, and this remains a review concern. No values were moved to manufacture separation.
+
+DeepSeek and Kimi could not complete round 2 because OpenCode Go reached its weekly limit. No substitute models were used. A decision on restoring quota or changing council membership is pending; the four-member target remains unmet.
