@@ -1,0 +1,385 @@
+[
+  {
+    "name": "desktop-light",
+    "width": 1280,
+    "theme": "light",
+    "overflow": false,
+    "legend": [],
+    "directLabels": [
+      {
+        "label": "Opus 5.5",
+        "contrast": 7.215223315688954
+      },
+      {
+        "label": "GPT-6 Astra",
+        "contrast": 13.9481915838631
+      },
+      {
+        "label": "GPT-6.1 Sol",
+        "contrast": 7.875118690421495
+      },
+      {
+        "label": "Fable 5.1",
+        "contrast": 9.509547079171618
+      },
+      {
+        "label": "GPT-6.1 Terra",
+        "contrast": 13.9481915838631
+      },
+      {
+        "label": "Haiku 5.5",
+        "contrast": 4.731297542058975
+      },
+      {
+        "label": "GPT-6 Luna",
+        "contrast": 5.671953818781912
+      }
+    ],
+    "catalog": {
+      "client": 289,
+      "scroll": 633,
+      "gutter": "stable",
+      "thumb": "rgb(96, 109, 133)"
+    }
+  },
+  {
+    "name": "desktop-dark",
+    "width": 1280,
+    "theme": "dark",
+    "overflow": false,
+    "legend": [],
+    "directLabels": [
+      {
+        "label": "Opus 5.5",
+        "contrast": 7.444376592264686
+      },
+      {
+        "label": "GPT-6 Astra",
+        "contrast": 13.75083361062594
+      },
+      {
+        "label": "GPT-6.1 Sol",
+        "contrast": 10.187569314743449
+      },
+      {
+        "label": "Fable 5.1",
+        "contrast": 5.949334047951959
+      },
+      {
+        "label": "GPT-6.1 Terra",
+        "contrast": 13.75083361062594
+      },
+      {
+        "label": "Haiku 5.5",
+        "contrast": 6.378091270437067
+      },
+      {
+        "label": "GPT-6 Luna",
+        "contrast": 6.924060541915985
+      }
+    ],
+    "catalog": {
+      "client": 289,
+      "scroll": 633,
+      "gutter": "stable",
+      "thumb": "rgb(162, 175, 197)"
+    }
+  },
+  {
+    "name": "phone-light",
+    "width": 390,
+    "theme": "light",
+    "overflow": false,
+    "legendBottom": 836,
+    "legend": [
+      {
+        "label": "Fable 5.1",
+        "color": "color(srgb 0.451765 0.19451 0.134902)",
+        "contrast": 9.509547079171618
+      },
+      {
+        "label": "Haiku 5.5",
+        "color": "color(srgb 0.614902 0.401569 0.298039)",
+        "contrast": 4.731297542058975
+      },
+      {
+        "label": "Opus 5.5",
+        "color": "color(srgb 0.545882 0.257255 0.166275)",
+        "contrast": 7.215223315688954
+      },
+      {
+        "label": "GPT-6.1 Sol",
+        "color": "color(srgb 0.276078 0.326275 0.376471)",
+        "contrast": 7.875118690421495
+      },
+      {
+        "label": "GPT-6.1 Terra",
+        "color": "color(srgb 0.150588 0.175686 0.200784)",
+        "contrast": 13.9481915838631
+      },
+      {
+        "label": "GPT-6 Astra",
+        "color": "color(srgb 0.150588 0.175686 0.200784)",
+        "contrast": 13.9481915838631
+      },
+      {
+        "label": "GPT-6 Luna",
+        "color": "color(srgb 0.363922 0.407843 0.458039)",
+        "contrast": 5.671953818781912
+      }
+    ],
+    "directLabels": [],
+    "catalog": {
+      "client": 0,
+      "scroll": 0,
+      "gutter": "auto",
+      "thumb": "rgba(0, 0, 0, 0)"
+    }
+  },
+  {
+    "name": "phone-dark",
+    "width": 390,
+    "theme": "dark",
+    "overflow": false,
+    "legendBottom": 836,
+    "legend": [
+      {
+        "label": "Fable 5.1",
+        "color": "color(srgb 0.84 0.576471 0.488627)",
+        "contrast": 5.949334047951959
+      },
+      {
+        "label": "Haiku 5.5",
+        "color": "color(srgb 0.780392 0.632941 0.563922)",
+        "contrast": 6.378091270437067
+      },
+      {
+        "label": "Opus 5.5",
+        "color": "color(srgb 0.899608 0.664314 0.573333)",
+        "contrast": 7.444376592264686
+      },
+      {
+        "label": "GPT-6.1 Sol",
+        "color": "color(srgb 0.818039 0.836863 0.861961)",
+        "contrast": 10.187569314743449
+      },
+      {
+        "label": "GPT-6.1 Terra",
+        "color": "color(srgb 0.956078 0.962353 0.968627)",
+        "contrast": 13.75083361062594
+      },
+      {
+        "label": "GPT-6 Astra",
+        "color": "color(srgb 0.956078 0.962353 0.968627)",
+        "contrast": 13.75083361062594
+      },
+      {
+        "label": "GPT-6 Luna",
+        "color": "color(srgb 0.661177 0.692549 0.733333)",
+        "contrast": 6.924060541915985
+      }
+    ],
+    "directLabels": [],
+    "catalog": {
+      "client": 0,
+      "scroll": 0,
+      "gutter": "auto",
+      "thumb": "rgba(0, 0, 0, 0)"
+    }
+  },
+  {
+    "name": "phone-320-light",
+    "width": 320,
+    "theme": "light",
+    "overflow": false,
+    "legendBottom": 762.5,
+    "legend": [
+      {
+        "label": "Fable 5.1",
+        "color": "color(srgb 0.451765 0.19451 0.134902)",
+        "contrast": 9.509547079171618
+      },
+      {
+        "label": "Haiku 5.5",
+        "color": "color(srgb 0.614902 0.401569 0.298039)",
+        "contrast": 4.731297542058975
+      },
+      {
+        "label": "Opus 5.5",
+        "color": "color(srgb 0.545882 0.257255 0.166275)",
+        "contrast": 7.215223315688954
+      },
+      {
+        "label": "GPT-6.1 Sol",
+        "color": "color(srgb 0.276078 0.326275 0.376471)",
+        "contrast": 7.875118690421495
+      },
+      {
+        "label": "GPT-6.1 Terra",
+        "color": "color(srgb 0.150588 0.175686 0.200784)",
+        "contrast": 13.9481915838631
+      },
+      {
+        "label": "GPT-6 Astra",
+        "color": "color(srgb 0.150588 0.175686 0.200784)",
+        "contrast": 13.9481915838631
+      },
+      {
+        "label": "GPT-6 Luna",
+        "color": "color(srgb 0.363922 0.407843 0.458039)",
+        "contrast": 5.671953818781912
+      }
+    ],
+    "directLabels": [],
+    "catalog": {
+      "client": 0,
+      "scroll": 0,
+      "gutter": "auto",
+      "thumb": "rgba(0, 0, 0, 0)"
+    }
+  },
+  {
+    "name": "phone-subscription-320-light",
+    "width": 320,
+    "theme": "light",
+    "overflow": false,
+    "legendBottom": 810.5,
+    "legend": [
+      {
+        "label": "Fable 5.1",
+        "color": "color(srgb 0.451765 0.19451 0.134902)",
+        "contrast": 9.509547079171618
+      },
+      {
+        "label": "Haiku 5.5",
+        "color": "color(srgb 0.614902 0.401569 0.298039)",
+        "contrast": 4.731297542058975
+      },
+      {
+        "label": "Opus 5.5",
+        "color": "color(srgb 0.545882 0.257255 0.166275)",
+        "contrast": 7.215223315688954
+      },
+      {
+        "label": "GPT-6.1 Sol",
+        "color": "color(srgb 0.276078 0.326275 0.376471)",
+        "contrast": 7.875118690421495
+      },
+      {
+        "label": "GPT-6.1 Terra · API",
+        "color": "color(srgb 0.150588 0.175686 0.200784)",
+        "contrast": 13.9481915838631
+      },
+      {
+        "label": "GPT-6 Astra",
+        "color": "color(srgb 0.150588 0.175686 0.200784)",
+        "contrast": 13.9481915838631
+      },
+      {
+        "label": "GPT-6 Luna",
+        "color": "color(srgb 0.363922 0.407843 0.458039)",
+        "contrast": 5.671953818781912
+      }
+    ],
+    "directLabels": [],
+    "catalog": {
+      "client": 0,
+      "scroll": 0,
+      "gutter": "auto",
+      "thumb": "rgba(0, 0, 0, 0)"
+    }
+  },
+  {
+    "name": "phone-ranking-dark",
+    "width": 390,
+    "theme": "dark",
+    "overflow": false,
+    "legend": [],
+    "directLabels": [],
+    "catalog": {
+      "client": 0,
+      "scroll": 0,
+      "gutter": "auto",
+      "thumb": "rgba(0, 0, 0, 0)"
+    }
+  },
+  {
+    "name": "bars-light",
+    "width": 1280,
+    "theme": "light",
+    "overflow": false,
+    "legend": [],
+    "directLabels": [],
+    "catalog": {
+      "client": 289,
+      "scroll": 633,
+      "gutter": "stable",
+      "thumb": "rgb(96, 109, 133)"
+    }
+  },
+  {
+    "name": "ranking-light",
+    "width": 1280,
+    "theme": "light",
+    "overflow": false,
+    "legend": [],
+    "directLabels": [],
+    "catalog": {
+      "client": 289,
+      "scroll": 633,
+      "gutter": "stable",
+      "thumb": "rgb(96, 109, 133)"
+    }
+  },
+  {
+    "name": "compact-desktop-light",
+    "width": 901,
+    "theme": "light",
+    "overflow": false,
+    "legendBottom": 756,
+    "legend": [
+      {
+        "label": "Fable 5.1",
+        "color": "color(srgb 0.451765 0.19451 0.134902)",
+        "contrast": 9.509547079171618
+      },
+      {
+        "label": "Haiku 5.5",
+        "color": "color(srgb 0.614902 0.401569 0.298039)",
+        "contrast": 4.731297542058975
+      },
+      {
+        "label": "Opus 5.5",
+        "color": "color(srgb 0.545882 0.257255 0.166275)",
+        "contrast": 7.215223315688954
+      },
+      {
+        "label": "GPT-6.1 Sol",
+        "color": "color(srgb 0.276078 0.326275 0.376471)",
+        "contrast": 7.875118690421495
+      },
+      {
+        "label": "GPT-6.1 Terra",
+        "color": "color(srgb 0.150588 0.175686 0.200784)",
+        "contrast": 13.9481915838631
+      },
+      {
+        "label": "GPT-6 Astra",
+        "color": "color(srgb 0.150588 0.175686 0.200784)",
+        "contrast": 13.9481915838631
+      },
+      {
+        "label": "GPT-6 Luna",
+        "color": "color(srgb 0.363922 0.407843 0.458039)",
+        "contrast": 5.671953818781912
+      }
+    ],
+    "directLabels": [],
+    "catalog": {
+      "client": 289,
+      "scroll": 633,
+      "gutter": "stable",
+      "thumb": "rgb(96, 109, 133)"
+    }
+  }
+]

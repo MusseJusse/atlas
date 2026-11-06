@@ -1,11 +1,11 @@
 import { taskCostLabel } from './PricingDetails';
-import { useMemo } from 'react';
+import { useMemo, type MouseEvent } from 'react';
 import { format } from '../formatModel';
 import { SvgLogo } from '../Logo';
-import { modelColor, shortName } from '../model-presentation';
+import { modelColor, modelTextColor, modelLineDashes, shortName } from '../model-presentation';
 import { scoreLabels, metrics, type Metric, type ScoreMetric } from '../chart-definitions';
 import type { Settings } from '../state';
-import { pinHandlers, type Interactions } from './interactions';
+import { nearestPoint, pinHandlers, type Interactions } from './interactions';
 import { scatterGeometry, spacedAxisTicks, type ScatterRow } from './geometry';
 
 export function Scatter({
@@ -28,6 +28,7 @@ export function Scatter({
   interactions: Interactions;
 }) {
   const mobile = width < 600;
+  const hitRadius = mobile ? 23 : 13;
   const {
     left,
     right,
@@ -46,6 +47,13 @@ export function Scatter({
     () => scatterGeometry(rows, metric, width, height, settings.labels, linear),
     [rows, metric, width, height, settings.labels, linear],
   );
+  // Resolve touch overlap by distance, rather than whichever SVG target was painted last.
+  function pointerModel(event: MouseEvent<SVGGElement>, fallback: ScatterRow) {
+    const matrix = event.currentTarget.ownerSVGElement?.getScreenCTM();
+    if (!mobile || !matrix) return fallback;
+    const point = new DOMPoint(event.clientX, event.clientY).matrixTransform(matrix.inverse());
+    return nearestPoint(rows.map((model) => ({ model, x: x(model.value), y: y(model.score) })), point.x, point.y, hitRadius)?.model ?? fallback;
+  }
   const { activeModel } = interactions;
   const activeFamily = activeModel?.family ?? interactions.highlighted;
   const guide = activeModel
@@ -69,10 +77,10 @@ export function Scatter({
           </text>
         </g>
       ))}
-      {spacedAxisTicks(logTicks, x, metric).map((tick) => (
+      {spacedAxisTicks(logTicks, x, metric, mobile).map((tick) => (
         <g key={tick.value} transform={`translate(${tick.x},${bottom})`}>
           <line y2={5} stroke="var(--line-2)" />
-          <text y={26} textAnchor="middle" fill="var(--fg-3)" fontSize="12">
+          <text y={26} textAnchor="middle" fill="var(--fg-3)" fontSize={mobile ? 11 : 12}>
             {tick.label}
           </text>
         </g>
@@ -108,7 +116,8 @@ export function Scatter({
             fill="none"
             stroke={modelColor(series.rows[0]!)}
             strokeWidth="2.25"
-            opacity={settings.frontier ? (frontierFamilies.has(series.family) ? 0.25 : 0.08) : 0.45}
+            strokeDasharray={modelLineDashes[series.family]}
+            opacity={settings.frontier ? (frontierFamilies.has(series.family) ? 0.25 : 0.08) : 1}
           />
           {series.rows.map((model) => {
             const onFrontier = frontierIds.has(model.id);
@@ -122,16 +131,17 @@ export function Scatter({
                 aria-pressed={interactions.pinned?.id === model.id}
                 className="cursor-pointer focus-visible:[&>circle:last-child]:stroke-accent focus-visible:[&>circle:last-child]:stroke-[3] mobile:focus-visible:[outline:none]"
                 opacity={settings.frontier && !onFrontier && !active && !activeFamily ? 0.15 : 1}
-                onMouseEnter={() => interactions.hover(model)}
+                onMouseEnter={(event) => interactions.hover(pointerModel(event, model))}
                 onMouseLeave={() => interactions.hover(null)}
                 onFocus={() => interactions.hover(model)}
                 onBlur={() => interactions.hover(null)}
                 {...pinHandlers(model, interactions.togglePin)}
+                onClick={(event) => interactions.togglePin(pointerModel(event, model))}
               >
                 <circle
                   cx={x(model.value)}
                   cy={y(model.score)}
-                  r={13}
+                  r={hitRadius}
                   fill="transparent"
                 />
                 {active && (
@@ -175,17 +185,19 @@ export function Scatter({
               opacity={dim ? 0.2 : 1}
               role="button"
               tabIndex={0}
-              aria-label={`Highlight ${series.end.codingAgent?.configuration ?? series.end.name}`}
+              aria-label={`Select ${series.end.codingAgent?.configuration ?? series.end.name}`}
               onMouseEnter={() => interactions.highlight(series.family)}
               onMouseLeave={() => interactions.highlight(null)}
-              aria-pressed={interactions.pinned?.id === series.end.id}
-              {...pinHandlers(series.end, interactions.togglePin)}
+              aria-pressed={series.end.codingAgent ? interactions.pinned?.id === series.end.id : interactions.pinned?.family === series.family}
+              {...pinHandlers(series.end, () => interactions.togglePin(
+                !series.end.codingAgent && interactions.pinned?.family === series.family ? interactions.pinned : series.end,
+              ))}
             >
               <path
                 d={`M${x(series.end.value) + 8},${y(series.end.score)} L${right + 20},${series.y}`}
                 stroke={modelColor(series.end)}
                 strokeWidth="0.7"
-                opacity="0.45"
+                strokeDasharray={modelLineDashes[series.family]}
                 fill="none"
               />
               <rect
@@ -201,7 +213,7 @@ export function Scatter({
                 y={series.y + 4}
                 fontSize={series.end.codingAgent ? 12 : 14}
                 fontWeight="550"
-                fill="var(--fg)"
+                fill={modelTextColor(series.end)}
               >
                 {labelName}{metric === 'cost' && series.end.taskPricing?.basis === 'api-fallback' && <tspan fontSize={10}> · API</tspan>}
               </text>

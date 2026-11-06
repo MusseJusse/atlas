@@ -2,6 +2,7 @@ import { barDomain, linearScale, logScale } from '../scales';
 import { scatterDomain, scatterRows } from '../scatter-data';
 import { barGroups, paretoFrontier, type Model } from '../models';
 import { format, formatModelValue } from '../formatModel';
+import { shortName } from '../model-presentation';
 import type { Metric, ScoreMetric } from '../chart-definitions';
 
 export type MeasuredRow = Model & { value: number };
@@ -30,8 +31,10 @@ export function scatterGeometry(
   linear: boolean,
 ) {
   const mobile = width < 600;
-  const left = mobile ? 46 : 64;
-  const right = width - (labelsEnabled && !mobile ? 235 : 24);
+  const left = mobile ? 40 : 64;
+  // Keep room for selected model names; longer agent labels retain the full gutter.
+  const labelWidth = Math.min(235, Math.max(160, ...rows.map((row) => shortName(row).length * 7 + 62)));
+  const right = width - (labelsEnabled && !mobile ? labelWidth : mobile ? 16 : 24);
   const top = 30;
   const bottom = Math.max(130, height - 60);
   const domain = scatterDomain(rows, metric, linear);
@@ -194,14 +197,14 @@ export function rangeGeometry(
 
 
 /** Keep tick labels readable when precise low prices need more characters. */
-export function spacedAxisTicks(values: number[], position: (value: number) => number, metric: Metric) {
+export function spacedAxisTicks(values: number[], position: (value: number) => number, metric: Metric, compact = false) {
   let edge = -Infinity;
   const used = new Set<string>();
   return values.flatMap((value) => {
     const label = format(value, metric, true);
     const x = position(value);
-    const halfWidth = label.length * 3.5;
-    if (used.has(label) || x - halfWidth < edge + 10) return [];
+    const halfWidth = label.length * (compact ? 2.8 : 3.5);
+    if (used.has(label) || x - halfWidth < edge + (compact ? 6 : 10)) return [];
     edge = x + halfWidth;
     used.add(label);
     return [{ value, label, x }];

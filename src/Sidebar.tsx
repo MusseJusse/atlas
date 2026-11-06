@@ -131,7 +131,7 @@ export const Sidebar = memo(function Sidebar({
           </span>
         </h2>
         <button
-          className="flex size-8 items-center justify-center rounded-md text-fg-2 hover:bg-hover hover:text-accent mobile:size-10"
+          className="flex size-8 items-center justify-center rounded-md text-fg-2 hover:bg-hover hover:text-accent mobile:size-11"
           aria-label="Reset model filters"
           title="Reset model filters"
           onClick={() => {
@@ -142,7 +142,7 @@ export const Sidebar = memo(function Sidebar({
           <RotateCcw size={14} aria-hidden="true" />
         </button>
         <button
-          className="hidden! mobile:inline-flex! mobile:items-center mobile:gap-1.5 sheet-done justify-center mobile:w-auto mobile:h-10 mobile:py-0 mobile:pr-1 mobile:pl-3 mobile:text-[15px] mobile:font-[550] mobile:text-accent"
+          className="hidden! mobile:inline-flex! mobile:items-center mobile:gap-1.5 sheet-done justify-center mobile:w-auto mobile:h-11 mobile:py-0 mobile:pr-1 mobile:pl-3 mobile:text-[15px] mobile:font-[550] mobile:text-accent"
           onClick={close}
         >
           Done
