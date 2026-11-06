@@ -144,3 +144,29 @@ To reproduce the audit without adding a repository dependency, install axe-core 
 npm install --prefix /tmp/slopalytics-a11y --no-audit --no-fund axe-core@4.14.0
 node docs/ui-quality/council-a/run-axe.mjs /tmp/slopalytics-a11y/node_modules/axe-core/axe.min.js http://127.0.0.1:4493
 ```
+
+## Revised round 3 complete
+
+All four revised members reviewed the previous application source at `b23ad1b`, with matched evidence added at `bf05cd1`. None approved the target. GLM independently passed type checking and 185 unit tests and exercised selected interactions/geometry with headless Chromium; it did not rerun the full browser suite or build.
+
+| Current application category | Sol | Terra | DeepSeek Free | GLM Free |
+| --- | --- | --- | --- | --- |
+| Overall UI | 8.7 | 8.5 | 8.6 | 8.5 |
+| Navigation and discovery | 9.0 | 8.6 | 8.8 | 8.8 |
+| Hierarchy and typography | 8.9 | 8.6 | 8.7 | 8.7 |
+| Chart and data readability | 8.5 | 8.3 | 8.4 | 8.4 |
+| Controls and feedback | 8.9 | 8.6 | 8.8 | 8.7 |
+| Mobile | 8.6 | 8.4 | 8.7 | 8.6 |
+| Accessibility evidence | 8.3 | 7.9 | 8.2 | 8.3 |
+
+Their reference chart-readability scores were 8.6, 8.5, 8.5 and 8.5 respectively. Accessibility judgments describe available evidence, not conformance certification.
+
+## Round 4 revision
+
+The prepared contrast, geometry, pricing, filter-target, category-memory and ARIA-reference fixes above are now ready for fresh review. The final additions address GLM's verified findings:
+
+- Phone scatter targets have a 23px transparent radius. Selection resolves the closest plotted point to the pointer, rather than the last-painted overlapping hit area. Visible point centers and values stay exact. Keyboard activation still selects the focused configuration. A browser test verifies Haiku low and Luna medium separately, despite their near-overlap.
+- The page H1 precedes the sidebar's H2, and the main landmark references that title.
+- The phone Artificial Analysis footer link has a 44px minimum height. No “Pricing captured” link exists in this application; that phrase in GLM's review was inaccurate.
+
+The final revision passes type checking, build, all 185 unit tests and all 33 production Chromium tests. The eight-state axe report was rerun against the final build: zero violations, with the documented incomplete contrast/popup checks retained. No screen-reader pass is claimed. Round 4 scores remain pending; prior scores do not approve this new revision.

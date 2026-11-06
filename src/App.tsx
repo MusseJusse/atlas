@@ -162,6 +162,7 @@ function Benchmarks() {
         Skip to benchmarks
       </a>
       <SiteHeader page="benchmarks" />
+      <h1 id="benchmark-title" className="sr-only">Model benchmarks</h1>
       <div className="grid min-h-0 grid-cols-[var(--sidebar-width)_minmax(0,1fr)] gap-6 px-7 pt-6 pb-2 short:pt-4 compact:gap-5 compact:px-5 mobile:block mobile:px-4 mobile:pt-4 mobile:pb-0">
         <Sidebar
           settings={settings}
@@ -173,10 +174,10 @@ function Benchmarks() {
         />
         <main
           id="benchmark-workspace"
+          aria-labelledby="benchmark-title"
           tabIndex={-1}
           className="grid min-h-0 min-w-0 grid-rows-[auto_minmax(0,1fr)] rounded-xl bg-panel [outline:none] mobile:block"
         >
-          <h1 className="sr-only">Model benchmarks</h1>
           <div className="min-w-0 px-6 mobile:sticky mobile:top-[var(--header-height)] mobile:z-[6] mobile:rounded-t-xl mobile:bg-panel mobile:px-4">
             <button
               className="hidden min-h-11 w-full items-center gap-2 border-b border-line py-3 text-left text-[12px] text-fg-2 mobile:flex!"
@@ -337,7 +338,7 @@ function Benchmarks() {
         <span>
           Data from{' '}
           <a
-            className="underline-offset-4 hover:text-accent hover:underline"
+            className="underline-offset-4 hover:text-accent hover:underline mobile:inline-flex mobile:min-h-11 mobile:items-center"
             href="https://artificialanalysis.ai/"
             target="_blank"
             rel="noreferrer"

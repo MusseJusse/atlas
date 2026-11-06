@@ -1,11 +1,11 @@
 import { taskCostLabel } from './PricingDetails';
-import { useMemo } from 'react';
+import { useMemo, type MouseEvent } from 'react';
 import { format } from '../formatModel';
 import { SvgLogo } from '../Logo';
 import { modelColor, modelLineDashes, shortName } from '../model-presentation';
 import { scoreLabels, metrics, type Metric, type ScoreMetric } from '../chart-definitions';
 import type { Settings } from '../state';
-import { pinHandlers, type Interactions } from './interactions';
+import { nearestPoint, pinHandlers, type Interactions } from './interactions';
 import { scatterGeometry, spacedAxisTicks, type ScatterRow } from './geometry';
 
 export function Scatter({
@@ -28,6 +28,7 @@ export function Scatter({
   interactions: Interactions;
 }) {
   const mobile = width < 600;
+  const hitRadius = mobile ? 23 : 13;
   const {
     left,
     right,
@@ -46,6 +47,13 @@ export function Scatter({
     () => scatterGeometry(rows, metric, width, height, settings.labels, linear),
     [rows, metric, width, height, settings.labels, linear],
   );
+  // Resolve touch overlap by distance, rather than whichever SVG target was painted last.
+  function pointerModel(event: MouseEvent<SVGGElement>, fallback: ScatterRow) {
+    const matrix = event.currentTarget.ownerSVGElement?.getScreenCTM();
+    if (!mobile || !matrix) return fallback;
+    const point = new DOMPoint(event.clientX, event.clientY).matrixTransform(matrix.inverse());
+    return nearestPoint(rows.map((model) => ({ model, x: x(model.value), y: y(model.score) })), point.x, point.y, hitRadius)?.model ?? fallback;
+  }
   const { activeModel } = interactions;
   const activeFamily = activeModel?.family ?? interactions.highlighted;
   const guide = activeModel
@@ -123,16 +131,17 @@ export function Scatter({
                 aria-pressed={interactions.pinned?.id === model.id}
                 className="cursor-pointer focus-visible:[&>circle:last-child]:stroke-accent focus-visible:[&>circle:last-child]:stroke-[3] mobile:focus-visible:[outline:none]"
                 opacity={settings.frontier && !onFrontier && !active && !activeFamily ? 0.15 : 1}
-                onMouseEnter={() => interactions.hover(model)}
+                onMouseEnter={(event) => interactions.hover(pointerModel(event, model))}
                 onMouseLeave={() => interactions.hover(null)}
                 onFocus={() => interactions.hover(model)}
                 onBlur={() => interactions.hover(null)}
                 {...pinHandlers(model, interactions.togglePin)}
+                onClick={(event) => interactions.togglePin(pointerModel(event, model))}
               >
                 <circle
                   cx={x(model.value)}
                   cy={y(model.score)}
-                  r={13}
+                  r={hitRadius}
                   fill="transparent"
                 />
                 {active && (

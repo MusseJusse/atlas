@@ -583,3 +583,21 @@ test('resting scatter lines meet contrast and desktop label pins match the selec
     await expect(label).toHaveAttribute('aria-pressed', 'false');
   }
 });
+
+
+test('phone scatter uses large touch targets and selects the nearest dense configuration', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto('/');
+  const chart = page.locator('#cost-intelligence svg[role=group]');
+  for (const name of [/^Claude Haiku 5.5, low,/, /^GPT-6 Luna, medium,/]) {
+    const point = chart.getByRole('button', { name });
+    const target = await point.boundingBox();
+    expect(target!.width).toBeGreaterThanOrEqual(44);
+    expect(target!.height).toBeGreaterThanOrEqual(44);
+    const marker = await point.locator('circle').last().boundingBox();
+    await page.mouse.click(marker!.x + marker!.width / 2, marker!.y + marker!.height / 2);
+    await expect(point).toHaveAttribute('aria-pressed', 'true');
+    await page.keyboard.press('Escape');
+    await page.mouse.move(0, 0);
+  }
+});
