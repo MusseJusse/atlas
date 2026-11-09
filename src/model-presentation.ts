@@ -22,9 +22,8 @@ export const notableFamilies = [
   'qwen3-8-max-0902',
   'qwen3-8-27b',
 ];
-// Gemini, Grok, Muse and Sonnet 5.5 stay in the Frontier picker but load unselected.
+// Gemini, Grok and Muse stay in the Frontier picker but load unselected.
 const defaultOff = new Set([
-  'claude-sonnet-5-5',
   'gemini-4-carbon',
   'gemini-4-argon',
   'grok-4-7',
