@@ -101,15 +101,15 @@ it('shows the selected coding score and existing cost in the main scatter detail
 });
 
 it('distinguishes subscription estimates and API fallbacks with provenance', async () => {
-  const { subscriptionRows } = await import('../data/subscriptions');
+  const { subscriptionRows, subscriptionSource } = await import('../data/subscriptions');
   const { defaults } = await import('../state');
-  const [priced] = subscriptionRows([sol], { ...defaults, pricingMode: 'subscription' });
+  const [priced] = subscriptionRows([sol], { ...defaults, pricingMode: 'subscription' }, subscriptionSource.benchmarkSourceHash);
   const markup = render(priced!);
   expect(markup).toContain('Estimated subscription / task');
   expect(markup).toContain('Measured API / task');
   expect(markup).toContain('External coding token mix');
   expect(markup).toContain('ChatGPT Pro 10x');
-  const [fallback] = subscriptionRows([{ ...sol, family: 'unknown' }], { ...defaults, pricingMode: 'subscription' });
+  const [fallback] = subscriptionRows([{ ...sol, family: 'unknown' }], { ...defaults, pricingMode: 'subscription' }, subscriptionSource.benchmarkSourceHash);
   expect(render(fallback!)).toContain('API fallback');
   expect(render(fallback!)).not.toContain('Estimated subscription / task');
   expect(render(sol)).toContain('Cost per task · API');

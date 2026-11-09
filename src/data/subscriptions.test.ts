@@ -13,13 +13,17 @@ it('validates the captured source and named default plans', () => {
 });
 
 const settings = { ...defaults, pricingMode: 'subscription' as const };
-const sol = models.find((model) => model.id === 'gpt-6-1-sol-xhigh')!;
+// Exercise a matching capture independently of the live benchmark snapshot.
+const captured = subscriptionSource.models.find((model) => model.family === 'gpt-6-1-sol')!;
+const sol = { ...models.find((model) => model.id === 'gpt-6-1-sol-xhigh')!,
+  inputPrice: captured.apiPrices.input, outputPrice: captured.apiPrices.output };
+const captureHash = subscriptionSource.benchmarkSourceHash;
 
 it('uses the exact external mix and selected plan without rounding or mutating measured values', () => {
   const data = subscriptionSource.models.find((model) => model.family === sol.family)!;
   expect(blendedApiPrice(data)).toBeCloseTo(0.197, 12);
   const selected = { ...settings, subscriptionPlans: { openai: 'ChatGPT Plus' } };
-  const [priced] = subscriptionRows([sol], selected);
+  const [priced] = subscriptionRows([sol], selected, captureHash);
   const plan = data.plans.find((plan) => plan.id === 'ChatGPT Plus')!;
   expect(priced?.cost).toBe(sol.cost! * (plan.usdPerMtok / blendedApiPrice(data)));
   expect(priced?.taskPricing).toMatchObject({ basis: 'subscription', apiCost: sol.cost, plan: 'ChatGPT Plus' });
@@ -29,16 +33,17 @@ it('uses the exact external mix and selected plan without rounding or mutating m
 });
 
 it('preserves missing/zero costs and explicitly falls back for unknown models, plans or changed API prices', () => {
-  expect(subscriptionRows([{ ...sol, cost: null }], settings)[0]?.cost).toBeNull();
-  expect(subscriptionRows([{ ...sol, cost: 0 }], settings)[0]?.cost).toBe(0);
+  expect(subscriptionRows([{ ...sol, cost: null }], settings, captureHash)[0]?.cost).toBeNull();
+  expect(subscriptionRows([{ ...sol, cost: 0 }], settings, captureHash)[0]?.cost).toBe(0);
   for (const [model, config] of [
     [{ ...sol, family: 'future-sol' }, settings],
     [sol, { ...settings, subscriptionPlans: { openai: 'unknown' } }],
     [{ ...sol, inputPrice: 99 }, settings],
   ] as const) {
-    const [priced] = subscriptionRows([model], config);
+    const [priced] = subscriptionRows([model], config, captureHash);
     expect(priced?.cost).toBe(model.cost);
     expect(priced?.taskPricing?.basis).toBe('api-fallback');
+    expect(priced?.taskPricing).not.toMatchObject({ reason: 'Benchmark data refreshed. Subscription pricing needs recapture.' });
   }
 });
 
@@ -83,8 +88,8 @@ it('subtracts displaced weekly allowance for restarted clocks and requires prior
 });
 
 it('changes costs with source-supported resets and scopes conversion to full-index cost views', () => {
-  const [baseline] = subscriptionRows([sol], settings);
-  const [reset] = subscriptionRows([sol], { ...settings, countResets: true });
+  const [baseline] = subscriptionRows([sol], settings, captureHash);
+  const [reset] = subscriptionRows([sol], { ...settings, countResets: true }, captureHash);
   expect(reset!.cost).toBeLessThan(baseline!.cost!);
   expect(usesSubscriptionPricing('cost-intelligence', settings)).toBe(true);
   expect(usesSubscriptionPricing('cost-task', settings)).toBe(true);
@@ -101,7 +106,7 @@ it('fails closed on any benchmark revision, including unseen cache-price changes
 });
 
 it('only discloses fallback when the rendered chart rows contain fallback models', () => {
-  const rows = subscriptionRows([sol, { ...sol, family: 'unknown' }], settings);
+  const rows = subscriptionRows([sol, { ...sol, family: 'unknown' }], settings, captureHash);
   expect(pricingDisclosure(rows, false).join(' ')).toContain('Includes API fallback');
   expect(pricingDisclosure(rows.filter((row) => row.taskPricing?.basis === 'subscription'), false).join(' ')).not.toContain('Includes API fallback');
 });
