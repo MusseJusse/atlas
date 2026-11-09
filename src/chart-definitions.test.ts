@@ -1,5 +1,5 @@
 import { expect, it } from 'vitest';
-import { chartViews, resolveView, views } from './chart-definitions';
+import { chartViews, rankingPresentation, resolveView, views } from './chart-definitions';
 import { readSettings, readView, writeSettings } from './state';
 
 it.each(views)('preserves the $id URL and chart mode with either scatter preference', (view) => {
@@ -45,5 +45,34 @@ it('changes the score bar metric without changing chart IDs or unrelated benchma
   expect(coding.find((view) => view.id === 'intelligence'))
     .toMatchObject({ label: 'Coding score', metric: 'codingIndex' });
   expect(coding.find((view) => view.id === 'omniscience')?.metric).toBe('omniscience');
+  expect(coding.find((view) => view.id === 'cost-intelligence')?.label).toBe('Cost vs coding score');
   expect(chartViews(false)).toEqual(views);
+});
+
+
+it('ranks best first consistently and respects the explicit direction', () => {
+  const settings = readSettings('');
+  for (const view of views) {
+    const higher = ['intelligence', 'omniscience'].includes(view.id);
+    expect(rankingPresentation(view, settings)).toEqual({ descending: higher, highestLast: false });
+    expect(rankingPresentation(view, { descending: !higher })).toEqual({ descending: !higher, highestLast: false });
+  }
+});
+
+
+it('defaults to desktop Bars and preserves explicit Ranking links', () => {
+  const settings = readSettings('?bars=false');
+  expect(settings.bars).toBe(false);
+  expect(writeSettings(settings, 'intelligence')).toContain('bars=false');
+  expect(readSettings(writeSettings(settings, 'intelligence')).bars).toBe(false);
+  expect(readSettings('/').bars).toBe(true);
+});
+
+it('uses highest-last only as the automatic Bars sort and respects explicit sort choices', () => {
+  for (const view of views) {
+    expect(rankingPresentation(view, readSettings(''), true)).toEqual({ descending: false, highestLast: true });
+    expect(rankingPresentation(view, readSettings('?sort=asc'), true)).toEqual({ descending: false, highestLast: false });
+    expect(rankingPresentation(view, readSettings('?sort=desc'), true)).toEqual({ descending: true, highestLast: false });
+    expect(rankingPresentation(view, readSettings('?sort=highest-last'), false)).toEqual({ descending: false, highestLast: true });
+  }
 });

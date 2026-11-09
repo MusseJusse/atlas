@@ -1,9 +1,9 @@
 import { expect, it } from 'vitest';
 import { models, type Model } from '../models';
 import { speedEndpoints } from '../data/speed-endpoints';
-import { barDomain, linearScale, logScale } from '../scales';
+import { linearScale, logScale } from '../scales';
 import { scatterDomain } from '../scatter-data';
-import { barGeometry, measureRows, measureScatterRows, rangeGeometry, scatterGeometry } from './geometry';
+import { barGeometry, measureRows, measureScatterRows, rangeGeometry, scatterGeometry, spacedAxisTicks } from './geometry';
 
 const base = models[0]!;
 function model(id: string, family: string, cost: number | null, intelligence = 40): Model {
@@ -60,16 +60,14 @@ it('keeps negative bars below zero, reserves label space and avoids overlapping 
   })), 'omniscience');
   const original = structuredClone(rows);
   const geometry = barGeometry(rows, 'omniscience', 320, 640, true, false);
-  const reference = linearScale(barDomain(rows.map((row) => row.value), 0.15), [640 - 96 - 42, 50]);
   for (const row of rows) {
-    expect(geometry.y(row.value)).toBe(reference(row.value));
     if (row.value < 0) expect(geometry.y(row.value)).toBeGreaterThan(geometry.y(0));
     if (row.value > 0) expect(geometry.y(row.value)).toBeLessThan(geometry.y(0));
   }
-  const bars = geometry.positioned.flatMap((group) => group.bars);
+  const bars = geometry.positioned.flatMap((group) => group.bars).filter((bar) => bar.labelVisible);
   for (const [index, bar] of bars.entries()) {
     for (const other of bars.slice(index + 1)) {
-      const combinedWidth = (bar.text.length + other.text.length) * 6.4 / 2 + 4;
+      const combinedWidth = (bar.textWidth + other.textWidth) / 2 + 3;
       expect(Math.abs(bar.labelX - other.labelX) >= combinedWidth || Math.abs(bar.labelY - other.labelY) >= 17).toBe(true);
     }
   }
@@ -97,4 +95,63 @@ it('places signed phone ranges within bounds and keeps a zero reference', () => 
     expect(geometry.position(row.value)).toBeGreaterThanOrEqual(0);
     expect(geometry.position(row.value)).toBeLessThanOrEqual(100);
   }
+});
+
+
+it('thins dense model labels within bounds without dropping points or series', () => {
+  const rows = measureScatterRows(Array.from({ length: 80 }, (_, index) =>
+    model(`dense-${index}`, `family-${index}`, index + 1, 40 + index / 10)), 'cost', false);
+  const geometry = scatterGeometry(rows, 'cost', 960, 400, true, false);
+  expect(geometry.series).toHaveLength(rows.length);
+  expect(geometry.labels.length).toBeLessThan(20);
+  for (const label of geometry.labels) {
+    expect(label.y).toBeGreaterThanOrEqual(geometry.top);
+    expect(label.y).toBeLessThanOrEqual(geometry.bottom);
+  }
+});
+
+
+it('spaces precise axis labels without changing the underlying tick positions', () => {
+  const values = [0.0005, 0.001, 0.002, 0.005];
+  const positions = new Map(values.map((value, index) => [value, index * 32]));
+  const labels = spacedAxisTicks(values, (value) => positions.get(value)!, 'cost');
+  expect(labels.length).toBeGreaterThan(1);
+  expect(labels.length).toBeLessThan(values.length);
+  expect(new Set(labels.map((tick) => tick.label)).size).toBe(labels.length);
+  for (const tick of labels) expect(tick.x).toBe(positions.get(tick.value));
+});
+
+
+it('orders negative annotations by depth in a separate band, with exact bar-centered X positions', () => {
+  const rows = measureRows([-18.1, -13.6, -12.8, -13].map((omniscience, index) => ({
+    ...base, id: `negative-${index}`, family: 'negative', omniscience, effortOrder: index,
+  })), 'omniscience');
+  const geometry = barGeometry(rows, 'omniscience', 220, 320, true, true);
+  const group = geometry.positioned[0]!;
+  const ordered = group.bars.toSorted((a, b) => b.row.value - a.row.value);
+  const deepestEnd = Math.max(...ordered.map((bar) => geometry.y(bar.row.value)));
+  for (const [index, bar] of ordered.entries()) {
+    expect(bar.labelY).toBeGreaterThan(deepestEnd);
+    expect(bar.labelY).toBeLessThan(geometry.bottom);
+    expect(bar.labelX).toBeCloseTo(bar.x + group.barWidth / 2);
+    if (index > 0) expect(bar.labelY).toBeGreaterThanOrEqual(ordered[index - 1]!.labelY);
+  }
+});
+
+
+it('bounds positive value labels below the unit heading and prioritizes the highest values', () => {
+  const rows = measureRows([40.3, 41.4, 44.6, 43.7].map((omniscience, index) => ({
+    ...base, id: `positive-${index}`, family: 'positive', omniscience, effortOrder: index,
+  })), 'omniscience');
+  const geometry = barGeometry(rows, 'omniscience', 160, 250, true, true);
+  const bars = geometry.positioned[0]!.bars;
+  expect(bars.find((bar) => bar.row.value === 44.6)?.labelVisible).toBe(true);
+  expect(bars.some((bar) => !bar.labelVisible)).toBe(true);
+  for (const bar of bars.filter((bar) => bar.labelVisible)) {
+    expect(bar.labelY).toBeGreaterThanOrEqual(36);
+    expect(bar.labelY).toBeLessThan(geometry.y(bar.row.value));
+  }
+  const visible = bars.filter((bar) => bar.labelVisible).toSorted((a, b) => a.row.value - b.row.value);
+  for (let index = 1; index < visible.length; index++) expect(visible[index]!.labelY).toBeLessThanOrEqual(visible[index - 1]!.labelY);
+  expect(bars).toHaveLength(rows.length);
 });

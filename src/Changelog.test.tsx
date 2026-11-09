@@ -30,12 +30,12 @@ const history: ChangeHistory = {
   ],
 };
 
-it('defaults to added changes and preserves exact field values', () => {
+it('defaults to all changes and preserves exact field values', () => {
   const markup = renderToStaticMarkup(<Changelog history={history} />);
-  expect(markup).toMatch(/<button[^>]*aria-pressed="true"[^>]*>Added<\/button>/);
-  expect(markup).not.toContain('Updated model');
-  expect(markup).not.toContain('Removed model');
-  expect(markup).toContain('1 change shown');
+  expect(markup).toMatch(/<button[^>]*aria-pressed="true"[^>]*>All changes<\/button>/);
+  expect(markup).toContain('Updated model');
+  expect(markup).toContain('Removed model');
+  expect(markup).toContain('3 changes shown');
   expect(markup).toContain('Example &lt;model&gt;');
   expect(markup).toContain('Not available');
   expect(markup).toContain('0 tok/s');

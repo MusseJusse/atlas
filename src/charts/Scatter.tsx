@@ -1,12 +1,12 @@
 import { taskCostLabel } from './PricingDetails';
 import { useMemo } from 'react';
+import { format } from '../formatModel';
 import { SvgLogo } from '../Logo';
 import { modelColor, shortName } from '../model-presentation';
-import { format } from '../formatModel';
 import { scoreLabels, metrics, type Metric, type ScoreMetric } from '../chart-definitions';
 import type { Settings } from '../state';
 import { pinHandlers, type Interactions } from './interactions';
-import { scatterGeometry, type ScatterRow } from './geometry';
+import { scatterGeometry, spacedAxisTicks, type ScatterRow } from './geometry';
 
 export function Scatter({
   rows,
@@ -69,11 +69,11 @@ export function Scatter({
           </text>
         </g>
       ))}
-      {logTicks.map((tick) => (
-        <g key={tick} transform={`translate(${x(tick)},${bottom})`}>
+      {spacedAxisTicks(logTicks, x, metric).map((tick) => (
+        <g key={tick.value} transform={`translate(${tick.x},${bottom})`}>
           <line y2={5} stroke="var(--line-2)" />
           <text y={26} textAnchor="middle" fill="var(--fg-3)" fontSize="12">
-            {format(tick, metric, true)}
+            {tick.label}
           </text>
         </g>
       ))}
@@ -201,7 +201,7 @@ export function Scatter({
                 y={series.y + 4}
                 fontSize={series.end.codingAgent ? 12 : 14}
                 fontWeight="550"
-                fill={modelColor(series.end)}
+                fill="var(--fg)"
               >
                 {labelName}{metric === 'cost' && series.end.taskPricing?.basis === 'api-fallback' && <tspan fontSize={10}> · API</tspan>}
               </text>

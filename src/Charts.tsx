@@ -13,11 +13,12 @@ import { useHydrated } from './useHydrated';
 import type { Model } from './models';
 import { modelColor, shortName } from './model-presentation';
 import { scoreLabels, metrics, resolveView, type View } from './chart-definitions';
-import { chartDescending, type Settings } from './state';
+import type { Settings } from './state';
 import { Logo } from './Logo';
 import { ConfigurationDetails } from './charts/ConfigurationDetails';
 import { Scatter } from './charts/Scatter';
 import { Bars } from './charts/Bars';
+import { useMediaQuery } from './useMediaQuery';
 import { Ranking } from './charts/Ranking';
 import { measureRows, measureScatterRows } from './charts/geometry';
 import type { Interactions } from './charts/interactions';
@@ -30,6 +31,8 @@ function useSize(enabled: boolean) {
     const element = ref.current;
     if (!element) return;
     const resize = (width: number, height: number) => {
+      // Hidden, previously visited sections have no layout until selected again.
+      if (width <= 0 || height <= 0) return;
       width = Math.round(width);
       height = Math.round(height);
       setSize((previous) =>
@@ -54,7 +57,7 @@ function useSize(enabled: boolean) {
 
 export const Chart = memo(function Chart({
   active,
-  phone,
+  presentation,
   view,
   rows,
   settings,
@@ -63,7 +66,7 @@ export const Chart = memo(function Chart({
   onHighlight,
 }: {
   active: boolean;
-  phone: boolean;
+  presentation: { descending: boolean; highestLast: boolean };
   view: View;
   rows: Model[];
   settings: Settings;
@@ -75,10 +78,11 @@ export const Chart = memo(function Chart({
   const hydrated = useHydrated();
   const ready = hydrated && (active || visited);
   const { scatter, linear, score } = resolveView(view, settings);
-  const { ref, width, height } = useSize(ready && (scatter || !phone));
+  const desktop = useMediaQuery('(min-width: 901px)');
+  const bars = !scatter && desktop && settings.bars;
+  const { ref, width, height } = useSize(ready && (scatter || bars));
 
-  // Desktop sections have a fixed height, so charts can mount just before scrolling into view.
-  // Keep visited charts mounted to preserve pinned details and avoid navigation fetches.
+  // Keep visited charts mounted to preserve selected details across navigation.
   useEffect(() => {
     if (visited) return;
     if (active) {
@@ -109,6 +113,7 @@ export const Chart = memo(function Chart({
     [rows, view.metric, scatter, linear, score],
   );
   const validRows = prepared.rows;
+  const { descending, highestLast } = presentation;
   const { pinned, activeModel } = resolveChartInteraction(validRows, pinnedId, hoveredId);
   const interactions: Interactions = {
     pinned,
@@ -130,10 +135,13 @@ export const Chart = memo(function Chart({
 
   function clearSelection() {
     // Keep keyboard users in the chart when removing the inspector's focused control.
-    ref.current?.querySelector<SVGGElement>('g[aria-pressed="true"]')?.focus({ preventScroll: true });
+    ref.current?.querySelector<SVGGElement | HTMLButtonElement>('g[aria-pressed="true"], .ranking-configurations button[aria-pressed="true"]')?.focus({ preventScroll: true });
     setPinnedId(null);
     setHoveredId(null);
   }
+
+  const details = activeModel && <ConfigurationDetails model={activeModel} metric={view.metric}
+    score={settings.codingOnly || scatter ? score : undefined} pinned={Boolean(pinned)} onClose={clearSelection} />;
 
   return (
     <div
@@ -142,19 +150,21 @@ export const Chart = memo(function Chart({
         if (event.key === 'Escape') clearSelection();
       }}
     >
+      <div className={bars ? 'bar-scroll min-h-0 flex-1 overflow-x-auto' : 'contents'}>
       <div
-        className={`relative min-h-0 flex-1 mobile:aspect-[1/1.2] mobile:flex-none ${!scatter && (!ready || validRows.length > 0) ? 'phone:pointer-events-none phone:invisible phone:absolute phone:h-px phone:w-full phone:aspect-auto' : ''}`}
+        style={bars ? { minWidth: Math.max(1, new Set(validRows.map((row) => settings.grouped ? row.family : row.id)).size) * 120 } : undefined}
+        className={`relative min-h-0 ${bars ? 'bar-plot h-full w-full' : scatter ? "scatter-plot flex-1 mobile:aspect-[1/1.2] mobile:flex-none" : "contents"}`}
         ref={ref}
       >
         {ready &&
           (validRows.length === 0 ? (
             <div className="flex h-full flex-col items-center justify-center gap-2.5">
               <strong className="text-[17px] font-medium">No models to display</strong>
-              <span className="m-0 text-[12px] text-fg-2">
-                Select a model with measurements for this view.
+              <span className="m-0 max-w-[45ch] text-center text-[13px] leading-6 text-fg-2">
+                Choose models in the model filters or enable more reasoning levels. Some models have no measurements for this view.
               </span>
             </div>
-          ) : (scatter || !phone) && (
+          ) : prepared.scatter || bars ? (
             <svg
               className="absolute inset-0 block size-full font-sans [&_g[role=button]:focus]:[outline:none]"
               viewBox={`0 0 ${width} ${height}`}
@@ -175,30 +185,11 @@ export const Chart = memo(function Chart({
                 height={height}
                 fill="var(--panel)"
               />
-              {prepared.scatter ? (
-                <Scatter
-                  rows={prepared.rows}
-                  metric={view.metric}
-                  scoreMetric={score}
-                  linear={linear}
-                  settings={settings}
-                  width={width}
-                  height={height}
-                  interactions={interactions}
-                />
-              ) : (
-                <Bars
-                  rows={prepared.rows}
-                  metric={view.metric}
-                  settings={settings}
-                  width={width}
-                  height={height}
-                  interactions={interactions}
-                />
-              )}
+              {prepared.scatter ? <Scatter rows={prepared.rows} metric={view.metric} scoreMetric={score} linear={linear} settings={settings} width={width} height={height} interactions={interactions} />
+                : <Bars rows={prepared.rows} metric={view.metric} settings={{ ...settings, descending, highestLast }} width={width} height={height} interactions={interactions} />}
             </svg>
-          ))}
-        {(scatter || !phone) && activeModel && (
+          ) : <Ranking rows={prepared.rows} metric={view.metric} grouped={settings.grouped} descending={descending} highestLast={highestLast} interactions={interactions} score={settings.codingOnly ? score : undefined} logarithmic={view.metric === 'cost' && !linear && validRows.every((row) => row.value > 0)} />)}
+        {scatter && activeModel && (
           <aside
             className={`configuration-details${pinned ? '' : ' pointer-events-none'}`}
             data-placement={scatter ? 'bottom-right' : settings.descending ? 'top-right' : 'top-left'}
@@ -206,35 +197,25 @@ export const Chart = memo(function Chart({
             aria-label="Selected configuration"
             tabIndex={pinned ? 0 : undefined}
           >
-            <ConfigurationDetails
-              model={activeModel}
-              metric={view.metric}
-              score={settings.codingOnly || scatter ? score : undefined}
-              pinned={Boolean(pinned)}
-              onClose={clearSelection}
-            />
+            {details}
           </aside>
         )}
       </div>
-      {ready && validRows.length > 0 && !scatter && phone && (
-        <div className="hidden phone:block">
-          {!prepared.scatter && <Ranking rows={prepared.rows} metric={view.metric} grouped={settings.grouped}
-            descending={chartDescending(view.metric, true, settings.descending)} interactions={interactions}
-            score={settings.codingOnly ? score : undefined} logarithmic={false} />}
-        </div>
-      )}
+      </div>
+      {bars && activeModel && <aside className={`configuration-details${pinned ? '' : ' pointer-events-none'}`} data-placement="top-right" aria-label="Selected configuration" tabIndex={pinned ? 0 : undefined}>{details}</aside>}
+      {bars && validRows.length > 0 && width > (ref.current?.parentElement?.clientWidth ?? width) + 2 && <p className="mt-2 mb-0 text-[12px] text-fg-2">Scroll horizontally for more models.</p>}
       {/* Reserve the mobile legend's height in the initial HTML before hydration. */}
-      {scatter && settings.labels && (
-        <div className="hidden plot-mobile:grid grid-cols-2 gap-x-3 gap-y-0.5 pt-2.5">
+      {scatter && (
+        <div className={`${width < 600 || !settings.labels ? 'grid' : 'hidden plot-mobile:grid'} scatter-legend ${width >= 480 ? 'grid-cols-3 phone:grid-cols-2' : 'grid-cols-2'} gap-x-3 gap-y-0.5 pt-2.5`}>
           {legend.map((model) => (
             <button
-              className="flex min-h-8 items-center gap-[7px] overflow-hidden text-left text-[13px] font-[550] whitespace-nowrap text-fg"
+              className="flex min-h-11 items-center gap-[7px] overflow-hidden text-left text-[13px] font-[550] whitespace-nowrap text-fg"
               key={model.codingAgent ? model.id : model.family}
               aria-label={model.codingAgent?.configuration}
               onClick={() => interactions.togglePin(model)}
             >
+              <span className="size-2 shrink-0 rounded-full" style={{ background: modelColor(model) }} aria-hidden="true" />
               <Logo model={model} />
-              <span aria-hidden="true" className="hidden phone:block size-2 shrink-0 rounded-full" style={{ background: modelColor(model) }} />
               {model.codingAgent ? (
                 <span className="min-w-0">
                   <span className="block truncate">{shortName(model)}</span>

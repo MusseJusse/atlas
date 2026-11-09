@@ -12,8 +12,10 @@ export type Settings = PricingSettings & {
   labels: boolean;
   grouped: boolean;
   descending: boolean | null;
+  highestLast: boolean;
   linear: ViewId[];
   scatter: boolean;
+  bars: boolean;
 };
 export const defaults: Settings = {
   selected: defaultSelected,
@@ -26,8 +28,10 @@ export const defaults: Settings = {
   labels: true,
   grouped: true,
   descending: null,
+  highestLast: false,
   linear: [],
   scatter: true,
+  bars: true,
 };
 
 /** Keep known URL IDs once, in the order they first appeared. */
@@ -55,9 +59,11 @@ export function readSettings(search: string): Settings {
     codingOnly: params.get('codingOnly') === 'true',
     labels: params.get('labels') !== 'false',
     grouped: params.get('grouped') !== 'false',
-    descending: params.get('sort') === 'desc' ? true : params.get('sort') === 'asc' ? false : null,
+    descending: params.get('sort') === 'desc' ? true : ['asc', 'highest-last'].includes(params.get('sort') ?? '') ? false : null,
+    highestLast: params.get('sort') === 'highest-last',
     linear: readIds(params.get('linear') ?? '', views.map((view) => view.id)),
     scatter: params.get('scatter') !== 'false',
+    bars: params.get('bars') !== 'false',
   };
 }
 
@@ -85,9 +91,11 @@ export function writeSettings(settings: Settings, view: ViewId) {
   if (settings.codingOnly) params.set('codingOnly', 'true');
   if (!settings.labels) params.set('labels', 'false');
   if (!settings.grouped) params.set('grouped', 'false');
-  if (settings.descending !== null) params.set('sort', settings.descending ? 'desc' : 'asc');
+  if (settings.highestLast) params.set('sort', 'highest-last');
+  else if (settings.descending !== null) params.set('sort', settings.descending ? 'desc' : 'asc');
   if (settings.linear.length) params.set('linear', settings.linear.join(','));
   if (!settings.scatter) params.set('scatter', 'false');
+  if (!settings.bars) params.set('bars', 'false');
   if (view !== views[0].id) params.set('chart', view);
   return params.size ? `?${params}` : '/';
 }

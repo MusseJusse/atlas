@@ -12,8 +12,8 @@ import { overlappingConfigurations, durationTicks } from './ranking-geometry';
 import type { Interactions } from './interactions';
 
 /** One shared scale, one row per model, and every measured reasoning configuration. */
-export function Ranking({ rows, metric, grouped, descending, interactions, score, logarithmic }: {
-  rows: MeasuredRow[]; metric: Metric; grouped: boolean; descending: boolean; interactions: Interactions; score?: ScoreMetric; logarithmic: boolean;
+export function Ranking({ rows, metric, grouped, descending, highestLast = false, interactions, score, logarithmic }: {
+  rows: MeasuredRow[]; metric: Metric; grouped: boolean; descending: boolean; highestLast?: boolean; interactions: Interactions; score?: ScoreMetric; logarithmic: boolean;
 }) {
   const root = useRef<HTMLDivElement>(null);
   const [expanded, setExpanded] = useState<string | null>(null);
@@ -30,8 +30,9 @@ export function Ranking({ rows, metric, grouped, descending, interactions, score
     measure();
     return () => observer.disconnect();
   }, []);
+  const bestDescending = descending || (grouped && highestLast);
   const { groups, position, ticks } = useMemo(() => {
-    const groups = barGroups(rows, metric, grouped, descending, descending ? 'maximum' : 'minimum');
+    const groups = barGroups(rows, metric, grouped, descending, highestLast || descending ? 'maximum' : 'minimum');
     const values = rows.map((row) => row.value);
     const domain = logarithmic ? [Math.min(...values) / 1.3, Math.max(...values) * 1.1] as const : barDomain(values, 0.05);
     const scale = logarithmic ? logScale(domain, [0, 100]) : linearScale(domain, [0, 100], { nice: true });
@@ -40,20 +41,20 @@ export function Ranking({ rows, metric, grouped, descending, interactions, score
       : scale.ticks(4);
     const ticks = spacedAxisTicks(candidates.length > 1 ? candidates : scale.ticks(4), (value) => scale(value) * plotWidth / 100, metric).map((tick) => tick.value);
     return { groups, position: scale, ticks };
-  }, [rows, metric, grouped, descending, logarithmic, plotWidth]);
+  }, [rows, metric, grouped, descending, highestLast, logarithmic, plotWidth]);
   return <div ref={root} className="ranking" role="group" aria-label={`${metrics[metric].label} by model`}>
     <div className="ranking-key">
-      <span><svg aria-hidden="true" width="32" height="16" viewBox="0 0 32 16"><path d="M0 4h26v8H0z" fill="currentColor" opacity=".16" /><circle cx="26" cy="8" r="4" fill="currentColor" /></svg>{descending ? 'Highest' : 'Lowest'} value</span>
+      <span><svg aria-hidden="true" width="32" height="16" viewBox="0 0 32 16"><path d="M0 4h26v8H0z" fill="currentColor" opacity=".16" /><circle cx="26" cy="8" r="4" fill="currentColor" /></svg>{bestDescending ? 'Highest' : 'Lowest'} value</span>
       <span><svg aria-hidden="true" width="32" height="16" viewBox="0 0 32 16"><path d="M5 8h22" stroke="currentColor" strokeWidth="2" /><circle cx="5" cy="8" r="3" fill="var(--panel)" stroke="currentColor" strokeWidth="2" /><circle cx="27" cy="8" r="3" fill="var(--panel)" stroke="currentColor" strokeWidth="2" /></svg>Reasoning range</span>
     </div>
     <div className="ranking-axis ranking-grid" aria-hidden="true">
       <span>Model</span>
       <span className="ranking-ticks">{ticks.map((tick) => <span key={tick} style={{ left: `${position(tick)}%` }}>{format(tick, metric, true)}</span>)}</span>
-      <span className="text-right">{descending ? 'Highest' : 'Lowest'}</span>
+      <span className="text-right">{bestDescending ? 'Highest' : 'Lowest'}</span>
     </div>
     <div className="ranking-rows">
       {groups.map((group, index) => {
-        const configurations = group.rows.toSorted((a, b) => (a.value - b.value) * (descending ? -1 : 1));
+        const configurations = group.rows.toSorted((a, b) => (a.value - b.value) * (bestDescending ? -1 : 1));
         const best = configurations[0]!;
         const open = expanded === group.id;
         const zero = logarithmic ? 0 : position(0);
@@ -61,7 +62,7 @@ export function Ranking({ rows, metric, grouped, descending, interactions, score
         const overlapCount = overlappingConfigurations(group.rows.map((row) => ({ id: row.id, x: position(row.value) * plotWidth / 100 })));
         const selected = interactions.pinned && group.rows.some((row) => row.id === interactions.pinned?.id);
         return <div className="ranking-model" key={group.id} style={{ '--model-color': modelColor(best) } as CSSProperties}>
-          <button className="ranking-row ranking-grid" aria-label={`${best.name}, rank ${index + 1}, ${metrics[metric].label}. ${descending ? 'Highest' : 'Lowest'} ${metric === 'time' && best.timeEstimate ? 'estimated ' : ''}${formatModelValue(best, metric)}. ${group.rows.length} ${group.rows.length === 1 ? 'configuration' : 'configurations'}, range ${format(group.minimum, metric)} to ${format(group.maximum, metric)}. ${overlapCount > 1 ? `${overlapCount} configurations overlap visually. ` : ''}${open ? 'Hide' : 'Show'} configurations.`} data-highlighted={interactions.highlighted === best.family || undefined} onPointerEnter={() => interactions.highlight(best.family)} onPointerLeave={() => interactions.highlight(null)} onFocus={() => interactions.highlight(best.family)} onBlur={() => interactions.highlight(null)} data-best-value={best.value} aria-expanded={open} aria-controls={`ranking-${metric}-${group.id}`}
+          <button className="ranking-row ranking-grid" aria-label={`${best.name}, rank ${index + 1}, ${metrics[metric].label}. ${bestDescending ? 'Highest' : 'Lowest'} ${metric === 'time' && best.timeEstimate ? 'estimated ' : ''}${formatModelValue(best, metric)}. ${group.rows.length} ${group.rows.length === 1 ? 'configuration' : 'configurations'}, range ${format(group.minimum, metric)} to ${format(group.maximum, metric)}. ${overlapCount > 1 ? `${overlapCount} configurations overlap visually. ` : ''}${open ? 'Hide' : 'Show'} configurations.`} data-highlighted={interactions.highlighted === best.family || undefined} onPointerEnter={() => interactions.highlight(best.family)} onPointerLeave={() => interactions.highlight(null)} onFocus={() => interactions.highlight(best.family)} onBlur={() => interactions.highlight(null)} data-best-value={best.value} aria-expanded={open} aria-controls={`ranking-${metric}-${group.id}`}
             onClick={(event) => {
               setExpanded(open ? null : group.id);
               if (!open) {

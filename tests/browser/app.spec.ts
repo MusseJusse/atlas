@@ -61,7 +61,7 @@ test('saved dark views and back/forward restore chart and filter state', async (
   await page.addInitScript(() => localStorage.setItem('benchmark-theme', 'dark'));
   await page.goto('/?selected=gpt-6-1-sol&chart=intelligence');
   const navigation = page.getByRole('navigation', { name: 'Chart views' });
-  await expect(navigation.getByRole('button', { name: 'Intelligence index', exact: true })).toHaveAttribute('aria-current', 'page');
+  await expect(navigation.locator('[aria-current=page]:visible')).toHaveAttribute('aria-controls', 'intelligence');
   await expect(page.getByRole('button', { name: 'Switch to light mode' })).toBeVisible();
   await expect(page.locator('#model-filters')).toContainText('1 selected');
   await page.evaluate(() => {
@@ -69,16 +69,16 @@ test('saved dark views and back/forward restore chart and filter state', async (
     window.dispatchEvent(new PopStateEvent('popstate'));
   });
   await expect(page.locator('#model-filters')).toContainText('0 selected');
-  await expect(navigation.getByRole('button', { name: 'Cost per task', exact: true })).toHaveAttribute('aria-current', 'page');
+  await expect(navigation.locator('[aria-current=page]:visible')).toHaveAttribute('aria-controls', 'cost-task');
   await page.goBack();
   await expect(page.locator('#model-filters')).toContainText('1 selected');
-  await expect(navigation.getByRole('button', { name: 'Intelligence index', exact: true })).toHaveAttribute('aria-current', 'page');
+  await expect(navigation.locator('[aria-current=page]:visible')).toHaveAttribute('aria-controls', 'intelligence');
   await page.goForward();
   await expect(page.locator('#model-filters')).toContainText('0 selected');
-  await expect(navigation.getByRole('button', { name: 'Cost per task', exact: true })).toHaveAttribute('aria-current', 'page');
+  await expect(navigation.locator('[aria-current=page]:visible')).toHaveAttribute('aria-controls', 'cost-task');
 });
 
-test('phone navigation scrolls to the requested chart and closes the model sheet', async ({ page }) => {
+test('phone chart selection shows one chart and closes the model sheet', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto('/');
   await page.getByRole('button', { name: /Models.*Edit selection/ }).click();
@@ -87,9 +87,9 @@ test('phone navigation scrolls to the requested chart and closes the model sheet
   await expect(page.getByRole('dialog', { name: 'Model filters' })).toHaveCount(0);
   const navigation = page.getByRole('navigation', { name: 'Chart views' });
   await navigation.getByRole('button', { name: 'Resources', exact: true }).click();
-  const button = navigation.getByRole('button', { name: 'Task time', exact: true });
-  await button.click();
-  await expect(button).toHaveAttribute('aria-current', 'page');
+  await navigation.getByRole('button', { name: 'Task time', exact: true }).click();
+  await expect(navigation.locator('[aria-current=page]:visible')).toHaveAttribute('aria-controls', 'time-task');
+  await expect(page.locator('#cost-intelligence')).toBeHidden();
   await expect(page).toHaveURL(/chart=time-task/);
   await expect.poll(() => page.locator('#time-task').evaluate((section) => Math.round(section.getBoundingClientRect().top))).toBeLessThan(220);
   await expect(page.locator('#time-task').getByRole('button').first()).toBeVisible();

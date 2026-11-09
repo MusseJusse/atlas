@@ -11,11 +11,10 @@ import { Selection } from './Selection';
 import { useMediaQuery } from './useMediaQuery';
 import { useChartNavigation } from './useChartNavigation';
 import { codingFetchedAt, fetchedAt, paretoFrontier, visibleModels } from './models';
-import { chartViews, resolveView, views } from './chart-definitions';
-import { chartDescending, readSettings, readView, writeSettings, type Settings } from './state';
-import { ThemeToggle } from './ThemeToggle';
+import { chartViews, rankingPresentation, resolveView } from './chart-definitions';
+import { readSettings, readView, writeSettings, type Settings } from './state';
+import { SiteHeader } from './SiteHeader';
 import { formatUtcDate } from './formatDate';
-import { Brand } from './Brand';
 
 const loadChangelog = () => import('./Changelog');
 const loadEfficiency = () => import('./Efficiency');
@@ -90,10 +89,28 @@ function Benchmarks() {
   const search = typeof location === 'undefined' ? '' : location.search;
   const [settings, setSettings] = useState(() => readSettings(search));
   const [mobileOpen, setMobileOpen] = useState(false);
+  const chartFeed = useRef<HTMLDivElement>(null);
+  const [moreBelow, setMoreBelow] = useState(false);
   const [highlighted, setHighlighted] = useState<string | null>(null);
   const mobile = useMediaQuery('(max-width: 900px)');
   const phone = useMediaQuery('(max-width: 600px)');
-  const { active, navigate, feed, chartNavigation } = useChartNavigation(mobile);
+  const { active, navigate } = useChartNavigation();
+  useEffect(() => { chartFeed.current?.scrollTo({ top: 0 }); }, [active]);
+  useEffect(() => {
+    const feed = chartFeed.current;
+    const section = feed?.querySelector<HTMLElement>(`#${active}`);
+    if (!feed || !section) return;
+    const check = () => {
+      const end = section.lastElementChild;
+      setMoreBelow(end != null && end.getBoundingClientRect().bottom > feed.getBoundingClientRect().bottom + 2);
+    };
+    const observer = new ResizeObserver(check);
+    observer.observe(feed);
+    observer.observe(section);
+    feed.addEventListener('scroll', check, { passive: true });
+    check();
+    return () => { observer.disconnect(); feed.removeEventListener('scroll', check); };
+  }, [active, settings]);
   const update = useCallback(
     (patch: Partial<Settings>) => setSettings((current) => ({ ...current, ...patch })),
     [],
@@ -144,36 +161,7 @@ function Benchmarks() {
       >
         Skip to benchmarks
       </a>
-      <header className="flex items-center gap-8 border-b border-line px-7 compact:gap-6 mobile:sticky mobile:top-0 mobile:z-[8] mobile:h-[var(--header-height)] mobile:gap-4 mobile:bg-bg mobile:px-4">
-        <Brand />
-        <nav className="flex items-center gap-6 phone:gap-3" aria-label="Sections">
-          <button
-            className="min-h-11 text-[12px] font-semibold text-fg phone:hidden"
-            aria-current="page"
-            onClick={() => navigate(views[0].id)}
-          >
-            Benchmarks
-          </button>
-          <a
-            href="?page=efficiency"
-            className="flex min-h-11 items-center text-[12px] text-fg-2 hover:text-accent"
-          >
-            Efficiency
-          </a>
-          <a
-            href="?page=changelog"
-            className="flex min-h-11 items-center text-[12px] text-fg-2 hover:text-accent"
-          >
-            Changelog
-          </a>
-        </nav>
-        <div className="ml-auto flex items-center gap-3 phone:gap-0">
-          <ThemeToggle
-            className="flex size-10 items-center justify-center rounded-md text-fg-2 hover:bg-hover hover:text-accent"
-            showTitle
-          />
-        </div>
-      </header>
+      <SiteHeader page="benchmarks" />
       <div className="grid min-h-0 grid-cols-[var(--sidebar-width)_minmax(0,1fr)] gap-6 px-7 pt-6 pb-2 short:pt-4 compact:gap-5 compact:px-5 mobile:block mobile:px-4 mobile:pt-4 mobile:pb-0">
         <Sidebar
           settings={settings}
@@ -202,36 +190,25 @@ function Benchmarks() {
               <span>{settings.selected.length} selected</span>
               <span className="ml-auto text-accent">Edit selection</span>
             </button>
-            <div ref={chartNavigation}><nav
-
-              className="flex mobile:hidden min-w-0 gap-6 overflow-x-auto border-b border-line [scrollbar-width:thin] [scrollbar-color:var(--line-2)_transparent] compact:gap-5"
-              aria-label="Chart views"
-            >
-              {datasetViews.map((view) => (
-                <button
-                  key={view.id}
-                  className="min-h-[50px] shrink-0 short:min-h-11 border-b-2 border-transparent text-[12px] text-fg-2 aria-[current=page]:border-accent aria-[current=page]:font-semibold aria-[current=page]:text-accent hover:text-accent"
-                  aria-current={active === view.id ? 'page' : undefined}
-                  onClick={() => navigate(view.id)}
-                >
-                  {view.label}
-                </button>
-              ))}
-            </nav>
-            <div className="hidden mobile:block"><ChartNavigation views={datasetViews} active={active} navigate={navigate} /></div></div>
+            <ChartNavigation views={datasetViews} active={active} navigate={navigate} />
           </div>
-          <div
-            className="relative min-h-0 snap-y snap-proximity overflow-y-auto rounded-b-xl [scrollbar-width:thin] [scrollbar-color:var(--line-2)_var(--panel)] mobile:snap-none mobile:overflow-visible"
-            ref={feed}
+          <div className="relative min-h-0">
+          <div ref={chartFeed}
+            className="benchmark-feed h-full relative min-h-0 overflow-y-auto rounded-b-xl [scrollbar-width:thin] [scrollbar-color:var(--line-2)_var(--panel)] mobile:overflow-visible"
           >
             {datasetViews.map((view) => {
               const { scatter, linear } = resolveView(view, settings);
+              const bars = !scatter && !mobile && settings.bars;
+              const rankingLogAvailable = view.metric === 'cost' && rowsByView.get(view.id)!.every((row) => row.cost === null || row.cost > 0);
+              const displayLinear = scatter ? linear : linear || !rankingLogAvailable;
               const subscription = usesSubscriptionPricing(view.id, settings);
               const chartRows = rowsByView.get(view.id)!;
+              const ranking = rankingPresentation(view, settings, bars);
               const hasFallback = !(scatter && settings.frontier) && chartRows.some((row) => row.cost !== null && row.taskPricing?.basis === 'api-fallback');
               return (
                 <section
-                  className="chart-section flex h-full snap-start flex-col px-6 pt-5 pb-4 short:pt-4 short:pb-3 [&+section]:border-t [&+section]:border-line mobile:h-auto mobile:scroll-mt-[180px] mobile:px-4 mobile:pb-6"
+                  hidden={active !== view.id}
+                  className="chart-section flex h-full flex-col px-6 pt-5 pb-4 short:pt-4 short:pb-3 mobile:h-auto mobile:px-4 mobile:pb-6"
                   id={view.id}
                   key={view.id}
                   aria-label={view.label}
@@ -240,45 +217,53 @@ function Benchmarks() {
                     <h2 className="m-0 text-[25px] leading-tight font-[550] tracking-[-0.8px] phone:text-[22px]">
                       {view.label}
                     </h2>
+                    <div className="flex shrink-0 items-center gap-2">
+                    {!mobile && !scatter && view.mode !== 'optional-scatter' && <div className="flex gap-1 rounded-md bg-surface p-1" role="group" aria-label={`${view.label} presentation`}>
+                      <button className="min-h-8 rounded-sm px-3 text-[12px] text-fg-2 aria-pressed:bg-panel aria-pressed:text-accent" aria-pressed={!bars} onClick={() => update({ bars: false })}>Ranking</button>
+                      <button className="min-h-8 rounded-sm px-3 text-[12px] text-fg-2 aria-pressed:bg-panel aria-pressed:text-accent" aria-pressed={bars} onClick={() => update({ bars: true })}>Bars</button>
+                    </div>}
                     <ChartOptions
-                      settings={settings}
+                      settings={{ ...settings, highestLast: ranking.highestLast }}
                       update={update}
-                      descending={chartDescending(view.metric, phone, settings.descending)}
+                      descending={ranking.descending}
+                      groupedTable={settings.grouped}
+                      scatter={scatter}
+                      phone={phone}
                       pricing={!settings.codingOnly && (view.id === 'cost-intelligence' || view.id === 'cost-task')}
                     />
+                    </div>
                   </div>
+                  {scatter && <p className="chart-guidance">Higher and further left is better.{linear || phone ? '' : ' Log scale shows equal cost ratios.'}{view.metric === 'cost' && !subscription && ' API pricing.'}</p>}
+                  {view.metric === 'omniscience' && <p className="chart-guidance">Correct answers raise the score. Incorrect answers lower it.</p>}
                   <div
-                    className={`flex min-h-[58px] shrink-0 short:min-h-12 short:py-1 flex-wrap items-center justify-between gap-x-4 gap-y-1 py-2 text-[12px] ${!scatter && view.mode !== 'optional-scatter' ? 'mobile:hidden' : ''}`}
+                    className={`flex min-h-[58px] shrink-0 short:min-h-12 short:py-1 flex-wrap items-center justify-between gap-x-4 gap-y-1 py-2 text-[12px] ${!scatter && view.mode !== 'optional-scatter' && (view.metric !== 'cost' || bars) ? 'hidden' : !scatter ? 'ranking-toolbar' : ''}`}
                   >
                     {scatter ? (
                       <button
                         className="inline-flex min-h-10 items-center gap-2 text-fg aria-pressed:text-accent hover:text-accent"
                         aria-pressed={settings.frontier}
-                        title="Show configurations with no better and cheaper alternative."
+                        title="Pareto Frontier connects configurations with no better and cheaper alternative."
                         onClick={() => update({ frontier: !settings.frontier })}
                       >
                         <Selection checked={settings.frontier} />
-                        Pareto frontier
+                        Pareto Frontier
                       </button>
-                    ) : (
-                      <span className="text-fg-2 mobile:hidden">
-                        {settings.grouped ? 'Grouped by model' : 'All configurations'}
-                      </span>
-                    )}
+                    ) : view.metric === 'cost' && !subscription ? <span className="text-fg-2">API pricing</span> : null}
                     <div className="ml-auto flex items-center gap-5 phone:gap-3">
                       {view.mode === 'optional-scatter' && (
                         <div
                           className="flex gap-1 rounded-md bg-surface p-1"
                           role="group"
-                          aria-label="Tokens per task chart type"
+                          aria-label="Tokens per task view type"
                         >
                           <button
                             className="min-h-8 rounded-sm px-2.5 text-[12px] text-fg-2 aria-pressed:bg-panel aria-pressed:font-medium aria-pressed:text-accent"
-                            aria-pressed={!settings.scatter}
-                            onClick={() => update({ scatter: false })}
+                            aria-pressed={!settings.scatter && !bars}
+                            onClick={() => update({ scatter: false, bars: false })}
                           >
-                            Bars
+                            Rankings
                           </button>
+                          {!mobile && <button className="min-h-8 rounded-sm px-2.5 text-[12px] text-fg-2 aria-pressed:bg-panel aria-pressed:font-medium aria-pressed:text-accent" aria-pressed={bars} onClick={() => update({ scatter: false, bars: true })}>Bars</button>}
                           <button
                             className="min-h-8 rounded-sm px-2.5 text-[12px] text-fg-2 aria-pressed:bg-panel aria-pressed:font-medium aria-pressed:text-accent"
                             aria-pressed={settings.scatter}
@@ -288,7 +273,7 @@ function Benchmarks() {
                           </button>
                         </div>
                       )}
-                      {scatter && (
+                      {(scatter || (view.metric === 'cost' && !bars)) && (
                         <div
                           className="flex items-center gap-2"
                           role="group"
@@ -298,7 +283,7 @@ function Benchmarks() {
                           <div className="flex gap-1 rounded-md bg-surface p-1">
                             <button
                               className="min-h-8 rounded-sm px-2.5 text-[12px] text-fg-2 aria-pressed:bg-panel aria-pressed:font-medium aria-pressed:text-accent"
-                              aria-pressed={linear}
+                              aria-pressed={displayLinear}
                               onClick={() =>
                                 update({ linear: [...new Set([...settings.linear, view.id])] })
                               }
@@ -307,7 +292,9 @@ function Benchmarks() {
                             </button>
                             <button
                               className="min-h-8 rounded-sm px-2.5 text-[12px] text-fg-2 aria-pressed:bg-panel aria-pressed:font-medium aria-pressed:text-accent"
-                              aria-pressed={!linear}
+                              aria-pressed={!displayLinear}
+                              disabled={!scatter && !rankingLogAvailable}
+                              title={!scatter && !rankingLogAvailable ? 'Zero costs require a linear scale' : undefined}
                               onClick={() =>
                                 update({ linear: settings.linear.filter((id) => id !== view.id) })
                               }
@@ -319,20 +306,18 @@ function Benchmarks() {
                       )}
                     </div>
                   </div>
+                  {bars && view.metric === 'cost' && !subscription && <p className="mt-1 mb-2 text-[12px] text-fg-2">API pricing</p>}
                   {subscription && (
                     <p className="mt-0 mb-2 shrink-0 text-[11px] leading-5 text-fg-2">
                       Estimated subscription · One model uses full allowance · {settings.countResets ? 'Bonus resets on where supported' : 'Bonus resets off'}
                       {hasFallback && ' · Includes API fallback'}
-                      {scatter && settings.frontier && ' · Frontier compares subscription estimates only'}
+                      {scatter && settings.frontier && ' · Pareto Frontier compares subscription estimates only'}
                       {scatter && !linear && chartRows.some((row) => row.cost === 0) && ' · Zero costs omitted on log scale'}
                     </p>
                   )}
-                  {!subscription && view.metric === 'cost' && (
-                    <p className="mt-0 mb-2 shrink-0 text-[11px] leading-5 text-fg-2">API pricing</p>
-                  )}
                   <Chart
-                    active={mobile || active === view.id}
-                    phone={phone}
+                    presentation={ranking}
+                    active={active === view.id}
                     view={view}
                     rows={subscription && scatter && settings.frontier ? chartRows.filter((row) => row.taskPricing?.basis === 'subscription') : chartRows}
                     pricingContext={subscription ? pricingDisclosure(scatter && settings.frontier ? chartRows.filter((row) => row.taskPricing?.basis === 'subscription') : chartRows, settings.countResets) : undefined}
@@ -343,6 +328,8 @@ function Benchmarks() {
                 </section>
               );
             })}
+          </div>
+          {moreBelow && <div className="chart-scroll-cue" aria-hidden="true">Scroll for more <ArrowDown size={13} /></div>}
           </div>
         </main>
       </div>
@@ -374,11 +361,17 @@ function ChartOptions({
   update,
   descending,
   pricing,
+  groupedTable,
+  scatter,
+  phone,
 }: {
   settings: Settings;
   update: (patch: Partial<Settings>) => void;
   descending: boolean;
   pricing: boolean;
+  groupedTable: boolean;
+  scatter: boolean;
+  phone: boolean;
 }) {
   const menu = useRef<HTMLDetailsElement>(null);
   const [open, setOpen] = useState(false);
@@ -402,8 +395,9 @@ function ChartOptions({
       window.removeEventListener('resize', fitMenu);
     };
   }, [open]);
+  if (scatter && phone && !pricing) return null;
   return (
-    <details ref={menu} className="group relative shrink-0" onToggle={(event) => {
+    <details ref={menu} className={`group relative shrink-0 ${scatter && !pricing ? 'label-options-only' : ''}`} onToggle={(event) => {
       setOpen(event.currentTarget.open);
       if (event.currentTarget.open) fitMenu();
     }} onKeyDown={(event) => {
@@ -426,16 +420,18 @@ function ChartOptions({
         aria-label="Chart settings"
       >
         {pricing && <PricingControls settings={settings} update={update} />}
-        <span className="px-1 pt-1 text-[11px] text-fg-2">Scatter charts</span>
+        {scatter && !phone && <>
         <button
-          className="inline-flex min-h-10 items-center gap-2 px-1 text-[12px] text-fg hover:text-accent"
+          className="direct-label-option inline-flex min-h-10 items-center gap-2 px-1 text-[12px] text-fg hover:text-accent"
           aria-pressed={settings.labels}
           onClick={() => update({ labels: !settings.labels })}
         >
           <Selection checked={settings.labels} />
-          Labels
+          Model labels
         </button>
-        <span className="mt-2 px-1 text-[11px] text-fg-2">Bar charts</span>
+        </>}
+        {!scatter && <>
+        {!phone && <>
         <button
           className="inline-flex min-h-10 items-center gap-2 px-1 text-[12px] text-fg hover:text-accent"
           aria-pressed={settings.grouped}
@@ -444,17 +440,23 @@ function ChartOptions({
           <Selection checked={settings.grouped} />
           Group by model
         </button>
-        <button
-          className="inline-flex min-h-10 items-center gap-2 px-1 text-[12px] text-fg hover:text-accent"
-          onClick={() => update({ descending: !descending })}
-        >
-          <ArrowDown
-            size={14}
-            style={{ transform: descending ? 'rotate(180deg)' : undefined }}
-            aria-hidden="true"
-          />
-          {descending ? 'Highest first' : 'Highest last'}
-        </button>
+        </>}
+        <div role="group" aria-label="Sort order" className="flex flex-col items-start">
+          {[
+            { label: 'Highest first', descending: true, highestLast: false },
+            { label: 'Lowest first', descending: false, highestLast: false },
+            ...(groupedTable ? [{ label: 'Highest last', descending: false, highestLast: true }] : []),
+          ].map((option) => <button
+            key={option.label}
+            className="inline-flex min-h-10 items-center gap-2 px-1 text-[12px] text-fg hover:text-accent"
+            aria-pressed={option.highestLast === (settings.highestLast && groupedTable) && option.descending === descending}
+            onClick={() => update({ descending: option.descending, highestLast: option.highestLast })}
+          >
+            <Selection checked={option.highestLast === (settings.highestLast && groupedTable) && option.descending === descending} />
+            {option.label}{groupedTable ? ' per model' : ''}
+          </button>)}
+        </div>
+        </>}
       </div>
     </details>
   );

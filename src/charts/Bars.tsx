@@ -7,6 +7,7 @@ import { metrics, type Metric } from '../chart-definitions';
 import type { Settings } from '../state';
 import { pinHandlers, type Interactions } from './interactions';
 import { barGeometry, type MeasuredRow } from './geometry';
+import { durationTicks } from './ranking-geometry';
 
 export function Bars({
   rows,
@@ -31,8 +32,8 @@ export function Bars({
   }
 
   const { left, right, top, bottom, y, positioned } = useMemo(
-    () => barGeometry(rows, metric, width, height, settings.grouped, settings.descending ?? false),
-    [rows, metric, width, height, settings.grouped, settings.descending],
+    () => barGeometry(rows, metric, width, height, settings.grouped, settings.descending ?? false, settings.highestLast || settings.descending ? 'maximum' : 'minimum'),
+    [rows, metric, width, height, settings.grouped, settings.descending, settings.highestLast],
   );
   const { activeModel } = interactions;
   const visibleFamily = rows.some((row) => row.family === hoveredFamily) ? hoveredFamily : null;
@@ -45,7 +46,7 @@ export function Bars({
       <text x={left} y={17} fill="var(--fg-2)" fontSize={12}>
         {metrics[metric].unit}
       </text>
-      {y.ticks(4).map((tick) => (
+      {(metric === 'time' ? durationTicks(Math.max(...rows.map((row) => row.value)) * 1.15) : y.ticks(4)).map((tick) => (
         <g key={tick} transform={`translate(0,${y(tick)})`}>
           <line x1={left} x2={right} stroke="var(--line)" strokeDasharray="2 6" />
           <text x={left - 10} y={4} textAnchor="end" fill="var(--fg-3)" fontSize={11}>
@@ -72,10 +73,11 @@ export function Bars({
               height={height - top}
               fill="transparent"
             />
-            {group.bars.map(({ row, x: barX, labelX, labelY, text }) => {
+            {group.bars.map(({ row, x: barX, labelX, labelY, text, labelVisible }) => {
               const barY = y(row.value);
               const effortMark =
                 row.effort === 'max' ? 'Mx' : row.effortLabel.charAt(0).toUpperCase();
+              const showValue = activeModel?.family === row.family ? activeModel.id === row.id : labelVisible;
               const visibleLabel = group.barWidth > 8 ? `${effortMark}${text}, ` : '';
               return (
                 <g
@@ -115,12 +117,12 @@ export function Bars({
                       y={bottom + 15}
                       textAnchor="middle"
                       fill="var(--fg-3)"
-                      fontSize={9}
+                      fontSize={11}
                     >
                       {effortMark}
                     </text>
                   )}
-                  {group.barWidth > 8 && (
+                  {showValue && (
                     <text
                       x={labelX}
                       y={labelY}

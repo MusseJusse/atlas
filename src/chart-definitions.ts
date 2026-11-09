@@ -50,7 +50,7 @@ export type View = Omit<(typeof views)[number], 'metric' | 'label'> & { metric: 
 export function chartViews(codingOnly: boolean): View[] {
   return views.map((view) => codingOnly && view.id === 'intelligence'
     ? { ...view, metric: 'codingIndex', label: metrics.codingIndex.label }
-    : view);
+    : codingOnly && view.id === 'cost-intelligence' ? { ...view, label: 'Cost vs coding score' } : view);
 }
 
 /** Resolve controls and rendering from the same view, including per-view axis choices. */
@@ -60,4 +60,11 @@ export function resolveView(view: View, settings: { scatter: boolean; linear: re
     linear: settings.linear.includes(view.id),
     score: settings.codingOnly ? 'codingIndex' as const : 'intelligence' as const,
   };
+}
+
+
+/** Bars default to ascending model maxima; rankings retain better-first ordering. */
+export function rankingPresentation(view: View, settings: { descending: boolean | null; highestLast?: boolean }, bars = false) {
+  const highestLast = settings.highestLast === true || (bars && settings.descending === null);
+  return { descending: highestLast ? false : settings.descending ?? metrics[view.metric].higherIsBetter, highestLast };
 }

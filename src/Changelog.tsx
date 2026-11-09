@@ -1,9 +1,8 @@
 import { useEffect, useState } from 'react';
 import bundledHistory from 'virtual:changelog';
 import { fieldLabels, type ChangeHistory, type ChangeKind, type FieldChange } from './data/changelog';
-import { ThemeToggle } from './ThemeToggle';
+import { SiteHeader } from './SiteHeader';
 import { formatUtcDate, formatUtcDateTime } from './formatDate';
-import { Brand } from './Brand';
 
 const filters = [
   { id: 'all', label: 'All changes' },
@@ -26,7 +25,7 @@ function formatValue(value: FieldChange['before'], field: FieldChange['field']) 
 }
 
 export function Changelog({ history = bundledHistory }: { history?: ChangeHistory }) {
-  const [filter, setFilter] = useState<(typeof filters)[number]['id']>('added');
+  const [filter, setFilter] = useState<(typeof filters)[number]['id']>('all');
   useEffect(() => {
     document.title = 'Atlas · Changelog';
   }, []);
@@ -41,30 +40,7 @@ export function Changelog({ history = bundledHistory }: { history?: ChangeHistor
 
   return (
     <div className="min-h-dvh select-text">
-      <header className="flex min-h-[var(--header-height)] items-center gap-8 border-b border-line px-7 phone:gap-4 phone:px-4">
-        <Brand />
-        <nav
-          aria-label="Sections"
-          className="flex items-center gap-5 text-[12px] phone:gap-3 phone:text-[11px]"
-        >
-          <a href="/" className="flex min-h-11 items-center text-fg-2 phone:hidden">
-            Benchmarks
-          </a>
-          <a href="?page=efficiency" className="flex min-h-11 items-center text-fg-2">
-            Efficiency
-          </a>
-          <a
-            href="?page=changelog"
-            aria-current="page"
-            className="flex min-h-11 items-center text-fg underline decoration-accent underline-offset-8"
-          >
-            Changelog
-          </a>
-        </nav>
-        <ThemeToggle
-          className="ml-auto flex size-11 shrink-0 items-center justify-center text-fg-2 [&:hover]:text-fg"
-        />
-      </header>
+      <SiteHeader page="changelog" />
       <main className="mx-auto my-6 max-w-[1000px] rounded-xl bg-panel px-8 pt-8 pb-10 phone:mx-4 phone:px-4 phone:pt-6">
         <div className="flex flex-wrap items-baseline justify-between gap-x-5 gap-y-2">
           <h1 className="m-0 text-[25px] font-medium tracking-[-0.7px] phone:text-[23px]">Model changes</h1>
@@ -108,7 +84,7 @@ export function Changelog({ history = bundledHistory }: { history?: ChangeHistor
           >
             <h2 className="mb-3 text-[14px] font-medium">
               <time dateTime={batch.checkedAt}>{formatUtcDateTime(batch.checkedAt)}</time>{' '}
-              <span className="ml-3 font-normal text-fg-2">
+              <span className="ml-3 font-normal text-fg-2 phone:ml-0 phone:mt-1 phone:block">
                 {(['added', 'updated', 'removed'] as const)
                   .flatMap((kind) => {
                     const count = batch.changes.filter((change) => change.kind === kind).length;
@@ -120,7 +96,7 @@ export function Changelog({ history = bundledHistory }: { history?: ChangeHistor
             {batch.changes.map((change) => (
               <article
                 key={change.id}
-                className="grid grid-cols-[80px_minmax(0,1fr)] gap-5 border-t border-line py-5 phone:grid-cols-[58px_minmax(0,1fr)] phone:gap-3"
+                className="grid grid-cols-[80px_minmax(0,1fr)] gap-5 border-t border-line py-5 phone:grid-cols-1 phone:gap-1"
               >
                 <span className="text-[12px] leading-6 text-fg-2">{kindLabels[change.kind]}</span>
                 <div className="min-w-0">
@@ -132,6 +108,7 @@ export function Changelog({ history = bundledHistory }: { history?: ChangeHistor
                     </p>
                   )}
                   {change.fields.length > 0 && (
+                    <details className="change-fields"><summary>View {change.fields.length} changed {change.fields.length === 1 ? 'value' : 'values'}</summary>
                     <table className="mt-3 w-full table-fixed border-collapse text-left text-[12px] leading-5">
                       <caption className="sr-only">
                         Changed values for {change.name}, {change.effortLabel}
@@ -166,6 +143,7 @@ export function Changelog({ history = bundledHistory }: { history?: ChangeHistor
                         ))}
                       </tbody>
                     </table>
+                    </details>
                   )}
                 </div>
               </article>
