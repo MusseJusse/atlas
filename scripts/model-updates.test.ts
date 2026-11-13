@@ -211,6 +211,8 @@ it('imports coding components independently and rejects missing fields and inval
 
 it('records changes to each coding component for subsequent syncs', () => {
   const previous = fixture();
+  previous.models[0]!.terminalBench40 = null;
+  previous.models[0]!.frontierCode20 = null;
   const next = structuredClone(previous);
   next.models[0]!.terminalBench40 = 0.5;
   next.models[0]!.frontierCode20 = 0;
