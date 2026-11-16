@@ -4,28 +4,24 @@ import { Logo } from '../Logo';
 import type { Model } from '../models';
 import { modelColor } from '../model-presentation';
 import { format, formatModelValue } from '../formatModel';
-import { metrics, type ScoreMetric, type Metric } from '../chart-definitions';
+import { metrics, type Metric } from '../chart-definitions';
 
 /** The same compact selection overlay on desktop and mobile. */
 export function ConfigurationDetails({
   model,
   metric,
   pinned,
-  score,
   onClose,
 }: {
   model: Model;
   metric: Metric;
   pinned: boolean;
-  score?: ScoreMetric;
   onClose: () => void;
 }) {
   const scoreMetric = metric === 'omniscience' ? 'omniscience' : 'intelligence';
   // Keep the active chart metric and two supporting values without duplicate rows.
   const displayMetrics = [...new Set<Metric>([scoreMetric, metric, 'cost', 'tokensTotal'])].slice(0, model.taskPricing?.basis === 'subscription' ? 2 : 3);
-  const measurements = score === 'codingIndex'
-    ? [...new Set<Metric>(['codingIndex', metric, 'cost'])].map((measurement) => [measurement === 'cost' ? taskCostLabel(model) : measurement === 'costTotal' ? 'Total cost · API' : metrics[measurement].label, formatModelValue(model, measurement)])
-    : model.codingAgent
+  const measurements = model.codingAgent
     ? [['Coding Agent Index v2.0', format(model.codingScore ?? null, 'intelligence')], ['Cost per task', format(model.cost, 'cost')]]
     : model.cyber
     ? [['Cyber Index', format(model.cyberScore ?? null, 'intelligence')], ['Cost per task', format(model.cost, 'cost')]]

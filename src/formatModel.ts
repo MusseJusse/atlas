@@ -53,7 +53,7 @@ export function format(
           ? ([1e3, 'k'] as const)
           : null;
   if (unit) return `${+(value / unit[0]).toFixed(compact ? 0 : 1)}${unit[1]}`;
-  return formatNumber(value, metric === 'intelligence' || metric === 'codingIndex' || metric === 'omniscience' || !compact ? 1 : 0);
+  return formatNumber(value, metric === 'intelligence' || metric === 'omniscience' || !compact ? 1 : 0);
 }
 
 /** Distinguish local estimates wherever model measurements appear. */

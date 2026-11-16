@@ -18,13 +18,6 @@ export const modelSchema = z.strictObject({
   effortOrder: z.number().nonnegative(),
   intelligence: z.number().nullable(),
   omniscience: z.number().min(-100).max(100).nullable().default(null),
-  terminalBench40: z.number().min(0).max(1).nullable().default(null),
-  frontierCode20: z.number().min(0).max(1).nullable().default(null),
-  codingCost: measurement.default(null),
-  codingTokens: measurement.default(null),
-  codingTime: measurement.default(null),
-  codingTokensTotal: measurement.default(null),
-  codingCostTotal: measurement.default(null),
   cost: measurement,
   costTotal: measurement,
   tokens: measurement,
@@ -35,13 +28,25 @@ export const modelSchema = z.strictObject({
   outputPrice: measurement,
   context: measurement,
 });
+// Accept old captures without carrying retired coding workloads into new snapshots.
+const legacyCodingFields = {
+  terminalBench40: z.number().min(0).max(1).nullable().optional(),
+  frontierCode20: z.number().min(0).max(1).nullable().optional(),
+  codingCost: measurement.optional(),
+  codingTokens: measurement.optional(),
+  codingTime: measurement.optional(),
+  codingTokensTotal: measurement.optional(),
+  codingCostTotal: measurement.optional(),
+};
+const historicalField = z.union([modelSchema.keyof(), z.object(legacyCodingFields).keyof()]);
 export const snapshotSchema = z
   .object({
     fetchedAt: z.iso.datetime(),
     source: z.url().optional(),
     sourceHash: text.optional(),
-    codingSource: z.object({ fetchedAt: z.iso.datetime(), sourceHash: text }).optional(),
-    models: z.array(modelSchema).nonempty(),
+    models: z.array(modelSchema.extend(legacyCodingFields).transform((model) => modelSchema.parse(Object.fromEntries(
+      Object.entries(model).filter(([key]) => !(key in legacyCodingFields)),
+    )))).nonempty(),
   })
   .superRefine(({ models }, ctx) => {
     if (new Set(models.map((model) => model.id)).size !== models.length)
@@ -67,7 +72,7 @@ export const historySchema = z.strictObject({
           kind: z.enum(['added', 'updated', 'removed']),
           fields: z.array(
             z.strictObject({
-              field: modelSchema.keyof(),
+              field: historicalField,
               before: changeValue,
               after: changeValue,
             }),
@@ -99,13 +104,6 @@ export const modelFields = [
   'effortOrder',
   'intelligence',
   'omniscience',
-  'terminalBench40',
-  'frontierCode20',
-  'codingCost',
-  'codingTokens',
-  'codingTime',
-  'codingTokensTotal',
-  'codingCostTotal',
   'cost',
   'inputPrice',
   'outputPrice',
@@ -118,7 +116,6 @@ export const modelFields = [
 
 export type Model = Pick<SnapshotModel, (typeof modelFields)[number]> & {
   taskPricing?: TaskPricing;
-  codingIndex?: number | null;
   codingScore?: number | null;
   codingAgent?: { name: string; configuration: string; source: string };
   cyberScore?: number | null;
@@ -130,4 +127,4 @@ export type Model = Pick<SnapshotModel, (typeof modelFields)[number]> & {
     baselineFetchedAt: string;
   };
 };
-export type Snapshot = Pick<BenchmarkSnapshot, 'fetchedAt' | 'codingSource' | 'sourceHash'> & { models: Model[] };
+export type Snapshot = Pick<BenchmarkSnapshot, 'fetchedAt' | 'sourceHash'> & { models: Model[] };

@@ -109,6 +109,7 @@ describe('direct Artificial Analysis import', () => {
     expect(fetcher.mock.calls.map(([url]) => url)).toEqual([
       'https://artificialanalysis.ai/models',
       'https://artificialanalysis.ai/data/0123456789abcdef.txt',
+      'https://artificialanalysis.ai/data/fedcba9876543210.txt',
     ]);
     expect(snapshot.source).toBe('https://artificialanalysis.ai/models');
     expect(snapshot.models[0]).toEqual({
@@ -116,8 +117,8 @@ describe('direct Artificial Analysis import', () => {
       variant: 'DeepSeek V4.1 Flash (max)', lab: 'deepseek', labName: 'DeepSeek',
       released: '2026-09-10', open: true, deprecated: false,
       effort: 'max', effortLabel: 'max', effortOrder: 60,
-      intelligence: 39.456167472527, omniscience: -5.3, terminalBench40: 0.4, frontierCode20: 0.6,
-      codingCost: 3, codingTokens: 15000, codingTime: 150, codingTokensTotal: 3300000, codingCostTotal: 660, cost: 0.26522527009606844,
+      intelligence: 39.456167472527, omniscience: -5.3,
+      cost: 0.26522527009606844,
       costTotal: 476.89044593693893, tokens: 88573.99849468909, tokensTotal: 253113556,
       speed: 175.852558774099, time: 361.81506607584737,
       inputPrice: 0.3, outputPrice: 1.2, context: 1000000,
@@ -197,39 +198,26 @@ describe('direct Artificial Analysis import', () => {
   });
 });
 
-it('imports coding components independently and rejects missing fields and invalid fractions', async () => {
-  const { fetcher } = sourceFixture(structuredClone(aaModels));
-  expect((await fetchSnapshot(fetcher)).models.map(({ terminalBench40, frontierCode20 }) =>
-    [terminalBench40, frontierCode20])).toEqual([[0.4, 0.6], [null, null], [0, 0.2]]);
-  for (const field of ['terminalBench40', 'frontierCode20'] as const) {
-    for (const value of [undefined, -0.1, 1.1, null]) {
-      const source = sourceFixture([{ ...aaModels[0]!, [field]: value }]);
-      await expect(fetchSnapshot(source.fetcher)).rejects.toThrow();
-    }
-  }
-});
 
-it('records changes to each coding component for subsequent syncs', () => {
-  const previous = fixture();
-  previous.models[0]!.terminalBench40 = null;
-  previous.models[0]!.frontierCode20 = null;
-  const next = structuredClone(previous);
-  next.models[0]!.terminalBench40 = 0.5;
-  next.models[0]!.frontierCode20 = 0;
-  expect(compareSnapshots(previous, next, checkedAt).changes[0]?.fields).toEqual([
-    { field: 'terminalBench40', before: previous.models[0]!.terminalBench40, after: 0.5 },
-    { field: 'frontierCode20', before: previous.models[0]!.frontierCode20, after: 0 },
-  ]);
-});
-
-it('imports coding workload measurements and rejects duplicate or invalid evaluation entries', async () => {
-  const { models } = await fetchSnapshot(sourceFixture(structuredClone(aaModels)).fetcher);
-  expect(models[0]).toMatchObject({ codingCost: 3, codingTokens: 15000, codingTime: 150,
-    codingTokensTotal: 3300000, codingCostTotal: 660 });
-  expect(models[1]).toMatchObject({ codingCost: null, codingTokens: null, codingTime: null });
-  const entries = aaModels[0]!.intelligenceIndexEvaluations;
-  for (const bad of [undefined, [], [entries[0], entries[0]], [{ ...entries[0], costPerTask: -1 }, entries[1]]]) {
-    const source = sourceFixture([{ ...aaModels[0]!, intelligenceIndexEvaluations: bad }]);
-    await expect(fetchSnapshot(source.fetcher)).rejects.toThrow();
-  }
+it('validates the current provider wrapper and refuses a model payload missing listed configurations', async () => {
+  const rows = aaModels.map(({ intelligenceIndexEvaluations, terminalBench40, frontierCode20, ...model }) => model);
+  const current = sourceResponse(rows, rows.map((model) => model.slug), true);
+  const fetcher = vi.fn<typeof fetch>()
+    .mockResolvedValueOnce(new Response(current.html))
+    .mockResolvedValueOnce(new Response(current.payload))
+    .mockResolvedValueOnce(new Response(current.providerPayload));
+  expect((await fetchSnapshot(fetcher)).models).toHaveLength(rows.length);
+  const incomplete = sourceResponse(rows.slice(0, 1), rows.map((model) => model.slug), true);
+  await expect(fetchSnapshot(vi.fn<typeof fetch>()
+    .mockResolvedValueOnce(new Response(incomplete.html))
+    .mockResolvedValueOnce(new Response(incomplete.payload))
+    .mockResolvedValueOnce(new Response(incomplete.providerPayload))))
+    .rejects.toThrow('missing models from the page or provider listing');
+  const unknownProvider = sourceResponse(rows, ['unknown-provider-model'], true);
+  await expect(fetchSnapshot(vi.fn<typeof fetch>()
+    .mockResolvedValueOnce(new Response(current.html))
+    .mockResolvedValueOnce(new Response(current.payload))
+    .mockResolvedValueOnce(new Response(unknownProvider.providerPayload))))
+    .rejects.toThrow('missing models from the page or provider listing');
+  expect(() => extractModelManifest(current.html + current.html)).toThrow('Expected one');
 });

@@ -38,7 +38,6 @@ export function benchmarkData(): Plugin {
         export default {
           fetchedAt: ${JSON.stringify(snapshot.fetchedAt)},
           sourceHash: ${JSON.stringify(snapshot.sourceHash)},
-          codingSource: ${JSON.stringify(snapshot.codingSource)},
           models: columns[0].map((_, row) =>
             Object.fromEntries(fields.map((field, column) => [field, columns[column][row]])))
         };`;

@@ -8,7 +8,6 @@ export type Settings = PricingSettings & {
   selected: string[];
   excluded: string[];
   frontier: boolean;
-  codingOnly: boolean;
   labels: boolean;
   grouped: boolean;
   descending: boolean | null;
@@ -19,7 +18,6 @@ export const defaults: Settings = {
   selected: defaultSelected,
   excluded: ['none', 'max'],
   frontier: false,
-  codingOnly: false,
   pricingMode: 'api',
   subscriptionPlans: {},
   countResets: false,
@@ -52,7 +50,6 @@ export function readSettings(search: string): Settings {
     subscriptionPlans: readSubscriptionPlans(params.getAll('plan')),
     countResets: params.get('resets') === 'true',
     frontier: params.get('frontier') === 'true',
-    codingOnly: params.get('codingOnly') === 'true',
     labels: params.get('labels') !== 'false',
     grouped: params.get('grouped') !== 'false',
     descending: params.get('sort') === 'desc' ? true : params.get('sort') === 'asc' ? false : null,
@@ -82,7 +79,6 @@ export function writeSettings(settings: Settings, view: ViewId) {
     params.append('plan', `${provider}:${plan}`);
   if (settings.countResets) params.set('resets', 'true');
   if (settings.frontier) params.set('frontier', 'true');
-  if (settings.codingOnly) params.set('codingOnly', 'true');
   if (!settings.labels) params.set('labels', 'false');
   if (!settings.grouped) params.set('grouped', 'false');
   if (settings.descending !== null) params.set('sort', settings.descending ? 'desc' : 'asc');
