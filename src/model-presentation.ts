@@ -11,7 +11,6 @@ export const frontierFamilies = [
   'claude-fable-5-1',
   'claude-fable-5-2',
   'gemini-4-carbon',
-  'gemini-4-argon',
   'gemini-4-hydrogen',
   'grok-4-7',
   'muse-wonder-full',
@@ -27,7 +26,6 @@ export const notableFamilies = [
 // Gemini, Grok and Muse stay in the Frontier picker but load unselected.
 const defaultOff = new Set([
   'gemini-4-carbon',
-  'gemini-4-argon',
   'gemini-4-hydrogen',
   'grok-4-7',
   'muse-wonder-full',
