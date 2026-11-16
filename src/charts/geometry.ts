@@ -103,8 +103,8 @@ export function scatterGeometry(
 
 export const barLayout = { left: 64, narrowLeft: 46, right: 18, padding: 16, gap: 4, gapRatio: 0.025, markerWidth: 12 };
 
-export function combinedScores(metric: Metric, grouped: boolean) {
-  return grouped && (metric === 'intelligence' || metric === 'omniscience');
+export function combinedScores(metric: Metric, grouped: boolean, enabled: boolean) {
+  return enabled && grouped && (metric === 'intelligence' || metric === 'omniscience');
 }
 
 /** Dense grouped score plots scroll only when configuration targets cannot fit. */
@@ -124,8 +124,9 @@ export function barGeometry(
   height: number,
   grouped: boolean,
   descending: boolean,
+  combine = false,
 ) {
-  const combined = combinedScores(metric, grouped);
+  const combined = combinedScores(metric, grouped, combine);
   const left = width < 600 ? barLayout.narrowLeft : barLayout.left;
   const right = width - barLayout.right;
   const top = metric === 'omniscience' ? 50 : 30;

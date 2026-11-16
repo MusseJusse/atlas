@@ -10,6 +10,7 @@ export type Settings = PricingSettings & {
   frontier: boolean;
   labels: boolean;
   grouped: boolean;
+  combined: boolean;
   descending: boolean | null;
   linear: ViewId[];
   scatter: boolean;
@@ -23,6 +24,7 @@ export const defaults: Settings = {
   countResets: false,
   labels: true,
   grouped: true,
+  combined: false,
   descending: null,
   linear: [],
   scatter: true,
@@ -52,6 +54,7 @@ export function readSettings(search: string): Settings {
     frontier: params.get('frontier') === 'true',
     labels: params.get('labels') !== 'false',
     grouped: params.get('grouped') !== 'false',
+    combined: params.get('combined') === 'true',
     descending: params.get('sort') === 'desc' ? true : params.get('sort') === 'asc' ? false : null,
     linear: readIds(params.get('linear') ?? '', views.map((view) => view.id)),
     scatter: params.get('scatter') !== 'false',
@@ -81,6 +84,7 @@ export function writeSettings(settings: Settings, view: ViewId) {
   if (settings.frontier) params.set('frontier', 'true');
   if (!settings.labels) params.set('labels', 'false');
   if (!settings.grouped) params.set('grouped', 'false');
+  if (settings.combined) params.set('combined', 'true');
   if (settings.descending !== null) params.set('sort', settings.descending ? 'desc' : 'asc');
   if (settings.linear.length) params.set('linear', settings.linear.join(','));
   if (!settings.scatter) params.set('scatter', 'false');

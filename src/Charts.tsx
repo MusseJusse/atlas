@@ -109,7 +109,7 @@ export const Chart = memo(function Chart({
     [rows, view.metric, scatter, linear, score],
   );
   const validRows = prepared.rows;
-  const plotWidth = !scatter && !phone && combinedScores(view.metric, settings.grouped) ? combinedBarWidth(validRows, width) : width;
+  const plotWidth = !scatter && !phone && combinedScores(view.metric, settings.grouped, settings.combined) ? combinedBarWidth(validRows, width) : width;
   const { pinned, activeModel } = resolveChartInteraction(validRows, pinnedId, hoveredId);
   const interactions: Interactions = {
     pinned,

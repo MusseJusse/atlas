@@ -10,7 +10,7 @@ it('renders tied and tiny endpoints as distinct controls in visible marker order
     ...models[0]!, id: `config-${effortOrder}`, family: 'fixture', name: `Configuration ${effortOrder}`,
     intelligence, effortOrder, effortLabel: `Effort ${effortOrder}`,
   })), 'intelligence');
-  const markup = renderToStaticMarkup(<svg><Bars rows={rows} metric="intelligence" settings={defaults}
+  const markup = renderToStaticMarkup(<svg><Bars rows={rows} metric="intelligence" settings={{ ...defaults, combined: true }}
     width={960} height={640} interactions={{ activeModel: null, pinned: null, highlighted: null,
       hover: vi.fn(), togglePin: vi.fn(), highlight: vi.fn() }} /></svg>);
   const controls = [...markup.matchAll(/<g\b[^>]*role="button"[^>]*>([\s\S]*?)<\/g>/g)];
@@ -38,7 +38,7 @@ it('keeps effort shades stable when values reverse or grouping changes', () => {
     const rows = measureRows(values.map((intelligence, index) => ({
       ...models[0]!, id: `shade-${index}`, name: `Shade ${index}`, family: 'fixture', intelligence, effortOrder: index * 20,
     })), 'intelligence');
-    const markup = renderToStaticMarkup(<svg><Bars rows={rows} metric="intelligence" settings={{ ...defaults, grouped }}
+    const markup = renderToStaticMarkup(<svg><Bars rows={rows} metric="intelligence" settings={{ ...defaults, grouped, combined: true }}
       width={960} height={640} interactions={{ activeModel: null, pinned: null, highlighted: null,
         hover: vi.fn(), togglePin: vi.fn(), highlight: vi.fn() }} /></svg>);
     return Object.fromEntries([...markup.matchAll(/<g\b[^>]*role="button"[^>]*>([\s\S]*?)<\/g>/g)].map(([control, content]) => [

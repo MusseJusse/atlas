@@ -23,7 +23,7 @@ export function Bars({
   height: number;
   interactions: Interactions;
 }) {
-  const combined = combinedScores(metric, settings.grouped);
+  const combined = combinedScores(metric, settings.grouped, settings.combined);
   const [hoveredFamily, setHoveredFamily] = useState<string | null>(null);
 
   function leaveHover() {
@@ -32,8 +32,8 @@ export function Bars({
   }
 
   const { left, right, top, bottom, y, positioned } = useMemo(
-    () => barGeometry(rows, metric, width, height, settings.grouped, settings.descending ?? false),
-    [rows, metric, width, height, settings.grouped, settings.descending],
+    () => barGeometry(rows, metric, width, height, settings.grouped, settings.descending ?? false, settings.combined),
+    [rows, metric, width, height, settings.grouped, settings.descending, settings.combined],
   );
   const { activeModel } = interactions;
   const visibleFamily = rows.some((row) => row.family === hoveredFamily) ? hoveredFamily : null;
@@ -80,7 +80,7 @@ export function Bars({
               const segmentHeight = Math.abs(baseY - barY);
               const markerWidth = group.barWidth / group.rows.length;
               const markerX = barX + index * markerWidth;
-              const segmentOpacity = metric === 'intelligence' || metric === 'omniscience'
+              const segmentOpacity = settings.combined && (metric === 'intelligence' || metric === 'omniscience')
                 ? 0.95 - 0.5 * Math.min(1, row.effortOrder / 60)
                 : 0.62 + (0.38 * row.effortOrder) / 60;
               const showEffort = combined && segmentHeight >= 22 && group.barWidth >= 24;
@@ -131,7 +131,7 @@ export function Bars({
                   {(combined ? markerWidth > 8 : group.barWidth > 8) && (
                     <text
                       x={combined ? markerX + markerWidth / 2 : barX + group.barWidth / 2}
-                      y={bottom + 19}
+                      y={bottom + (combined ? 19 : 15)}
                       textAnchor="middle"
                       fill="var(--fg-3)"
                       fontSize={9}
@@ -206,8 +206,8 @@ export function FixedBarAxis({ rows, metric, settings, plotWidth, width, height 
   rows: MeasuredRow[]; metric: Metric; settings: Settings; plotWidth: number; width: number; height: number;
 }) {
   const { left, y } = useMemo(
-    () => barGeometry(rows, metric, plotWidth, height, settings.grouped, settings.descending ?? false),
-    [rows, metric, plotWidth, height, settings.grouped, settings.descending],
+    () => barGeometry(rows, metric, plotWidth, height, settings.grouped, settings.descending ?? false, settings.combined),
+    [rows, metric, plotWidth, height, settings.grouped, settings.descending, settings.combined],
   );
   return <svg aria-hidden="true" className="pointer-events-none absolute inset-0 size-full font-sans" viewBox={`0 0 ${width} ${height}`} data-fixed-bar-axis>
     <rect width={left} height={height} fill="var(--panel)" />

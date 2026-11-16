@@ -99,7 +99,7 @@ it('combines endpoints rather than summing and preserves signed, tied and non-mo
     ...base, id: `endpoint-${index}`, family: 'combined', omniscience, effortOrder: index,
   })), 'omniscience');
   const original = structuredClone(rows);
-  const { positioned } = barGeometry(rows, 'omniscience', 960, 640, true, false);
+  const { positioned } = barGeometry(rows, 'omniscience', 960, 640, true, false, true);
   const bars = positioned[0]!.bars;
   expect(new Set(bars.map((bar) => bar.x)).size).toBe(1);
   expect(bars.map((bar) => [bar.baseline, bar.row.value])).toEqual([
@@ -120,7 +120,7 @@ it('reserves distinct reasoning targets when grouped charts need horizontal scro
   ).flat(), 'intelligence');
   const width = combinedBarWidth(rows, 640);
   expect(width).toBeGreaterThan(640);
-  const { positioned } = barGeometry(rows, 'intelligence', width, 640, true, false);
+  const { positioned } = barGeometry(rows, 'intelligence', width, 640, true, false, true);
   expect(positioned.every((group) => group.barWidth / group.rows.length >= 12)).toBe(true);
 });
 
@@ -138,4 +138,13 @@ it('keeps grouped resource charts as separate bars with every measured value lab
   const bars = positioned[0]!.bars;
   expect(new Set(bars.map((bar) => bar.x)).size).toBe(rows.length);
   expect(bars.every((bar) => bar.baseline === 0 && bar.text)).toBe(true);
+});
+
+
+it('keeps score configurations side by side until the experiment is enabled', () => {
+  const rows = measureRows([40, 50, 60].map((intelligence, effortOrder) => ({ ...base, id: `${effortOrder}`, effortOrder, intelligence })), 'intelligence');
+  const separate = barGeometry(rows, 'intelligence', 960, 640, true, false).positioned[0]!.bars;
+  const combined = barGeometry(rows, 'intelligence', 960, 640, true, false, true).positioned[0]!.bars;
+  expect(new Set(separate.map((bar) => bar.x)).size).toBe(rows.length);
+  expect(new Set(combined.map((bar) => bar.x)).size).toBe(1);
 });
