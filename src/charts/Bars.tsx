@@ -1,5 +1,5 @@
 import { taskCostLabel } from './PricingDetails';
-import { useMemo, useState } from 'react';
+import { useMemo } from 'react';
 import { SvgLogo } from '../Logo';
 import { modelColor, shortName } from '../model-presentation';
 import { format, formatModelValue } from '../formatModel';
@@ -24,20 +24,12 @@ export function Bars({
   interactions: Interactions;
 }) {
   const combined = settings.grouped && settings.combined;
-  const [hoveredFamily, setHoveredFamily] = useState<string | null>(null);
-
-  function leaveHover() {
-    setHoveredFamily(null);
-    interactions.hover(null);
-  }
-
-  const { left, right, top, bottom, y, positioned } = useMemo(
+  const { left, right, bottom, y, positioned } = useMemo(
     () => barGeometry(rows, metric, width, height, settings.grouped, settings.descending ?? false, settings.combined),
     [rows, metric, width, height, settings.grouped, settings.descending, settings.combined],
   );
   const { activeModel } = interactions;
-  const visibleFamily = rows.some((row) => row.family === hoveredFamily) ? hoveredFamily : null;
-  const activeFamily = activeModel?.family ?? visibleFamily ?? interactions.highlighted;
+  const activeFamily = activeModel?.family ?? interactions.highlighted;
   const activeValue = activeModel?.[metric];
   const guideY = activeValue == null ? null : y(activeValue);
 
@@ -63,17 +55,8 @@ export function Bars({
           <g
             key={group.id}
             opacity={activeFamily && activeFamily !== model.family ? 0.65 : 1}
-            onMouseLeave={leaveHover}
+            pointerEvents="none"
           >
-            {/* Keep the last column active through the gaps between reasoning levels and label. */}
-            <rect
-              x={group.center - group.groupWidth / 2}
-              y={top}
-              width={group.groupWidth}
-              height={height - top}
-              fill="transparent"
-              onMouseEnter={() => { setHoveredFamily(model.family); interactions.hover(null); }}
-            />
             {group.bars.map(({ row, x: barX, baseline, labelX, labelY, text }, index) => {
               const barY = y(row.value);
               const baseY = y(baseline);
@@ -99,19 +82,15 @@ export function Bars({
                   aria-label={`${visibleLabel}${row.name}, ${row.effortLabel} reasoning, ${metric === 'cost' ? taskCostLabel(row) : metrics[metric].label} ${metric === 'time' && row.timeEstimate ? 'estimated ' : ''}${formatModelValue(row, metric)}`}
                   aria-pressed={interactions.pinned?.id === row.id}
                   onMouseEnter={() => interactions.hover(row)}
+                  onMouseLeave={() => interactions.hover(null)}
                   onFocus={() => interactions.hover(row)}
                   onBlur={() => interactions.hover(null)}
                   {...pinHandlers(row, interactions.togglePin)}
                 >
                   <rect
-                    x={barX}
-                    y={combined ? Math.min(barY, baseY) : top}
-                    width={group.barWidth}
-                    height={combined ? Math.max(1, segmentHeight) : bottom - top}
-                    fill="transparent"
-                  />
-                  <rect
                     data-focus-target
+                    data-bar-segment
+                    pointerEvents="visiblePainted"
                     x={barX}
                     y={Math.min(barY, baseY)}
                     width={group.barWidth}
@@ -125,7 +104,7 @@ export function Bars({
                   {showEffort && <text x={barX + group.barWidth / 2} y={(barY + baseY) / 2} dy="0.35em" textAnchor="middle" fill="var(--fg)" fontSize={11} pointerEvents="none" stroke="var(--panel)" strokeWidth={3} paintOrder="stroke" strokeLinejoin="round">{row.effortLabel.length * 6 + 12 <= group.barWidth ? row.effortLabel : effortMark}</text>}
                   {/* Separate reasoning targets keep tied and very small segments selectable. */}
                   {combined && <>
-                    <rect data-focus-target x={markerX} y={bottom + 2} width={markerWidth} height={22} fill="var(--panel)" stroke="var(--line-2)" />
+                    <rect data-focus-target pointerEvents="visiblePainted" x={markerX} y={bottom + 2} width={markerWidth} height={22} fill="var(--panel)" stroke="var(--line-2)" />
                     <rect x={markerX + Math.min(1, markerWidth / 2)} y={bottom + 3} width={Math.max(0, markerWidth - 2)} height={3} fill={modelColor(row)} opacity={segmentOpacity} pointerEvents="none" />
                   </>}
                   {(combined ? markerWidth > 8 : group.barWidth > 8) && (
@@ -154,12 +133,7 @@ export function Bars({
               );
             })}
             {group.groupWidth > 33 && (
-              <g
-                onMouseEnter={() => {
-                  setHoveredFamily(model.family);
-                  interactions.hover(null);
-                }}
-              >
+              <g>
                 <SvgLogo model={model} x={group.center - 7} y={bottom + 28} size={14} />
                 <text
                   x={group.center}

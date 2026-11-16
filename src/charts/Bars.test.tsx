@@ -20,9 +20,9 @@ it('renders tied and tiny endpoints as distinct controls in visible marker order
     expect(control).toContain(`Configuration ${index}, Effort ${index} reasoning`);
     expect(control).toContain('focus-visible:[&amp;&gt;rect[data-focus-target]]:stroke-accent');
     const rects = [...content!.matchAll(/<rect\b[^>]*>/g)].map(([rect]) => rect);
-    const segment = rects[1]!;
-    const marker = rects[2]!;
-    const stripe = rects[3]!;
+    const segment = rects[0]!;
+    const marker = rects[1]!;
+    const stripe = rects[2]!;
     expect(segment).toContain('data-focus-target');
     expect(marker).toContain('data-focus-target');
     expect(marker).toContain('stroke="var(--line-2)"');

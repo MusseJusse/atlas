@@ -150,7 +150,7 @@ test('dense combined bars scroll inside the plot and keep keyboard selection usa
 test('combined bars are opt-in from chart settings and survive a reload', async ({ page }) => {
   await page.goto('/?chart=intelligence');
   const section = page.locator('#intelligence');
-  const bars = section.locator('svg[role=group] g[role=button] > rect[data-focus-target]:nth-child(2)');
+  const bars = section.locator('svg[role=group] g[role=button] > rect[data-bar-segment]');
   await expect(bars.first()).toBeVisible();
   const positions = () => bars.evaluateAll((rects) => rects.slice(0, 2).map((rect) => rect.getAttribute('x')));
   const separate = await positions();
@@ -177,7 +177,7 @@ for (const view of ['cost-task', 'time-task', 'tokens-task', 'tokens-total']) {
   test(`combined bars apply to ${view} and can be switched off`, async ({ page }) => {
     await page.goto(`/?chart=${view}&selected=gpt-6-1-terra&combined=true&scatter=false`);
     const section = page.locator(`#${view}`);
-    const bars = section.locator('svg[role=group] g[role=button] > rect[data-focus-target]:nth-child(2)');
+    const bars = section.locator('svg[role=group] g[role=button] > rect[data-bar-segment]');
     await expect(bars.first()).toBeVisible();
     expect(await bars.count()).toBeGreaterThan(1);
     const positions = () => bars.evaluateAll((rects) => rects.map((rect) => rect.getAttribute('x')));
@@ -185,5 +185,29 @@ for (const view of ['cost-task', 'time-task', 'tokens-task', 'tokens-total']) {
     await section.locator('summary[aria-label="Chart settings"]').click();
     await section.getByRole('button', { name: 'Combine reasoning bars', exact: true }).click();
     await expect.poll(async () => new Set(await positions()).size).toBeGreaterThan(1);
+  });
+}
+
+for (const combined of [false, true]) {
+  test(`bar hover ignores empty space and value labels, combined=${combined}`, async ({ page }) => {
+    await page.goto(`/?chart=intelligence&selected=gpt-6-1-terra&combined=${combined}`);
+    const section = page.locator('#intelligence');
+    const bars = section.locator('rect[data-bar-segment]');
+    await expect(bars.first()).toBeVisible();
+    const bounds = await bars.evaluateAll((rects) => rects.map((rect) => {
+      const { x, y, width, height } = rect.getBoundingClientRect();
+      return { x, y, width, height };
+    }));
+    const bar = bounds.toSorted((a, b) => a.y - b.y)[0]!;
+    const centerX = bar.x + bar.width / 2;
+    const details = section.getByRole('complementary', { name: 'Selected configuration' });
+    await page.mouse.move(centerX, bar.y + bar.height / 2);
+    await expect(details).toBeVisible();
+    await page.mouse.move(centerX, bar.y - 20);
+    await expect(details).not.toBeVisible();
+    await page.mouse.move(centerX, bar.y - 8);
+    await expect(details).not.toBeVisible();
+    await page.mouse.move(centerX, bar.y + Math.min(3, bar.height / 2));
+    await expect(details).toBeVisible();
   });
 }
