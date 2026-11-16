@@ -6,7 +6,7 @@ import { format, formatModelValue } from '../formatModel';
 import { metrics, type Metric } from '../chart-definitions';
 import type { Settings } from '../state';
 import { pinHandlers, type Interactions } from './interactions';
-import { barGeometry, combinedScores, type MeasuredRow } from './geometry';
+import { barGeometry, type MeasuredRow } from './geometry';
 
 export function Bars({
   rows,
@@ -23,7 +23,7 @@ export function Bars({
   height: number;
   interactions: Interactions;
 }) {
-  const combined = combinedScores(metric, settings.grouped, settings.combined);
+  const combined = settings.grouped && settings.combined;
   const [hoveredFamily, setHoveredFamily] = useState<string | null>(null);
 
   function leaveHover() {
@@ -80,7 +80,7 @@ export function Bars({
               const segmentHeight = Math.abs(baseY - barY);
               const markerWidth = group.barWidth / group.rows.length;
               const markerX = barX + index * markerWidth;
-              const segmentOpacity = settings.combined && (metric === 'intelligence' || metric === 'omniscience')
+              const segmentOpacity = settings.combined
                 ? 0.95 - 0.5 * Math.min(1, row.effortOrder / 60)
                 : 0.62 + (0.38 * row.effortOrder) / 60;
               const showEffort = combined && segmentHeight >= 22 && group.barWidth >= 24;
@@ -201,7 +201,7 @@ export function Bars({
   );
 }
 
-/** Keep the value reference visible while dense score columns scroll underneath. */
+/** Keep the value reference visible while dense columns scroll underneath. */
 export function FixedBarAxis({ rows, metric, settings, plotWidth, width, height }: {
   rows: MeasuredRow[]; metric: Metric; settings: Settings; plotWidth: number; width: number; height: number;
 }) {

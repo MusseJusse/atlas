@@ -147,7 +147,7 @@ test('dense combined bars scroll inside the plot and keep keyboard selection usa
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
 });
 
-test('combined score bars are opt-in from chart settings and survive a reload', async ({ page }) => {
+test('combined bars are opt-in from chart settings and survive a reload', async ({ page }) => {
   await page.goto('/?chart=intelligence');
   const section = page.locator('#intelligence');
   const bars = section.locator('svg[role=group] g[role=button] > rect[data-focus-target]:nth-child(2)');
@@ -156,7 +156,7 @@ test('combined score bars are opt-in from chart settings and survive a reload', 
   const separate = await positions();
   expect(separate[0]).not.toBe(separate[1]);
   await section.locator('summary[aria-label="Chart settings"]').click();
-  const toggle = section.getByRole('button', { name: 'Combine reasoning scores', exact: true });
+  const toggle = section.getByRole('button', { name: 'Combine reasoning bars', exact: true });
   await expect(toggle).toHaveAttribute('aria-pressed', 'false');
   await toggle.click();
   await expect(toggle).toHaveAttribute('aria-pressed', 'true');
@@ -172,3 +172,18 @@ test('combined score bars are opt-in from chart settings and survive a reload', 
   await expect(page).not.toHaveURL(/combined=/);
   await expect.poll(positions).toEqual(separate);
 });
+
+for (const view of ['cost-task', 'time-task', 'tokens-task', 'tokens-total']) {
+  test(`combined bars apply to ${view} and can be switched off`, async ({ page }) => {
+    await page.goto(`/?chart=${view}&selected=gpt-6-1-terra&combined=true&scatter=false`);
+    const section = page.locator(`#${view}`);
+    const bars = section.locator('svg[role=group] g[role=button] > rect[data-focus-target]:nth-child(2)');
+    await expect(bars.first()).toBeVisible();
+    expect(await bars.count()).toBeGreaterThan(1);
+    const positions = () => bars.evaluateAll((rects) => rects.map((rect) => rect.getAttribute('x')));
+    expect(new Set(await positions()).size).toBe(1);
+    await section.locator('summary[aria-label="Chart settings"]').click();
+    await section.getByRole('button', { name: 'Combine reasoning bars', exact: true }).click();
+    await expect.poll(async () => new Set(await positions()).size).toBeGreaterThan(1);
+  });
+}

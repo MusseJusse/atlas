@@ -132,7 +132,7 @@ it('fits the default four-effort selection without an arbitrary column floor', (
   expect(combinedBarWidth(rows, 680)).toBe(680);
 });
 
-it('keeps grouped resource charts as separate bars with every measured value labelled', () => {
+it('keeps grouped resource charts as separate bars by default with every value labelled', () => {
   const rows = measureRows([1, 2, 3].map((cost, effortOrder) => ({ ...base, id: `${effortOrder}`, effortOrder, cost })), 'cost');
   const { positioned } = barGeometry(rows, 'cost', 960, 640, true, false);
   const bars = positioned[0]!.bars;
@@ -148,3 +148,19 @@ it('keeps score configurations side by side until the experiment is enabled', ()
   expect(new Set(separate.map((bar) => bar.x)).size).toBe(rows.length);
   expect(new Set(combined.map((bar) => bar.x)).size).toBe(1);
 });
+
+
+it.each(['cost', 'time', 'tokens', 'tokensTotal', 'costTotal', 'speed'] as const)(
+  'combines %s endpoints only when enabled without summing measurements', (metric) => {
+    const rows = measureRows([1, 3, 2].map((value, effortOrder) => ({
+      ...base, id: `resource-${effortOrder}`, effortOrder, [metric]: value,
+    })), metric);
+    const separate = barGeometry(rows, metric, 960, 640, true, false).positioned[0]!.bars;
+    expect(new Set(separate.map((bar) => bar.x)).size).toBe(3);
+    const combined = barGeometry(rows, metric, 960, 640, true, false, true).positioned[0]!.bars;
+    expect(new Set(combined.map((bar) => bar.x)).size).toBe(1);
+    expect(combined.map((bar) => [bar.baseline, bar.row.value])).toEqual([[0, 1], [2, 3], [1, 2]]);
+    expect(combined.find((bar) => bar.row.value === 3)?.text).toBeTruthy();
+    if (metric !== 'speed') expect(combined.find((bar) => bar.row.value === 1)?.text).toBeTruthy();
+  },
+);

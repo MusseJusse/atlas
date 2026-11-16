@@ -2,7 +2,7 @@ import { barDomain, linearScale, logScale } from '../scales';
 import { scatterDomain, scatterRows } from '../scatter-data';
 import { barGroups, paretoFrontier, type Model } from '../models';
 import { format, formatModelValue } from '../formatModel';
-import type { Metric, ScoreMetric } from '../chart-definitions';
+import { metrics, type Metric, type ScoreMetric } from '../chart-definitions';
 
 export type MeasuredRow = Model & { value: number };
 export type ScatterRow = MeasuredRow & { score: number };
@@ -103,11 +103,7 @@ export function scatterGeometry(
 
 export const barLayout = { left: 64, narrowLeft: 46, right: 18, padding: 16, gap: 4, gapRatio: 0.025, markerWidth: 12 };
 
-export function combinedScores(metric: Metric, grouped: boolean, enabled: boolean) {
-  return enabled && grouped && (metric === 'intelligence' || metric === 'omniscience');
-}
-
-/** Dense grouped score plots scroll only when configuration targets cannot fit. */
+/** Dense grouped bar plots scroll only when configuration targets cannot fit. */
 export function combinedBarWidth(rows: Model[], width: number) {
   const counts = new Map<string, number>();
   for (const row of rows) counts.set(row.family, (counts.get(row.family) ?? 0) + 1);
@@ -126,7 +122,7 @@ export function barGeometry(
   descending: boolean,
   combine = false,
 ) {
-  const combined = combinedScores(metric, grouped, combine);
+  const combined = grouped && combine;
   const left = width < 600 ? barLayout.narrowLeft : barLayout.left;
   const right = width - barLayout.right;
   const top = metric === 'omniscience' ? 50 : 30;
@@ -159,7 +155,8 @@ export function barGeometry(
       if (row.value < 0) negativeEnd = row.value;
       else positive = row.value;
       const x = start + (combined ? 0 : index * (barWidth + gap));
-      const endpoint = !combined || row.value === (row.value < 0 ? group.minimum : group.maximum);
+      const endpoint = !combined || row.value === group.maximum ||
+        (row.value === group.minimum && (!metrics[metric].higherIsBetter || row.value < 0));
       const text = barWidth > 8 && endpoint && (!combined || ordered.findLast((item) => item.value === row.value)?.id === row.id) ? formatModelValue(row, metric, true) : '';
       const textWidth = text.length * 6.4;
       const labelX = Math.max(

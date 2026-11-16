@@ -19,7 +19,7 @@ import { ConfigurationDetails } from './charts/ConfigurationDetails';
 import { Scatter } from './charts/Scatter';
 import { Bars, FixedBarAxis } from './charts/Bars';
 import { Ranking } from './charts/Ranking';
-import { combinedBarWidth, combinedScores, measureRows, measureScatterRows } from './charts/geometry';
+import { combinedBarWidth, measureRows, measureScatterRows } from './charts/geometry';
 import type { Interactions } from './charts/interactions';
 
 function useSize(enabled: boolean) {
@@ -109,7 +109,7 @@ export const Chart = memo(function Chart({
     [rows, view.metric, scatter, linear, score],
   );
   const validRows = prepared.rows;
-  const plotWidth = !scatter && !phone && combinedScores(view.metric, settings.grouped, settings.combined) ? combinedBarWidth(validRows, width) : width;
+  const plotWidth = !scatter && !phone && settings.grouped && settings.combined ? combinedBarWidth(validRows, width) : width;
   const { pinned, activeModel } = resolveChartInteraction(validRows, pinnedId, hoveredId);
   const interactions: Interactions = {
     pinned,
