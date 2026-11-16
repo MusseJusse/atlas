@@ -2,7 +2,7 @@ import { barDomain, linearScale, logScale } from '../scales';
 import { scatterDomain, scatterRows } from '../scatter-data';
 import { barGroups, paretoFrontier, type Model } from '../models';
 import { format, formatModelValue } from '../formatModel';
-import { metrics, type Metric, type ScoreMetric } from '../chart-definitions';
+import type { Metric, ScoreMetric } from '../chart-definitions';
 
 export type MeasuredRow = Model & { value: number };
 export type ScatterRow = MeasuredRow & { score: number };
@@ -155,8 +155,7 @@ export function barGeometry(
       if (row.value < 0) negativeEnd = row.value;
       else positive = row.value;
       const x = start + (combined ? 0 : index * (barWidth + gap));
-      const endpoint = !combined || row.value === group.maximum ||
-        (row.value === group.minimum && (!metrics[metric].higherIsBetter || row.value < 0));
+      const endpoint = !combined || row.value === (row.value < 0 ? group.minimum : group.maximum);
       const text = barWidth > 8 && endpoint && (!combined || ordered.findLast((item) => item.value === row.value)?.id === row.id) ? formatModelValue(row, metric, true) : '';
       const textWidth = text.length * 6.4;
       const labelX = Math.max(

@@ -161,6 +161,6 @@ it.each(['cost', 'time', 'tokens', 'tokensTotal', 'costTotal', 'speed'] as const
     expect(new Set(combined.map((bar) => bar.x)).size).toBe(1);
     expect(combined.map((bar) => [bar.baseline, bar.row.value])).toEqual([[0, 1], [2, 3], [1, 2]]);
     expect(combined.find((bar) => bar.row.value === 3)?.text).toBeTruthy();
-    if (metric !== 'speed') expect(combined.find((bar) => bar.row.value === 1)?.text).toBeTruthy();
+    expect(combined.filter((bar) => bar.text).map((bar) => bar.row.value)).toEqual([3]);
   },
 );
