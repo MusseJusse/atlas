@@ -5,13 +5,12 @@ import { pricingDisclosure, subscriptionRows, usesSubscriptionPricing } from './
 import { Chart } from './Charts';
 import { ChartNavigation } from './ChartNavigation';
 import { visibleChartRows } from './chart-rows';
-import { codingOnlyRows } from './data/coding-only';
 import { Sidebar } from './Sidebar';
 import { Selection } from './Selection';
 import { useMediaQuery } from './useMediaQuery';
 import { useChartNavigation } from './useChartNavigation';
-import { codingFetchedAt, fetchedAt, paretoFrontier, visibleModels } from './models';
-import { chartViews, resolveView, views } from './chart-definitions';
+import { fetchedAt, paretoFrontier, visibleModels } from './models';
+import { resolveView, views } from './chart-definitions';
 import { chartDescending, readSettings, readView, writeSettings, type Settings } from './state';
 import { ThemeToggle } from './ThemeToggle';
 import { formatUtcDate } from './formatDate';
@@ -106,19 +105,16 @@ function Benchmarks() {
     () => visibleModels(settings.selected, []),
     [settings.selected],
   );
-  const codingRows = useMemo(() => codingOnlyRows(rows), [rows]);
-  const datasetViews = useMemo(() => chartViews(settings.codingOnly), [settings.codingOnly]);
-  const view = datasetViews.find((view) => view.id === active) ?? datasetViews[0]!;
+  const view = views.find((view) => view.id === active) ?? views[0]!;
   const { score } = resolveView(view, settings);
   const pricedRows = useMemo(() => subscriptionRows(rows, settings),
     [rows, settings.pricingMode, settings.subscriptionPlans, settings.countResets]);
   const subscriptionActive = usesSubscriptionPricing(view.id, settings);
-  const rowsByView = useMemo(() => new Map(datasetViews.map((view) => {
-    const source = settings.codingOnly ? codingRows : usesSubscriptionPricing(view.id, settings) ? pricedRows : rows;
+  const rowsByView = useMemo(() => new Map(views.map((view) => {
+    const source = usesSubscriptionPricing(view.id, settings) ? pricedRows : rows;
     return [view.id, visibleChartRows(source, view, settings)];
-  })), [datasetViews, rows, codingRows, pricedRows, settings]);
+  })), [views, rows, pricedRows, settings]);
   const activeRows = rowsByView.get(view.id)!;
-  const activeFetchedAt = settings.codingOnly ? codingFetchedAt : fetchedAt;
   const frontier = useMemo(
     () => new Set(paretoFrontier(subscriptionActive ? activeRows.filter((row) => row.taskPricing?.basis === 'subscription') : activeRows, view.metric, (model) => model[score]).map((model) => model.family)),
     [activeRows, view.metric, score, subscriptionActive],
@@ -207,7 +203,7 @@ function Benchmarks() {
               className="flex mobile:hidden min-w-0 gap-6 overflow-x-auto border-b border-line [scrollbar-width:thin] [scrollbar-color:var(--line-2)_transparent] compact:gap-5"
               aria-label="Chart views"
             >
-              {datasetViews.map((view) => (
+              {views.map((view) => (
                 <button
                   key={view.id}
                   className="min-h-[50px] shrink-0 short:min-h-11 border-b-2 border-transparent text-[12px] text-fg-2 aria-[current=page]:border-accent aria-[current=page]:font-semibold aria-[current=page]:text-accent hover:text-accent"
@@ -218,13 +214,13 @@ function Benchmarks() {
                 </button>
               ))}
             </nav>
-            <div className="hidden mobile:block"><ChartNavigation views={datasetViews} active={active} navigate={navigate} /></div></div>
+            <div className="hidden mobile:block"><ChartNavigation active={active} navigate={navigate} /></div></div>
           </div>
           <div
             className="relative min-h-0 snap-y snap-proximity overflow-y-auto rounded-b-xl [scrollbar-width:thin] [scrollbar-color:var(--line-2)_var(--panel)] mobile:snap-none mobile:overflow-visible"
             ref={feed}
           >
-            {datasetViews.map((view) => {
+            {views.map((view) => {
               const { scatter, linear } = resolveView(view, settings);
               const subscription = usesSubscriptionPricing(view.id, settings);
               const chartRows = rowsByView.get(view.id)!;
@@ -244,7 +240,7 @@ function Benchmarks() {
                       settings={settings}
                       update={update}
                       descending={chartDescending(view.metric, phone, settings.descending)}
-                      pricing={!settings.codingOnly && (view.id === 'cost-intelligence' || view.id === 'cost-task')}
+                      pricing={view.id === 'cost-intelligence' || view.id === 'cost-task'}
                     />
                   </div>
                   <div
@@ -358,10 +354,10 @@ function Benchmarks() {
             Artificial Analysis
           </a>
         </span>
-        <span title={`Local snapshot captured ${activeFetchedAt}`}>
+        <span title={`Local snapshot captured ${fetchedAt}`}>
           Snapshot captured{' '}
-          <time dateTime={activeFetchedAt}>
-            {formatUtcDate(activeFetchedAt, 'short')}
+          <time dateTime={fetchedAt}>
+            {formatUtcDate(fetchedAt, 'short')}
           </time>
         </span>
       </footer>

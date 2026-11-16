@@ -1,4 +1,4 @@
-import type { View, ViewId } from './chart-definitions';
+import type { ViewId } from './chart-definitions';
 
 const groups = [
   { label: 'Overview', charts: [{ id: 'cost-intelligence', label: 'Overview' }] },
@@ -10,17 +10,14 @@ const groups = [
 ] as const satisfies readonly { label: string; charts: readonly { id: ViewId; label: string }[] }[];
 
 /** Expose every chart on desktop; phones keep its category and choices visible together. */
-export function ChartNavigation({ views, active, navigate }: {
-  views: View[]; active: ViewId; navigate: (id: ViewId) => void;
+export function ChartNavigation({ active, navigate }: {
+  active: ViewId; navigate: (id: ViewId) => void;
 }) {
   const currentGroup = groups.find((group) => group.charts.some((chart) => chart.id === active)) ?? groups[0];
-  const label = (chart: (typeof groups)[number]['charts'][number]) =>
-    chart.id === 'intelligence' && views.find((view) => view.id === chart.id)?.metric === 'codingIndex'
-      ? 'Coding score' : chart.label;
   const chartButton = (chart: (typeof groups)[number]['charts'][number]) => (
     <button key={chart.id} type="button" aria-current={active === chart.id ? 'page' : undefined}
       aria-controls={chart.id} onClick={() => navigate(chart.id)}>
-      {label(chart)}
+      {chart.label}
     </button>
   );
 

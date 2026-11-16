@@ -1,4 +1,4 @@
-import type { SnapshotModel } from './schema';
+import type { FieldChange } from './schema';
 
 export type { ChangeKind, FieldChange, ModelChange, ChangeBatch, ChangeHistory } from './schema';
 
@@ -33,4 +33,4 @@ export const fieldLabels = {
   inputPrice: 'Input price per 1M tokens',
   outputPrice: 'Output price per 1M tokens',
   context: 'Context tokens',
-} as const satisfies Record<keyof SnapshotModel, string>;
+} as const satisfies Record<FieldChange['field'], string>;

@@ -4,7 +4,7 @@ import { Logo } from '../Logo';
 import { barGroups } from '../models';
 import { modelColor, shortName } from '../model-presentation';
 import { format, formatModelValue } from '../formatModel';
-import { metrics, type Metric, type ScoreMetric } from '../chart-definitions';
+import { metrics, type Metric } from '../chart-definitions';
 import { barDomain, linearScale, logScale } from '../scales';
 import { ConfigurationDetails } from './ConfigurationDetails';
 import { spacedAxisTicks, type MeasuredRow } from './geometry';
@@ -12,8 +12,8 @@ import { overlappingConfigurations, durationTicks } from './ranking-geometry';
 import type { Interactions } from './interactions';
 
 /** One shared scale, one row per model, and every measured reasoning configuration. */
-export function Ranking({ rows, metric, grouped, descending, interactions, score, logarithmic }: {
-  rows: MeasuredRow[]; metric: Metric; grouped: boolean; descending: boolean; interactions: Interactions; score?: ScoreMetric; logarithmic: boolean;
+export function Ranking({ rows, metric, grouped, descending, interactions, logarithmic }: {
+  rows: MeasuredRow[]; metric: Metric; grouped: boolean; descending: boolean; interactions: Interactions; logarithmic: boolean;
 }) {
   const root = useRef<HTMLDivElement>(null);
   const [expanded, setExpanded] = useState<string | null>(null);
@@ -88,7 +88,7 @@ export function Ranking({ rows, metric, grouped, descending, interactions, score
                 <span>{row.codingAgent?.configuration ?? row.effortLabel}</span><b>{formatModelValue(row, metric)}</b>
               </button>)}
             </div>
-            {selected && interactions.activeModel && <aside aria-label="Selected configuration" className="ranking-inspector"><ConfigurationDetails model={interactions.activeModel} metric={metric} score={score} pinned onClose={() => {
+            {selected && interactions.activeModel && <aside aria-label="Selected configuration" className="ranking-inspector"><ConfigurationDetails model={interactions.activeModel} metric={metric} pinned onClose={() => {
                 root.current?.querySelector<HTMLButtonElement>('.ranking-configurations button[aria-pressed="true"]')?.focus();
                 if (interactions.activeModel) interactions.togglePin(interactions.activeModel);
               }} /></aside>}

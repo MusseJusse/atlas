@@ -6,7 +6,6 @@ type Measurement = {
 
 export const metrics = {
   cost: { label: 'Cost per task', unit: 'USD', higherIsBetter: false },
-  codingIndex: { label: 'Coding score', unit: 'Coding score', higherIsBetter: true },
   intelligence: { label: 'Intelligence index', unit: 'Intelligence index', higherIsBetter: true },
   omniscience: { label: 'AA-Omniscience Index', unit: 'AA-Omniscience Index', higherIsBetter: true },
   time: { label: 'Time per task', unit: 'decode time per task', higherIsBetter: false },
@@ -21,10 +20,9 @@ export const metrics = {
 }>>;
 export type Metric = keyof typeof metrics;
 
-export type ScoreMetric = 'intelligence' | 'codingIndex' | 'codingScore' | 'cyberScore';
+export type ScoreMetric = 'intelligence' | 'codingScore' | 'cyberScore';
 export const scoreLabels = {
   intelligence: 'Intelligence index',
-  codingIndex: 'Coding score',
   codingScore: 'Coding Agent Index v2.0',
   cyberScore: 'Cyber Index',
 } satisfies Record<ScoreMetric, string>;
@@ -46,18 +44,11 @@ export const views = [
 export type ViewId = (typeof views)[number]['id'];
 export type View = Omit<(typeof views)[number], 'metric' | 'label'> & { metric: Metric; label: string };
 
-/** Keep stable chart IDs while displaying the score selected by the global dataset switch. */
-export function chartViews(codingOnly: boolean): View[] {
-  return views.map((view) => codingOnly && view.id === 'intelligence'
-    ? { ...view, metric: 'codingIndex', label: metrics.codingIndex.label }
-    : view);
-}
-
 /** Resolve controls and rendering from the same view, including per-view axis choices. */
-export function resolveView(view: View, settings: { scatter: boolean; linear: readonly ViewId[]; codingOnly?: boolean }) {
+export function resolveView(view: View, settings: { scatter: boolean; linear: readonly ViewId[] }) {
   return {
     scatter: view.mode === 'scatter' || (view.mode === 'optional-scatter' && settings.scatter),
     linear: settings.linear.includes(view.id),
-    score: settings.codingOnly ? 'codingIndex' as const : 'intelligence' as const,
+    score: 'intelligence' as const,
   };
 }

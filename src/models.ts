@@ -15,7 +15,6 @@ const endpointParents = new Map(
   speedEndpoints.map((endpoint) => [endpoint.family, endpoint.parentFamily]),
 );
 export const fetchedAt = snapshot.fetchedAt;
-export const codingFetchedAt = snapshot.codingSource?.fetchedAt ?? fetchedAt;
 export { efforts } from './data/efforts';
 
 const byFamily = new Map<string, Model[]>();

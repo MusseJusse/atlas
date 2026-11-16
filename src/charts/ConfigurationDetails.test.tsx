@@ -83,23 +83,6 @@ it('shows Cyber scores and costs with the evaluation source and fallback setting
   expect(render(trusted)).toContain('trusted access');
 });
 
-it('shows the selected coding score and existing cost in the main scatter details', () => {
-  const markup = renderToStaticMarkup(
-    <ConfigurationDetails
-      model={{ ...sol, codingIndex: 43.25 }}
-      metric="cost"
-      score="codingIndex"
-      pinned
-      onClose={() => {}}
-    />,
-  );
-  expect(markup).toContain('Coding score');
-  expect(markup).toContain('43.3');
-  expect(markup).toContain('$0.393');
-  expect(markup).not.toContain('Intelligence index');
-  expect(markup).not.toContain('Coding Agent Index');
-});
-
 it('distinguishes subscription estimates and API fallbacks with provenance', async () => {
   const { subscriptionRows, subscriptionSource } = await import('../data/subscriptions');
   const { defaults } = await import('../state');

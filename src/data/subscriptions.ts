@@ -90,9 +90,9 @@ export function subscriptionRows(rows: Model[], settings: PricingSettings, bench
   });
 }
 
-/** Scope conversion by view, never by the shared cost field or coding-only workload. */
-export function usesSubscriptionPricing(viewId: string, settings: PricingSettings & { codingOnly: boolean }) {
-  return !settings.codingOnly && settings.pricingMode === 'subscription'
+/** Apply subscription estimates only to the two cost views. */
+export function usesSubscriptionPricing(viewId: string, settings: PricingSettings) {
+  return settings.pricingMode === 'subscription'
     && (viewId === 'cost-intelligence' || viewId === 'cost-task');
 }
 

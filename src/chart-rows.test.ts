@@ -1,7 +1,6 @@
 import { expect, it } from 'vitest';
 import { visibleChartRows } from './chart-rows';
-import { chartViews, views } from './chart-definitions';
-import { codingOnlyRows } from './data/coding-only';
+import { views } from './chart-definitions';
 import { models, type Model } from './models';
 import { readSettings } from './state';
 
@@ -38,14 +37,4 @@ it('counts measured zero costs on linear scales but not logarithmic scales', () 
   const freeHigh = { ...high, cost: 0 };
   expect(visibleChartRows([max, freeHigh], costView, settings)).toEqual([max]);
   expect(visibleChartRows([max, freeHigh], costView, { ...settings, linear: [costView.id] })).toEqual([freeHigh]);
-});
-
-it('uses the coding workload measurements before finding available reasoning alternatives', () => {
-  const rows = codingOnlyRows([
-    { ...max, terminalBench40: 0.5, frontierCode20: 0.6, codingCost: 1 },
-    { ...high, terminalBench40: 0.4, frontierCode20: 0.5, codingCost: null },
-  ]);
-  const codingSettings = { ...settings, codingOnly: true };
-  const view = chartViews(true).find((view) => view.id === costView.id)!;
-  expect(visibleChartRows(rows, view, codingSettings).map((row) => row.id)).toEqual(['max']);
 });

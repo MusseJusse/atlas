@@ -209,7 +209,6 @@ export const Chart = memo(function Chart({
             <ConfigurationDetails
               model={activeModel}
               metric={view.metric}
-              score={settings.codingOnly || scatter ? score : undefined}
               pinned={Boolean(pinned)}
               onClose={clearSelection}
             />
@@ -220,7 +219,7 @@ export const Chart = memo(function Chart({
         <div className="hidden phone:block">
           {!prepared.scatter && <Ranking rows={prepared.rows} metric={view.metric} grouped={settings.grouped}
             descending={chartDescending(view.metric, true, settings.descending)} interactions={interactions}
-            score={settings.codingOnly ? score : undefined} logarithmic={false} />}
+            logarithmic={false} />}
         </div>
       )}
       {/* Reserve the mobile legend's height in the initial HTML before hydration. */}

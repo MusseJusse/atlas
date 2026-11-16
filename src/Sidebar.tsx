@@ -4,8 +4,6 @@ import { defaults, type Settings } from './state';
 import { efforts, families } from './models';
 import { modelColor, shortName } from './model-presentation';
 import { Logo } from './Logo';
-import { Selection } from './Selection';
-import { codingOnlyDescription } from './data/coding-only';
 import { browseFamilies, curatedSections, selectedOtherFamilies } from './sidebar-catalogue';
 
 export const Sidebar = memo(function Sidebar({
@@ -230,23 +228,6 @@ export const Sidebar = memo(function Sidebar({
           </div>
         ))}
       </div>
-      <button
-        className="group relative inline-flex min-h-10 w-full items-center gap-2 text-[12px] text-fg aria-pressed:text-accent hover:text-accent mobile:min-h-11 mobile:text-[14px]"
-        aria-pressed={settings.codingOnly}
-        aria-label="Coding Only"
-        aria-describedby="coding-only-description"
-        onClick={() => update({ codingOnly: !settings.codingOnly })}
-      >
-        <Selection checked={settings.codingOnly} />
-        Coding Only
-        <span
-          id="coding-only-description"
-          role="tooltip"
-          className="pointer-events-none absolute bottom-full left-0 z-10 w-full rounded-md border border-line bg-panel p-3 text-left text-[11px] leading-5 font-normal text-fg-2 opacity-0 shadow-md group-hover:opacity-100 group-focus-visible:opacity-100"
-        >
-          {codingOnlyDescription}
-        </span>
-      </button>
       <div>
         <h3 className="text-[12px] font-[550] mobile:text-[14px]">Reasoning</h3>
         <div className="mt-2 grid grid-cols-3 gap-1 mobile:flex mobile:flex-wrap">

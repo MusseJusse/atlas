@@ -93,7 +93,6 @@ it('changes costs with source-supported resets and scopes conversion to full-ind
   expect(reset!.cost).toBeLessThan(baseline!.cost!);
   expect(usesSubscriptionPricing('cost-intelligence', settings)).toBe(true);
   expect(usesSubscriptionPricing('cost-task', settings)).toBe(true);
-  expect(usesSubscriptionPricing('cost-task', { ...settings, codingOnly: true })).toBe(false);
   for (const id of ['tokens-task', 'intelligence', 'coding-agents', 'cyber-index', 'cost-total'])
     expect(usesSubscriptionPricing(id, settings)).toBe(false);
   expect(pricingDisclosure([baseline!], false).join(' ')).toContain('External coding token mix');
