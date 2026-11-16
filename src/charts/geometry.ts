@@ -101,6 +101,14 @@ export function scatterGeometry(
   };
 }
 
+/** Dense grouped plots scroll rather than collapsing the configuration targets. */
+export function combinedBarWidth(rows: Model[], width: number) {
+  const counts = new Map<string, number>();
+  for (const row of rows) counts.set(row.family, (counts.get(row.family) ?? 0) + 1);
+  const groupWidth = Math.max(96, Math.max(0, ...counts.values()) * 12 + 20);
+  return Math.max(width, counts.size * groupWidth + 82);
+}
+
 export function barGeometry(
   rows: MeasuredRow[],
   metric: Metric,
@@ -129,7 +137,7 @@ export function barGeometry(
     const center = groupStart + groupWidth / 2;
     groupStart += groupWidth;
     const gap = Math.min(4, groupWidth * 0.025);
-    const barWidth = Math.max(1, Math.min(grouped ? 74 : 38, (groupWidth - 16) / (grouped ? 1 : group.rows.length) - gap));
+    const barWidth = Math.max(1, Math.min(grouped ? Math.max(74, group.rows.length * 12) : 38, (groupWidth - 16) / (grouped ? 1 : group.rows.length) - gap));
     const start = center - ((grouped ? 1 : group.rows.length) * (barWidth + gap) - gap) / 2;
     // Values are endpoints, not additive scores. Sort by distance from zero so
     // non-monotonic reasoning results and signed scores keep their true heights.
@@ -160,8 +168,12 @@ export function barGeometry(
       )
         labelY += negative ? 17 : -17;
       if (text) valueLabels.push({ x: labelX, y: labelY, width: textWidth });
-      return { row, x, baseline, labelX, labelY, text };
+      return { row, x, baseline, labelX, labelY, text, shadeOrder: index };
     });
+    // Keep DOM and keyboard order aligned with the effort markers, independently
+    // of the value order used to calculate segment baselines and shading.
+    const effortOrder = new Map(group.rows.map((row, index) => [row.id, index]));
+    bars.sort((a, b) => effortOrder.get(a.row.id)! - effortOrder.get(b.row.id)!);
     return { ...group, center, groupWidth, barWidth, bars };
   });
   return { left, right, top, bottom, y, positioned };

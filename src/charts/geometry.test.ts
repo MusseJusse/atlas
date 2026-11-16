@@ -3,7 +3,7 @@ import { models, type Model } from '../models';
 import { speedEndpoints } from '../data/speed-endpoints';
 import { barDomain, linearScale, logScale } from '../scales';
 import { scatterDomain } from '../scatter-data';
-import { barGeometry, measureRows, measureScatterRows, rangeGeometry, scatterGeometry } from './geometry';
+import { barGeometry, combinedBarWidth, measureRows, measureScatterRows, rangeGeometry, scatterGeometry } from './geometry';
 
 const base = models[0]!;
 function model(id: string, family: string, cost: number | null, intelligence = 40): Model {
@@ -109,12 +109,24 @@ it('combines endpoints rather than summing and preserves signed, tied and non-mo
   const bars = positioned[0]!.bars;
   expect(new Set(bars.map((bar) => bar.x)).size).toBe(1);
   expect(bars.map((bar) => [bar.baseline, bar.row.value])).toEqual([
-    [0, 0], [0, -20], [0, 40], [-20, -45], [40, 50], [50, 60], [60, 60],
+    [0, 40], [50, 60], [40, 50], [60, 60], [0, -20], [-20, -45], [0, 0],
   ]);
-  expect(bars.filter((bar) => bar.text).map((bar) => bar.row.value)).toEqual([-45, 60]);
+  expect(bars.map((bar) => bar.row.id)).toEqual(rows.map((row) => row.id));
+  expect(bars.filter((bar) => bar.text).map((bar) => bar.row.value)).toEqual([60, -45]);
   expect(bars.map((bar) => bar.row.id).toSorted()).toEqual(rows.map((row) => row.id).toSorted());
   expect(rows).toEqual(original);
   const separate = barGeometry(rows, 'omniscience', 960, 640, false, false);
   expect(separate.positioned.every((group) => group.bars[0]!.baseline === 0)).toBe(true);
   expect(separate.positioned).toHaveLength(rows.length);
+});
+
+
+it('reserves distinct reasoning targets when grouped charts need horizontal scrolling', () => {
+  const rows = measureRows(Array.from({ length: 30 }, (_, family) =>
+    Array.from({ length: 7 }, (_, effortOrder) => ({ ...base, id: `${family}-${effortOrder}`, family: `${family}`, effortOrder, intelligence: effortOrder })),
+  ).flat(), 'intelligence');
+  const width = combinedBarWidth(rows, 640);
+  expect(width).toBeGreaterThan(640);
+  const { positioned } = barGeometry(rows, 'intelligence', width, 640, true, false);
+  expect(positioned.every((group) => group.barWidth / group.rows.length >= 12)).toBe(true);
 });

@@ -122,3 +122,21 @@ test('phone efficiency shows the chart before optional details', async ({ page }
   expect(positions.filters).toBeLessThan(positions.plot);
   expect(positions.details).toBe(0);
 });
+
+test('dense combined bars scroll inside the plot and keep keyboard selection usable', async ({ page }) => {
+  await page.setViewportSize({ width: 1024, height: 900 });
+  await page.goto('/?chart=intelligence');
+  const chart = page.locator('#intelligence svg[role=group]');
+  await expect(chart).toBeVisible();
+  const scrollArea = chart.locator('..');
+  expect(await scrollArea.evaluate((element) => element.scrollWidth > element.clientWidth)).toBe(true);
+  const controls = chart.locator('g[role=button]');
+  const last = controls.last();
+  await last.focus();
+  await expect.poll(() => scrollArea.evaluate((element) => element.scrollLeft)).toBeGreaterThan(0);
+  await page.keyboard.press('Enter');
+  await expect(last).toHaveAttribute('aria-pressed', 'true');
+  await page.keyboard.press('Escape');
+  await expect(last).toHaveAttribute('aria-pressed', 'false');
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+});

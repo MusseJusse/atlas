@@ -19,7 +19,7 @@ import { ConfigurationDetails } from './charts/ConfigurationDetails';
 import { Scatter } from './charts/Scatter';
 import { Bars } from './charts/Bars';
 import { Ranking } from './charts/Ranking';
-import { measureRows, measureScatterRows } from './charts/geometry';
+import { combinedBarWidth, measureRows, measureScatterRows } from './charts/geometry';
 import type { Interactions } from './charts/interactions';
 
 function useSize(enabled: boolean) {
@@ -109,6 +109,7 @@ export const Chart = memo(function Chart({
     [rows, view.metric, scatter, linear, score],
   );
   const validRows = prepared.rows;
+  const plotWidth = !scatter && !phone && settings.grouped ? combinedBarWidth(validRows, width) : width;
   const { pinned, activeModel } = resolveChartInteraction(validRows, pinnedId, hoveredId);
   const interactions: Interactions = {
     pinned,
@@ -155,9 +156,11 @@ export const Chart = memo(function Chart({
               </span>
             </div>
           ) : (scatter || !phone) && (
+            <div className="absolute inset-0 overflow-x-auto">
             <svg
               className="absolute inset-0 block size-full font-sans [&_g[role=button]:focus]:[outline:none]"
-              viewBox={`0 0 ${width} ${height}`}
+              style={{ width: plotWidth }}
+              viewBox={`0 0 ${plotWidth} ${height}`}
               role="group"
               aria-label={
                 scatter
@@ -171,7 +174,7 @@ export const Chart = memo(function Chart({
               {pricingContext && <metadata>{JSON.stringify({ pricing: pricingContext })}</metadata>}
               <rect
                 className="chart-background"
-                width={width}
+                width={plotWidth}
                 height={height}
                 fill="var(--panel)"
               />
@@ -182,7 +185,7 @@ export const Chart = memo(function Chart({
                   scoreMetric={score}
                   linear={linear}
                   settings={settings}
-                  width={width}
+                  width={plotWidth}
                   height={height}
                   interactions={interactions}
                 />
@@ -191,12 +194,13 @@ export const Chart = memo(function Chart({
                   rows={prepared.rows}
                   metric={view.metric}
                   settings={settings}
-                  width={width}
+                  width={plotWidth}
                   height={height}
                   interactions={interactions}
                 />
               )}
             </svg>
+            </div>
           ))}
         {(scatter || !phone) && activeModel && (
           <aside

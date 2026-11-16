@@ -72,13 +72,13 @@ export function Bars({
               height={height - top}
               fill="transparent"
             />
-            {group.bars.map(({ row, x: barX, baseline, labelX, labelY, text }, index) => {
+            {group.bars.map(({ row, x: barX, baseline, labelX, labelY, text, shadeOrder }, index) => {
               const barY = y(row.value);
               const baseY = y(baseline);
               const segmentHeight = Math.abs(baseY - barY);
               const markerWidth = group.barWidth / group.rows.length;
-              const markerX = barX + group.rows.findIndex((item) => item.id === row.id) * markerWidth;
-              const segmentOpacity = settings.grouped ? 0.95 - 0.5 * (index / Math.max(1, group.bars.length - 1)) : 0.62 + (0.38 * row.effortOrder) / 60;
+              const markerX = barX + index * markerWidth;
+              const segmentOpacity = settings.grouped ? 0.95 - 0.5 * (shadeOrder / Math.max(1, group.bars.length - 1)) : 0.62 + (0.38 * row.effortOrder) / 60;
               const showEffort = settings.grouped && segmentHeight >= 22 && group.barWidth >= 24;
               const effortMark =
                 row.effort === 'max' ? 'Mx' : row.effortLabel.charAt(0).toUpperCase();
@@ -122,7 +122,7 @@ export function Bars({
                   {/* Separate reasoning targets keep tied and very small segments selectable. */}
                   {settings.grouped && <>
                     <rect data-focus-target x={markerX} y={bottom + 2} width={markerWidth} height={22} fill="var(--panel)" stroke="var(--line-2)" />
-                    <rect x={markerX + 1} y={bottom + 3} width={Math.max(1, markerWidth - 2)} height={3} fill={modelColor(row)} opacity={segmentOpacity} pointerEvents="none" />
+                    <rect x={markerX + Math.min(1, markerWidth / 2)} y={bottom + 3} width={Math.max(0, markerWidth - 2)} height={3} fill={modelColor(row)} opacity={segmentOpacity} pointerEvents="none" />
                   </>}
                   {(settings.grouped ? markerWidth > 8 : group.barWidth > 8) && (
                     <text
