@@ -72,11 +72,17 @@ export function Bars({
               height={height - top}
               fill="transparent"
             />
-            {group.bars.map(({ row, x: barX, labelX, labelY, text }) => {
+            {group.bars.map(({ row, x: barX, baseline, labelX, labelY, text }, index) => {
               const barY = y(row.value);
+              const baseY = y(baseline);
+              const segmentHeight = Math.abs(baseY - barY);
+              const markerWidth = group.barWidth / group.rows.length;
+              const markerX = barX + group.rows.findIndex((item) => item.id === row.id) * markerWidth;
+              const segmentOpacity = settings.grouped ? 0.95 - 0.5 * (index / Math.max(1, group.bars.length - 1)) : 0.62 + (0.38 * row.effortOrder) / 60;
+              const showEffort = settings.grouped && segmentHeight >= 22 && group.barWidth >= 24;
               const effortMark =
                 row.effort === 'max' ? 'Mx' : row.effortLabel.charAt(0).toUpperCase();
-              const visibleLabel = group.barWidth > 8 ? `${effortMark}${text}, ` : '';
+              const visibleLabel = !settings.grouped && group.barWidth > 8 ? `${effortMark}${text}, ` : '';
               return (
                 <g
                   key={row.id}
@@ -85,7 +91,7 @@ export function Bars({
                   }
                   role="button"
                   tabIndex={0}
-                  className="cursor-pointer focus-visible:[&>rect:nth-child(2)]:stroke-accent focus-visible:[&>rect:nth-child(2)]:stroke-[3] mobile:focus-visible:[outline:none]"
+                  className="cursor-pointer focus-visible:[&>rect[data-focus-target]]:stroke-accent focus-visible:[&>rect[data-focus-target]]:stroke-[3] mobile:focus-visible:[outline:none]"
                   aria-label={`${visibleLabel}${row.name}, ${row.effortLabel} reasoning, ${metric === 'cost' ? taskCostLabel(row) : metrics[metric].label} ${metric === 'time' && row.timeEstimate ? 'estimated ' : ''}${formatModelValue(row, metric)}`}
                   aria-pressed={interactions.pinned?.id === row.id}
                   onMouseEnter={() => interactions.hover(row)}
@@ -95,24 +101,33 @@ export function Bars({
                 >
                   <rect
                     x={barX}
-                    y={top}
+                    y={settings.grouped ? Math.min(barY, baseY) : top}
                     width={group.barWidth}
-                    height={bottom - top}
+                    height={settings.grouped ? Math.max(1, segmentHeight) : bottom - top}
                     fill="transparent"
                   />
                   <rect
+                    data-focus-target
                     x={barX}
-                    y={Math.min(barY, y(0))}
+                    y={Math.min(barY, baseY)}
                     width={group.barWidth}
-                    height={Math.max(1, Math.abs(y(0) - barY))}
-                    rx={4}
+                    height={Math.max(1, segmentHeight)}
+                    rx={settings.grouped ? 0 : 4}
                     fill={modelColor(row)}
-                    opacity={0.62 + (0.38 * row.effortOrder) / 60}
+                    opacity={segmentOpacity}
+                    stroke={settings.grouped ? 'var(--panel)' : undefined}
+                    strokeWidth={settings.grouped ? 1 : undefined}
                   />
-                  {group.barWidth > 8 && (
+                  {showEffort && <text x={barX + group.barWidth / 2} y={(barY + baseY) / 2} dy="0.35em" textAnchor="middle" fill="var(--fg)" fontSize={11} pointerEvents="none" stroke="var(--panel)" strokeWidth={3} paintOrder="stroke" strokeLinejoin="round">{row.effortLabel.length * 6 + 12 <= group.barWidth ? row.effortLabel : effortMark}</text>}
+                  {/* Separate reasoning targets keep tied and very small segments selectable. */}
+                  {settings.grouped && <>
+                    <rect data-focus-target x={markerX} y={bottom + 2} width={markerWidth} height={22} fill="var(--panel)" stroke="var(--line-2)" />
+                    <rect x={markerX + 1} y={bottom + 3} width={Math.max(1, markerWidth - 2)} height={3} fill={modelColor(row)} opacity={segmentOpacity} pointerEvents="none" />
+                  </>}
+                  {(settings.grouped ? markerWidth > 8 : group.barWidth > 8) && (
                     <text
-                      x={barX + group.barWidth / 2}
-                      y={bottom + 15}
+                      x={settings.grouped ? markerX + markerWidth / 2 : barX + group.barWidth / 2}
+                      y={bottom + 19}
                       textAnchor="middle"
                       fill="var(--fg-3)"
                       fontSize={9}
@@ -120,7 +135,7 @@ export function Bars({
                       {effortMark}
                     </text>
                   )}
-                  {group.barWidth > 8 && (
+                  {text && (
                     <text
                       x={labelX}
                       y={labelY}

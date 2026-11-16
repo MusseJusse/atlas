@@ -66,7 +66,7 @@ it('keeps negative bars below zero, reserves label space and avoids overlapping 
     if (row.value < 0) expect(geometry.y(row.value)).toBeGreaterThan(geometry.y(0));
     if (row.value > 0) expect(geometry.y(row.value)).toBeLessThan(geometry.y(0));
   }
-  const bars = geometry.positioned.flatMap((group) => group.bars);
+  const bars = geometry.positioned.flatMap((group) => group.bars).filter((bar) => bar.text);
   for (const [index, bar] of bars.entries()) {
     for (const other of bars.slice(index + 1)) {
       const combinedWidth = (bar.text.length + other.text.length) * 6.4 / 2 + 4;
@@ -97,4 +97,24 @@ it('places signed phone ranges within bounds and keeps a zero reference', () => 
     expect(geometry.position(row.value)).toBeGreaterThanOrEqual(0);
     expect(geometry.position(row.value)).toBeLessThanOrEqual(100);
   }
+});
+
+
+it('combines endpoints rather than summing and preserves signed, tied and non-monotonic configurations', () => {
+  const rows = measureRows([40, 60, 50, 60, -20, -45, 0].map((omniscience, index) => ({
+    ...base, id: `endpoint-${index}`, family: 'combined', omniscience, effortOrder: index,
+  })), 'omniscience');
+  const original = structuredClone(rows);
+  const { positioned } = barGeometry(rows, 'omniscience', 960, 640, true, false);
+  const bars = positioned[0]!.bars;
+  expect(new Set(bars.map((bar) => bar.x)).size).toBe(1);
+  expect(bars.map((bar) => [bar.baseline, bar.row.value])).toEqual([
+    [0, 0], [0, -20], [0, 40], [-20, -45], [40, 50], [50, 60], [60, 60],
+  ]);
+  expect(bars.filter((bar) => bar.text).map((bar) => bar.row.value)).toEqual([-45, 60]);
+  expect(bars.map((bar) => bar.row.id).toSorted()).toEqual(rows.map((row) => row.id).toSorted());
+  expect(rows).toEqual(original);
+  const separate = barGeometry(rows, 'omniscience', 960, 640, false, false);
+  expect(separate.positioned.every((group) => group.bars[0]!.baseline === 0)).toBe(true);
+  expect(separate.positioned).toHaveLength(rows.length);
 });

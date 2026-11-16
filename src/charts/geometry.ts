@@ -121,19 +121,28 @@ export function barGeometry(
     barDomain(values, 0.15),
     [bottom - labelSpace, top],
   );
-  const totalWeight = groups.reduce((total, group) => total + Math.max(3, group.rows.length), 0);
+  const totalWeight = groups.reduce((total, group) => total + (grouped ? 1 : Math.max(3, group.rows.length)), 0);
   let groupStart = left;
   const valueLabels: { x: number; y: number; width: number }[] = [];
   const positioned = groups.map((group) => {
-    const groupWidth = ((right - left) * Math.max(3, group.rows.length)) / totalWeight;
+    const groupWidth = ((right - left) * (grouped ? 1 : Math.max(3, group.rows.length))) / totalWeight;
     const center = groupStart + groupWidth / 2;
     groupStart += groupWidth;
     const gap = Math.min(4, groupWidth * 0.025);
-    const barWidth = Math.max(1, Math.min(38, (groupWidth - 16) / group.rows.length - gap));
-    const start = center - (group.rows.length * (barWidth + gap) - gap) / 2;
-    const bars = group.rows.map((row, index) => {
-      const x = start + index * (barWidth + gap);
-      const text = barWidth > 8 ? formatModelValue(row, metric, true) : '';
+    const barWidth = Math.max(1, Math.min(grouped ? 74 : 38, (groupWidth - 16) / (grouped ? 1 : group.rows.length) - gap));
+    const start = center - ((grouped ? 1 : group.rows.length) * (barWidth + gap) - gap) / 2;
+    // Values are endpoints, not additive scores. Sort by distance from zero so
+    // non-monotonic reasoning results and signed scores keep their true heights.
+    const ordered = grouped ? group.rows.toSorted((a, b) => Math.abs(a.value) - Math.abs(b.value) || a.effortOrder - b.effortOrder) : group.rows;
+    let positive = 0;
+    let negativeEnd = 0;
+    const bars = ordered.map((row, index) => {
+      const baseline = grouped ? row.value < 0 ? negativeEnd : positive : 0;
+      if (row.value < 0) negativeEnd = row.value;
+      else positive = row.value;
+      const x = start + (grouped ? 0 : index * (barWidth + gap));
+      const endpoint = !grouped || row.value === (row.value < 0 ? group.minimum : group.maximum);
+      const text = barWidth > 8 && endpoint && (!grouped || ordered.findLast((item) => item.value === row.value)?.id === row.id) ? formatModelValue(row, metric, true) : '';
       const textWidth = text.length * 6.4;
       const labelX = Math.max(
         left + textWidth / 2,
@@ -142,7 +151,7 @@ export function barGeometry(
       const negative = row.value < 0;
       let labelY = y(row.value) + (negative ? 16 : -8);
       while (
-        barWidth > 8 &&
+        text &&
         valueLabels.some(
           (label) =>
             Math.abs(label.x - labelX) < (label.width + textWidth) / 2 + 4 &&
@@ -150,8 +159,8 @@ export function barGeometry(
         )
       )
         labelY += negative ? 17 : -17;
-      if (barWidth > 8) valueLabels.push({ x: labelX, y: labelY, width: textWidth });
-      return { row, x, labelX, labelY, text };
+      if (text) valueLabels.push({ x: labelX, y: labelY, width: textWidth });
+      return { row, x, baseline, labelX, labelY, text };
     });
     return { ...group, center, groupWidth, barWidth, bars };
   });
