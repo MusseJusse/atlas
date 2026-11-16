@@ -126,14 +126,20 @@ test('phone efficiency shows the chart before optional details', async ({ page }
 test('dense combined bars scroll inside the plot and keep keyboard selection usable', async ({ page }) => {
   await page.setViewportSize({ width: 1024, height: 900 });
   await page.goto('/?chart=intelligence');
+  await expect(page.locator('#intelligence svg[role=group]')).toBeVisible();
+  expect(await page.locator('#intelligence svg[role=group]').locator('..').evaluate((element) => element.scrollWidth <= element.clientWidth)).toBe(true);
+  await page.goto('/?chart=intelligence&selected=gpt-6-1-terra,gpt-6-1-sol,gpt-6-luna,gpt-6-astra,claude-haiku-5-5,claude-sonnet-5-5,claude-opus-5-5,claude-fable-5-1,claude-fable-5-2,gemini-4-carbon,gemini-4-hydrogen');
   const chart = page.locator('#intelligence svg[role=group]');
   await expect(chart).toBeVisible();
   const scrollArea = chart.locator('..');
   expect(await scrollArea.evaluate((element) => element.scrollWidth > element.clientWidth)).toBe(true);
+  const axis = page.locator('#intelligence [data-fixed-bar-axis]');
+  const axisX = (await axis.boundingBox())!.x;
   const controls = chart.locator('g[role=button]');
   const last = controls.last();
   await last.focus();
   await expect.poll(() => scrollArea.evaluate((element) => element.scrollLeft)).toBeGreaterThan(0);
+  expect((await axis.boundingBox())!.x).toBe(axisX);
   await page.keyboard.press('Enter');
   await expect(last).toHaveAttribute('aria-pressed', 'true');
   await page.keyboard.press('Escape');

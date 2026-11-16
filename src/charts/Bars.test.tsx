@@ -32,3 +32,21 @@ it('renders tied and tiny endpoints as distinct controls in visible marker order
   expect(new Set(markerPositions).size).toBe(rows.length);
   expect(markerPositions).toEqual(markerPositions.toSorted((a, b) => a - b));
 });
+
+it('keeps effort shades stable when values reverse or grouping changes', () => {
+  function shades(values: number[], grouped: boolean) {
+    const rows = measureRows(values.map((intelligence, index) => ({
+      ...models[0]!, id: `shade-${index}`, name: `Shade ${index}`, family: 'fixture', intelligence, effortOrder: index * 20,
+    })), 'intelligence');
+    const markup = renderToStaticMarkup(<svg><Bars rows={rows} metric="intelligence" settings={{ ...defaults, grouped }}
+      width={960} height={640} interactions={{ activeModel: null, pinned: null, highlighted: null,
+        hover: vi.fn(), togglePin: vi.fn(), highlight: vi.fn() }} /></svg>);
+    return Object.fromEntries([...markup.matchAll(/<g\b[^>]*role="button"[^>]*>([\s\S]*?)<\/g>/g)].map(([control, content]) => [
+      control.match(/Shade (\d+)/)?.[1], Number(content!.match(/<rect data-focus-target[^>]*opacity="([^"]+)"/)?.[1]),
+    ]));
+  }
+  const expected = shades([30, 40, 50, 60], true);
+  expect(new Set(Object.values(expected)).size).toBe(4);
+  expect(shades([60, 50, 40, 30], true)).toEqual(expected);
+  expect(shades([30, 40, 50, 60], false)).toEqual(expected);
+});

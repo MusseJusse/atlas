@@ -101,12 +101,20 @@ export function scatterGeometry(
   };
 }
 
-/** Dense grouped plots scroll rather than collapsing the configuration targets. */
+export const barLayout = { left: 64, narrowLeft: 46, right: 18, padding: 16, gap: 4, gapRatio: 0.025, markerWidth: 12 };
+
+export function combinedScores(metric: Metric, grouped: boolean) {
+  return grouped && (metric === 'intelligence' || metric === 'omniscience');
+}
+
+/** Dense grouped score plots scroll only when configuration targets cannot fit. */
 export function combinedBarWidth(rows: Model[], width: number) {
   const counts = new Map<string, number>();
   for (const row of rows) counts.set(row.family, (counts.get(row.family) ?? 0) + 1);
-  const groupWidth = Math.max(96, Math.max(0, ...counts.values()) * 12 + 20);
-  return Math.max(width, counts.size * groupWidth + 82);
+  const target = Math.max(0, ...counts.values()) * barLayout.markerWidth;
+  const groupWidth = Math.min((target + barLayout.padding) / (1 - barLayout.gapRatio), target + barLayout.padding + barLayout.gap);
+  const left = barLayout.left;
+  return Math.max(width, Math.ceil(counts.size * groupWidth + left + barLayout.right));
 }
 
 export function barGeometry(
@@ -117,8 +125,9 @@ export function barGeometry(
   grouped: boolean,
   descending: boolean,
 ) {
-  const left = width < 600 ? 46 : 64;
-  const right = width - 18;
+  const combined = combinedScores(metric, grouped);
+  const left = width < 600 ? barLayout.narrowLeft : barLayout.left;
+  const right = width - barLayout.right;
   const top = metric === 'omniscience' ? 50 : 30;
   const bottom = height - 96;
   const groups = barGroups(rows, metric, grouped, descending);
@@ -129,28 +138,28 @@ export function barGeometry(
     barDomain(values, 0.15),
     [bottom - labelSpace, top],
   );
-  const totalWeight = groups.reduce((total, group) => total + (grouped ? 1 : Math.max(3, group.rows.length)), 0);
+  const totalWeight = groups.reduce((total, group) => total + (combined ? 1 : Math.max(3, group.rows.length)), 0);
   let groupStart = left;
   const valueLabels: { x: number; y: number; width: number }[] = [];
   const positioned = groups.map((group) => {
-    const groupWidth = ((right - left) * (grouped ? 1 : Math.max(3, group.rows.length))) / totalWeight;
+    const groupWidth = ((right - left) * (combined ? 1 : Math.max(3, group.rows.length))) / totalWeight;
     const center = groupStart + groupWidth / 2;
     groupStart += groupWidth;
-    const gap = Math.min(4, groupWidth * 0.025);
-    const barWidth = Math.max(1, Math.min(grouped ? Math.max(74, group.rows.length * 12) : 38, (groupWidth - 16) / (grouped ? 1 : group.rows.length) - gap));
-    const start = center - ((grouped ? 1 : group.rows.length) * (barWidth + gap) - gap) / 2;
+    const gap = Math.min(barLayout.gap, groupWidth * barLayout.gapRatio);
+    const barWidth = Math.max(1, Math.min(combined ? Math.max(74, group.rows.length * barLayout.markerWidth) : 38, (groupWidth - barLayout.padding) / (combined ? 1 : group.rows.length) - gap));
+    const start = center - ((combined ? 1 : group.rows.length) * (barWidth + gap) - gap) / 2;
     // Values are endpoints, not additive scores. Sort by distance from zero so
     // non-monotonic reasoning results and signed scores keep their true heights.
-    const ordered = grouped ? group.rows.toSorted((a, b) => Math.abs(a.value) - Math.abs(b.value) || a.effortOrder - b.effortOrder) : group.rows;
+    const ordered = combined ? group.rows.toSorted((a, b) => Math.abs(a.value) - Math.abs(b.value) || a.effortOrder - b.effortOrder) : group.rows;
     let positive = 0;
     let negativeEnd = 0;
     const bars = ordered.map((row, index) => {
-      const baseline = grouped ? row.value < 0 ? negativeEnd : positive : 0;
+      const baseline = combined ? row.value < 0 ? negativeEnd : positive : 0;
       if (row.value < 0) negativeEnd = row.value;
       else positive = row.value;
-      const x = start + (grouped ? 0 : index * (barWidth + gap));
-      const endpoint = !grouped || row.value === (row.value < 0 ? group.minimum : group.maximum);
-      const text = barWidth > 8 && endpoint && (!grouped || ordered.findLast((item) => item.value === row.value)?.id === row.id) ? formatModelValue(row, metric, true) : '';
+      const x = start + (combined ? 0 : index * (barWidth + gap));
+      const endpoint = !combined || row.value === (row.value < 0 ? group.minimum : group.maximum);
+      const text = barWidth > 8 && endpoint && (!combined || ordered.findLast((item) => item.value === row.value)?.id === row.id) ? formatModelValue(row, metric, true) : '';
       const textWidth = text.length * 6.4;
       const labelX = Math.max(
         left + textWidth / 2,
@@ -168,7 +177,7 @@ export function barGeometry(
       )
         labelY += negative ? 17 : -17;
       if (text) valueLabels.push({ x: labelX, y: labelY, width: textWidth });
-      return { row, x, baseline, labelX, labelY, text, shadeOrder: index };
+      return { row, x, baseline, labelX, labelY, text };
     });
     // Keep DOM and keyboard order aligned with the effort markers, independently
     // of the value order used to calculate segment baselines and shading.

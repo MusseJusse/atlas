@@ -17,9 +17,9 @@ import { chartDescending, type Settings } from './state';
 import { Logo } from './Logo';
 import { ConfigurationDetails } from './charts/ConfigurationDetails';
 import { Scatter } from './charts/Scatter';
-import { Bars } from './charts/Bars';
+import { Bars, FixedBarAxis } from './charts/Bars';
 import { Ranking } from './charts/Ranking';
-import { combinedBarWidth, measureRows, measureScatterRows } from './charts/geometry';
+import { combinedBarWidth, combinedScores, measureRows, measureScatterRows } from './charts/geometry';
 import type { Interactions } from './charts/interactions';
 
 function useSize(enabled: boolean) {
@@ -109,7 +109,7 @@ export const Chart = memo(function Chart({
     [rows, view.metric, scatter, linear, score],
   );
   const validRows = prepared.rows;
-  const plotWidth = !scatter && !phone && settings.grouped ? combinedBarWidth(validRows, width) : width;
+  const plotWidth = !scatter && !phone && combinedScores(view.metric, settings.grouped) ? combinedBarWidth(validRows, width) : width;
   const { pinned, activeModel } = resolveChartInteraction(validRows, pinnedId, hoveredId);
   const interactions: Interactions = {
     pinned,
@@ -156,7 +156,8 @@ export const Chart = memo(function Chart({
               </span>
             </div>
           ) : (scatter || !phone) && (
-            <div className="absolute inset-0 overflow-x-auto">
+            <>
+            <div className="absolute inset-0 overflow-x-auto overflow-y-hidden [scrollbar-width:thin]">
             <svg
               className="absolute inset-0 block size-full font-sans [&_g[role=button]:focus]:[outline:none]"
               style={{ width: plotWidth }}
@@ -201,6 +202,8 @@ export const Chart = memo(function Chart({
               )}
             </svg>
             </div>
+            {!prepared.scatter && plotWidth > width && <FixedBarAxis rows={prepared.rows} metric={view.metric} settings={settings} plotWidth={plotWidth} width={width} height={height} />}
+            </>
           ))}
         {(scatter || !phone) && activeModel && (
           <aside

@@ -9,7 +9,6 @@ const base = models[0]!;
 function model(id: string, family: string, cost: number | null, intelligence = 40): Model {
   return { ...base, id, family, cost, intelligence };
 }
-
 it('prepares only measured rows, preserving zero, signed scores and estimate provenance', () => {
   const estimate = speedEndpoints.find((row) => row.timeEstimate)!;
   const signed = { ...base, omniscience: -88.6 };
@@ -45,7 +44,6 @@ it.each([false, true])('keeps scatter coordinates, frontier and family paths on 
   }
   expect(rows).toEqual(original);
 });
-
 it('keeps a zero-only linear scatter usable', () => {
   const rows = measureScatterRows([model('free', 'a', 0)], 'cost', true);
   const geometry = scatterGeometry(rows, 'cost', 390, 640, true, true);
@@ -53,7 +51,6 @@ it('keeps a zero-only linear scatter usable', () => {
   expect(geometry.logTicks).toContain(0);
   expect(geometry.path(rows)).not.toMatch(/NaN|Infinity/);
 });
-
 it('keeps negative bars below zero, reserves label space and avoids overlapping value labels', () => {
   const rows = measureRows([-88.6, -88.6, 0, 46.4].map((omniscience, i) => ({
     ...base, id: `signed-${i}`, family: 'signed', omniscience, effortOrder: i,
@@ -75,7 +72,6 @@ it('keeps negative bars below zero, reserves label space and avoids overlapping 
   }
   expect(rows).toEqual(original);
 });
-
 it('preserves phone minimum ordering versus desktop maximum ordering and explicit descending', () => {
   const rows = measureRows([
     model('a-low', 'a', 1), model('a-high', 'a', 100),
@@ -87,7 +83,6 @@ it('preserves phone minimum ordering versus desktop maximum ordering and explici
   const ungrouped = barGeometry(rows, 'cost', 960, 640, false, false);
   expect(ungrouped.positioned.map((group) => group.id)).toEqual(['a-low', 'b-low', 'b-high', 'a-high']);
 });
-
 it('places signed phone ranges within bounds and keeps a zero reference', () => {
   const rows = measureRows([-88.6, 0, 46.4].map((omniscience, i) => ({ ...base, id: `${i}`, omniscience })), 'omniscience');
   const geometry = rangeGeometry(rows, 'omniscience', true);
@@ -98,7 +93,6 @@ it('places signed phone ranges within bounds and keeps a zero reference', () => 
     expect(geometry.position(row.value)).toBeLessThanOrEqual(100);
   }
 });
-
 
 it('combines endpoints rather than summing and preserves signed, tied and non-monotonic configurations', () => {
   const rows = measureRows([40, 60, 50, 60, -20, -45, 0].map((omniscience, index) => ({
@@ -120,7 +114,6 @@ it('combines endpoints rather than summing and preserves signed, tied and non-mo
   expect(separate.positioned).toHaveLength(rows.length);
 });
 
-
 it('reserves distinct reasoning targets when grouped charts need horizontal scrolling', () => {
   const rows = measureRows(Array.from({ length: 30 }, (_, family) =>
     Array.from({ length: 7 }, (_, effortOrder) => ({ ...base, id: `${family}-${effortOrder}`, family: `${family}`, effortOrder, intelligence: effortOrder })),
@@ -129,4 +122,20 @@ it('reserves distinct reasoning targets when grouped charts need horizontal scro
   expect(width).toBeGreaterThan(640);
   const { positioned } = barGeometry(rows, 'intelligence', width, 640, true, false);
   expect(positioned.every((group) => group.barWidth / group.rows.length >= 12)).toBe(true);
+});
+
+
+it('fits the default four-effort selection without an arbitrary column floor', () => {
+  const rows = Array.from({ length: 9 }, (_, family) => Array.from({ length: 4 }, (_, effortOrder) => ({
+    ...base, family: `${family}`, id: `${family}-${effortOrder}`, effortOrder,
+  }))).flat();
+  expect(combinedBarWidth(rows, 680)).toBe(680);
+});
+
+it('keeps grouped resource charts as separate bars with every measured value labelled', () => {
+  const rows = measureRows([1, 2, 3].map((cost, effortOrder) => ({ ...base, id: `${effortOrder}`, effortOrder, cost })), 'cost');
+  const { positioned } = barGeometry(rows, 'cost', 960, 640, true, false);
+  const bars = positioned[0]!.bars;
+  expect(new Set(bars.map((bar) => bar.x)).size).toBe(rows.length);
+  expect(bars.every((bar) => bar.baseline === 0 && bar.text)).toBe(true);
 });

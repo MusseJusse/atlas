@@ -6,7 +6,7 @@ import { format, formatModelValue } from '../formatModel';
 import { metrics, type Metric } from '../chart-definitions';
 import type { Settings } from '../state';
 import { pinHandlers, type Interactions } from './interactions';
-import { barGeometry, type MeasuredRow } from './geometry';
+import { barGeometry, combinedScores, type MeasuredRow } from './geometry';
 
 export function Bars({
   rows,
@@ -23,6 +23,7 @@ export function Bars({
   height: number;
   interactions: Interactions;
 }) {
+  const combined = combinedScores(metric, settings.grouped);
   const [hoveredFamily, setHoveredFamily] = useState<string | null>(null);
 
   function leaveHover() {
@@ -71,18 +72,21 @@ export function Bars({
               width={group.groupWidth}
               height={height - top}
               fill="transparent"
+              onMouseEnter={() => { setHoveredFamily(model.family); interactions.hover(null); }}
             />
-            {group.bars.map(({ row, x: barX, baseline, labelX, labelY, text, shadeOrder }, index) => {
+            {group.bars.map(({ row, x: barX, baseline, labelX, labelY, text }, index) => {
               const barY = y(row.value);
               const baseY = y(baseline);
               const segmentHeight = Math.abs(baseY - barY);
               const markerWidth = group.barWidth / group.rows.length;
               const markerX = barX + index * markerWidth;
-              const segmentOpacity = settings.grouped ? 0.95 - 0.5 * (shadeOrder / Math.max(1, group.bars.length - 1)) : 0.62 + (0.38 * row.effortOrder) / 60;
-              const showEffort = settings.grouped && segmentHeight >= 22 && group.barWidth >= 24;
+              const segmentOpacity = metric === 'intelligence' || metric === 'omniscience'
+                ? 0.95 - 0.5 * Math.min(1, row.effortOrder / 60)
+                : 0.62 + (0.38 * row.effortOrder) / 60;
+              const showEffort = combined && segmentHeight >= 22 && group.barWidth >= 24;
               const effortMark =
                 row.effort === 'max' ? 'Mx' : row.effortLabel.charAt(0).toUpperCase();
-              const visibleLabel = !settings.grouped && group.barWidth > 8 ? `${effortMark}${text}, ` : '';
+              const visibleLabel = !combined && group.barWidth > 8 ? `${effortMark}${text}, ` : '';
               return (
                 <g
                   key={row.id}
@@ -101,9 +105,9 @@ export function Bars({
                 >
                   <rect
                     x={barX}
-                    y={settings.grouped ? Math.min(barY, baseY) : top}
+                    y={combined ? Math.min(barY, baseY) : top}
                     width={group.barWidth}
-                    height={settings.grouped ? Math.max(1, segmentHeight) : bottom - top}
+                    height={combined ? Math.max(1, segmentHeight) : bottom - top}
                     fill="transparent"
                   />
                   <rect
@@ -112,21 +116,21 @@ export function Bars({
                     y={Math.min(barY, baseY)}
                     width={group.barWidth}
                     height={Math.max(1, segmentHeight)}
-                    rx={settings.grouped ? 0 : 4}
+                    rx={combined ? 0 : 4}
                     fill={modelColor(row)}
                     opacity={segmentOpacity}
-                    stroke={settings.grouped ? 'var(--panel)' : undefined}
-                    strokeWidth={settings.grouped ? 1 : undefined}
+                    stroke={combined ? 'var(--panel)' : undefined}
+                    strokeWidth={combined ? 1 : undefined}
                   />
                   {showEffort && <text x={barX + group.barWidth / 2} y={(barY + baseY) / 2} dy="0.35em" textAnchor="middle" fill="var(--fg)" fontSize={11} pointerEvents="none" stroke="var(--panel)" strokeWidth={3} paintOrder="stroke" strokeLinejoin="round">{row.effortLabel.length * 6 + 12 <= group.barWidth ? row.effortLabel : effortMark}</text>}
                   {/* Separate reasoning targets keep tied and very small segments selectable. */}
-                  {settings.grouped && <>
+                  {combined && <>
                     <rect data-focus-target x={markerX} y={bottom + 2} width={markerWidth} height={22} fill="var(--panel)" stroke="var(--line-2)" />
                     <rect x={markerX + Math.min(1, markerWidth / 2)} y={bottom + 3} width={Math.max(0, markerWidth - 2)} height={3} fill={modelColor(row)} opacity={segmentOpacity} pointerEvents="none" />
                   </>}
-                  {(settings.grouped ? markerWidth > 8 : group.barWidth > 8) && (
+                  {(combined ? markerWidth > 8 : group.barWidth > 8) && (
                     <text
-                      x={settings.grouped ? markerX + markerWidth / 2 : barX + group.barWidth / 2}
+                      x={combined ? markerX + markerWidth / 2 : barX + group.barWidth / 2}
                       y={bottom + 19}
                       textAnchor="middle"
                       fill="var(--fg-3)"
@@ -195,4 +199,20 @@ export function Bars({
       )}
     </>
   );
+}
+
+/** Keep the value reference visible while dense score columns scroll underneath. */
+export function FixedBarAxis({ rows, metric, settings, plotWidth, width, height }: {
+  rows: MeasuredRow[]; metric: Metric; settings: Settings; plotWidth: number; width: number; height: number;
+}) {
+  const { left, y } = useMemo(
+    () => barGeometry(rows, metric, plotWidth, height, settings.grouped, settings.descending ?? false),
+    [rows, metric, plotWidth, height, settings.grouped, settings.descending],
+  );
+  return <svg aria-hidden="true" className="pointer-events-none absolute inset-0 size-full font-sans" viewBox={`0 0 ${width} ${height}`} data-fixed-bar-axis>
+    <rect width={left} height={height} fill="var(--panel)" />
+    <rect width={left + metrics[metric].unit.length * 7} height={25} fill="var(--panel)" />
+    <text x={left} y={17} fill="var(--fg-2)" fontSize={12}>{metrics[metric].unit}</text>
+    {y.ticks(4).map((tick) => <text key={tick} x={left - 10} y={y(tick) + 4} textAnchor="end" fill="var(--fg-3)" fontSize={11}>{format(tick, metric, true)}</text>)}
+  </svg>;
 }
