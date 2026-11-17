@@ -4,6 +4,14 @@ import { visibleModels, type ViewId } from './models';
 import { defaults, readSettings, readView, writeSettings } from './state';
 
 describe('URL settings', () => {
+  it('keeps combined bars off by default and round-trips explicit opt-in', () => {
+    expect(defaults.combined).toBe(false);
+    for (const search of ['', '?combined=false', '?combined=unknown']) expect(readSettings(search).combined).toBe(false);
+    const settings = readSettings('?combined=true');
+    expect(settings.combined).toBe(true);
+    expect(readSettings(writeSettings(settings, 'intelligence'))).toEqual(settings);
+    expect(writeSettings({ ...settings, combined: false }, 'cost-intelligence')).not.toContain('combined');
+  });
   it('counts each known selected family once and preserves its first occurrence', () => {
     const selected = ['gpt-6-1-sol', 'gemini-4-argon'];
     const settings = readSettings(

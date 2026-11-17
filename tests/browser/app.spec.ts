@@ -122,3 +122,92 @@ test('phone efficiency shows the chart before optional details', async ({ page }
   expect(positions.filters).toBeLessThan(positions.plot);
   expect(positions.details).toBe(0);
 });
+
+test('dense combined bars scroll inside the plot and keep keyboard selection usable', async ({ page }) => {
+  await page.setViewportSize({ width: 1024, height: 900 });
+  await page.goto('/?chart=intelligence&combined=true');
+  await expect(page.locator('#intelligence svg[role=group]')).toBeVisible();
+  expect(await page.locator('#intelligence svg[role=group]').locator('..').evaluate((element) => element.scrollWidth <= element.clientWidth)).toBe(true);
+  await page.goto('/?chart=intelligence&combined=true&selected=gpt-6-1-terra,gpt-6-1-sol,gpt-6-luna,gpt-6-astra,claude-haiku-5-5,claude-sonnet-5-5,claude-opus-5-5,claude-fable-5-1,claude-fable-5-2,gemini-4-carbon,gemini-4-hydrogen');
+  const chart = page.locator('#intelligence svg[role=group]');
+  await expect(chart).toBeVisible();
+  const scrollArea = chart.locator('..');
+  expect(await scrollArea.evaluate((element) => element.scrollWidth > element.clientWidth)).toBe(true);
+  const axis = page.locator('#intelligence [data-fixed-bar-axis]');
+  const axisX = (await axis.boundingBox())!.x;
+  const controls = chart.locator('g[role=button]');
+  const last = controls.last();
+  await last.focus();
+  await expect.poll(() => scrollArea.evaluate((element) => element.scrollLeft)).toBeGreaterThan(0);
+  expect((await axis.boundingBox())!.x).toBe(axisX);
+  await page.keyboard.press('Enter');
+  await expect(last).toHaveAttribute('aria-pressed', 'true');
+  await page.keyboard.press('Escape');
+  await expect(last).toHaveAttribute('aria-pressed', 'false');
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+});
+
+test('combined bars are opt-in from chart settings and survive a reload', async ({ page }) => {
+  await page.goto('/?chart=intelligence');
+  const section = page.locator('#intelligence');
+  const bars = section.locator('svg[role=group] g[role=button] > rect[data-bar-segment]');
+  await expect(bars.first()).toBeVisible();
+  const positions = () => bars.evaluateAll((rects) => rects.slice(0, 2).map((rect) => rect.getAttribute('x')));
+  const separate = await positions();
+  expect(separate[0]).not.toBe(separate[1]);
+  await section.locator('summary[aria-label="Chart settings"]').click();
+  const toggle = section.getByRole('button', { name: 'Combine reasoning bars', exact: true });
+  await expect(toggle).toHaveAttribute('aria-pressed', 'false');
+  await toggle.click();
+  await expect(toggle).toHaveAttribute('aria-pressed', 'true');
+  await expect(page).toHaveURL(/combined=true/);
+  await expect.poll(async () => { const [a, b] = await positions(); return a === b; }).toBe(true);
+  await page.reload();
+  await expect(bars.first()).toBeVisible();
+  const combined = await positions();
+  expect(combined[0]).toBe(combined[1]);
+  await section.locator('summary[aria-label="Chart settings"]').click();
+  await expect(toggle).toHaveAttribute('aria-pressed', 'true');
+  await toggle.click();
+  await expect(page).not.toHaveURL(/combined=/);
+  await expect.poll(positions).toEqual(separate);
+});
+
+for (const view of ['cost-task', 'time-task', 'tokens-task', 'tokens-total']) {
+  test(`combined bars apply to ${view} and can be switched off`, async ({ page }) => {
+    await page.goto(`/?chart=${view}&selected=gpt-6-1-terra&combined=true&scatter=false`);
+    const section = page.locator(`#${view}`);
+    const bars = section.locator('svg[role=group] g[role=button] > rect[data-bar-segment]');
+    await expect(bars.first()).toBeVisible();
+    expect(await bars.count()).toBeGreaterThan(1);
+    const positions = () => bars.evaluateAll((rects) => rects.map((rect) => rect.getAttribute('x')));
+    expect(new Set(await positions()).size).toBe(1);
+    await section.locator('summary[aria-label="Chart settings"]').click();
+    await section.getByRole('button', { name: 'Combine reasoning bars', exact: true }).click();
+    await expect.poll(async () => new Set(await positions()).size).toBeGreaterThan(1);
+  });
+}
+
+for (const combined of [false, true]) {
+  test(`bar hover ignores empty space and value labels, combined=${combined}`, async ({ page }) => {
+    await page.goto(`/?chart=intelligence&selected=gpt-6-1-terra&combined=${combined}`);
+    const section = page.locator('#intelligence');
+    const bars = section.locator('rect[data-bar-segment]');
+    await expect(bars.first()).toBeVisible();
+    const bounds = await bars.evaluateAll((rects) => rects.map((rect) => {
+      const { x, y, width, height } = rect.getBoundingClientRect();
+      return { x, y, width, height };
+    }));
+    const bar = bounds.toSorted((a, b) => a.y - b.y)[0]!;
+    const centerX = bar.x + bar.width / 2;
+    const details = section.getByRole('complementary', { name: 'Selected configuration' });
+    await page.mouse.move(centerX, bar.y + bar.height / 2);
+    await expect(details).toBeVisible();
+    await page.mouse.move(centerX, bar.y - 20);
+    await expect(details).not.toBeVisible();
+    await page.mouse.move(centerX, bar.y - 8);
+    await expect(details).not.toBeVisible();
+    await page.mouse.move(centerX, bar.y + Math.min(3, bar.height / 2));
+    await expect(details).toBeVisible();
+  });
+}

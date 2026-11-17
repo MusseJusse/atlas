@@ -441,6 +441,16 @@ function ChartOptions({
           Group by model
         </button>
         <button
+          className="inline-flex min-h-10 items-center gap-2 px-1 text-[12px] text-fg hover:text-accent disabled:opacity-50 disabled:hover:text-fg"
+          aria-pressed={settings.combined}
+          disabled={!settings.grouped}
+          title={settings.grouped ? 'Combine reasoning configurations into one bar per model.' : 'Group by model to combine reasoning bars.'}
+          onClick={() => update({ combined: !settings.combined })}
+        >
+          <Selection checked={settings.combined} />
+          Combine reasoning bars
+        </button>
+        <button
           className="inline-flex min-h-10 items-center gap-2 px-1 text-[12px] text-fg hover:text-accent"
           onClick={() => update({ descending: !descending })}
         >

@@ -101,6 +101,18 @@ export function scatterGeometry(
   };
 }
 
+export const barLayout = { left: 64, narrowLeft: 46, right: 18, padding: 16, gap: 4, gapRatio: 0.025, markerWidth: 12 };
+
+/** Dense grouped bar plots scroll only when configuration targets cannot fit. */
+export function combinedBarWidth(rows: Model[], width: number) {
+  const counts = new Map<string, number>();
+  for (const row of rows) counts.set(row.family, (counts.get(row.family) ?? 0) + 1);
+  const target = Math.max(0, ...counts.values()) * barLayout.markerWidth;
+  const groupWidth = Math.min((target + barLayout.padding) / (1 - barLayout.gapRatio), target + barLayout.padding + barLayout.gap);
+  const left = barLayout.left;
+  return Math.max(width, Math.ceil(counts.size * groupWidth + left + barLayout.right));
+}
+
 export function barGeometry(
   rows: MeasuredRow[],
   metric: Metric,
@@ -108,9 +120,11 @@ export function barGeometry(
   height: number,
   grouped: boolean,
   descending: boolean,
+  combine = false,
 ) {
-  const left = width < 600 ? 46 : 64;
-  const right = width - 18;
+  const combined = grouped && combine;
+  const left = width < 600 ? barLayout.narrowLeft : barLayout.left;
+  const right = width - barLayout.right;
   const top = metric === 'omniscience' ? 50 : 30;
   const bottom = height - 96;
   const groups = barGroups(rows, metric, grouped, descending);
@@ -121,19 +135,28 @@ export function barGeometry(
     barDomain(values, 0.15),
     [bottom - labelSpace, top],
   );
-  const totalWeight = groups.reduce((total, group) => total + Math.max(3, group.rows.length), 0);
+  const totalWeight = groups.reduce((total, group) => total + (combined ? 1 : Math.max(3, group.rows.length)), 0);
   let groupStart = left;
   const valueLabels: { x: number; y: number; width: number }[] = [];
   const positioned = groups.map((group) => {
-    const groupWidth = ((right - left) * Math.max(3, group.rows.length)) / totalWeight;
+    const groupWidth = ((right - left) * (combined ? 1 : Math.max(3, group.rows.length))) / totalWeight;
     const center = groupStart + groupWidth / 2;
     groupStart += groupWidth;
-    const gap = Math.min(4, groupWidth * 0.025);
-    const barWidth = Math.max(1, Math.min(38, (groupWidth - 16) / group.rows.length - gap));
-    const start = center - (group.rows.length * (barWidth + gap) - gap) / 2;
-    const bars = group.rows.map((row, index) => {
-      const x = start + index * (barWidth + gap);
-      const text = barWidth > 8 ? formatModelValue(row, metric, true) : '';
+    const gap = Math.min(barLayout.gap, groupWidth * barLayout.gapRatio);
+    const barWidth = Math.max(1, Math.min(combined ? Math.max(74, group.rows.length * barLayout.markerWidth) : 38, (groupWidth - barLayout.padding) / (combined ? 1 : group.rows.length) - gap));
+    const start = center - ((combined ? 1 : group.rows.length) * (barWidth + gap) - gap) / 2;
+    // Values are endpoints, not additive scores. Sort by distance from zero so
+    // non-monotonic reasoning results and signed scores keep their true heights.
+    const ordered = combined ? group.rows.toSorted((a, b) => Math.abs(a.value) - Math.abs(b.value) || a.effortOrder - b.effortOrder) : group.rows;
+    let positive = 0;
+    let negativeEnd = 0;
+    const bars = ordered.map((row, index) => {
+      const baseline = combined ? row.value < 0 ? negativeEnd : positive : 0;
+      if (row.value < 0) negativeEnd = row.value;
+      else positive = row.value;
+      const x = start + (combined ? 0 : index * (barWidth + gap));
+      const endpoint = !combined || row.value === (row.value < 0 ? group.minimum : group.maximum);
+      const text = barWidth > 8 && endpoint && (!combined || ordered.findLast((item) => item.value === row.value)?.id === row.id) ? formatModelValue(row, metric, true) : '';
       const textWidth = text.length * 6.4;
       const labelX = Math.max(
         left + textWidth / 2,
@@ -142,7 +165,7 @@ export function barGeometry(
       const negative = row.value < 0;
       let labelY = y(row.value) + (negative ? 16 : -8);
       while (
-        barWidth > 8 &&
+        text &&
         valueLabels.some(
           (label) =>
             Math.abs(label.x - labelX) < (label.width + textWidth) / 2 + 4 &&
@@ -150,9 +173,13 @@ export function barGeometry(
         )
       )
         labelY += negative ? 17 : -17;
-      if (barWidth > 8) valueLabels.push({ x: labelX, y: labelY, width: textWidth });
-      return { row, x, labelX, labelY, text };
+      if (text) valueLabels.push({ x: labelX, y: labelY, width: textWidth });
+      return { row, x, baseline, labelX, labelY, text };
     });
+    // Keep DOM and keyboard order aligned with the effort markers, independently
+    // of the value order used to calculate segment baselines and shading.
+    const effortOrder = new Map(group.rows.map((row, index) => [row.id, index]));
+    bars.sort((a, b) => effortOrder.get(a.row.id)! - effortOrder.get(b.row.id)!);
     return { ...group, center, groupWidth, barWidth, bars };
   });
   return { left, right, top, bottom, y, positioned };

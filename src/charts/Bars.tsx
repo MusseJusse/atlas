@@ -1,7 +1,7 @@
 import { taskCostLabel } from './PricingDetails';
-import { useMemo, useState } from 'react';
+import { useId, useMemo } from 'react';
 import { SvgLogo } from '../Logo';
-import { modelColor, shortName } from '../model-presentation';
+import { barLabelColor, modelColor, shortName } from '../model-presentation';
 import { format, formatModelValue } from '../formatModel';
 import { metrics, type Metric } from '../chart-definitions';
 import type { Settings } from '../state';
@@ -23,20 +23,14 @@ export function Bars({
   height: number;
   interactions: Interactions;
 }) {
-  const [hoveredFamily, setHoveredFamily] = useState<string | null>(null);
-
-  function leaveHover() {
-    setHoveredFamily(null);
-    interactions.hover(null);
-  }
-
-  const { left, right, top, bottom, y, positioned } = useMemo(
-    () => barGeometry(rows, metric, width, height, settings.grouped, settings.descending ?? false),
-    [rows, metric, width, height, settings.grouped, settings.descending],
+  const clipId = useId();
+  const combined = settings.grouped && settings.combined;
+  const { left, right, bottom, y, positioned } = useMemo(
+    () => barGeometry(rows, metric, width, height, settings.grouped, settings.descending ?? false, settings.combined),
+    [rows, metric, width, height, settings.grouped, settings.descending, settings.combined],
   );
   const { activeModel } = interactions;
-  const visibleFamily = rows.some((row) => row.family === hoveredFamily) ? hoveredFamily : null;
-  const activeFamily = activeModel?.family ?? visibleFamily ?? interactions.highlighted;
+  const activeFamily = activeModel?.family ?? interactions.highlighted;
   const activeValue = activeModel?.[metric];
   const guideY = activeValue == null ? null : y(activeValue);
 
@@ -54,29 +48,48 @@ export function Bars({
         </g>
       ))}
       <line x1={left} x2={right} y1={y(0)} y2={y(0)} stroke="var(--line-2)" />
-      {positioned.map((group) => {
+      {positioned.map((group, index) => {
         const model = group.rows[0]!;
         const name = shortName(model);
         const split = name.lastIndexOf(' ');
+        const columnClipId = `${clipId}-${index}`;
+        const columnTop = y(Math.max(0, group.maximum));
+        const columnBottom = y(Math.min(0, group.minimum));
+        // Preserve the proportions of the original 4px corners on a 38px-wide bar.
+        const columnRadius = group.barWidth * 4 / 38;
         return (
           <g
             key={group.id}
             opacity={activeFamily && activeFamily !== model.family ? 0.65 : 1}
-            onMouseLeave={leaveHover}
+            pointerEvents="none"
           >
-            {/* Keep the last column active through the gaps between reasoning levels and label. */}
-            <rect
-              x={group.center - group.groupWidth / 2}
-              y={top}
-              width={group.groupWidth}
-              height={height - top}
-              fill="transparent"
-            />
-            {group.bars.map(({ row, x: barX, labelX, labelY, text }) => {
+            {combined && (
+              <defs>
+                <clipPath id={columnClipId}>
+                  <rect
+                    x={group.bars[0]!.x}
+                    y={columnTop}
+                    width={group.barWidth}
+                    height={Math.max(1, columnBottom - columnTop)}
+                    rx={columnRadius}
+                  />
+                </clipPath>
+              </defs>
+            )}
+            {group.bars.map(({ row, x: barX, baseline, labelX, labelY, text }) => {
               const barY = y(row.value);
+              const baseY = y(baseline);
+              const segmentHeight = Math.abs(baseY - barY);
+              const segmentOpacity = settings.combined
+                ? 0.95 - 0.5 * Math.min(1, row.effortOrder / 60)
+                : 0.62 + (0.38 * row.effortOrder) / 60;
               const effortMark =
                 row.effort === 'max' ? 'Mx' : row.effortLabel.charAt(0).toUpperCase();
-              const visibleLabel = group.barWidth > 8 ? `${effortMark}${text}, ` : '';
+              const fullEffort = row.effortLabel;
+              const abbreviatedEffort = fullEffort === 'medium' ? 'med' : effortMark;
+              const effortLabel = fullEffort.length * 7 + 16 <= group.barWidth ? fullEffort : abbreviatedEffort;
+              const showEffort = combined && segmentHeight >= 28 && effortLabel.length * 7 + 16 <= group.barWidth;
+              const visibleLabel = !combined && group.barWidth > 8 ? `${effortMark}${text}, ` : '';
               return (
                 <g
                   key={row.id}
@@ -85,31 +98,43 @@ export function Bars({
                   }
                   role="button"
                   tabIndex={0}
-                  className="cursor-pointer focus-visible:[&>rect:nth-child(2)]:stroke-accent focus-visible:[&>rect:nth-child(2)]:stroke-[3] mobile:focus-visible:[outline:none]"
+                  className="cursor-pointer focus-visible:[&>rect[data-focus-target]]:stroke-accent focus-visible:[&>rect[data-focus-target]]:stroke-[3] mobile:focus-visible:[outline:none]"
                   aria-label={`${visibleLabel}${row.name}, ${row.effortLabel} reasoning, ${metric === 'cost' ? taskCostLabel(row) : metrics[metric].label} ${metric === 'time' && row.timeEstimate ? 'estimated ' : ''}${formatModelValue(row, metric)}`}
                   aria-pressed={interactions.pinned?.id === row.id}
                   onMouseEnter={() => interactions.hover(row)}
+                  onMouseLeave={() => interactions.hover(null)}
                   onFocus={() => interactions.hover(row)}
                   onBlur={() => interactions.hover(null)}
                   {...pinHandlers(row, interactions.togglePin)}
                 >
                   <rect
+                    data-focus-target
+                    data-bar-segment
+                    pointerEvents="visiblePainted"
                     x={barX}
-                    y={top}
+                    y={Math.min(barY, baseY)}
                     width={group.barWidth}
-                    height={bottom - top}
-                    fill="transparent"
-                  />
-                  <rect
-                    x={barX}
-                    y={Math.min(barY, y(0))}
-                    width={group.barWidth}
-                    height={Math.max(1, Math.abs(y(0) - barY))}
-                    rx={4}
+                    height={Math.max(1, segmentHeight)}
+                    rx={combined ? 0 : 4}
+                    clipPath={combined ? `url(#${columnClipId})` : undefined}
                     fill={modelColor(row)}
-                    opacity={0.62 + (0.38 * row.effortOrder) / 60}
+                    opacity={segmentOpacity}
                   />
-                  {group.barWidth > 8 && (
+                  {showEffort && (
+                    <text
+                      x={barX + group.barWidth / 2}
+                      y={(barY + baseY) / 2}
+                      dy="0.35em"
+                      textAnchor="middle"
+                      fill={barLabelColor(row, segmentOpacity)}
+                      fontSize={12}
+                      fontWeight={500}
+                      pointerEvents="none"
+                    >
+                      {effortLabel}
+                    </text>
+                  )}
+                  {!combined && group.barWidth > 8 && (
                     <text
                       x={barX + group.barWidth / 2}
                       y={bottom + 15}
@@ -120,7 +145,7 @@ export function Bars({
                       {effortMark}
                     </text>
                   )}
-                  {group.barWidth > 8 && (
+                  {text && (
                     <text
                       x={labelX}
                       y={labelY}
@@ -134,13 +159,22 @@ export function Bars({
                 </g>
               );
             })}
+            {combined && [...new Set(group.rows.map((row) => row.value))]
+              .filter((value) => y(value) > columnTop && y(value) < columnBottom)
+              .map((value) => (
+                <line
+                  key={value}
+                  x1={group.bars[0]!.x}
+                  x2={group.bars[0]!.x + group.barWidth}
+                  y1={y(value)}
+                  y2={y(value)}
+                  stroke="var(--panel)"
+                  strokeWidth={1}
+                  clipPath={`url(#${columnClipId})`}
+                />
+              ))}
             {group.groupWidth > 33 && (
-              <g
-                onMouseEnter={() => {
-                  setHoveredFamily(model.family);
-                  interactions.hover(null);
-                }}
-              >
+              <g>
                 <SvgLogo model={model} x={group.center - 7} y={bottom + 28} size={14} />
                 <text
                   x={group.center}
@@ -180,4 +214,20 @@ export function Bars({
       )}
     </>
   );
+}
+
+/** Keep the value reference visible while dense columns scroll underneath. */
+export function FixedBarAxis({ rows, metric, settings, plotWidth, width, height }: {
+  rows: MeasuredRow[]; metric: Metric; settings: Settings; plotWidth: number; width: number; height: number;
+}) {
+  const { left, y } = useMemo(
+    () => barGeometry(rows, metric, plotWidth, height, settings.grouped, settings.descending ?? false, settings.combined),
+    [rows, metric, plotWidth, height, settings.grouped, settings.descending, settings.combined],
+  );
+  return <svg aria-hidden="true" className="pointer-events-none absolute inset-0 size-full font-sans" viewBox={`0 0 ${width} ${height}`} data-fixed-bar-axis>
+    <rect width={left} height={height} fill="var(--panel)" />
+    <rect width={left + metrics[metric].unit.length * 7} height={25} fill="var(--panel)" />
+    <text x={left} y={17} fill="var(--fg-2)" fontSize={12}>{metrics[metric].unit}</text>
+    {y.ticks(4).map((tick) => <text key={tick} x={left - 10} y={y(tick) + 4} textAnchor="end" fill="var(--fg-3)" fontSize={11}>{format(tick, metric, true)}</text>)}
+  </svg>;
 }

@@ -72,3 +72,24 @@ export function modelColor(model: Model) {
 export function shortName(model: Model) {
   return model.name.replace(/^Claude /, '');
 }
+
+/** Pick label text against the translucent bar composited over each theme's chart panel. */
+export function barLabelColor(model: Model, opacity: number) {
+  const [light, dark] = colors[model.family] ?? labColors[model.lab] ?? ['#637082', '#a4adb9'];
+  function luminance(color: string, panel: string, alpha: number) {
+    return [0.2126, 0.7152, 0.0722].reduce((sum, weight, index) => {
+      const offset = index * 2 + 1;
+      const foreground = Number.parseInt(color.slice(offset, offset + 2), 16);
+      const background = Number.parseInt(panel.slice(offset, offset + 2), 16);
+      const channel = (foreground * alpha + background * (1 - alpha)) / 255;
+      return sum + weight * (channel <= 0.04045 ? channel / 12.92 : ((channel + 0.055) / 1.055) ** 2.4);
+    }, 0);
+  }
+  function textColor(color: string, panel: string) {
+    const background = luminance(color, panel, opacity);
+    const whiteContrast = 1.05 / (background + 0.05);
+    const darkContrast = (background + 0.05) / (luminance('#17213a', panel, 1) + 0.05);
+    return whiteContrast > darkContrast ? '#ffffff' : '#17213a';
+  }
+  return `light-dark(${textColor(light, '#ffffff')}, ${textColor(dark, '#1b273b')})`;
+}
