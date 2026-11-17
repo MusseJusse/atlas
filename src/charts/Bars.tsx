@@ -57,7 +57,6 @@ export function Bars({
         const columnBottom = y(Math.min(0, group.minimum));
         // Preserve the proportions of the original 4px corners on a 38px-wide bar.
         const columnRadius = group.barWidth * 4 / 38;
-        const columnOpacity = 0.62 + 0.38 * Math.max(...group.rows.map((row) => row.effortOrder)) / 60;
         return (
           <g
             key={group.id}
@@ -81,8 +80,8 @@ export function Bars({
               const barY = y(row.value);
               const baseY = y(baseline);
               const segmentHeight = Math.abs(baseY - barY);
-              const segmentOpacity = combined
-                ? columnOpacity
+              const segmentOpacity = settings.combined
+                ? 0.95 - 0.5 * Math.min(1, row.effortOrder / 60)
                 : 0.62 + (0.38 * row.effortOrder) / 60;
               const effortMark =
                 row.effort === 'max' ? 'Mx' : row.effortLabel.charAt(0).toUpperCase();
