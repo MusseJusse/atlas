@@ -57,12 +57,10 @@ export function Bars({
             opacity={activeFamily && activeFamily !== model.family ? 0.65 : 1}
             pointerEvents="none"
           >
-            {group.bars.map(({ row, x: barX, baseline, labelX, labelY, text }, index) => {
+            {group.bars.map(({ row, x: barX, baseline, labelX, labelY, text }) => {
               const barY = y(row.value);
               const baseY = y(baseline);
               const segmentHeight = Math.abs(baseY - barY);
-              const markerWidth = group.barWidth / group.rows.length;
-              const markerX = barX + index * markerWidth;
               const segmentOpacity = settings.combined
                 ? 0.95 - 0.5 * Math.min(1, row.effortOrder / 60)
                 : 0.62 + (0.38 * row.effortOrder) / 60;
@@ -102,15 +100,10 @@ export function Bars({
                     strokeWidth={combined ? 1 : undefined}
                   />
                   {showEffort && <text x={barX + group.barWidth / 2} y={(barY + baseY) / 2} dy="0.35em" textAnchor="middle" fill="var(--fg)" fontSize={11} pointerEvents="none" stroke="var(--panel)" strokeWidth={3} paintOrder="stroke" strokeLinejoin="round">{row.effortLabel.length * 6 + 12 <= group.barWidth ? row.effortLabel : effortMark}</text>}
-                  {/* Separate reasoning targets keep tied and very small segments selectable. */}
-                  {combined && <>
-                    <rect data-focus-target pointerEvents="visiblePainted" x={markerX} y={bottom + 2} width={markerWidth} height={22} fill="var(--panel)" stroke="var(--line-2)" />
-                    <rect x={markerX + Math.min(1, markerWidth / 2)} y={bottom + 3} width={Math.max(0, markerWidth - 2)} height={3} fill={modelColor(row)} opacity={segmentOpacity} pointerEvents="none" />
-                  </>}
-                  {(combined ? markerWidth > 8 : group.barWidth > 8) && (
+                  {!combined && group.barWidth > 8 && (
                     <text
-                      x={combined ? markerX + markerWidth / 2 : barX + group.barWidth / 2}
-                      y={bottom + (combined ? 19 : 15)}
+                      x={barX + group.barWidth / 2}
+                      y={bottom + 15}
                       textAnchor="middle"
                       fill="var(--fg-3)"
                       fontSize={9}
