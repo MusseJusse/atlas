@@ -1,5 +1,4 @@
 import snapshot from 'virtual:subscriptions';
-import benchmark from 'virtual:benchmarks';
 import type { Model } from './schema';
 import type { SubscriptionModel, SubscriptionSnapshot } from './subscription-schema';
 
@@ -66,14 +65,14 @@ export function resetBoost(provider: string, periodDays: number, source: Subscri
 }
 
 /** Resolve only the main Intelligence Index task costs, preserving every measured API value. */
-export function subscriptionRows(rows: Model[], settings: PricingSettings, benchmarkSourceHash = benchmark.sourceHash): Model[] {
+export function subscriptionRows(rows: Model[], settings: PricingSettings): Model[] {
   if (settings.pricingMode === 'api') return rows;
   return rows.map((model) => {
     const data = byFamily.get(model.family);
     const planId = settings.subscriptionPlans[data?.provider ?? ''] ?? data?.defaultPlan;
     const plan = data?.plans.find((plan) => plan.id === planId);
-    const reason = benchmarkSourceHash !== snapshot.benchmarkSourceHash ? 'Benchmark data refreshed. Subscription pricing needs recapture.'
-      : !data ? 'No subscription estimate for this model.'
+    // Benchmark refreshes also change scores and unrelated models. Validate rates per model.
+    const reason = !data ? 'No subscription estimate for this model.'
       : !plan ? 'Selected plan has no estimate for this model.'
       : model.inputPrice !== data.apiPrices.input || model.outputPrice !== data.apiPrices.output
         ? 'API prices changed since the subscription capture.' : null;
