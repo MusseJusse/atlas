@@ -50,9 +50,9 @@ it('keeps empty charts behind the hydration guard', () => {
 });
 
 it('keeps subscription provenance inside the SVG and fallback points out of frontier mode', async () => {
-  const { subscriptionRows, pricingDisclosure, subscriptionSource } = await import('./data/subscriptions');
+  const { subscriptionRows, pricingDisclosure } = await import('./data/subscriptions');
   const settings = { ...defaults, pricingMode: 'subscription' as const, frontier: true };
-  const rows = subscriptionRows(models.filter((row) => ['gpt-6-1-sol', 'gpt-6-1-terra'].includes(row.family)), settings, subscriptionSource.benchmarkSourceHash);
+  const rows = subscriptionRows(models.filter((row) => ['gpt-6-1-sol', 'gpt-6-1-terra'].includes(row.family)), settings);
   // App passes only supported estimates to subscription frontier charts.
   const eligible = rows.filter((row) => row.taskPricing?.basis === 'subscription');
   const markup = renderToStaticMarkup(<Chart active phone={false} view={views[0]} rows={eligible} settings={settings}

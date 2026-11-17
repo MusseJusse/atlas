@@ -84,15 +84,15 @@ it('shows Cyber scores and costs with the evaluation source and fallback setting
 });
 
 it('distinguishes subscription estimates and API fallbacks with provenance', async () => {
-  const { subscriptionRows, subscriptionSource } = await import('../data/subscriptions');
+  const { subscriptionRows } = await import('../data/subscriptions');
   const { defaults } = await import('../state');
-  const [priced] = subscriptionRows([sol], { ...defaults, pricingMode: 'subscription' }, subscriptionSource.benchmarkSourceHash);
+  const [priced] = subscriptionRows([sol], { ...defaults, pricingMode: 'subscription' });
   const markup = render(priced!);
   expect(markup).toContain('Estimated subscription / task');
   expect(markup).toContain('Measured API / task');
   expect(markup).toContain('External coding token mix');
   expect(markup).toContain('ChatGPT Pro 10x');
-  const [fallback] = subscriptionRows([{ ...sol, family: 'unknown' }], { ...defaults, pricingMode: 'subscription' }, subscriptionSource.benchmarkSourceHash);
+  const [fallback] = subscriptionRows([{ ...sol, family: 'unknown' }], { ...defaults, pricingMode: 'subscription' });
   expect(render(fallback!)).toContain('API fallback');
   expect(render(fallback!)).not.toContain('Estimated subscription / task');
   expect(render(sol)).toContain('Cost per task · API');
