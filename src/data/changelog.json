@@ -3,6 +3,280 @@
   "baselineFetchedAt": "2026-10-13T20:47:14.735Z",
   "updates": [
     {
+      "checkedAt": "2026-11-17T21:13:17.518Z",
+      "previousFetchedAt": "2026-11-17T18:46:24.638Z",
+      "fetchedAt": "2026-11-17T21:13:17.950Z",
+      "changes": [
+        {
+          "id": "astra-for-law-6-2",
+          "name": "Astra for Law 6.2",
+          "effortLabel": "max",
+          "kind": "added",
+          "fields": []
+        },
+        {
+          "id": "gpt-6-2-astra",
+          "name": "GPT-6.2 Astra",
+          "effortLabel": "max",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": null,
+              "after": 65.68829942161545
+            },
+            {
+              "field": "time",
+              "before": null,
+              "after": 624.6086580476086
+            }
+          ]
+        },
+        {
+          "id": "gpt-6-2-astra-high",
+          "name": "GPT-6.2 Astra",
+          "effortLabel": "high",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": null,
+              "after": 62.083432425256944
+            },
+            {
+              "field": "time",
+              "before": null,
+              "after": 287.16037183630345
+            }
+          ]
+        },
+        {
+          "id": "gpt-6-2-astra-low",
+          "name": "GPT-6.2 Astra",
+          "effortLabel": "low",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": null,
+              "after": 60.39450767657532
+            },
+            {
+              "field": "time",
+              "before": null,
+              "after": 86.37164451314376
+            }
+          ]
+        },
+        {
+          "id": "gpt-6-2-astra-medium",
+          "name": "GPT-6.2 Astra",
+          "effortLabel": "medium",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": null,
+              "after": 60.01808084465697
+            },
+            {
+              "field": "time",
+              "before": null,
+              "after": 219.3432170762732
+            }
+          ]
+        },
+        {
+          "id": "gpt-6-2-astra-xhigh",
+          "name": "GPT-6.2 Astra",
+          "effortLabel": "xhigh",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": null,
+              "after": 63.12813479289891
+            },
+            {
+              "field": "time",
+              "before": null,
+              "after": 352.26139568869417
+            }
+          ]
+        },
+        {
+          "id": "gpt-6-2-sol",
+          "name": "GPT-6.2 Sol",
+          "effortLabel": "max",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": null,
+              "after": 85.17622170071361
+            },
+            {
+              "field": "time",
+              "before": null,
+              "after": 473.8461816263639
+            }
+          ]
+        },
+        {
+          "id": "gpt-6-2-sol-high",
+          "name": "GPT-6.2 Sol",
+          "effortLabel": "high",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "cost",
+              "before": null,
+              "after": 0.563644652221075
+            },
+            {
+              "field": "costTotal",
+              "before": null,
+              "after": 552.6764535841899
+            },
+            {
+              "field": "speed",
+              "before": null,
+              "after": 77.58184209395925
+            },
+            {
+              "field": "time",
+              "before": null,
+              "after": 259.8608312476023
+            },
+            {
+              "field": "inputPrice",
+              "before": null,
+              "after": 2
+            },
+            {
+              "field": "outputPrice",
+              "before": null,
+              "after": 10
+            }
+          ]
+        },
+        {
+          "id": "gpt-6-2-sol-low",
+          "name": "GPT-6.2 Sol",
+          "effortLabel": "low",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "cost",
+              "before": null,
+              "after": 0.18358471526572703
+            },
+            {
+              "field": "costTotal",
+              "before": null,
+              "after": 224.22317340794132
+            },
+            {
+              "field": "speed",
+              "before": null,
+              "after": 70.78880504988105
+            },
+            {
+              "field": "time",
+              "before": null,
+              "after": 84.47269465327244
+            },
+            {
+              "field": "inputPrice",
+              "before": null,
+              "after": 2
+            },
+            {
+              "field": "outputPrice",
+              "before": null,
+              "after": 10
+            }
+          ]
+        },
+        {
+          "id": "gpt-6-2-sol-medium",
+          "name": "GPT-6.2 Sol",
+          "effortLabel": "medium",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "cost",
+              "before": null,
+              "after": 0.40605590960076604
+            },
+            {
+              "field": "costTotal",
+              "before": null,
+              "after": 405.1704796558335
+            },
+            {
+              "field": "speed",
+              "before": null,
+              "after": 73.979634126976
+            },
+            {
+              "field": "time",
+              "before": null,
+              "after": 184.52289184635623
+            },
+            {
+              "field": "inputPrice",
+              "before": null,
+              "after": 2
+            },
+            {
+              "field": "outputPrice",
+              "before": null,
+              "after": 10
+            }
+          ]
+        },
+        {
+          "id": "gpt-6-2-sol-xhigh",
+          "name": "GPT-6.2 Sol",
+          "effortLabel": "xhigh",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "cost",
+              "before": null,
+              "after": 0.6479676730055945
+            },
+            {
+              "field": "costTotal",
+              "before": null,
+              "after": 698.0987437936749
+            },
+            {
+              "field": "speed",
+              "before": null,
+              "after": 79.56521696371343
+            },
+            {
+              "field": "time",
+              "before": null,
+              "after": 305.69333656169897
+            },
+            {
+              "field": "inputPrice",
+              "before": null,
+              "after": 2
+            },
+            {
+              "field": "outputPrice",
+              "before": null,
+              "after": 10
+            }
+          ]
+        }
+      ]
+    },
+    {
       "checkedAt": "2026-11-17T18:46:23.117Z",
       "previousFetchedAt": "2026-11-16T09:17:29.457Z",
       "fetchedAt": "2026-11-17T18:46:24.638Z",
