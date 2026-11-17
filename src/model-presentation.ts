@@ -1,6 +1,8 @@
 import type { Model } from './data/schema';
 
 export const frontierFamilies = [
+  'gpt-6-2-astra',
+  'gpt-6-2-sol',
   'gpt-6-1-terra',
   'gpt-6-1-sol',
   'gpt-6-luna',
@@ -32,6 +34,8 @@ const defaultOff = new Set([
 ]);
 export const defaultSelected = frontierFamilies.filter((id) => !defaultOff.has(id));
 const colors: Record<string, [string, string]> = {
+  'gpt-6-2-astra': ['#303840', '#f1f3f5'],
+  'gpt-6-2-sol': ['#586878', '#c5cbd3'],
   'gpt-6-astra': ['#303840', '#f1f3f5'],
   'gpt-6-1-sol': ['#586878', '#c5cbd3'],
   'gpt-6-1-sol-ultrafast': ['#586878', '#c5cbd3'],
