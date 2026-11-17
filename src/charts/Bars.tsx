@@ -1,5 +1,5 @@
 import { taskCostLabel } from './PricingDetails';
-import { useMemo } from 'react';
+import { useId, useMemo } from 'react';
 import { SvgLogo } from '../Logo';
 import { barLabelColor, modelColor, shortName } from '../model-presentation';
 import { format, formatModelValue } from '../formatModel';
@@ -23,6 +23,7 @@ export function Bars({
   height: number;
   interactions: Interactions;
 }) {
+  const clipId = useId();
   const combined = settings.grouped && settings.combined;
   const { left, right, bottom, y, positioned } = useMemo(
     () => barGeometry(rows, metric, width, height, settings.grouped, settings.descending ?? false, settings.combined),
@@ -47,16 +48,32 @@ export function Bars({
         </g>
       ))}
       <line x1={left} x2={right} y1={y(0)} y2={y(0)} stroke="var(--line-2)" />
-      {positioned.map((group) => {
+      {positioned.map((group, index) => {
         const model = group.rows[0]!;
         const name = shortName(model);
         const split = name.lastIndexOf(' ');
+        const columnClipId = `${clipId}-${index}`;
+        const columnTop = y(Math.max(0, group.maximum));
+        const columnBottom = y(Math.min(0, group.minimum));
         return (
           <g
             key={group.id}
             opacity={activeFamily && activeFamily !== model.family ? 0.65 : 1}
             pointerEvents="none"
           >
+            {combined && (
+              <defs>
+                <clipPath id={columnClipId}>
+                  <rect
+                    x={group.bars[0]!.x}
+                    y={columnTop}
+                    width={group.barWidth}
+                    height={Math.max(1, columnBottom - columnTop)}
+                    rx={4}
+                  />
+                </clipPath>
+              </defs>
+            )}
             {group.bars.map(({ row, x: barX, baseline, labelX, labelY, text }) => {
               const barY = y(row.value);
               const baseY = y(baseline);
@@ -97,6 +114,7 @@ export function Bars({
                     width={group.barWidth}
                     height={Math.max(1, segmentHeight)}
                     rx={combined ? 0 : 4}
+                    clipPath={combined ? `url(#${columnClipId})` : undefined}
                     fill={modelColor(row)}
                     opacity={segmentOpacity}
                     stroke={combined ? 'var(--panel)' : undefined}
