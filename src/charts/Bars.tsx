@@ -1,7 +1,7 @@
 import { taskCostLabel } from './PricingDetails';
 import { useMemo } from 'react';
 import { SvgLogo } from '../Logo';
-import { modelColor, shortName } from '../model-presentation';
+import { barLabelColor, modelColor, shortName } from '../model-presentation';
 import { format, formatModelValue } from '../formatModel';
 import { metrics, type Metric } from '../chart-definitions';
 import type { Settings } from '../state';
@@ -64,9 +64,12 @@ export function Bars({
               const segmentOpacity = settings.combined
                 ? 0.95 - 0.5 * Math.min(1, row.effortOrder / 60)
                 : 0.62 + (0.38 * row.effortOrder) / 60;
-              const showEffort = combined && segmentHeight >= 22 && group.barWidth >= 24;
               const effortMark =
                 row.effort === 'max' ? 'Mx' : row.effortLabel.charAt(0).toUpperCase();
+              const fullEffort = row.effortLabel;
+              const abbreviatedEffort = fullEffort === 'medium' ? 'med' : effortMark;
+              const effortLabel = fullEffort.length * 7 + 16 <= group.barWidth ? fullEffort : abbreviatedEffort;
+              const showEffort = combined && segmentHeight >= 28 && effortLabel.length * 7 + 16 <= group.barWidth;
               const visibleLabel = !combined && group.barWidth > 8 ? `${effortMark}${text}, ` : '';
               return (
                 <g
@@ -99,7 +102,20 @@ export function Bars({
                     stroke={combined ? 'var(--panel)' : undefined}
                     strokeWidth={combined ? 1 : undefined}
                   />
-                  {showEffort && <text x={barX + group.barWidth / 2} y={(barY + baseY) / 2} dy="0.35em" textAnchor="middle" fill="var(--fg)" fontSize={11} pointerEvents="none" stroke="var(--panel)" strokeWidth={3} paintOrder="stroke" strokeLinejoin="round">{row.effortLabel.length * 6 + 12 <= group.barWidth ? row.effortLabel : effortMark}</text>}
+                  {showEffort && (
+                    <text
+                      x={barX + group.barWidth / 2}
+                      y={(barY + baseY) / 2}
+                      dy="0.35em"
+                      textAnchor="middle"
+                      fill={barLabelColor(row, segmentOpacity)}
+                      fontSize={12}
+                      fontWeight={500}
+                      pointerEvents="none"
+                    >
+                      {effortLabel}
+                    </text>
+                  )}
                   {!combined && group.barWidth > 8 && (
                     <text
                       x={barX + group.barWidth / 2}
