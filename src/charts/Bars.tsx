@@ -55,6 +55,8 @@ export function Bars({
         const columnClipId = `${clipId}-${index}`;
         const columnTop = y(Math.max(0, group.maximum));
         const columnBottom = y(Math.min(0, group.minimum));
+        // Preserve the proportions of the original 4px corners on a 38px-wide bar.
+        const columnRadius = group.barWidth * 4 / 38;
         return (
           <g
             key={group.id}
@@ -69,7 +71,7 @@ export function Bars({
                     y={columnTop}
                     width={group.barWidth}
                     height={Math.max(1, columnBottom - columnTop)}
-                    rx={4}
+                    rx={columnRadius}
                   />
                 </clipPath>
               </defs>
@@ -117,8 +119,6 @@ export function Bars({
                     clipPath={combined ? `url(#${columnClipId})` : undefined}
                     fill={modelColor(row)}
                     opacity={segmentOpacity}
-                    stroke={combined ? 'var(--panel)' : undefined}
-                    strokeWidth={combined ? 1 : undefined}
                   />
                   {showEffort && (
                     <text
@@ -159,6 +159,20 @@ export function Bars({
                 </g>
               );
             })}
+            {combined && [...new Set(group.rows.map((row) => row.value))]
+              .filter((value) => y(value) > columnTop && y(value) < columnBottom)
+              .map((value) => (
+                <line
+                  key={value}
+                  x1={group.bars[0]!.x}
+                  x2={group.bars[0]!.x + group.barWidth}
+                  y1={y(value)}
+                  y2={y(value)}
+                  stroke="var(--panel)"
+                  strokeWidth={1}
+                  clipPath={`url(#${columnClipId})`}
+                />
+              ))}
             {group.groupWidth > 33 && (
               <g>
                 <SvgLogo model={model} x={group.center - 7} y={bottom + 28} size={14} />
