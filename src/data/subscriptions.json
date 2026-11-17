@@ -1,8 +1,8 @@
 {
-  "capturedAt": "2026-11-04T10:26:07.210Z",
-  "sourceGeneratedAt": "2026-11-04T10:13:39.772Z",
+  "capturedAt": "2026-11-17T18:58:47.933Z",
+  "sourceGeneratedAt": "2026-11-17T18:46:48.603Z",
   "source": "https://mypriors.com/api/snapshot?view=core",
-  "sourceHash": "72583757bf04e95045f797c04aa4e14bbb4c1aaf5bd1446bcefa5fe3667d8091",
+  "sourceHash": "839f35d177b1ad224b18fc3e848c2ff5d2dd681d3ffa5fb0cd784a2d0ad14190",
   "methodology": "https://github.com/Fei2411/real-api-pricing/blob/main/CONVENTIONS.md",
   "models": [
     {
@@ -11,7 +11,7 @@
       "provider": "openai",
       "providerName": "OpenAI",
       "defaultPlan": "ChatGPT Pro 10x",
-      "dataDate": "2026-07-30",
+      "dataDate": "2026-07-30~2026-10-30",
       "mix": {
         "cache": 0.97,
         "input": 0.025,
@@ -30,6 +30,13 @@
           "feeUsd": 200,
           "usdPerMtok": 0.015501473,
           "confidence": "high",
+          "periodDays": 28
+        },
+        {
+          "id": "ChatGPT Pro 500",
+          "feeUsd": 500,
+          "usdPerMtok": 0.016233766,
+          "confidence": "low",
           "periodDays": 28
         },
         {
@@ -53,8 +60,8 @@
       "sourceModel": "gpt-5.6-luna",
       "provider": "openai",
       "providerName": "OpenAI",
-      "defaultPlan": "ChatGPT Pro 20x",
-      "dataDate": "2026-09-08",
+      "defaultPlan": "ChatGPT Pro 10x",
+      "dataDate": "2026-09-08~2026-10-30",
       "mix": {
         "cache": 0.97,
         "input": 0.025,
@@ -69,16 +76,23 @@
       },
       "plans": [
         {
-          "id": "ChatGPT Pro 10x",
-          "feeUsd": 100,
-          "usdPerMtok": 0.0014167918,
+          "id": "ChatGPT Pro 20x",
+          "feeUsd": 200,
+          "usdPerMtok": 0.0014168019,
           "confidence": "medium",
           "periodDays": 28
         },
         {
-          "id": "ChatGPT Pro 20x",
-          "feeUsd": 200,
-          "usdPerMtok": 0.0014168019,
+          "id": "ChatGPT Pro 10x",
+          "feeUsd": 100,
+          "usdPerMtok": 0.0014168119,
+          "confidence": "medium",
+          "periodDays": 28
+        },
+        {
+          "id": "ChatGPT Pro 500",
+          "feeUsd": 500,
+          "usdPerMtok": 0.00141683195,
           "confidence": "medium",
           "periodDays": 28
         },
@@ -119,6 +133,13 @@
           "periodDays": 28
         },
         {
+          "id": "ChatGPT Pro 500",
+          "feeUsd": 500,
+          "usdPerMtok": 0.06289308,
+          "confidence": "medium",
+          "periodDays": 28
+        },
+        {
           "id": "ChatGPT Pro 10x",
           "feeUsd": 100,
           "usdPerMtok": 0.06289308,
@@ -154,6 +175,13 @@
         "cacheWrite": 2.5
       },
       "plans": [
+        {
+          "id": "ChatGPT Pro 500",
+          "feeUsd": 500,
+          "usdPerMtok": 0.009090909,
+          "confidence": "medium",
+          "periodDays": 28
+        },
         {
           "id": "ChatGPT Pro 20x",
           "feeUsd": 200,
@@ -198,6 +226,13 @@
       },
       "plans": [
         {
+          "id": "ChatGPT Pro 500",
+          "feeUsd": 500,
+          "usdPerMtok": 0.0010866022,
+          "confidence": "medium",
+          "periodDays": 28
+        },
+        {
           "id": "ChatGPT Pro 20x",
           "feeUsd": 200,
           "usdPerMtok": 0.0010866022,
@@ -226,7 +261,7 @@
       "provider": "openai",
       "providerName": "OpenAI",
       "defaultPlan": "ChatGPT Pro 10x",
-      "dataDate": "2026-09-30",
+      "dataDate": "2026-11-09",
       "mix": {
         "cache": 0.97,
         "input": 0.025,
@@ -243,21 +278,28 @@
         {
           "id": "ChatGPT Pro 20x",
           "feeUsd": 200,
-          "usdPerMtok": 0.011494253,
+          "usdPerMtok": 0.006596305999999999,
           "confidence": "medium",
           "periodDays": 28
         },
         {
           "id": "ChatGPT Pro 10x",
           "feeUsd": 100,
-          "usdPerMtok": 0.011494253,
+          "usdPerMtok": 0.006596305999999999,
+          "confidence": "medium",
+          "periodDays": 28
+        },
+        {
+          "id": "ChatGPT Pro 500",
+          "feeUsd": 500,
+          "usdPerMtok": 0.006596306,
           "confidence": "medium",
           "periodDays": 28
         },
         {
           "id": "ChatGPT Plus",
           "feeUsd": 20,
-          "usdPerMtok": 0.022988506,
+          "usdPerMtok": 0.013192612,
           "confidence": "high",
           "periodDays": 28
         }
@@ -349,10 +391,10 @@
         "output": 0.005
       },
       "apiPrices": {
-        "input": 4,
-        "output": 20,
-        "cached": 0.2,
-        "cacheWrite": 5
+        "input": 2,
+        "output": 10,
+        "cached": 0.1,
+        "cacheWrite": 2.5
       },
       "plans": [
         {
@@ -369,7 +411,7 @@
       "sourceModel": "claude-opus-5",
       "provider": "anthropic",
       "providerName": "Anthropic",
-      "defaultPlan": "Claude Max 20x",
+      "defaultPlan": "Claude Ultra",
       "dataDate": "2026-08",
       "mix": {
         "cache": 0.97,
@@ -392,7 +434,7 @@
           "periodDays": 28
         },
         {
-          "id": "Claude Max 20x",
+          "id": "Claude Ultra",
           "feeUsd": 200,
           "usdPerMtok": 0.012738854,
           "confidence": "medium",
@@ -412,7 +454,7 @@
       "sourceModel": "claude-fable-5.1",
       "provider": "anthropic",
       "providerName": "Anthropic",
-      "defaultPlan": "Claude Max 20x",
+      "defaultPlan": "Claude Ultra",
       "dataDate": "2026-09-04~2026-09-05",
       "mix": {
         "cache": 0.97,
@@ -428,7 +470,7 @@
       },
       "plans": [
         {
-          "id": "Claude Max 20x",
+          "id": "Claude Ultra",
           "feeUsd": 200,
           "usdPerMtok": 0.11574074,
           "confidence": "medium",
@@ -448,7 +490,7 @@
       "sourceModel": "claude-opus-5.5",
       "provider": "anthropic",
       "providerName": "Anthropic",
-      "defaultPlan": "Claude Max 20x",
+      "defaultPlan": "Claude Ultra",
       "dataDate": "2026-09-22~2026-09-27",
       "mix": {
         "cache": 0.97,
@@ -471,7 +513,7 @@
           "periodDays": 28
         },
         {
-          "id": "Claude Max 20x",
+          "id": "Claude Ultra",
           "feeUsd": 200,
           "usdPerMtok": 0.0063415562,
           "confidence": "medium",
@@ -480,7 +522,7 @@
         {
           "id": "Claude Pro",
           "feeUsd": 20,
-          "usdPerMtok": 0.0065487885,
+          "usdPerMtok": 0.0065659882,
           "confidence": "high",
           "periodDays": 28
         },
@@ -592,7 +634,7 @@
       "provider": "openai",
       "providerName": "OpenAI",
       "defaultPlan": "ChatGPT Pro 10x",
-      "dataDate": "2026-07-30",
+      "dataDate": "2026-07-30~2026-10-30",
       "mix": {
         "cache": 0.97,
         "input": 0.025,
@@ -614,9 +656,16 @@
           "periodDays": 28
         },
         {
+          "id": "ChatGPT Pro 500",
+          "feeUsd": 500,
+          "usdPerMtok": 0.008392782,
+          "confidence": "low",
+          "periodDays": 28
+        },
+        {
           "id": "ChatGPT Pro 10x",
           "feeUsd": 100,
-          "usdPerMtok": 0.008392923,
+          "usdPerMtok": 0.0083929935,
           "confidence": "medium",
           "periodDays": 28
         },
@@ -635,7 +684,7 @@
       "provider": "openai",
       "providerName": "OpenAI",
       "defaultPlan": "ChatGPT Pro 10x",
-      "dataDate": "2026-07-30",
+      "dataDate": "2026-07-30~2026-10-30",
       "mix": {
         "cache": 0.97,
         "input": 0.025,
@@ -657,9 +706,16 @@
           "periodDays": 28
         },
         {
+          "id": "ChatGPT Pro 500",
+          "feeUsd": 500,
+          "usdPerMtok": 0.020981955499999996,
+          "confidence": "low",
+          "periodDays": 28
+        },
+        {
           "id": "ChatGPT Pro 10x",
           "feeUsd": 100,
-          "usdPerMtok": 0.020982836,
+          "usdPerMtok": 0.020982396,
           "confidence": "medium",
           "periodDays": 28
         },
@@ -677,7 +733,7 @@
       "sourceModel": "claude-sonnet-5",
       "provider": "anthropic",
       "providerName": "Anthropic",
-      "defaultPlan": "Claude Max 20x",
+      "defaultPlan": "Claude Ultra",
       "dataDate": "2026-08",
       "mix": {
         "cache": 0.97,
@@ -700,7 +756,7 @@
           "periodDays": 28
         },
         {
-          "id": "Claude Max 20x",
+          "id": "Claude Ultra",
           "feeUsd": 200,
           "usdPerMtok": 0.0050955414,
           "confidence": "medium",
@@ -720,7 +776,7 @@
       "sourceModel": "claude-opus-4.8",
       "provider": "anthropic",
       "providerName": "Anthropic",
-      "defaultPlan": "Claude Max 20x",
+      "defaultPlan": "Claude Ultra",
       "dataDate": "2026-08",
       "mix": {
         "cache": 0.97,
@@ -743,7 +799,7 @@
           "periodDays": 28
         },
         {
-          "id": "Claude Max 20x",
+          "id": "Claude Ultra",
           "feeUsd": 200,
           "usdPerMtok": 0.012738854,
           "confidence": "low",
@@ -756,7 +812,7 @@
       "sourceModel": "claude-fable-5",
       "provider": "anthropic",
       "providerName": "Anthropic",
-      "defaultPlan": "Claude Max 20x",
+      "defaultPlan": "Claude Ultra",
       "dataDate": "2026-08",
       "mix": {
         "cache": 0.97,
@@ -779,7 +835,7 @@
           "periodDays": 28
         },
         {
-          "id": "Claude Max 20x",
+          "id": "Claude Ultra",
           "feeUsd": 200,
           "usdPerMtok": 0.16560404,
           "confidence": "low",
@@ -792,7 +848,7 @@
       "sourceModel": "claude-sonnet-5.5",
       "provider": "anthropic",
       "providerName": "Anthropic",
-      "defaultPlan": "Claude Max 20x",
+      "defaultPlan": "Claude Ultra",
       "dataDate": "2026-09-22~2026-09-27",
       "mix": {
         "cache": 0.97,
@@ -815,7 +871,7 @@
           "periodDays": 28
         },
         {
-          "id": "Claude Max 20x",
+          "id": "Claude Ultra",
           "feeUsd": 200,
           "usdPerMtok": 0.0031707781,
           "confidence": "low",
@@ -835,7 +891,7 @@
       "sourceModel": "claude-haiku-5.5",
       "provider": "anthropic",
       "providerName": "Anthropic",
-      "defaultPlan": "Claude Max 20x",
+      "defaultPlan": "Claude Ultra",
       "dataDate": "2026-09-22~2026-09-27",
       "mix": {
         "cache": 0.97,
@@ -858,7 +914,7 @@
           "periodDays": 28
         },
         {
-          "id": "Claude Max 20x",
+          "id": "Claude Ultra",
           "feeUsd": 200,
           "usdPerMtok": 0.00032472098,
           "confidence": "low",
@@ -1013,6 +1069,20 @@
           "scope": "Pro, Max + Team",
           "source": "https://x.com/ClaudeDevs/status/2102438800836489554",
           "providerConfirmed": true
+        },
+        {
+          "at": "2026-11-09T19:21:45.000Z",
+          "kind": "banked",
+          "scope": "paid plans",
+          "source": "https://x.com/bcherny/status/2119873095129550880",
+          "providerConfirmed": false
+        },
+        {
+          "at": "2026-11-10T21:59:58.000Z",
+          "kind": "banked",
+          "scope": "Pro, Max, Ultra + Team",
+          "source": "https://x.com/ClaudeDevs/status/2120275296637321476",
+          "providerConfirmed": false
         }
       ]
     },
@@ -1517,9 +1587,16 @@
           "scope": "all",
           "source": "https://x.com/thsottiaux/status/2117035794678546764",
           "providerConfirmed": true
+        },
+        {
+          "at": "2026-11-13T03:10:00.000Z",
+          "kind": "banked",
+          "scope": "all",
+          "source": "https://x.com/thsottiaux/status/observed-20261113T0310Z",
+          "providerConfirmed": false
         }
       ]
     }
   ],
-  "benchmarkSourceHash": "500115c0ebe39a51c4737e3bd71c91eb83a7fd10cd81a1bd080330e190f0abb5"
+  "benchmarkSourceHash": "64323f226da7c56892071d5f7fc4eb5b920cea06de45c93de37e90eddaa32442"
 }
