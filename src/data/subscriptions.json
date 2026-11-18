@@ -1,8 +1,9 @@
 {
-  "capturedAt": "2026-11-17T18:58:47.933Z",
-  "sourceGeneratedAt": "2026-11-17T18:46:48.603Z",
+  "capturedAt": "2026-11-18T13:20:11.360Z",
+  "sourceGeneratedAt": "2026-11-18T13:05:22.010Z",
   "source": "https://mypriors.com/api/snapshot?view=core",
-  "sourceHash": "839f35d177b1ad224b18fc3e848c2ff5d2dd681d3ffa5fb0cd784a2d0ad14190",
+  "sourceHash": "b59cfb9f5e2112fb70fb9d4137facbe7d61beea4b0287c2ac053e85da6621277",
+  "benchmarkSourceHash": "fe12ca0409e792a7b8745684f7eef36368169ef687670671da3a48a461930a82",
   "methodology": "https://github.com/Fei2411/real-api-pricing/blob/main/CONVENTIONS.md",
   "models": [
     {
@@ -21,37 +22,37 @@
       "apiPrices": {
         "cached": 0.4,
         "input": 4,
-        "output": 20,
-        "cacheWrite": 5
+        "cacheWrite": 5,
+        "output": 20
       },
       "plans": [
         {
           "id": "ChatGPT Pro 20x",
           "feeUsd": 200,
-          "usdPerMtok": 0.015501473,
           "confidence": "high",
-          "periodDays": 28
+          "periodDays": 28,
+          "usdPerMtok": 0.015501473
         },
         {
           "id": "ChatGPT Pro 500",
           "feeUsd": 500,
-          "usdPerMtok": 0.016233766,
           "confidence": "low",
-          "periodDays": 28
+          "periodDays": 28,
+          "usdPerMtok": 0.016233766
         },
         {
           "id": "ChatGPT Pro 10x",
           "feeUsd": 100,
-          "usdPerMtok": 0.016233766,
           "confidence": "medium",
-          "periodDays": 28
+          "periodDays": 28,
+          "usdPerMtok": 0.016233766
         },
         {
           "id": "ChatGPT Plus",
           "feeUsd": 20,
-          "usdPerMtok": 0.032467532,
           "confidence": "medium",
-          "periodDays": 28
+          "periodDays": 28,
+          "usdPerMtok": 0.032467532
         }
       ]
     },
@@ -71,37 +72,37 @@
       "apiPrices": {
         "cached": 0.02,
         "input": 0.2,
-        "output": 1.2,
-        "cacheWrite": 0.25
+        "cacheWrite": 0.25,
+        "output": 1.2
       },
       "plans": [
         {
           "id": "ChatGPT Pro 20x",
           "feeUsd": 200,
-          "usdPerMtok": 0.0014168019,
           "confidence": "medium",
-          "periodDays": 28
+          "periodDays": 28,
+          "usdPerMtok": 0.0014168019
         },
         {
           "id": "ChatGPT Pro 10x",
           "feeUsd": 100,
-          "usdPerMtok": 0.0014168119,
           "confidence": "medium",
-          "periodDays": 28
+          "periodDays": 28,
+          "usdPerMtok": 0.0014168119
         },
         {
           "id": "ChatGPT Pro 500",
           "feeUsd": 500,
-          "usdPerMtok": 0.00141683195,
           "confidence": "medium",
-          "periodDays": 28
+          "periodDays": 28,
+          "usdPerMtok": 0.00141683195
         },
         {
           "id": "ChatGPT Plus",
           "feeUsd": 20,
-          "usdPerMtok": 0.0028336639,
           "confidence": "high",
-          "periodDays": 28
+          "periodDays": 28,
+          "usdPerMtok": 0.0028336639
         }
       ]
     },
@@ -119,39 +120,39 @@
         "output": 0.005
       },
       "apiPrices": {
-        "input": 10,
-        "output": 50,
         "cached": 1,
-        "cacheWrite": 12.5
+        "input": 10,
+        "cacheWrite": 12.5,
+        "output": 50
       },
       "plans": [
         {
           "id": "ChatGPT Pro 20x",
           "feeUsd": 200,
-          "usdPerMtok": 0.052465897,
           "confidence": "medium",
-          "periodDays": 28
+          "periodDays": 28,
+          "usdPerMtok": 0.052465897
         },
         {
           "id": "ChatGPT Pro 500",
           "feeUsd": 500,
-          "usdPerMtok": 0.06289308,
           "confidence": "medium",
-          "periodDays": 28
+          "periodDays": 28,
+          "usdPerMtok": 0.06289308
         },
         {
           "id": "ChatGPT Pro 10x",
           "feeUsd": 100,
-          "usdPerMtok": 0.06289308,
           "confidence": "medium",
-          "periodDays": 28
+          "periodDays": 28,
+          "usdPerMtok": 0.06289308
         },
         {
           "id": "ChatGPT Plus",
           "feeUsd": 20,
-          "usdPerMtok": 0.12578616,
           "confidence": "high",
-          "periodDays": 28
+          "periodDays": 28,
+          "usdPerMtok": 0.12578616
         }
       ]
     },
@@ -169,39 +170,39 @@
         "output": 0.005
       },
       "apiPrices": {
-        "input": 2,
-        "output": 10,
         "cached": 0.2,
-        "cacheWrite": 2.5
+        "input": 2,
+        "cacheWrite": 2.5,
+        "output": 10
       },
       "plans": [
         {
           "id": "ChatGPT Pro 500",
           "feeUsd": 500,
-          "usdPerMtok": 0.009090909,
           "confidence": "medium",
-          "periodDays": 28
+          "periodDays": 28,
+          "usdPerMtok": 0.009090909
         },
         {
           "id": "ChatGPT Pro 20x",
           "feeUsd": 200,
-          "usdPerMtok": 0.009090909,
           "confidence": "medium",
-          "periodDays": 28
+          "periodDays": 28,
+          "usdPerMtok": 0.009090909
         },
         {
           "id": "ChatGPT Pro 10x",
           "feeUsd": 100,
-          "usdPerMtok": 0.009090909,
           "confidence": "medium",
-          "periodDays": 28
+          "periodDays": 28,
+          "usdPerMtok": 0.009090909
         },
         {
           "id": "ChatGPT Plus",
           "feeUsd": 20,
-          "usdPerMtok": 0.018181818,
           "confidence": "high",
-          "periodDays": 28
+          "periodDays": 28,
+          "usdPerMtok": 0.018181818
         }
       ]
     },
@@ -219,39 +220,39 @@
         "output": 0.005
       },
       "apiPrices": {
-        "input": 0.1,
-        "output": 0.5,
         "cached": 0.01,
-        "cacheWrite": 0.125
+        "input": 0.1,
+        "cacheWrite": 0.125,
+        "output": 0.5
       },
       "plans": [
         {
           "id": "ChatGPT Pro 500",
           "feeUsd": 500,
-          "usdPerMtok": 0.0010866022,
           "confidence": "medium",
-          "periodDays": 28
+          "periodDays": 28,
+          "usdPerMtok": 0.0010866022
         },
         {
           "id": "ChatGPT Pro 20x",
           "feeUsd": 200,
-          "usdPerMtok": 0.0010866022,
           "confidence": "medium",
-          "periodDays": 28
+          "periodDays": 28,
+          "usdPerMtok": 0.0010866022
         },
         {
           "id": "ChatGPT Pro 10x",
           "feeUsd": 100,
-          "usdPerMtok": 0.0010866022,
           "confidence": "medium",
-          "periodDays": 28
+          "periodDays": 28,
+          "usdPerMtok": 0.0010866022
         },
         {
           "id": "ChatGPT Plus",
           "feeUsd": 20,
-          "usdPerMtok": 0.0021732044,
           "confidence": "high",
-          "periodDays": 28
+          "periodDays": 28,
+          "usdPerMtok": 0.0021732044
         }
       ]
     },
@@ -269,39 +270,39 @@
         "output": 0.005
       },
       "apiPrices": {
-        "input": 2,
-        "output": 10,
         "cached": 0.1,
-        "cacheWrite": 2.5
+        "input": 2,
+        "cacheWrite": 2.5,
+        "output": 10
       },
       "plans": [
         {
           "id": "ChatGPT Pro 20x",
           "feeUsd": 200,
-          "usdPerMtok": 0.006596305999999999,
           "confidence": "medium",
-          "periodDays": 28
+          "periodDays": 28,
+          "usdPerMtok": 0.006596305999999999
         },
         {
           "id": "ChatGPT Pro 10x",
           "feeUsd": 100,
-          "usdPerMtok": 0.006596305999999999,
           "confidence": "medium",
-          "periodDays": 28
+          "periodDays": 28,
+          "usdPerMtok": 0.006596305999999999
         },
         {
           "id": "ChatGPT Pro 500",
           "feeUsd": 500,
-          "usdPerMtok": 0.006596306,
           "confidence": "medium",
-          "periodDays": 28
+          "periodDays": 28,
+          "usdPerMtok": 0.006596306
         },
         {
           "id": "ChatGPT Plus",
           "feeUsd": 20,
-          "usdPerMtok": 0.013192612,
           "confidence": "high",
-          "periodDays": 28
+          "periodDays": 28,
+          "usdPerMtok": 0.013192612
         }
       ]
     },
@@ -319,32 +320,32 @@
         "output": 0.005
       },
       "apiPrices": {
-        "input": 0.75,
-        "output": 3.75,
         "cached": 0.075,
-        "cacheWrite": 0.75
+        "input": 0.75,
+        "cacheWrite": 0.75,
+        "output": 3.75
       },
       "plans": [
         {
           "id": "Google AI Ultra 20x",
           "feeUsd": 199.99,
-          "usdPerMtok": 0.0038742735,
           "confidence": "low",
-          "periodDays": 28
+          "periodDays": 28,
+          "usdPerMtok": 0.0038742735
         },
         {
           "id": "Google AI Pro",
           "feeUsd": 19.99,
-          "usdPerMtok": 0.0077450601,
           "confidence": "high",
-          "periodDays": 28
+          "periodDays": 28,
+          "usdPerMtok": 0.0077450601
         },
         {
           "id": "Google AI Ultra 5x",
           "feeUsd": 99.99,
-          "usdPerMtok": 0.0077481596,
           "confidence": "low",
-          "periodDays": 28
+          "periodDays": 28,
+          "usdPerMtok": 0.0077481596
         }
       ]
     },
@@ -362,18 +363,18 @@
         "output": 0.005
       },
       "apiPrices": {
-        "input": 0.75,
-        "output": 3.75,
         "cached": 0.15,
-        "cacheWrite": 0.9375
+        "input": 0.75,
+        "cacheWrite": 0.9375,
+        "output": 3.75
       },
       "plans": [
         {
           "id": "Google AI Pro",
           "feeUsd": 19.99,
-          "usdPerMtok": 0.0080313379,
           "confidence": "medium",
-          "periodDays": 28
+          "periodDays": 28,
+          "usdPerMtok": 0.0080313379
         }
       ]
     },
@@ -391,18 +392,18 @@
         "output": 0.005
       },
       "apiPrices": {
-        "input": 2,
-        "output": 10,
         "cached": 0.1,
-        "cacheWrite": 2.5
+        "input": 2,
+        "cacheWrite": 2.5,
+        "output": 10
       },
       "plans": [
         {
           "id": "Google AI Pro",
           "feeUsd": 19.99,
-          "usdPerMtok": 0.30287879,
           "confidence": "low",
-          "periodDays": 28
+          "periodDays": 28,
+          "usdPerMtok": 0.30287879
         }
       ]
     },
@@ -422,30 +423,30 @@
       "apiPrices": {
         "cached": 0.5,
         "input": 5,
-        "output": 25,
-        "cacheWrite": 6.25
+        "cacheWrite": 6.25,
+        "output": 25
       },
       "plans": [
         {
           "id": "Claude Pro",
           "feeUsd": 20,
-          "usdPerMtok": 0.0077249903,
           "confidence": "high",
-          "periodDays": 28
+          "periodDays": 28,
+          "usdPerMtok": 0.0077249903
         },
         {
           "id": "Claude Ultra",
           "feeUsd": 200,
-          "usdPerMtok": 0.012738854,
           "confidence": "medium",
-          "periodDays": 28
+          "periodDays": 28,
+          "usdPerMtok": 0.012738854
         },
         {
           "id": "Claude Max 5x",
           "feeUsd": 100,
-          "usdPerMtok": 0.012738854,
           "confidence": "medium",
-          "periodDays": 28
+          "periodDays": 28,
+          "usdPerMtok": 0.012738854
         }
       ]
     },
@@ -463,25 +464,25 @@
         "output": 0.005
       },
       "apiPrices": {
-        "input": 10,
-        "output": 50,
         "cached": 0.25,
-        "cacheWrite": 12.5
+        "input": 10,
+        "cacheWrite": 12.5,
+        "output": 50
       },
       "plans": [
         {
           "id": "Claude Ultra",
           "feeUsd": 200,
-          "usdPerMtok": 0.11574074,
           "confidence": "medium",
-          "periodDays": 28
+          "periodDays": 28,
+          "usdPerMtok": 0.11574074
         },
         {
           "id": "Claude Max 5x",
           "feeUsd": 100,
-          "usdPerMtok": 0.11575414,
           "confidence": "low",
-          "periodDays": 28
+          "periodDays": 28,
+          "usdPerMtok": 0.11575414
         }
       ]
     },
@@ -501,37 +502,37 @@
       "apiPrices": {
         "cached": 0.2,
         "input": 4,
-        "output": 20,
-        "cacheWrite": 5
+        "cacheWrite": 5,
+        "output": 20
       },
       "plans": [
         {
           "id": "Claude Max 5x",
           "feeUsd": 100,
-          "usdPerMtok": 0.0054543471,
           "confidence": "medium",
-          "periodDays": 28
+          "periodDays": 28,
+          "usdPerMtok": 0.0054543471
         },
         {
           "id": "Claude Ultra",
           "feeUsd": 200,
-          "usdPerMtok": 0.0063415562,
           "confidence": "medium",
-          "periodDays": 28
+          "periodDays": 28,
+          "usdPerMtok": 0.0063415562
         },
         {
           "id": "Claude Pro",
           "feeUsd": 20,
-          "usdPerMtok": 0.0065659882,
           "confidence": "high",
-          "periodDays": 28
+          "periodDays": 28,
+          "usdPerMtok": 0.0065659882
         },
         {
           "id": "Claude Team Premium",
           "feeUsd": 125,
-          "usdPerMtok": 0.0099166997,
           "confidence": "low",
-          "periodDays": 28
+          "periodDays": 28,
+          "usdPerMtok": 0.0099166997
         }
       ]
     },
@@ -551,37 +552,37 @@
       "apiPrices": {
         "cached": 0.5,
         "input": 2,
-        "output": 6,
-        "cacheWrite": 2.5
+        "cacheWrite": 2.5,
+        "output": 6
       },
       "plans": [
         {
           "id": "SuperGrok Plus",
           "feeUsd": 100,
-          "usdPerMtok": 0.048543689,
           "confidence": "medium",
-          "periodDays": 28
+          "periodDays": 28,
+          "usdPerMtok": 0.048543689
         },
         {
           "id": "SuperGrok Heavy",
           "feeUsd": 300,
-          "usdPerMtok": 0.058139535,
           "confidence": "medium",
-          "periodDays": 28
+          "periodDays": 28,
+          "usdPerMtok": 0.058139535
         },
         {
           "id": "SuperGrok",
           "feeUsd": 30,
-          "usdPerMtok": 0.058139535,
           "confidence": "high",
-          "periodDays": 28
+          "periodDays": 28,
+          "usdPerMtok": 0.058139535
         },
         {
           "id": "SuperGrok Lite",
           "feeUsd": 10,
-          "usdPerMtok": 0.066666667,
           "confidence": "low",
-          "periodDays": 28
+          "periodDays": 28,
+          "usdPerMtok": 0.066666667
         }
       ]
     },
@@ -601,30 +602,30 @@
       "apiPrices": {
         "cached": 0.5,
         "input": 2,
-        "output": 6,
-        "cacheWrite": 2.5
+        "cacheWrite": 2.5,
+        "output": 6
       },
       "plans": [
         {
           "id": "SuperGrok Plus",
           "feeUsd": 100,
-          "usdPerMtok": 0.043668122,
           "confidence": "medium",
-          "periodDays": 28
+          "periodDays": 28,
+          "usdPerMtok": 0.043668122
         },
         {
           "id": "SuperGrok Heavy",
           "feeUsd": 300,
-          "usdPerMtok": 0.052447552,
           "confidence": "medium",
-          "periodDays": 28
+          "periodDays": 28,
+          "usdPerMtok": 0.052447552
         },
         {
           "id": "SuperGrok",
           "feeUsd": 30,
-          "usdPerMtok": 0.052447552,
           "confidence": "medium",
-          "periodDays": 28
+          "periodDays": 28,
+          "usdPerMtok": 0.052447552
         }
       ]
     },
@@ -644,37 +645,37 @@
       "apiPrices": {
         "cached": 0.2,
         "input": 2,
-        "output": 12,
-        "cacheWrite": 2.5
+        "cacheWrite": 2.5,
+        "output": 12
       },
       "plans": [
         {
           "id": "ChatGPT Pro 20x",
           "feeUsd": 200,
-          "usdPerMtok": 0.0080143617,
           "confidence": "medium",
-          "periodDays": 28
+          "periodDays": 28,
+          "usdPerMtok": 0.0080143617
         },
         {
           "id": "ChatGPT Pro 500",
           "feeUsd": 500,
-          "usdPerMtok": 0.008392782,
           "confidence": "low",
-          "periodDays": 28
+          "periodDays": 28,
+          "usdPerMtok": 0.008392782
         },
         {
           "id": "ChatGPT Pro 10x",
           "feeUsd": 100,
-          "usdPerMtok": 0.0083929935,
           "confidence": "medium",
-          "periodDays": 28
+          "periodDays": 28,
+          "usdPerMtok": 0.0083929935
         },
         {
           "id": "ChatGPT Plus",
           "feeUsd": 20,
-          "usdPerMtok": 0.016785564,
           "confidence": "medium",
-          "periodDays": 28
+          "periodDays": 28,
+          "usdPerMtok": 0.016785564
         }
       ]
     },
@@ -694,37 +695,37 @@
       "apiPrices": {
         "cached": 0.5,
         "input": 5,
-        "output": 30,
-        "cacheWrite": 6.25
+        "cacheWrite": 6.25,
+        "output": 30
       },
       "plans": [
         {
           "id": "ChatGPT Pro 20x",
           "feeUsd": 200,
-          "usdPerMtok": 0.020035864,
           "confidence": "medium",
-          "periodDays": 28
+          "periodDays": 28,
+          "usdPerMtok": 0.020035864
         },
         {
           "id": "ChatGPT Pro 500",
           "feeUsd": 500,
-          "usdPerMtok": 0.020981955499999996,
           "confidence": "low",
-          "periodDays": 28
+          "periodDays": 28,
+          "usdPerMtok": 0.020981955499999996
         },
         {
           "id": "ChatGPT Pro 10x",
           "feeUsd": 100,
-          "usdPerMtok": 0.020982396,
           "confidence": "medium",
-          "periodDays": 28
+          "periodDays": 28,
+          "usdPerMtok": 0.020982396
         },
         {
           "id": "ChatGPT Plus",
           "feeUsd": 20,
-          "usdPerMtok": 0.041963911,
           "confidence": "medium",
-          "periodDays": 28
+          "periodDays": 28,
+          "usdPerMtok": 0.041963911
         }
       ]
     },
@@ -744,30 +745,30 @@
       "apiPrices": {
         "cached": 0.2,
         "input": 2,
-        "output": 10,
-        "cacheWrite": 2.5
+        "cacheWrite": 2.5,
+        "output": 10
       },
       "plans": [
         {
           "id": "Claude Pro",
           "feeUsd": 20,
-          "usdPerMtok": 0.0030899961,
           "confidence": "medium",
-          "periodDays": 28
+          "periodDays": 28,
+          "usdPerMtok": 0.0030899961
         },
         {
           "id": "Claude Ultra",
           "feeUsd": 200,
-          "usdPerMtok": 0.0050955414,
           "confidence": "medium",
-          "periodDays": 28
+          "periodDays": 28,
+          "usdPerMtok": 0.0050955414
         },
         {
           "id": "Claude Max 5x",
           "feeUsd": 100,
-          "usdPerMtok": 0.0050955414,
           "confidence": "low",
-          "periodDays": 28
+          "periodDays": 28,
+          "usdPerMtok": 0.0050955414
         }
       ]
     },
@@ -787,23 +788,23 @@
       "apiPrices": {
         "cached": 0.5,
         "input": 5,
-        "output": 25,
-        "cacheWrite": 6.25
+        "cacheWrite": 6.25,
+        "output": 25
       },
       "plans": [
         {
           "id": "Claude Pro",
           "feeUsd": 20,
-          "usdPerMtok": 0.0077249903,
           "confidence": "low",
-          "periodDays": 28
+          "periodDays": 28,
+          "usdPerMtok": 0.0077249903
         },
         {
           "id": "Claude Ultra",
           "feeUsd": 200,
-          "usdPerMtok": 0.012738854,
           "confidence": "low",
-          "periodDays": 28
+          "periodDays": 28,
+          "usdPerMtok": 0.012738854
         }
       ]
     },
@@ -823,23 +824,23 @@
       "apiPrices": {
         "cached": 1,
         "input": 10,
-        "output": 50,
-        "cacheWrite": 12.5
+        "cacheWrite": 12.5,
+        "output": 50
       },
       "plans": [
         {
           "id": "Claude Max 5x",
           "feeUsd": 100,
-          "usdPerMtok": 0.1082837,
           "confidence": "low",
-          "periodDays": 28
+          "periodDays": 28,
+          "usdPerMtok": 0.1082837
         },
         {
           "id": "Claude Ultra",
           "feeUsd": 200,
-          "usdPerMtok": 0.16560404,
           "confidence": "low",
-          "periodDays": 28
+          "periodDays": 28,
+          "usdPerMtok": 0.16560404
         }
       ]
     },
@@ -859,30 +860,30 @@
       "apiPrices": {
         "cached": 0.1,
         "input": 2,
-        "output": 10,
-        "cacheWrite": 2.5
+        "cacheWrite": 2.5,
+        "output": 10
       },
       "plans": [
         {
           "id": "Claude Max 5x",
           "feeUsd": 100,
-          "usdPerMtok": 0.0027271736,
           "confidence": "low",
-          "periodDays": 28
+          "periodDays": 28,
+          "usdPerMtok": 0.0027271736
         },
         {
           "id": "Claude Ultra",
           "feeUsd": 200,
-          "usdPerMtok": 0.0031707781,
           "confidence": "low",
-          "periodDays": 28
+          "periodDays": 28,
+          "usdPerMtok": 0.0031707781
         },
         {
           "id": "Claude Pro",
           "feeUsd": 20,
-          "usdPerMtok": 0.0032743942,
           "confidence": "low",
-          "periodDays": 28
+          "periodDays": 28,
+          "usdPerMtok": 0.0032743942
         }
       ]
     },
@@ -902,30 +903,30 @@
       "apiPrices": {
         "cached": 0.01,
         "input": 0.1,
-        "output": 0.5,
-        "cacheWrite": 0.125
+        "cacheWrite": 0.125,
+        "output": 0.5
       },
       "plans": [
         {
           "id": "Claude Max 5x",
           "feeUsd": 100,
-          "usdPerMtok": 0.00027929123,
           "confidence": "low",
-          "periodDays": 28
+          "periodDays": 28,
+          "usdPerMtok": 0.00027929123
         },
         {
           "id": "Claude Ultra",
           "feeUsd": 200,
-          "usdPerMtok": 0.00032472098,
           "confidence": "low",
-          "periodDays": 28
+          "periodDays": 28,
+          "usdPerMtok": 0.00032472098
         },
         {
           "id": "Claude Pro",
           "feeUsd": 20,
-          "usdPerMtok": 0.00033533247,
           "confidence": "low",
-          "periodDays": 28
+          "periodDays": 28,
+          "usdPerMtok": 0.00033533247
         }
       ]
     },
@@ -945,22 +946,213 @@
       "apiPrices": {
         "cached": 0.3,
         "input": 2,
-        "output": 6,
-        "cacheWrite": 2.5
+        "cacheWrite": 2.5,
+        "output": 6
       },
       "plans": [
         {
           "id": "SuperGrok Heavy",
           "feeUsd": 300,
-          "usdPerMtok": 0.058139535,
           "confidence": "medium",
-          "periodDays": 28
+          "periodDays": 28,
+          "usdPerMtok": 0.058139535
         },
         {
           "id": "SuperGrok",
           "feeUsd": 30,
-          "usdPerMtok": 0.058139535,
           "confidence": "medium",
+          "periodDays": 28,
+          "usdPerMtok": 0.058139535
+        }
+      ]
+    },
+    {
+      "family": "gpt-6-2-astra",
+      "sourceModel": "gpt-6.2-astra",
+      "provider": "openai",
+      "providerName": "OpenAI",
+      "defaultPlan": "ChatGPT Pro 10x",
+      "dataDate": "2026-11-17",
+      "sameAs": "GPT-6 Astra",
+      "mix": {
+        "cache": 0.97,
+        "input": 0.025,
+        "output": 0.005,
+        "cacheWrite": 0
+      },
+      "apiPrices": {
+        "input": 8,
+        "output": 40,
+        "cached": 0.4,
+        "cacheWrite": 10
+      },
+      "plans": [
+        {
+          "id": "ChatGPT Pro 20x",
+          "feeUsd": 200,
+          "usdPerMtok": 0.052465897,
+          "confidence": "assumed",
+          "periodDays": 28
+        },
+        {
+          "id": "ChatGPT Pro 500",
+          "feeUsd": 500,
+          "usdPerMtok": 0.06289308,
+          "confidence": "assumed",
+          "periodDays": 28
+        },
+        {
+          "id": "ChatGPT Pro 10x",
+          "feeUsd": 100,
+          "usdPerMtok": 0.06289308,
+          "confidence": "assumed",
+          "periodDays": 28
+        },
+        {
+          "id": "ChatGPT Plus",
+          "feeUsd": 20,
+          "usdPerMtok": 0.12578616,
+          "confidence": "assumed",
+          "periodDays": 28
+        }
+      ]
+    },
+    {
+      "family": "gpt-6-2-sol",
+      "sourceModel": "gpt-6.2-sol",
+      "provider": "openai",
+      "providerName": "OpenAI",
+      "defaultPlan": "ChatGPT Pro 10x",
+      "dataDate": "2026-11-17",
+      "sameAs": "GPT-6.1 Sol",
+      "mix": {
+        "cache": 0.97,
+        "input": 0.025,
+        "output": 0.005,
+        "cacheWrite": 0
+      },
+      "apiPrices": {
+        "input": 2,
+        "output": 10,
+        "cached": 0.1,
+        "cacheWrite": 2.5
+      },
+      "plans": [
+        {
+          "id": "ChatGPT Pro 20x",
+          "feeUsd": 200,
+          "usdPerMtok": 0.006596305999999999,
+          "confidence": "assumed",
+          "periodDays": 28
+        },
+        {
+          "id": "ChatGPT Pro 10x",
+          "feeUsd": 100,
+          "usdPerMtok": 0.006596305999999999,
+          "confidence": "assumed",
+          "periodDays": 28
+        },
+        {
+          "id": "ChatGPT Pro 500",
+          "feeUsd": 500,
+          "usdPerMtok": 0.006596306,
+          "confidence": "assumed",
+          "periodDays": 28
+        },
+        {
+          "id": "ChatGPT Plus",
+          "feeUsd": 20,
+          "usdPerMtok": 0.013192612,
+          "confidence": "assumed",
+          "periodDays": 28
+        }
+      ]
+    },
+    {
+      "family": "claude-fable-5-2",
+      "sourceModel": "claude-fable-5.2",
+      "provider": "anthropic",
+      "providerName": "Anthropic",
+      "defaultPlan": "Claude Ultra",
+      "dataDate": "2026-11-11",
+      "apiPrices": {
+        "input": 8,
+        "output": 40
+      },
+      "plans": [
+        {
+          "id": "Claude Ultra",
+          "feeUsd": 200,
+          "confidence": "medium",
+          "periodDays": 28,
+          "apiRatio": 0.0367281045,
+          "reading": "Shared limit"
+        }
+      ]
+    },
+    {
+      "family": "gemini-4-carbon",
+      "sourceModel": "gemini-4-carbon",
+      "provider": "google",
+      "providerName": "Google",
+      "defaultPlan": "Google AI Ultra 5x",
+      "dataDate": "2026-11-16",
+      "sameAs": "Gemini 3.8 Flash",
+      "mix": {
+        "cache": 0.85,
+        "input": 0.145,
+        "output": 0.005,
+        "cacheWrite": 0
+      },
+      "apiPrices": {
+        "input": 4,
+        "output": 20,
+        "cached": 0.2,
+        "cacheWrite": 4
+      },
+      "plans": [
+        {
+          "id": "Google AI Ultra 20x",
+          "feeUsd": 199.99,
+          "usdPerMtok": 0.011622820499999999,
+          "confidence": "assumed",
+          "periodDays": 28
+        },
+        {
+          "id": "Google AI Ultra 5x",
+          "feeUsd": 99.99,
+          "usdPerMtok": 0.023244478800000003,
+          "confidence": "assumed",
+          "periodDays": 28
+        }
+      ]
+    },
+    {
+      "family": "gemini-4-hydrogen",
+      "sourceModel": "gemini-4-hydrogen",
+      "provider": "google",
+      "providerName": "Google",
+      "defaultPlan": "Google AI Pro",
+      "dataDate": "2026-11-16",
+      "sameAs": "Gemini 3.8 Flash",
+      "mix": {
+        "cache": 0.85,
+        "input": 0.145,
+        "output": 0.005,
+        "cacheWrite": 0
+      },
+      "apiPrices": {
+        "input": 1.5,
+        "output": 7.5,
+        "cached": 0.075,
+        "cacheWrite": 1.875
+      },
+      "plans": [
+        {
+          "id": "Google AI Pro",
+          "feeUsd": 19.99,
+          "usdPerMtok": 0.0077450601,
+          "confidence": "assumed",
           "periodDays": 28
         }
       ]
@@ -1597,6 +1789,5 @@
         }
       ]
     }
-  ],
-  "benchmarkSourceHash": "64323f226da7c56892071d5f7fc4eb5b920cea06de45c93de37e90eddaa32442"
+  ]
 }

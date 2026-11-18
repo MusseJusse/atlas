@@ -19,7 +19,8 @@ const sol = { ...models.find((model) => model.id === 'gpt-6-1-sol-xhigh')!,
   inputPrice: captured.apiPrices.input, outputPrice: captured.apiPrices.output };
 
 it('uses the exact external mix and selected plan without rounding or mutating measured values', () => {
-  const data = subscriptionSource.models.find((model) => model.family === sol.family)!;
+  const data = captured;
+  if (!('mix' in data)) throw new Error('Expected a token-price estimate for GPT-6.1 Sol.');
   expect(blendedApiPrice(data)).toBeCloseTo(0.197, 12);
   const selected = { ...settings, subscriptionPlans: { openai: 'ChatGPT Plus' } };
   const [priced] = subscriptionRows([sol], selected);
@@ -100,11 +101,25 @@ it('changes costs with source-supported resets and scopes conversion to full-ind
 it('estimates costs from the current benchmark without overriding its source hash or rates', () => {
   const current = models.find((model) => model.id === 'gpt-6-1-sol-xhigh')!;
   const [priced] = subscriptionRows([current], settings);
-  const data = subscriptionSource.models.find((model) => model.family === current.family)!;
+  const data = captured;
+  if (!('mix' in data)) throw new Error('Expected a token-price estimate for GPT-6.1 Sol.');
   const plan = data.plans.find((plan) => plan.id === data.defaultPlan)!;
   expect(current.cost).toBeGreaterThan(0);
   expect(priced?.taskPricing?.basis).toBe('subscription');
   expect(priced?.cost).toBe(current.cost! * plan.usdPerMtok / blendedApiPrice(data));
+});
+
+it('uses MyPriors assumed allowances and the published Fable shared-limit ratio', () => {
+  const astra = models.find((model) => model.id === 'gpt-6-2-astra')!;
+  const fable = models.find((model) => model.id === 'claude-fable-5-2')!;
+  const [pricedAstra, pricedFable] = subscriptionRows([astra, fable], settings);
+  expect(pricedAstra?.taskPricing).toMatchObject({
+    basis: 'subscription', plan: 'ChatGPT Pro 10x', confidence: 'assumed', sameAs: 'GPT-6 Astra',
+  });
+  expect(pricedFable?.taskPricing).toMatchObject({
+    basis: 'subscription', plan: 'Claude Ultra', reading: 'Shared limit', ratio: 0.0367281045,
+  });
+  expect(pricedFable?.cost).toBe(fable.cost! * 0.0367281045);
 });
 
 it('uses refreshed task costs and isolates changed API rates to the affected model', () => {
