@@ -37,8 +37,9 @@ it('validates the separate source snapshot and retains the published numeric pre
 it('uses the picker and reasoning filters without hiding max-only agent measurements by default', () => {
   expect(visibleCodingAgents([], [])).toEqual([]);
   const defaultRows = visibleCodingAgents(defaults.selected, defaults.excluded);
-  expect(defaultRows.some((row) => row.family === 'gpt-6-1-sol' && row.effort === 'max')).toBe(true);
   expect(defaultRows.every((row) => defaults.selected.includes(row.family))).toBe(true);
+  const solRows = visibleCodingAgents(['gpt-6-1-sol'], defaults.excluded);
+  expect(solRows.some((row) => row.effort === 'max')).toBe(true);
   expect(visibleCodingAgents(['grok-4-7'], ['xhigh'])).toEqual([]);
   const router = codingAgents.find((row) => row.family === 'coding-devin-astra-swe2')!;
   expect(visibleCodingAgents([router.family], [])).toEqual([router]);

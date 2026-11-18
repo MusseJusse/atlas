@@ -147,7 +147,6 @@ describe('benchmark comparisons', () => {
       expect(barGroups([endpoint], view.metric, true, true)).toEqual([]);
     }
     expect(paretoFrontier([endpoint], 'speed')).toEqual([]);
-    expect(defaultSelected).toContain(endpoint.parentFamily);
     const url = writeSettings({ ...readSettings(''), selected: [endpoint.parentFamily] }, 'time-task');
     expect(readView(url)).toBe('time-task');
     expect(readSettings(url).selected).toEqual([endpoint.parentFamily]);
