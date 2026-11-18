@@ -4,13 +4,10 @@ export const frontierFamilies = [
   'gpt-6-2-astra',
   'gpt-6-2-sol',
   'gpt-6-1-terra',
-  'gpt-6-1-sol',
   'gpt-6-luna',
-  'gpt-6-astra',
   'claude-haiku-5-5',
   'claude-sonnet-5-5',
   'claude-opus-5-5',
-  'claude-fable-5-1',
   'claude-fable-5-2',
   'gemini-4-carbon',
   'gemini-4-hydrogen',
@@ -25,7 +22,7 @@ export const notableFamilies = [
   'qwen4-max',
   'qwen3-8-27b',
 ];
-// Gemini, Grok and Muse stay in the Frontier picker but load unselected.
+// These Frontier models load unselected.
 const defaultOff = new Set([
   'gemini-4-carbon',
   'gemini-4-hydrogen',
