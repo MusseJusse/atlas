@@ -14,6 +14,9 @@ it('preserves curated order and keeps every other family in lab and release orde
   const others = browseFamilies([], true, true);
   expect(new Set([...curated, ...others])).toEqual(new Set(families));
   expect(others.some((family) => curated.includes(family))).toBe(false);
+  expect(others.map((family) => family.family)).toEqual(expect.arrayContaining([
+    'gpt-6-astra', 'gpt-6-1-sol', 'claude-fable-5-1',
+  ]));
   for (const [index, family] of others.entries()) {
     const previous = others[index - 1];
     if (!previous) continue;
