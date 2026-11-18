@@ -1,6 +1,6 @@
 import snapshot from 'virtual:subscriptions';
 import type { Model } from './schema';
-import type { SubscriptionModel, SubscriptionSnapshot } from './subscription-schema';
+import type { SubscriptionModel, SubscriptionPlan, SubscriptionSnapshot } from './subscription-schema';
 
 export const subscriptionSource = snapshot;
 export type PricingSettings = {
@@ -11,13 +11,13 @@ export type PricingSettings = {
 export type TaskPricing =
   | { basis: 'api-fallback'; reason: string }
   | { basis: 'subscription'; apiCost: number | null; plan: string; feeUsd: number; confidence: string;
-      dataDate: string; ratio: number; resetBoost: number };
+      dataDate: string; ratio: number; resetBoost: number; sameAs?: string; reading?: string };
 
 const byFamily = new Map(snapshot.models.map((model) => [model.family, model]));
 export const subscriptionProviders = [...new Map(snapshot.models.map((model) => [model.provider, {
   id: model.provider, name: model.providerName,
   plans: [...new Map(snapshot.models.filter((other) => other.provider === model.provider)
-    .flatMap((other) => other.plans).map((plan) => [plan.id, plan])).values()]
+    .flatMap<SubscriptionPlan>((other) => other.plans).map((plan) => [plan.id, plan])).values()]
     .sort((a, b) => a.feeUsd - b.feeUsd || a.id.localeCompare(b.id)),
 }])).values()];
 
@@ -30,7 +30,7 @@ export function readSubscriptionPlans(values: string[]) {
   }));
 }
 
-export function blendedApiPrice(model: SubscriptionModel) {
+export function blendedApiPrice(model: Extract<SubscriptionModel, { mix: unknown }>) {
   return model.mix.cache * model.apiPrices.cached + model.mix.input * model.apiPrices.input
     + model.mix.cacheWrite * model.apiPrices.cacheWrite + model.mix.output * model.apiPrices.output;
 }
@@ -78,13 +78,14 @@ export function subscriptionRows(rows: Model[], settings: PricingSettings): Mode
         ? 'API prices changed since the subscription capture.' : null;
     if (reason || !data || !plan)
       return { ...model, taskPricing: { basis: 'api-fallback', reason: reason ?? 'No comparable plan data.' } };
-    const apiPrice = blendedApiPrice(data);
+    const apiPrice = 'mix' in data ? blendedApiPrice(data) : 1;
     if (apiPrice <= 0) return { ...model, taskPricing: { basis: 'api-fallback', reason: 'No comparable API token price.' } };
     const boost = settings.countResets ? resetBoost(data.provider, plan.periodDays) : 1;
-    const ratio = plan.usdPerMtok / apiPrice / boost;
+    const ratio = ('apiRatio' in plan ? plan.apiRatio : plan.usdPerMtok / apiPrice) / boost;
     return { ...model, cost: model.cost === null ? null : model.cost * ratio, taskPricing: {
       basis: 'subscription', apiCost: model.cost, plan: plan.id, feeUsd: plan.feeUsd,
       confidence: plan.confidence, dataDate: data.dataDate, ratio, resetBoost: boost,
+      sameAs: data.sameAs, reading: 'reading' in plan ? plan.reading : undefined,
     } };
   });
 }
@@ -97,8 +98,11 @@ export function usesSubscriptionPricing(viewId: string, settings: PricingSetting
 
 export function pricingDisclosure(rows: Model[], countResets: boolean) {
   const plans = [...new Set(rows.flatMap((row) => row.taskPricing?.basis === 'subscription' ? [row.taskPricing.plan] : []))];
+  const hasDirectRatio = rows.some((row) => row.taskPricing?.basis === 'subscription' && row.taskPricing.reading);
   return [
-    'Estimated subscription. One model uses the full allowance. External coding token mix, shared across efforts.',
+    hasDirectRatio
+      ? 'Estimated subscription. Uses MyPriors API-cost ratios where available and an external coding token mix for token-price estimates.'
+      : 'Estimated subscription. One model uses the full allowance. External coding token mix, shared across efforts.',
     `Pricing captured ${snapshot.capturedAt.slice(0, 10)}. ${plans.length ? plans.join('; ') : 'No supported plan estimates.'}`,
     `${countResets ? 'Source-linked bonus resets included where supported' : 'Bonus resets excluded'}. ${rows.some((row) => row.taskPricing?.basis === 'api-fallback') ? 'Includes API fallback.' : 'Subscription estimates only.'}`,
   ];

@@ -4,6 +4,32 @@ const nonnegative = z.number().nonnegative();
 const positive = z.number().positive();
 const text = z.string().min(1);
 const prices = z.object({ cached: nonnegative, input: nonnegative, cacheWrite: nonnegative, output: nonnegative });
+const model = z.object({
+  family: text,
+  sourceModel: text,
+  provider: text,
+  providerName: text,
+  defaultPlan: text,
+  dataDate: text,
+  sameAs: text.optional(),
+});
+const plan = z.object({
+  id: text, feeUsd: positive, confidence: z.enum(['high', 'medium', 'low', 'assumed']),
+  // The upstream's synthetic month is four weeks, not a calendar month.
+  periodDays: positive,
+});
+const subscriptionModel = z.union([
+  model.extend({
+    mix: z.object({ cache: nonnegative, input: nonnegative, cacheWrite: nonnegative, output: nonnegative })
+      .refine((mix) => Math.abs(mix.cache + mix.input + mix.cacheWrite + mix.output - 1) < 1e-9, 'Token mix must sum to one.'),
+    apiPrices: prices,
+    plans: z.array(plan.extend({ usdPerMtok: nonnegative })).nonempty(),
+  }),
+  model.extend({
+    apiPrices: prices.pick({ input: true, output: true }),
+    plans: z.array(plan.extend({ apiRatio: nonnegative, reading: text })).nonempty(),
+  }),
+]);
 export const subscriptionSchema = z.object({
   capturedAt: z.iso.datetime(),
   sourceGeneratedAt: z.iso.datetime(),
@@ -11,22 +37,7 @@ export const subscriptionSchema = z.object({
   sourceHash: z.string().regex(/^[a-f0-9]{64}$/),
   benchmarkSourceHash: z.string().regex(/^[a-f0-9]{64}$/),
   methodology: z.url(),
-  models: z.array(z.object({
-    family: text,
-    sourceModel: text,
-    provider: text,
-    providerName: text,
-    defaultPlan: text,
-    dataDate: text,
-    mix: z.object({ cache: nonnegative, input: nonnegative, cacheWrite: nonnegative, output: nonnegative })
-      .refine((mix) => Math.abs(mix.cache + mix.input + mix.cacheWrite + mix.output - 1) < 1e-9, 'Token mix must sum to one.'),
-    apiPrices: prices,
-    plans: z.array(z.object({
-      id: text, feeUsd: positive, usdPerMtok: nonnegative, confidence: z.enum(['high', 'medium', 'low']),
-      // The upstream's synthetic month is four weeks, not a calendar month.
-      periodDays: positive,
-    })).nonempty(),
-  })).superRefine((models, ctx) => {
+  models: z.array(subscriptionModel).superRefine((models, ctx) => {
     if (new Set(models.map((model) => model.family)).size !== models.length)
       ctx.addIssue({ code: 'custom', message: 'Duplicate subscription family.' });
     for (const model of models) {
