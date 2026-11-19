@@ -69,7 +69,8 @@ export const Sidebar = memo(function Sidebar({
   }, [open, setOpen]);
   useEffect(() => {
     if (!open) return;
-    const previous = document.activeElement;
+    // Focus returns where it was. From inside a menu, that's the menu's button, since the menu closes below.
+    const previous = document.activeElement?.closest('details[open]')?.querySelector('summary') ?? document.activeElement;
     // Menus left open would otherwise stay open behind the picker.
     for (const menu of document.querySelectorAll('details[open]')) if (menu instanceof HTMLDetailsElement) menu.open = false;
     (focusSearch.current ? input.current : panel.current?.querySelector<HTMLElement>('.sheet-done'))?.focus();
@@ -78,8 +79,10 @@ export const Sidebar = memo(function Sidebar({
     document.body.style.overflow = 'hidden';
     return () => {
       document.body.style.overflow = overflow;
-      // Chart points and bars are SVG, so restore focus to those too.
-      if ((previous instanceof HTMLElement || previous instanceof SVGElement) && previous.isConnected && previous !== document.body) previous.focus();
+      // Chart points and bars are SVG, so restore focus to those too. A point whose model was just removed,
+      // or a click that never focused anything (Safari), falls back to the Models button.
+      const restorable = (previous instanceof HTMLElement || previous instanceof SVGElement) && previous.isConnected && previous !== document.body;
+      (restorable ? previous : document.querySelector<HTMLElement>('[aria-controls="model-filters"]'))?.focus();
     };
   }, [open, setOpen]);
 

@@ -21,7 +21,6 @@ import { Scatter } from './charts/Scatter';
 import { Bars, FixedBarAxis } from './charts/Bars';
 import { Ranking } from './charts/Ranking';
 import { useScrollEdges } from './useScrollEdges';
-import { useMediaQuery } from './useMediaQuery';
 import { barLayout, scatterLabelGutter, combinedBarWidth, measureRows, measureScatterRows, separateBarWidth } from './charts/geometry';
 import type { Interactions } from './charts/interactions';
 
@@ -106,10 +105,9 @@ export const Chart = memo(function Chart({
     if (scrollable && element) element.scrollLeft = bestAtEnd ? element.scrollWidth : 0;
   }, [scrollable, bestAtEnd, plotWidth]);
   const container = useRef<HTMLDivElement>(null);
-  const mobile = useMediaQuery('(width <= 900px)');
-  // Mobile sections grow with their content, so a pinned card can sit below a narrow scatter plot.
-  // Fixed-height desktop sections keep the overlay, which would otherwise squeeze the plot.
-  const detailsBelow = scatter && ready && mobile && width < 600;
+  // Phone pages grow with their content, so a pinned card can sit below the narrow scatter plot.
+  // Wider layouts have a fixed height and keep the overlay, which would otherwise squeeze the plot.
+  const detailsBelow = scatter && ready && phone;
   const belowCard = useRef<HTMLElement>(null);
   const overlay = useRef<HTMLElement>(null);
   const gutter = scatterLabelGutter(width, settings.labels) || 24;

@@ -184,18 +184,19 @@ function Benchmarks() {
         >
           <h2 className="sr-only">{view.label}</h2>
           <div className="flex shrink-0 flex-wrap items-center gap-x-4 gap-y-2">
-            <AxisMenu
-              axis="Vertical axis"
-              label={scatter ? scoreLabels[score] : metrics[view.metric].label}
-              options={verticalOptions}
-              current={scatter ? 'intelligence' : view.id}
-              choose={(id) => { if (!(scatter && id === 'intelligence')) setActive(id); }}
-              side="below"
-              align="start"
-            />
             {/* Phones put both axis menus first, so switching charts never waits below a long ranking. */}
-            <div className="hidden phone:block">{horizontalMenu('below', 'start')}</div>
-            <span aria-hidden="true" className="hidden phone:block phone:basis-full" />
+            <div className="flex flex-wrap gap-2 phone:w-full">
+              <AxisMenu
+                axis="Vertical axis"
+                label={scatter ? scoreLabels[score] : metrics[view.metric].label}
+                options={verticalOptions}
+                current={scatter ? 'intelligence' : view.id}
+                choose={(id) => { if (!(scatter && id === 'intelligence')) setActive(id); }}
+                side="below"
+                align="start"
+              />
+              <div className="hidden phone:block">{horizontalMenu('below', 'start')}</div>
+            </div>
             {scatter && (
               <div className="ml-auto flex items-center gap-4 phone:ml-0 phone:gap-3">
                 <button
@@ -225,7 +226,7 @@ function Benchmarks() {
                 </div>
               </div>
             )}
-            <div className="ml-auto flex items-center gap-3 phone:gap-2">
+            <div className={`flex items-center gap-3 phone:ml-auto phone:gap-2 ${scatter ? '' : 'ml-auto'}`}>
               <button
                 className="inline-flex min-h-10 items-center gap-2 rounded-lg border border-line pr-2 pl-3 text-[13px] text-fg-2 hover:border-line-2 hover:bg-hover hover:text-fg aria-expanded:border-accent aria-expanded:text-accent"
                 onClick={() => setPickerOpen(true)}

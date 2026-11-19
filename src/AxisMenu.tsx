@@ -38,7 +38,11 @@ export function AxisMenu<Id extends string>({
       if (event.target instanceof Node && menu.current && !menu.current.contains(event.target)) menu.current.open = false;
     };
     document.addEventListener('pointerdown', outside);
-    return () => document.removeEventListener('pointerdown', outside);
+    window.addEventListener('resize', fit);
+    return () => {
+      document.removeEventListener('pointerdown', outside);
+      window.removeEventListener('resize', fit);
+    };
   }, [open]);
   function close() {
     if (!menu.current) return;
