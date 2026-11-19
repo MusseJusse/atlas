@@ -124,6 +124,14 @@ export const Chart = memo(function Chart({
     highlight: (id) => flushSync(() => onHighlight(id)),
   };
   const [overflow, updateOverflow, overflowRef] = useScrollEdges();
+  const scroller = useRef<HTMLDivElement | null>(null);
+  const scrollable = plotWidth > width;
+  // A scrolling plot opens at its best end: the highest scores sort last on desktop, the lowest costs first.
+  const bestAtEnd = metrics[view.metric].higherIsBetter !== chartDescending(view.metric, false, settings.descending);
+  useLayoutEffect(() => {
+    const element = scroller.current;
+    if (scrollable && element) element.scrollLeft = bestAtEnd ? element.scrollWidth : 0;
+  }, [scrollable, bestAtEnd, plotWidth]);
   const container = useRef<HTMLDivElement>(null);
   const mobile = useMediaQuery('(width <= 900px)');
   // Mobile sections grow with their content, so a pinned card can sit below a narrow scatter plot.
@@ -161,7 +169,11 @@ export const Chart = memo(function Chart({
     const cost = (place: CSSProperties) => {
       const x = typeof place.left === 'number' ? place.left : bounds.width - Number(place.right) - size.width;
       const y = typeof place.top === 'number' ? place.top : bounds.height - Number(place.bottom) - size.height;
-      return points.reduce((total, point) => total + (point.x >= x - 6 && point.x <= x + size.width + 6 && point.y >= y - 6 && point.y <= y + size.height + 6 ? point.selected ? 1000 : 1 : 0), 0);
+      return points.reduce((total, point) => {
+        // The selected point needs a wider 12px berth than its neighbours.
+        const margin = point.selected ? 12 : 6;
+        return total + (point.x >= x - margin && point.x <= x + size.width + margin && point.y >= y - margin && point.y <= y + size.height + margin ? point.selected ? 1000 : 1 : 0);
+      }, 0);
     };
     const best = Object.values(corners).reduce<CSSProperties>((current, next) => cost(next) < cost(current) ? next : current, corners['bottom-right']);
     const selected = points.find((point) => point.selected);
@@ -219,7 +231,10 @@ export const Chart = memo(function Chart({
             <div
               className="absolute inset-0 overflow-x-auto overflow-y-hidden [scrollbar-width:thin] focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-accent"
               onScroll={(event) => updateOverflow(event.currentTarget)}
-              ref={overflowRef}
+              ref={(element) => {
+                scroller.current = element;
+                return overflowRef(element);
+              }}
               // Wide plots scroll; the region is a tab stop so arrow keys can pan it.
               style={{ scrollPaddingInline: `${barLayout.left + 8}px 8px` }}
               {...(plotWidth > width ? { tabIndex: 0, role: 'region', 'aria-label': `${view.label}, scrolls sideways to show all ${legend.length} models` } : {})}

@@ -78,7 +78,8 @@ export function modelColor(model: Model) {
   return `light-dark(${light}, ${dark})`;
 }
 export function shortName(model: Model) {
-  return model.name.replace(/^Claude /, '');
+  // "Claude 4.5 Haiku" keeps its prefix, so a short name never starts with a number that reads as a value.
+  return model.name.replace(/^Claude (?=[A-Za-z])/, '');
 }
 
 /** Pick label text against the translucent bar composited over each theme's chart panel. */

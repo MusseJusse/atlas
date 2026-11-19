@@ -91,7 +91,7 @@ export function Bars({
               const abbreviatedEffort = fullEffort === 'medium' ? 'med' : effortMark;
               const effortLabel = fullEffort.length * 7 + 16 <= group.barWidth ? fullEffort : abbreviatedEffort;
               const showEffort = combined && segmentHeight >= 28 && effortLabel.length * 7 + 16 <= group.barWidth;
-              const visibleLabel = !combined && group.barWidth > 8 ? `${effortMark}${text}, ` : '';
+              const visibleLabel = !combined && group.barWidth > 6 ? `${effortMark}${text}, ` : '';
               return (
                 <g
                   key={row.id}
@@ -139,7 +139,7 @@ export function Bars({
                       {effortLabel}
                     </text>
                   )}
-                  {!combined && group.barWidth > 8 && (
+                  {!combined && group.barWidth > 6 && (
                     <text
                       x={barX + group.barWidth / 2}
                       y={bottom + 16}

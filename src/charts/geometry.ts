@@ -247,7 +247,8 @@ export function barGeometry(
       else positive = row.value;
       const x = start + (combined ? 0 : index * (barWidth + gap));
       const endpoint = !combined || row.value === (row.value < 0 ? group.minimum : group.maximum);
-      const text = barWidth > 8 && endpoint && (!combined || ordered.findLast((item) => item.value === row.value)?.id === row.id) ? valueLabel(row, metric) : '';
+      // Bars from 6px carry a value label; collision placement decides which ones fit.
+      const text = barWidth > 6 && endpoint && (!combined || ordered.findLast((item) => item.value === row.value)?.id === row.id) ? valueLabel(row, metric) : '';
       return { row, x, baseline, labelX: x + barWidth / 2, labelY: 0, text };
     });
     // Keep DOM and keyboard order aligned with the effort markers, independently
