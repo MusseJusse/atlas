@@ -19,7 +19,7 @@ import { ConfigurationDetails } from './charts/ConfigurationDetails';
 import { Scatter } from './charts/Scatter';
 import { Bars, FixedBarAxis } from './charts/Bars';
 import { Ranking } from './charts/Ranking';
-import { combinedBarWidth, measureRows, measureScatterRows, separateBarWidth } from './charts/geometry';
+import { barLayout, combinedBarWidth, measureRows, measureScatterRows, separateBarWidth } from './charts/geometry';
 import type { Interactions } from './charts/interactions';
 
 function useSize(enabled: boolean) {
@@ -120,6 +120,12 @@ export const Chart = memo(function Chart({
     togglePin: (model) => setPinnedId((previous) => previous === model.id ? null : model.id),
     highlight: (id) => flushSync(() => onHighlight(id)),
   };
+  const [overflow, setOverflow] = useState({ start: false, end: false });
+  function updateOverflow(element: HTMLDivElement | null) {
+    if (!element) return;
+    const next = { start: element.scrollLeft > 1, end: element.scrollLeft + element.clientWidth < element.scrollWidth - 1 };
+    setOverflow((current) => current.start === next.start && current.end === next.end ? current : next);
+  }
   const legend = [...new Map(validRows.map((row) => [row.codingAgent ? row.id : row.family, row])).values()];
 
   function closeOnBackground(event: MouseEvent<SVGSVGElement>) {
@@ -158,7 +164,13 @@ export const Chart = memo(function Chart({
             </div>
           ) : (scatter || !phone) && (
             <>
-            <div className="absolute inset-0 overflow-x-auto overflow-y-hidden [scrollbar-width:thin]">
+            <div
+              className="absolute inset-0 overflow-x-auto overflow-y-hidden [scrollbar-width:thin] focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-accent"
+              onScroll={(event) => updateOverflow(event.currentTarget)}
+              ref={updateOverflow}
+              // Wide plots scroll; the region is a tab stop so arrow keys can pan it.
+              {...(plotWidth > width ? { tabIndex: 0, role: 'region', 'aria-label': `${view.label}, scrolls sideways to show all ${legend.length} models` } : {})}
+            >
             <svg
               className="absolute inset-0 block size-full font-sans [&_g[role=button]:focus]:[outline:none]"
               style={{ width: plotWidth }}
@@ -203,6 +215,9 @@ export const Chart = memo(function Chart({
               )}
             </svg>
             </div>
+            {/* Edge shadows mark more columns beyond the visible plot, past the fixed axis on the left. */}
+            {plotWidth > width && overflow.start && <div aria-hidden="true" className="pointer-events-none absolute inset-y-0 z-[1] w-3 bg-linear-to-r from-[var(--scroll-shadow)] to-transparent" style={{ left: barLayout.left }} />}
+            {plotWidth > width && overflow.end && <div aria-hidden="true" className="pointer-events-none absolute inset-y-0 right-0 z-[1] w-3 bg-linear-to-l from-[var(--scroll-shadow)] to-transparent" />}
             {!prepared.scatter && plotWidth > width && <FixedBarAxis rows={prepared.rows} metric={view.metric} settings={settings} plotWidth={plotWidth} width={width} height={height} />}
             </>
           ))}

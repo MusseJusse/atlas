@@ -205,8 +205,9 @@ export function valueLabelWidth(text: string) {
 /**
  * Place each value label at its bar's end without covering another label or any bar.
  * Labels wider than their bar first slide sideways over the shorter neighbour, then step away from the axis.
- * Labels stay between the unit heading and the reasoning marks; one with no free spot is dropped,
- * and its value remains in the focus and pin details.
+ * Labels stay between the unit heading and the reasoning marks and move at most one line off their bar,
+ * so a stagger never reads as a different value. A label with no free spot is dropped, and its value
+ * remains in the focus and pin details.
  */
 function placeValueLabels<Group extends LaidOutGroup>(groups: Group[], y: (value: number) => number, left: number, right: number, bottom: number) {
   const { lineHeight, gap } = valueLabelMetrics;
@@ -234,8 +235,10 @@ function placeValueLabels<Group extends LaidOutGroup>(groups: Group[], y: (value
       // The unit heading's baseline is at 17px; reasoning marks start about 8px below the axis bottom.
       const inside = (labelY: number) => (negative ? labelY + 3 <= bottom + 6 : labelY - 9 >= 22);
       let spot: { x: number; y: number } | null = null;
-      search: for (let labelY = start; inside(labelY); labelY += negative ? lineHeight : -lineHeight)
+      search: for (const labelY of [start, start + (negative ? lineHeight : -lineHeight)]) {
+        if (!inside(labelY)) break;
         for (const x of xs) if (clear(x, labelY, width)) { spot = { x, y: labelY }; break search; }
+      }
       if (!spot) return { ...bar, text: '' };
       placed.push({ ...spot, width });
       return { ...bar, labelX: spot.x, labelY: spot.y };
