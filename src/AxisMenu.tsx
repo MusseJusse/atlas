@@ -54,7 +54,11 @@ export function AxisMenu<Id extends string>({
       ref={menu}
       data-axis-menu
       className="group relative shrink-0"
-      onToggle={(event) => setOpen(event.currentTarget.open)}
+      onToggle={(event) => {
+        setOpen(event.currentTarget.open);
+        // Find in page can open the menu without a summary click, and the viewport can change before toggle fires.
+        if (event.currentTarget.open) fit();
+      }}
       onClickCapture={(event) => {
         // Summary clicks run before the menu opens, so its first frame already sits on the fitting side.
         if (!menu.current?.open && event.target instanceof Element && event.target.closest('summary')) fit();

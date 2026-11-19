@@ -80,8 +80,9 @@ export const Sidebar = memo(function Sidebar({
     return () => {
       document.body.style.overflow = overflow;
       // Chart points and bars are SVG, so restore focus to those too. A point whose model was just removed,
-      // or a click that never focused anything (Safari), falls back to the Models button.
-      const restorable = (previous instanceof HTMLElement || previous instanceof SVGElement) && previous.isConnected && previous !== document.body;
+      // a trigger hidden by crossing the phone breakpoint, or a click that never focused anything (Safari)
+      // falls back to the Models button.
+      const restorable = (previous instanceof HTMLElement || previous instanceof SVGElement) && previous !== document.body && previous.checkVisibility();
       (restorable ? previous : document.querySelector<HTMLElement>('[aria-controls="model-filters"]'))?.focus();
     };
   }, [open, setOpen]);
