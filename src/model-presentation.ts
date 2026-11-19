@@ -45,7 +45,8 @@ const colors: Record<string, [string, string]> = {
   'claude-fable-5-1': ['#903e2b', '#f0b99f'],
   'claude-fable-5-2': ['#903e2b', '#f0b99f'],
   'claude-sonnet-5-5': ['#bd6948', '#cc785c'],
-  'claude-haiku-5-5': ['#c4805f', '#a87a66'],
+  // Light Haiku is the palest Anthropic step that still keeps mixed label text above 4.5:1.
+  'claude-haiku-5-5': ['#bc7857', '#a87a66'],
   'gemini-4-neon': ['#1b6e3c', '#7ddb9f'],
   'gemini-4-carbon': ['#2c8b4f', '#52bd7a'],
   'gemini-4-hydrogen': ['#3d9e62', '#3b9a5f'],

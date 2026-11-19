@@ -141,11 +141,13 @@ export const Chart = memo(function Chart({
   const overlay = useRef<HTMLElement>(null);
   const gutter = scatterLabelGutter(width, settings.labels) || 24;
   // Scatter cards sit in whichever plot corner covers fewest points, and never over the selected one.
+  // Each placement caps the card to the height it actually has, and narrow plots use the compact card.
+  const compactCard = width < 760 ? { width: 200, padding: 12 } : {};
   const corners = {
-    'bottom-right': { right: gutter, bottom: 74 },
-    'top-left': { left: 64, top: 34 },
-    'top-right': { right: gutter, top: 34 },
-    'bottom-left': { left: 64, bottom: 74 },
+    'bottom-right': { right: gutter, bottom: 74, maxHeight: 'calc(100% - 82px)', ...compactCard },
+    'top-left': { left: 64, top: 34, maxHeight: 'calc(100% - 42px)', ...compactCard },
+    'top-right': { right: gutter, top: 34, maxHeight: 'calc(100% - 42px)', ...compactCard },
+    'bottom-left': { left: 64, bottom: 74, maxHeight: 'calc(100% - 82px)', ...compactCard },
   } satisfies Record<string, CSSProperties>;
   const [placement, setPlacement] = useState<CSSProperties>(corners['bottom-right']);
   useEffect(() => {
@@ -178,9 +180,12 @@ export const Chart = memo(function Chart({
     const best = Object.values(corners).reduce<CSSProperties>((current, next) => cost(next) < cost(current) ? next : current, corners['bottom-right']);
     const selected = points.find((point) => point.selected);
     // A card bigger than every free corner goes beside the selected point instead, on its roomier side.
-    const beside = selected && cost(best) >= 1000 && {
+    const besideTop = selected && Math.max(8, Math.min(bounds.height - size.height - 8, selected.y - size.height / 2));
+    const beside = selected && besideTop !== undefined && cost(best) >= 1000 && {
       left: selected.x > bounds.width / 2 ? Math.max(0, selected.x - 16 - size.width) : selected.x + 16,
-      top: Math.max(8, Math.min(bounds.height - size.height - 8, selected.y - size.height / 2)),
+      top: besideTop,
+      maxHeight: `calc(100% - ${besideTop + 8}px)`,
+      ...compactCard,
     };
     const next = beside || best;
     setPlacement((current) => JSON.stringify(current) === JSON.stringify(next) ? current : next);
@@ -279,6 +284,7 @@ export const Chart = memo(function Chart({
                   width={plotWidth}
                   height={height}
                   interactions={interactions}
+                  fixedAxis={plotWidth > width}
                 />
               )}
             </svg>
@@ -292,7 +298,7 @@ export const Chart = memo(function Chart({
         {(scatter || !phone) && activeModel && !(detailsBelow && pinned) && (
           <aside
             ref={overlay}
-            className={`configuration-details${pinned ? '' : ' pointer-events-none'}`}
+            className={`configuration-details scroll-fade${pinned ? '' : ' pointer-events-none'}`}
             data-placement={scatter ? undefined : settings.descending ? 'top-right' : 'top-left'}
             style={scatter ? placement : undefined}
             aria-label="Selected configuration"

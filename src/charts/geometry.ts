@@ -148,6 +148,8 @@ function captionSpan(name: string) {
  * ellipsis; their full name is in the caption's tooltip and in the card a bar's hover, focus or pin opens.
  */
 export const diagonalCaption = { angle: 40, maxWidth: 200 };
+/** The 11px " (API)" suffix that follows captions of models priced at API rates. */
+export const apiSuffixWidth = 32;
 export function fitDiagonalCaption(name: string, maxWidth: number) {
   if (captionWidth(name) <= maxWidth) return name;
   let cut = name;
@@ -201,15 +203,19 @@ export function barGeometry(
   // When any name can't fit its group in two lines, every caption runs diagonally from under its logo,
   // and the plot gives up enough height for the longest one.
   const names = groups.map((group) => shortName(group.rows[0]!));
-  const diagonal = groups.some((group, index) => captionSpan(names[index]!) > ((right - left) * weightOf(group)) / totalWeight - 6);
+  // Subscription prices append " (API)" to models priced at API rates, so their captions budget for it.
+  const suffixes = groups.map((group) => metric === 'cost' && group.rows[0]!.taskPricing?.basis === 'api-fallback' ? apiSuffixWidth : 0);
+  const diagonal = groups.some((group, index) => captionSpan(names[index]!) + suffixes[index]! > ((right - left) * weightOf(group)) / totalWeight - 6);
   const radians = (diagonalCaption.angle * Math.PI) / 180;
   const values = rows.map((row) => row.value);
   // Leave room for negative value labels above the reasoning marks and model names.
   const labelSpace = values.some((value) => value < 0) ? 42 : 0;
-  // The value axis always keeps at least 100px; on short plots diagonal captions shorten to fit what's left.
+  // The value axis always keeps at least 100px. Diagonal captions start 54px below it and must end inside
+  // the plot, so on short plots they shorten to whatever depth is left, and hide below 24px.
   const minimumPlot = 100;
-  const diagonalMax = Math.max(40, Math.min(diagonalCaption.maxWidth, (height - 62 - top - labelSpace - minimumPlot) / Math.sin(radians)));
-  const diagonalWidths = names.map((name) => Math.min(diagonalMax, captionWidth(name)));
+  const captionRoom = (height - 58 - top - labelSpace - minimumPlot) / Math.sin(radians);
+  const diagonalMax = Math.min(diagonalCaption.maxWidth, captionRoom) >= 24 ? Math.min(diagonalCaption.maxWidth, captionRoom) : 0;
+  const diagonalWidths = names.map((name, index) => Math.min(diagonalMax, captionWidth(name) + suffixes[index]!));
   const diagonalDepth = Math.sin(radians) * Math.max(0, ...diagonalWidths);
   // Diagonal captions reach left of their group, so the first groups start far enough in to keep theirs clear of the axis.
   let inset = 0;
@@ -223,7 +229,7 @@ export function barGeometry(
     });
   }
   const groupWidthOf = (group: (typeof groups)[number]) => ((right - left - inset) * weightOf(group)) / totalWeight;
-  const bottom = Math.max(top + labelSpace + minimumPlot, diagonal ? Math.min(height - 96, height - 62 - diagonalDepth) : height - 96);
+  const bottom = Math.max(top + labelSpace + minimumPlot, diagonal ? Math.min(height - 96, height - 58 - diagonalDepth) : height - 96);
   const domain = barDomain(values, 0.15);
   const y = linearScale(domain, [bottom - labelSpace, top]);
   // Durations tick at whole seconds, minutes and hours, as the phone ranking does, never at "8.3m".
