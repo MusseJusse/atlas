@@ -76,7 +76,8 @@
     -webkit-tap-highlight-color: transparent;
   }
   button,
-  input {
+  input,
+  select {
     font: inherit;
   }
   button {

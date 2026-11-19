@@ -19,7 +19,7 @@ const segments = 'flex gap-0.5 rounded-md bg-surface p-0.5';
 const segment =
   'min-h-8 rounded-[5px] px-2.5 text-[12px] text-fg-2 hover:text-fg aria-pressed:bg-panel aria-pressed:font-[550] aria-pressed:text-accent aria-pressed:shadow-[var(--shadow-raised)]';
 const menuItem = 'inline-flex min-h-10 w-full items-center gap-2.5 rounded-md px-2 text-[13px] text-fg hover:bg-hover';
-const menuLabel = 'px-2 pt-2 pb-1 text-[12px] font-[600] text-fg-2';
+const menuLabel = 'px-2 pt-3 pb-1 text-[13px] font-[600] text-fg';
 
 const loadChangelog = () => import('./Changelog');
 const loadEfficiency = () => import('./Efficiency');
@@ -402,7 +402,7 @@ function ChartOptions({
         <Ellipsis size={19} aria-hidden="true" />
       </summary>
       <div
-        className={`absolute top-[calc(100%+6px)] right-0 z-20 flex ${pricing ? 'w-[310px]' : 'w-[220px]'} max-w-[calc(100vw-48px)] flex-col items-start gap-0.5 overflow-y-auto overscroll-contain rounded-xl bg-panel p-2 shadow-[var(--shadow-pop)]`}
+        className={`absolute top-[calc(100%+6px)] right-0 z-20 flex ${pricing ? 'w-[344px]' : 'w-[240px]'} max-w-[calc(100vw-48px)] flex-col items-start gap-0.5 overflow-y-auto overscroll-contain rounded-xl bg-panel p-2 shadow-[var(--shadow-pop)]`}
         style={{ maxHeight: 'var(--chart-menu-height, 60dvh)' }}
         aria-label="Chart settings"
       >
@@ -416,7 +416,7 @@ function ChartOptions({
           <Selection checked={settings.labels} />
           Labels
         </button>
-        <span className={`${menuLabel} mt-1 w-full border-t border-line pt-3`}>Bar charts</span>
+        <span className={`${menuLabel} mt-2 w-full border-t border-line pt-4`}>Bar charts</span>
         <button
           className={menuItem}
           aria-pressed={settings.grouped}
