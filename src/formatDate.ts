@@ -5,7 +5,7 @@ export function formatUtcDate(value: string, month: 'short' | 'long' = 'long') {
     year: 'numeric',
     timeZone: 'UTC',
   // en-GB abbreviates September as "Sept"; match the three-letter form of every other month.
-  }).replace('Sept', 'Sep');
+  }).replace(/\bSept\b/, 'Sep');
 }
 
 export function formatUtcDateTime(value: string, month: 'short' | 'long' = 'long') {

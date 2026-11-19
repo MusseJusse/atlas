@@ -41,7 +41,7 @@ export function Bars({
       </text>
       {y.ticks(4).map((tick) => (
         <g key={tick} transform={`translate(0,${y(tick)})`}>
-          <line x1={left} x2={right} stroke="var(--line)" strokeDasharray="2 6" />
+          <line x1={left} x2={right} stroke="var(--grid)" strokeDasharray="2 6" />
           <text x={left - 10} y={4} textAnchor="end" fill="var(--fg-3)" fontSize={11}>
             {format(tick, metric, true)}
           </text>
@@ -51,7 +51,8 @@ export function Bars({
       {positioned.map((group, index) => {
         const model = group.rows[0]!;
         const name = shortName(model);
-        const split = name.lastIndexOf(' ');
+        // Names wrap at their last space only when one 13px line would crowd the neighbouring group.
+        const split = name.length * 7.2 > group.groupWidth - 8 ? name.lastIndexOf(' ') : -1;
         const columnClipId = `${clipId}-${index}`;
         const columnTop = y(Math.max(0, group.maximum));
         const columnBottom = y(Math.min(0, group.minimum));
@@ -137,10 +138,10 @@ export function Bars({
                   {!combined && group.barWidth > 8 && (
                     <text
                       x={barX + group.barWidth / 2}
-                      y={bottom + 15}
+                      y={bottom + 16}
                       textAnchor="middle"
                       fill="var(--fg-3)"
-                      fontSize={9}
+                      fontSize={11}
                     >
                       {effortMark}
                     </text>
@@ -178,20 +179,20 @@ export function Bars({
                 <SvgLogo model={model} x={group.center - 7} y={bottom + 28} size={14} />
                 <text
                   x={group.center}
-                  y={bottom + 57}
+                  y={bottom + 58}
                   textAnchor="middle"
                   fill="var(--fg-2)"
-                  fontSize={16}
+                  fontSize={13}
                   fontWeight={500}
                 >
                   <tspan x={group.center}>{split > 0 ? name.slice(0, split) : name}</tspan>
                   {split > 0 && (
-                    <tspan x={group.center} dy={20}>
+                    <tspan x={group.center} dy={16}>
                       {name.slice(split + 1)}
                     </tspan>
                   )}
                   {metric === 'cost' && model.taskPricing?.basis === 'api-fallback' && (
-                    <tspan x={group.center} dy={16} fontSize={10}>API</tspan>
+                    <tspan x={group.center} dy={15} fontSize={11} fontWeight={400} fill="var(--fg-3)">API</tspan>
                   )}
                 </text>
               </g>

@@ -43,8 +43,17 @@ it('defaults to added changes and preserves exact field values', () => {
   expect(markup).toContain('Yes</td>');
   expect(markup).toContain('$1e-13');
   expect(markup).toContain('$2e-13');
-  expect(markup).toContain('18 October 2026, 02:23 UTC');
-  expect(markup).toContain('17 October 2026, 12:00 UTC');
+  expect(markup).toContain('18 Oct 2026, 02:23 UTC');
+  expect(markup).toContain('17 Oct 2026, 12:00 UTC');
+});
+
+it('lists each model from no reasoning up to max', () => {
+  const [batch] = history.updates;
+  const changes = ['xhigh', 'high', 'Non-reasoning', 'low'].map((effortLabel) => ({
+    id: `neon-${effortLabel}`, name: 'Neon', effortLabel, kind: 'added' as const, fields: [],
+  }));
+  const markup = renderToStaticMarkup(<Changelog history={{ ...history, updates: [{ ...batch!, changes }] }} />);
+  expect([...markup.matchAll(/Neon<span[^>]*>([^<]+)</g)].map(([, effort]) => effort)).toEqual(['non-reasoning', 'low', 'high', 'xhigh']);
 });
 
 it('explains the baseline without inventing historical additions', () => {

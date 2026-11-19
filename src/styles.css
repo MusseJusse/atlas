@@ -34,7 +34,10 @@
     --fg-2: var(--lightningcss-light, #596982) var(--lightningcss-dark, #b3bfd3);
     --fg-3: var(--lightningcss-light, #606d85) var(--lightningcss-dark, #a2afc5);
     --line: var(--lightningcss-light, #dfe5ee) var(--lightningcss-dark, #334159);
-    --line-2: var(--lightningcss-light, #c3cdde) var(--lightningcss-dark, #52617b);
+    --line-2: var(--lightningcss-light, #c3cdde) var(--lightningcss-dark, #5b6a85);
+    /* Chart gridlines and label leaders sit a step above hairline rules in dark mode, so plots stay inspectable. */
+    --grid: var(--lightningcss-light, #dbe2ec) var(--lightningcss-dark, #3e4d68);
+    --leader-opacity: var(--lightningcss-light, 0.45) var(--lightningcss-dark, 0.62);
     --surface: var(--lightningcss-light, #f1f4fa) var(--lightningcss-dark, #243149);
     --accent: var(--lightningcss-light, #3456d8) var(--lightningcss-dark, #a4b8ff);
     --accent-soft: var(--lightningcss-light, #e0e7fd) var(--lightningcss-dark, #304374);
@@ -311,7 +314,7 @@
 .ranking-name small { display: block; color: var(--fg-2); font-size: 11px; font-weight: 400; }
 .ranking-number { width: 16px; flex-shrink: 0; color: var(--fg-2); font-size: 11px; font-weight: 400; font-variant-numeric: tabular-nums; }
 .ranking-plot { position: relative; height: 48px; margin: 0 6px; }
-.ranking-gridline { position: absolute; inset-block: 0; border-left: 1px solid var(--line); }
+.ranking-gridline { position: absolute; inset-block: 0; border-left: 1px solid var(--grid); }
 .ranking-zero { border-color: var(--line-2); }
 .ranking-bar { position: absolute; top: 14px; height: 20px; background: color-mix(in srgb, var(--model-color) 12%, transparent); border-radius: 0 3px 3px 0; }
 .ranking-negative { border-radius: 3px 0 0 3px; }

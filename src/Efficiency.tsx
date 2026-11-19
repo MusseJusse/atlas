@@ -70,7 +70,7 @@ export function Efficiency() {
             <p className="mt-0 mb-3 text-[12px] leading-5 text-fg-2 mobile:hidden">Track record-low cost at or above each score.</p>
             <div className="flex flex-col gap-0.5 mobile:grid mobile:grid-cols-6 mobile:gap-x-1 phone:grid-cols-3">
               {lines.map((line) => (
-                <label key={line.threshold} className="flex min-h-10 cursor-pointer items-center gap-2.5 rounded-md px-1.5 text-[13px] hover:bg-hover has-[:checked]:font-[550] mobile:min-h-11">
+                <label key={line.threshold} className="flex min-h-8 cursor-pointer items-center gap-2.5 rounded-md px-1.5 text-[13px] text-fg-2 hover:bg-hover hover:text-fg has-[:checked]:font-[550] has-[:checked]:text-fg mobile:min-h-11 mobile:text-[15px]" style={{ '--line-color': efficiencyColors[line.threshold] } as CSSProperties}>
                   <input
                     type="checkbox"
                     checked={settings.thresholds.includes(line.threshold)}
@@ -83,15 +83,16 @@ export function Efficiency() {
                     aria-label={`Intelligence index at least ${line.threshold}`}
                     className="peer sr-only"
                   />
+                  {/* A line swatch sits where Benchmarks shows a lab logo, and the check stays on the right. */}
+                  <span aria-hidden="true" className="h-0.5 w-3.5 shrink-0 rounded-full bg-[var(--line-color)]" />
+                  <span className="flex-1 tabular-nums">≥ {line.threshold}</span>
+                  {!line.points.length && <span className="text-[11px] font-normal text-fg-2">No data</span>}
                   <span
                     aria-hidden="true"
                     className="flex size-4 shrink-0 items-center justify-center rounded-[4px] border border-control-border text-on-accent peer-checked:border-transparent peer-checked:bg-[var(--line-color)] peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-accent [&>svg]:invisible peer-checked:[&>svg]:visible"
-                    style={{ '--line-color': efficiencyColors[line.threshold] } as CSSProperties}
                   >
                     <Check size={11} strokeWidth={3.25} />
                   </span>
-                  <span className="tabular-nums">≥ {line.threshold}</span>
-                  {!line.points.length && <span className="text-[11px] text-fg-2">No data</span>}
                 </label>
               ))}
             </div>

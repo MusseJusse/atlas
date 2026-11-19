@@ -63,7 +63,7 @@ export function Scatter({
       </text>
       {y.ticks(6).map((tick) => (
         <g key={tick} transform={`translate(0,${y(tick)})`}>
-          <line x1={left} x2={right} stroke="var(--line)" strokeDasharray="2 6" />
+          <line x1={left} x2={right} stroke="var(--grid)" strokeDasharray="2 6" />
           <text x={left - 17} y={4} textAnchor="end" fill="var(--fg-3)" fontSize="12">
             {tick}
           </text>
@@ -184,8 +184,8 @@ export function Scatter({
               <path
                 d={`M${x(series.end.value) + 8},${y(series.end.score)} L${right + 20},${series.y}`}
                 stroke={modelColor(series.end)}
-                strokeWidth="0.7"
-                opacity="0.45"
+                strokeWidth="0.8"
+                style={{ opacity: 'var(--leader-opacity)' }}
                 fill="none"
               />
               <rect

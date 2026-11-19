@@ -31,13 +31,15 @@ const defaultOff = new Set([
   'muse-wonder-full',
 ]);
 export const defaultSelected = frontierFamilies.filter((id) => !defaultOff.has(id));
+// OpenAI is a graphite ramp from the flagship down. Dark mode stops short of white so it doesn't outweigh other labs.
 const colors: Record<string, [string, string]> = {
-  'gpt-6-2-astra': ['#303840', '#f1f3f5'],
-  'gpt-6-2-sol': ['#586878', '#c5cbd3'],
-  'gpt-6-astra': ['#303840', '#f1f3f5'],
-  'gpt-6-1-sol': ['#586878', '#c5cbd3'],
-  'gpt-6-1-sol-ultrafast': ['#586878', '#c5cbd3'],
-  'gpt-6-luna': ['#748292', '#939daa'],
+  'gpt-6-2-astra': ['#2c343d', '#c3cbd7'],
+  'gpt-6-2-sol': ['#4b5868', '#a2adbc'],
+  'gpt-6-1-terra': ['#637184', '#8794a7'],
+  'gpt-6-astra': ['#2c343d', '#c3cbd7'],
+  'gpt-6-1-sol': ['#4b5868', '#a2adbc'],
+  'gpt-6-1-sol-ultrafast': ['#4b5868', '#a2adbc'],
+  'gpt-6-luna': ['#7e8b9c', '#6f7c90'],
   'claude-opus-5-5': ['#ae5235', '#df9477'],
   'claude-fable-5-1': ['#903e2b', '#cc785c'],
   'claude-fable-5-2': ['#903e2b', '#cc785c'],
@@ -57,7 +59,7 @@ const colors: Record<string, [string, string]> = {
   'mimo-v2-6-pro': ['#b85212', '#ff8b45'],
 };
 const labColors: Record<string, [string, string]> = {
-  openai: ['#303840', '#f1f3f5'],
+  openai: ['#2c343d', '#c3cbd7'],
   anthropic: ['#ae5235', '#df9477'],
   google: ['#218347', '#56ca80'],
   xai: ['#6d55bd', '#9b94ee'],

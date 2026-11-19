@@ -177,7 +177,7 @@ function Benchmarks() {
           className="grid min-h-0 min-w-0 grid-rows-[auto_minmax(0,1fr)] rounded-[14px] bg-panel [outline:none] mobile:block mobile:overflow-clip"
         >
           <h1 className="sr-only">Model benchmarks</h1>
-          <div ref={stickyBar} className="min-w-0 px-6 mobile:sticky mobile:top-[var(--header-height)] mobile:z-[6] mobile:bg-panel mobile:px-4">
+          <div ref={stickyBar} data-sticky-bar className="min-w-0 px-6 mobile:sticky mobile:top-[var(--header-height)] mobile:z-[6] mobile:bg-panel mobile:px-4">
             <button
               className="hidden min-h-12 w-full items-center gap-2 pt-1 text-left text-[13px] text-fg-2 mobile:flex!"
               onClick={() => setMobileOpen(true)}
@@ -385,10 +385,12 @@ function ChartOptions({
     const element = menu.current;
     if (!element) return;
     // Open toward whichever side of the trigger has more of the visible chart area.
+    // On phones the sticky header and chart bar cover the top of the feed, so space above starts below them.
     const feed = element.closest('section')?.parentElement?.getBoundingClientRect();
+    const stickyBottom = document.querySelector('[data-sticky-bar]')?.getBoundingClientRect().bottom ?? 0;
     const trigger = element.getBoundingClientRect();
     const below = Math.min(window.innerHeight, feed?.bottom ?? window.innerHeight) - trigger.bottom - 18;
-    const above = trigger.top - Math.max(0, feed?.top ?? 0) - 18;
+    const above = trigger.top - Math.max(0, feed?.top ?? 0, stickyBottom) - 18;
     const next = below >= 240 || below >= above ? 'below' : 'above';
     setSide(next);
     // Cap the height to the chosen side, so every control stays reachable by scrolling the menu.
@@ -411,6 +413,9 @@ function ChartOptions({
     <details ref={menu} className="group relative shrink-0" onToggle={(event) => {
       setOpen(event.currentTarget.open);
       if (event.currentTarget.open) fitMenu();
+    }} onClickCapture={(event) => {
+      // Summary clicks run before the menu opens, so the first painted frame is already on the right side.
+      if (!menu.current?.open && event.target instanceof Element && event.target.closest('summary')) fitMenu();
     }} onKeyDown={(event) => {
       if (event.key === 'Escape' && menu.current?.open) {
         menu.current.open = false;

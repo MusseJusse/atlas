@@ -140,8 +140,7 @@ export function barGeometry(
   );
   const totalWeight = groups.reduce((total, group) => total + (combined ? 1 : Math.max(3, group.rows.length)), 0);
   let groupStart = left;
-  const valueLabels: { x: number; y: number; width: number }[] = [];
-  const positioned = groups.map((group) => {
+  const laidOut = groups.map((group) => {
     const groupWidth = ((right - left) * (combined ? 1 : Math.max(3, group.rows.length))) / totalWeight;
     const center = groupStart + groupWidth / 2;
     groupStart += groupWidth;
@@ -160,24 +159,7 @@ export function barGeometry(
       const x = start + (combined ? 0 : index * (barWidth + gap));
       const endpoint = !combined || row.value === (row.value < 0 ? group.minimum : group.maximum);
       const text = barWidth > 8 && endpoint && (!combined || ordered.findLast((item) => item.value === row.value)?.id === row.id) ? formatModelValue(row, metric, true) : '';
-      const textWidth = text.length * 6.4;
-      const labelX = Math.max(
-        left + textWidth / 2,
-        Math.min(right - textWidth / 2, x + barWidth / 2),
-      );
-      const negative = row.value < 0;
-      let labelY = y(row.value) + (negative ? 16 : -8);
-      while (
-        text &&
-        valueLabels.some(
-          (label) =>
-            Math.abs(label.x - labelX) < (label.width + textWidth) / 2 + 4 &&
-            Math.abs(label.y - labelY) < 17,
-        )
-      )
-        labelY += negative ? 17 : -17;
-      if (text) valueLabels.push({ x: labelX, y: labelY, width: textWidth });
-      return { row, x, baseline, labelX, labelY, text };
+      return { row, x, baseline, labelX: x + barWidth / 2, labelY: 0, text };
     });
     // Keep DOM and keyboard order aligned with the effort markers, independently
     // of the value order used to calculate segment baselines and shading.
@@ -185,7 +167,51 @@ export function barGeometry(
     bars.sort((a, b) => effortOrder.get(a.row.id)! - effortOrder.get(b.row.id)!);
     return { ...group, center, groupWidth, barWidth, bars };
   });
+  const positioned = placeValueLabels(laidOut, y, left, right);
   return { left, right, top, bottom, y, positioned };
+}
+
+type LaidOutGroup = { barWidth: number; bars: { row: MeasuredRow; x: number; labelX: number; labelY: number; text: string }[] };
+
+/** Label widths are estimated from the 11px tabular digits used for bar values. */
+const valueLabelMetrics = { charWidth: 6.4, lineHeight: 17, gap: 4 };
+
+/**
+ * Place each value label at its bar's end without covering another label or any bar.
+ * Labels wider than their bar first slide sideways over the shorter neighbour, then step away from the axis.
+ */
+function placeValueLabels<Group extends LaidOutGroup>(groups: Group[], y: (value: number) => number, left: number, right: number) {
+  const { charWidth, lineHeight, gap } = valueLabelMetrics;
+  const columns = groups.flatMap((group) => group.bars.map((bar) => ({
+    x0: bar.x, x1: bar.x + group.barWidth,
+    y0: Math.min(y(bar.row.value), y(0)), y1: Math.max(y(bar.row.value), y(0)),
+  })));
+  const placed: { x: number; y: number; width: number }[] = [];
+  const clear = (x: number, labelY: number, width: number) =>
+    placed.every((label) => Math.abs(label.x - x) >= (label.width + width) / 2 + gap || Math.abs(label.y - labelY) >= lineHeight) &&
+    // The glyph box spans roughly cap height above the baseline and a little below it.
+    columns.every((column) => x + width / 2 <= column.x0 - 1 || x - width / 2 >= column.x1 + 1 || labelY + 3 <= column.y0 || labelY - 9 >= column.y1);
+  return groups.map((group) => ({
+    ...group,
+    bars: group.bars.map((bar) => {
+      if (!bar.text) return bar;
+      const width = bar.text.length * charWidth;
+      const negative = bar.row.value < 0;
+      const fit = (x: number) => Math.max(left + width / 2, Math.min(right - width / 2, x));
+      const centre = bar.x + group.barWidth / 2;
+      const xs = width > group.barWidth
+        ? [centre, bar.x + group.barWidth - width / 2, bar.x + width / 2].map(fit)
+        : [fit(centre)];
+      const start = y(bar.row.value) + (negative ? 16 : -8);
+      let spot = { x: xs[0]!, y: start };
+      search: for (let step = 0; step < 24; step++) {
+        const labelY = start + step * (negative ? lineHeight : -lineHeight);
+        for (const x of xs) if (clear(x, labelY, width)) { spot = { x, y: labelY }; break search; }
+      }
+      placed.push({ ...spot, width });
+      return { ...bar, labelX: spot.x, labelY: spot.y };
+    }),
+  }));
 }
 
 export function rangeGeometry(

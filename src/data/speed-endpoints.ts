@@ -27,7 +27,7 @@ export const speedEndpoints = [
     open: false,
     deprecated: false,
     effort: 'max',
-    effortLabel: 'Max',
+    effortLabel: 'max',
     effortOrder: 60,
     intelligence: null,
     omniscience: null,

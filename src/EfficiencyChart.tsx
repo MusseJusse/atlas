@@ -100,7 +100,7 @@ export function EfficiencyChart({ lines, selected, fetchedAt, active, highlighte
           <g aria-hidden="true" fill="var(--fg-2)">
             {geometry.yTicks.map((tick) => (
               <g key={tick}>
-                <line x1={geometry.left} x2={geometry.right} y1={geometry.y(tick)} y2={geometry.y(tick)} stroke="var(--line)" strokeDasharray="2 5" />
+                <line x1={geometry.left} x2={geometry.right} y1={geometry.y(tick)} y2={geometry.y(tick)} stroke="var(--grid)" strokeDasharray="2 5" />
                 <text x={geometry.left - 10} y={geometry.y(tick) + 4} textAnchor="end">
                   {costFormat.format(tick)}
                 </text>
