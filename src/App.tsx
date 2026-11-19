@@ -9,7 +9,7 @@ import { Sidebar } from './Sidebar';
 import { Selection } from './Selection';
 import { useMediaQuery } from './useMediaQuery';
 import { useScrollEdges } from './useScrollEdges';
-import { useChartNavigation } from './useChartNavigation';
+import { revealTab, useChartNavigation } from './useChartNavigation';
 import { fetchedAt, paretoFrontier, visibleModels } from './models';
 import { resolveView, viewDescriptions, views } from './chart-definitions';
 import { chartDescending, readSettings, readView, writeSettings, type Settings } from './state';
@@ -194,6 +194,7 @@ function Benchmarks() {
             <div ref={chartNavigation}><nav
               ref={tabEdgesRef}
               onScroll={(event) => updateTabEdges(event.currentTarget)}
+              onFocus={(event) => revealTab(event.currentTarget, event.target)}
               // Fade whichever edge hides more tabs, since overlay scrollbars give no other cue.
               // Scroll padding keeps a tab scrolled into view clear of the faded edge.
               style={tabEdges.start || tabEdges.end ? { scrollPaddingInline: '32px', maskImage: `linear-gradient(to right, ${tabEdges.start ? 'transparent, #000 32px' : '#000'}, ${tabEdges.end ? '#000 calc(100% - 32px), transparent' : '#000'})` } : undefined}

@@ -39,6 +39,7 @@ export function Scatter({
     frontierFamilies,
     series,
     labels,
+    labelSpacing,
     logTicks,
     path,
   } = useMemo(
@@ -183,9 +184,12 @@ export function Scatter({
             ? activeFamily !== series.family
             : settings.frontier && !(series.end.codingAgent ? frontierIds.has(series.end.id) : frontierFamilies.has(series.family));
           const name = shortName(series.end);
-          const nameLimit = Math.max(8, Math.floor((width - right - 62) / 6.5));
-          const labelName = series.end.codingAgent && name.length > nameLimit
-            ? `${name.slice(0, nameLimit - 1)}…`
+          const apiSuffix = metric === 'cost' && series.end.taskPricing?.basis === 'api-fallback';
+          // Fit the name, plus its "(API)" suffix, inside the gutter. A truncated name keeps a full-name tooltip.
+          const compact = !series.end.codingAgent && labelSpacing < 18;
+          const nameLimit = Math.max(6, Math.floor((width - right - 57 - (apiSuffix ? 32 : 0)) / (compact ? 6.6 : 7.6)));
+          const labelName = name.length > nameLimit
+            ? `${name.slice(0, nameLimit - 1).trimEnd()}…`
             : name;
           return (
             <g
@@ -218,12 +222,13 @@ export function Scatter({
               <text
                 x={right + 53}
                 y={series.y + 4}
-                fontSize={series.end.codingAgent ? 12 : 14}
+                fontSize={series.end.codingAgent || compact ? 12 : 14}
                 fontWeight="550"
                 // Mix toward the text colour so light series still pass 4.5:1 as label text.
                 style={{ fill: `color-mix(in srgb, ${modelColor(series.end)} 78%, var(--fg))` }}
               >
-                {labelName}{metric === 'cost' && series.end.taskPricing?.basis === 'api-fallback' && <tspan fontSize={11}> (API)</tspan>}
+                {labelName !== name && <title>{name}</title>}
+                {labelName}{apiSuffix && <tspan fontSize={11}> (API)</tspan>}
               </text>
               {series.end.codingAgent && (
                 <text x={right + 53} y={series.y + 18} fontSize="10" fill="var(--fg-2)">

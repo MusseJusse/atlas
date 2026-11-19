@@ -42,16 +42,7 @@ export function useChartNavigation(mobile: boolean) {
   useEffect(() => {
     const navigation = chartNavigation.current?.querySelector<HTMLElement>('nav');
     const button = navigation?.querySelector<HTMLButtonElement>('[aria-current="page"]');
-    if (!navigation || !button) return;
-    const bounds = navigation.getBoundingClientRect();
-    const rect = button.getBoundingClientRect();
-    // Clear the 32px edge fade as well as the strip's edge, so the active tab never sits dimmed.
-    const fade = 32;
-    const offset = rect.left < bounds.left + fade
-      ? Math.min(0, rect.left - bounds.left - fade)
-      : Math.max(0, rect.right - bounds.right + fade);
-    // Scroll only this strip, preserving the page's vertical scroll position.
-    if (offset) navigation.scrollBy({ left: offset, behavior: 'instant' });
+    if (navigation && button) revealTab(navigation, button);
   }, [active, mobile]);
 
   useEffect(() => {
@@ -100,4 +91,18 @@ export function useChartNavigation(mobile: boolean) {
   }, [mobile]);
 
   return { active, navigate, feed, chartNavigation };
+}
+
+/**
+ * Scroll a tab strip so a tab clears both the strip's edge and its 32px edge fade.
+ * Runs for the active tab and for keyboard focus, and scrolls only the strip, never the page.
+ */
+export function revealTab(navigation: HTMLElement, tab: Element) {
+  const bounds = navigation.getBoundingClientRect();
+  const rect = tab.getBoundingClientRect();
+  const fade = 32;
+  const offset = rect.left < bounds.left + fade
+    ? Math.min(0, rect.left - bounds.left - fade)
+    : Math.max(0, rect.right - bounds.right + fade);
+  if (offset) navigation.scrollBy({ left: offset, behavior: 'instant' });
 }

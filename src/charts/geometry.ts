@@ -70,9 +70,10 @@ export function scatterGeometry(
     .map((series) => ({ ...series, end: series.rows.at(-1)! }))
     .sort((a, b) => y(a.end.score) - y(b.end.score));
   const agentLabels = rows.some((row) => row.codingAgent);
-  const labelCapacity = Math.max(1, Math.floor((bottom - top) / 40) + 1);
-  // Keep agent names and tool names apart in dense selections. Every point remains interactive.
-  const labelStep = agentLabels ? Math.ceil(labelPositions.length / labelCapacity) : 1;
+  // Labels never pack tighter than a readable row: 40px for two-line agent labels, 14px for model labels,
+  // which drop to 12px below 18px rows. Denser selections label every nth series; every point stays interactive.
+  const labelCapacity = Math.max(1, Math.floor((bottom - top) / (agentLabels ? 40 : 14)) + 1);
+  const labelStep = Math.ceil(labelPositions.length / labelCapacity);
   const visibleLabels = labelPositions.filter((_, index) => index % Math.max(1, labelStep) === 0);
   const labelSpacing = Math.min(agentLabels ? 40 : 24, (bottom - top) / Math.max(1, visibleLabels.length - 1));
   let lastY = top - labelSpacing;
@@ -112,6 +113,7 @@ export function scatterGeometry(
     frontierFamilies,
     series,
     labels,
+    labelSpacing,
     logTicks,
     path,
   };
@@ -146,10 +148,10 @@ function captionSpan(name: string) {
  * ellipsis; their full name is in the caption's tooltip and in the card a bar's hover, focus or pin opens.
  */
 export const diagonalCaption = { angle: 40, maxWidth: 200 };
-export function fitDiagonalCaption(name: string) {
-  if (captionWidth(name) <= diagonalCaption.maxWidth) return name;
+export function fitDiagonalCaption(name: string, maxWidth: number) {
+  if (captionWidth(name) <= maxWidth) return name;
   let cut = name;
-  while (cut.length > 1 && captionWidth(`${cut}…`) > diagonalCaption.maxWidth) cut = cut.slice(0, -1);
+  while (cut.length > 1 && captionWidth(`${cut}…`) > maxWidth) cut = cut.slice(0, -1);
   return `${cut.trimEnd()}…`;
 }
 
@@ -201,7 +203,13 @@ export function barGeometry(
   const names = groups.map((group) => shortName(group.rows[0]!));
   const diagonal = groups.some((group, index) => captionSpan(names[index]!) > ((right - left) * weightOf(group)) / totalWeight - 6);
   const radians = (diagonalCaption.angle * Math.PI) / 180;
-  const diagonalWidths = names.map((name) => Math.min(diagonalCaption.maxWidth, captionWidth(name)));
+  const values = rows.map((row) => row.value);
+  // Leave room for negative value labels above the reasoning marks and model names.
+  const labelSpace = values.some((value) => value < 0) ? 42 : 0;
+  // The value axis always keeps at least 100px; on short plots diagonal captions shorten to fit what's left.
+  const minimumPlot = 100;
+  const diagonalMax = Math.max(40, Math.min(diagonalCaption.maxWidth, (height - 62 - top - labelSpace - minimumPlot) / Math.sin(radians)));
+  const diagonalWidths = names.map((name) => Math.min(diagonalMax, captionWidth(name)));
   const diagonalDepth = Math.sin(radians) * Math.max(0, ...diagonalWidths);
   // Diagonal captions reach left of their group, so the first groups start far enough in to keep theirs clear of the axis.
   let inset = 0;
@@ -215,10 +223,7 @@ export function barGeometry(
     });
   }
   const groupWidthOf = (group: (typeof groups)[number]) => ((right - left - inset) * weightOf(group)) / totalWeight;
-  const bottom = diagonal ? Math.min(height - 96, height - 62 - diagonalDepth) : height - 96;
-  const values = rows.map((row) => row.value);
-  // Leave room for negative value labels above the reasoning marks and model names.
-  const labelSpace = values.some((value) => value < 0) ? 42 : 0;
+  const bottom = Math.max(top + labelSpace + minimumPlot, diagonal ? Math.min(height - 96, height - 62 - diagonalDepth) : height - 96);
   const domain = barDomain(values, 0.15);
   const y = linearScale(domain, [bottom - labelSpace, top]);
   // Durations tick at whole seconds, minutes and hours, as the phone ranking does, never at "8.3m".
@@ -252,7 +257,7 @@ export function barGeometry(
     return { ...group, center, groupWidth, barWidth, bars };
   });
   const positioned = placeValueLabels(laidOut, y, left, right, bottom);
-  return { left, right, top, bottom, y, ticks, positioned, diagonal };
+  return { left, right, top, bottom, y, ticks, positioned, diagonal, diagonalMax };
 }
 
 type LaidOutGroup = { barWidth: number; bars: { row: MeasuredRow; x: number; labelX: number; labelY: number; text: string }[] };

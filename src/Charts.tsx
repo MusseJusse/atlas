@@ -2,6 +2,7 @@ import {
   memo,
   useEffect,
   useLayoutEffect,
+  type CSSProperties,
   useMemo,
   useRef,
   useState,
@@ -130,28 +131,47 @@ export const Chart = memo(function Chart({
   const detailsBelow = scatter && ready && mobile && width < 600;
   const belowCard = useRef<HTMLElement>(null);
   const overlay = useRef<HTMLElement>(null);
-  const [corner, setCorner] = useState<'bottom-right' | 'top-left'>('bottom-right');
+  const gutter = scatterLabelGutter(width, settings.labels) || 24;
+  // Scatter cards sit in whichever plot corner covers fewest points, and never over the selected one.
+  const corners = {
+    'bottom-right': { right: gutter, bottom: 74 },
+    'top-left': { left: 64, top: 34 },
+    'top-right': { right: gutter, top: 34 },
+    'bottom-left': { left: 64, bottom: 74 },
+  } satisfies Record<string, CSSProperties>;
+  const [placement, setPlacement] = useState<CSSProperties>(corners['bottom-right']);
   useEffect(() => {
     // Reveal a card that opened below the fold, without moving the plot when it's already in view.
-    if (detailsBelow && pinned) belowCard.current?.scrollIntoView({ block: 'nearest' });
+    // Focus follows into the card, so it never stays on a point the scroll moved behind the sticky bar;
+    // Escape or the close button returns it to the point.
+    if (!detailsBelow || !pinned || !belowCard.current) return;
+    belowCard.current.scrollIntoView({ block: 'nearest' });
+    if (ref.current?.contains(document.activeElement)) belowCard.current.focus({ preventScroll: true });
   }, [detailsBelow, pinned?.id]);
   useLayoutEffect(() => {
-    // Put the scatter card in whichever free corner covers fewer points, so none hide behind it.
     const card = overlay.current;
     const plot = ref.current;
     if (!scatter || !card || !plot) return;
     const bounds = plot.getBoundingClientRect();
-    const points = [...plot.querySelectorAll('[data-point] circle:last-child')].map((point) => {
-      const box = point.getBoundingClientRect();
-      return { x: box.x + box.width / 2 - bounds.x, y: box.y + box.height / 2 - bounds.y };
+    const points = [...plot.querySelectorAll<SVGGElement>('[data-point]')].map((point) => {
+      const box = point.querySelector('circle:last-child')!.getBoundingClientRect();
+      return { x: box.x + box.width / 2 - bounds.x, y: box.y + box.height / 2 - bounds.y, selected: point.dataset.point === activeModel?.id };
     });
     const size = { width: card.offsetWidth, height: card.offsetHeight };
-    const covered = (x: number, y: number) => points.filter((point) =>
-      point.x >= x - 6 && point.x <= x + size.width + 6 && point.y >= y - 6 && point.y <= y + size.height + 6).length;
-    const rightInset = scatterLabelGutter(width, settings.labels) || 24;
-    const bottomRight = covered(bounds.width - rightInset - size.width, bounds.height - 74 - size.height);
-    const topLeft = covered(64, 34);
-    setCorner(topLeft < bottomRight ? 'top-left' : 'bottom-right');
+    const cost = (place: CSSProperties) => {
+      const x = typeof place.left === 'number' ? place.left : bounds.width - Number(place.right) - size.width;
+      const y = typeof place.top === 'number' ? place.top : bounds.height - Number(place.bottom) - size.height;
+      return points.reduce((total, point) => total + (point.x >= x - 6 && point.x <= x + size.width + 6 && point.y >= y - 6 && point.y <= y + size.height + 6 ? point.selected ? 1000 : 1 : 0), 0);
+    };
+    const best = Object.values(corners).reduce<CSSProperties>((current, next) => cost(next) < cost(current) ? next : current, corners['bottom-right']);
+    const selected = points.find((point) => point.selected);
+    // A card bigger than every free corner goes beside the selected point instead, on its roomier side.
+    const beside = selected && cost(best) >= 1000 && {
+      left: selected.x > bounds.width / 2 ? Math.max(0, selected.x - 16 - size.width) : selected.x + 16,
+      top: Math.max(8, Math.min(bounds.height - size.height - 8, selected.y - size.height / 2)),
+    };
+    const next = beside || best;
+    setPlacement((current) => JSON.stringify(current) === JSON.stringify(next) ? current : next);
   }, [scatter, activeModel?.id, width, height, settings.labels]);
   const legend = [...new Map(validRows.map((row) => [row.codingAgent ? row.id : row.family, row])).values()];
 
@@ -258,8 +278,8 @@ export const Chart = memo(function Chart({
           <aside
             ref={overlay}
             className={`configuration-details${pinned ? '' : ' pointer-events-none'}`}
-            data-placement={scatter ? corner : settings.descending ? 'top-right' : 'top-left'}
-            style={scatter && corner === 'bottom-right' ? { right: scatterLabelGutter(width, settings.labels) || 24 } : undefined}
+            data-placement={scatter ? undefined : settings.descending ? 'top-right' : 'top-left'}
+            style={scatter ? placement : undefined}
             aria-label="Selected configuration"
             tabIndex={pinned ? 0 : undefined}
           >

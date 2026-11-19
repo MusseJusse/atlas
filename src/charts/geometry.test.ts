@@ -144,6 +144,16 @@ it('scrolls separate bars only when captions would no longer fit, as with the Al
   expect(barGeometry(all, 'intelligence', width, 640, true, false).positioned.every((group) => group.groupWidth >= 52)).toBe(true);
 });
 
+it('keeps a short dense plot upright, with negative values below zero', () => {
+  const rows = measureRows(Array.from({ length: 60 }, (_, index) => ({
+    ...base, id: `dense-${index}`, family: `dense-${index}`, name: `A very long model name number ${index}`, omniscience: index % 2 ? 50 : -50,
+  })), 'omniscience');
+  const { y, diagonal } = barGeometry(rows, 'omniscience', 640, 434, true, false);
+  expect(diagonal).toBe(true);
+  expect(y(-50)).toBeGreaterThan(y(0));
+  expect(y(0) - y(50)).toBeGreaterThan(40);
+});
+
 it('keeps grouped resource charts as separate bars by default with every value labelled', () => {
   const rows = measureRows([1, 2, 3].map((cost, effortOrder) => ({ ...base, id: `${effortOrder}`, effortOrder, cost })), 'cost');
   const { positioned } = barGeometry(rows, 'cost', 960, 640, true, false);

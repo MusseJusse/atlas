@@ -25,7 +25,7 @@ export function Bars({
 }) {
   const clipId = useId();
   const combined = settings.grouped && settings.combined;
-  const { left, right, bottom, y, ticks, positioned, diagonal } = useMemo(
+  const { left, right, bottom, y, ticks, positioned, diagonal, diagonalMax } = useMemo(
     () => barGeometry(rows, metric, width, height, settings.grouped, settings.descending ?? false, settings.combined),
     [rows, metric, width, height, settings.grouped, settings.descending, settings.combined],
   );
@@ -194,7 +194,7 @@ export function Bars({
                   pointerEvents="visiblePainted"
                 >
                   <title>{shortName(model)}</title>
-                  {fitDiagonalCaption(shortName(model))}
+                  {fitDiagonalCaption(shortName(model), diagonalMax)}
                   {metric === 'cost' && model.taskPricing?.basis === 'api-fallback' && (
                     <tspan fontSize={11} fontWeight={400} fill="var(--fg-3)"> (API)</tspan>
                   )}
