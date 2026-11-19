@@ -3,7 +3,7 @@ import { models, type Model } from '../models';
 import { speedEndpoints } from '../data/speed-endpoints';
 import { barDomain, linearScale, logScale } from '../scales';
 import { scatterDomain } from '../scatter-data';
-import { barGeometry, combinedBarWidth, measureRows, measureScatterRows, rangeGeometry, scatterGeometry } from './geometry';
+import { barGeometry, combinedBarWidth, measureRows, separateBarWidth, measureScatterRows, rangeGeometry, scatterGeometry, valueLabelWidth } from './geometry';
 
 const base = models[0]!;
 function model(id: string, family: string, cost: number | null, intelligence = 40): Model {
@@ -66,7 +66,7 @@ it('keeps negative bars below zero, reserves label space and avoids overlapping 
   const bars = geometry.positioned.flatMap((group) => group.bars).filter((bar) => bar.text);
   for (const [index, bar] of bars.entries()) {
     for (const other of bars.slice(index + 1)) {
-      const combinedWidth = (bar.text.length + other.text.length) * 6.4 / 2 + 4;
+      const combinedWidth = (valueLabelWidth(bar.text) + valueLabelWidth(other.text)) / 2 + 1;
       expect(Math.abs(bar.labelX - other.labelX) >= combinedWidth || Math.abs(bar.labelY - other.labelY) >= 17).toBe(true);
     }
   }
@@ -130,6 +130,28 @@ it('fits the default four-effort selection without an arbitrary column floor', (
     ...base, family: `${family}`, id: `${family}-${effortOrder}`, effortOrder,
   }))).flat();
   expect(combinedBarWidth(rows, 680)).toBe(680);
+});
+
+it('scrolls separate bars only when captions would no longer fit, as with the All preset', () => {
+  const selection = (families: number) => measureRows(Array.from({ length: families }, (_, family) => Array.from({ length: 4 }, (_, effortOrder) => ({
+    ...base, family: `${family}`, id: `${family}-${effortOrder}`, effortOrder, intelligence: effortOrder + 1,
+  }))).flat(), 'intelligence');
+  // The default nine-model selection stays unscrolled in the narrowest desktop plot, at a 901px viewport.
+  expect(separateBarWidth(selection(9), 577, true)).toBe(577);
+  const all = selection(34);
+  const width = separateBarWidth(all, 1100, true);
+  expect(width).toBeGreaterThan(1100);
+  expect(barGeometry(all, 'intelligence', width, 640, true, false).positioned.every((group) => group.groupWidth >= 52)).toBe(true);
+});
+
+it('keeps a short dense plot upright, with negative values below zero', () => {
+  const rows = measureRows(Array.from({ length: 60 }, (_, index) => ({
+    ...base, id: `dense-${index}`, family: `dense-${index}`, name: `A very long model name number ${index}`, omniscience: index % 2 ? 50 : -50,
+  })), 'omniscience');
+  const { y, diagonal } = barGeometry(rows, 'omniscience', 640, 434, true, false);
+  expect(diagonal).toBe(true);
+  expect(y(-50)).toBeGreaterThan(y(0));
+  expect(y(0) - y(50)).toBeGreaterThan(40);
 });
 
 it('keeps grouped resource charts as separate bars by default with every value labelled', () => {

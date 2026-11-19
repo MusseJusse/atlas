@@ -5,7 +5,7 @@ import { efficiencyGeometry } from './charts/efficiency-geometry';
 import { formatUtcDate } from './formatDate';
 import { nearestPoint, pinHandlers } from './charts/interactions';
 
-const monthFormat = new Intl.DateTimeFormat('en-GB', { month: 'short', year: '2-digit', timeZone: 'UTC' });
+const monthFormat = new Intl.DateTimeFormat('en-US', { month: 'short', year: 'numeric', timeZone: 'UTC' });
 const costFormat = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumSignificantDigits: 4 });
 
 // Threshold colors stay distinct and readable in both existing Atlas themes.
@@ -68,14 +68,14 @@ export function EfficiencyChart({ lines, selected, fetchedAt, active, highlighte
     <div ref={ref} className="relative min-h-[280px] min-w-0 flex-1 mobile:h-[380px] mobile:flex-none phone:h-[360px]">
       {!populated ? (
         <div className="absolute inset-0 flex items-center justify-center text-center text-[13px] text-fg-2" role="status">
-          {selected.length ? 'No qualifying measurements for these thresholds.' : 'Select an intelligence threshold.'}
+          {selected.length ? 'No measured models reach these thresholds. Select a lower threshold.' : 'No thresholds selected. Select an Intelligence index threshold.'}
         </div>
       ) : geometry && (
         <svg
           className="absolute inset-0 block size-full overflow-visible text-[11px]"
           viewBox={`0 0 ${size.width} ${size.height}`}
           role="group"
-          aria-label="Cost per Intelligence Index task records by release date"
+          aria-label="Cost per Intelligence index task records by release date"
           aria-describedby={`${id}-description`}
           onPointerMove={(event) => {
             if (event.pointerType === 'touch') return;
@@ -100,7 +100,7 @@ export function EfficiencyChart({ lines, selected, fetchedAt, active, highlighte
           <g aria-hidden="true" fill="var(--fg-2)">
             {geometry.yTicks.map((tick) => (
               <g key={tick}>
-                <line x1={geometry.left} x2={geometry.right} y1={geometry.y(tick)} y2={geometry.y(tick)} stroke="var(--line)" strokeDasharray="2 5" />
+                <line x1={geometry.left} x2={geometry.right} y1={geometry.y(tick)} y2={geometry.y(tick)} stroke="var(--grid)" strokeDasharray="2 5" />
                 <text x={geometry.left - 10} y={geometry.y(tick) + 4} textAnchor="end">
                   {costFormat.format(tick)}
                 </text>
@@ -126,8 +126,8 @@ export function EfficiencyChart({ lines, selected, fetchedAt, active, highlighte
                     role="button"
                     tabIndex={0}
                     aria-pressed={pinned === key}
-                    aria-label={`Intelligence Index at least ${line.threshold}, ${point.model.name}, ${point.model.effortLabel}, ${formatUtcDate(point.date)}, ${costFormat.format(point.value)}`}
-                    className="cursor-pointer focus:[outline:none] [&:focus_.record-target]:stroke-accent [&:focus_.record-target]:stroke-2"
+                    aria-label={`Intelligence index at least ${line.threshold}, ${point.model.name}, ${point.model.effortLabel}, ${formatUtcDate(point.date)}, ${costFormat.format(point.value)}`}
+                    className="cursor-pointer focus:[outline:none] [&:focus-visible_.record-target]:stroke-accent [&:focus-visible_.record-target]:stroke-2"
                     onFocus={() => preview(key)}
                     onBlur={() => preview(null)}
                     onKeyDown={handlers.onKeyDown}

@@ -31,18 +31,25 @@ const defaultOff = new Set([
   'muse-wonder-full',
 ]);
 export const defaultSelected = frontierFamilies.filter((id) => !defaultOff.has(id));
+// Each lab's ramp gives its flagship the most contrast: darkest in light mode, lightest in dark mode.
+// The OpenAI graphite stops short of white in dark mode so it doesn't outweigh other labs.
 const colors: Record<string, [string, string]> = {
-  'gpt-6-2-astra': ['#303840', '#f1f3f5'],
-  'gpt-6-2-sol': ['#586878', '#c5cbd3'],
-  'gpt-6-astra': ['#303840', '#f1f3f5'],
-  'gpt-6-1-sol': ['#586878', '#c5cbd3'],
-  'gpt-6-1-sol-ultrafast': ['#586878', '#c5cbd3'],
-  'gpt-6-luna': ['#748292', '#939daa'],
+  'gpt-6-2-astra': ['#2c343d', '#c3cbd7'],
+  'gpt-6-2-sol': ['#4b5868', '#a9b4c3'],
+  'gpt-6-1-terra': ['#637184', '#929eb2'],
+  'gpt-6-astra': ['#2c343d', '#c3cbd7'],
+  'gpt-6-1-sol': ['#4b5868', '#a9b4c3'],
+  'gpt-6-1-sol-ultrafast': ['#4b5868', '#a9b4c3'],
+  'gpt-6-luna': ['#7e8b9c', '#7d8a9e'],
   'claude-opus-5-5': ['#ae5235', '#df9477'],
-  'claude-fable-5-1': ['#903e2b', '#cc785c'],
-  'claude-fable-5-2': ['#903e2b', '#cc785c'],
-  'claude-sonnet-5-5': ['#bd6948', '#f0b99f'],
-  'claude-haiku-5-5': ['#c4805f', '#b98a74'],
+  'claude-fable-5-1': ['#903e2b', '#f0b99f'],
+  'claude-fable-5-2': ['#903e2b', '#f0b99f'],
+  'claude-sonnet-5-5': ['#bd6948', '#cc785c'],
+  // Light Haiku is the palest Anthropic step that still keeps mixed label text above 4.5:1.
+  'claude-haiku-5-5': ['#bc7857', '#a87a66'],
+  'gemini-4-neon': ['#1b6e3c', '#7ddb9f'],
+  'gemini-4-carbon': ['#2c8b4f', '#52bd7a'],
+  'gemini-4-hydrogen': ['#3d9e62', '#3b9a5f'],
   'gemini-4-argon': ['#218347', '#56ca80'],
   'gemini-3-8-flash': ['#247a3c', '#34a853'],
   'grok-4-7': ['#6d55bd', '#9b94ee'],
@@ -57,7 +64,7 @@ const colors: Record<string, [string, string]> = {
   'mimo-v2-6-pro': ['#b85212', '#ff8b45'],
 };
 const labColors: Record<string, [string, string]> = {
-  openai: ['#303840', '#f1f3f5'],
+  openai: ['#2c343d', '#c3cbd7'],
   anthropic: ['#ae5235', '#df9477'],
   google: ['#218347', '#56ca80'],
   xai: ['#6d55bd', '#9b94ee'],
@@ -72,7 +79,8 @@ export function modelColor(model: Model) {
   return `light-dark(${light}, ${dark})`;
 }
 export function shortName(model: Model) {
-  return model.name.replace(/^Claude /, '');
+  // "Claude 4.5 Haiku" keeps its prefix, so a short name never starts with a number that reads as a value.
+  return model.name.replace(/^Claude (?=[A-Za-z])/, '');
 }
 
 /** Pick label text against the translucent bar composited over each theme's chart panel. */

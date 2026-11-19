@@ -22,9 +22,8 @@ export const codingAgents: Model[] = source.configurations.map((configuration) =
     open: model?.open ?? false,
     deprecated: model?.deprecated ?? false,
     effort: configuration.effort,
-    effortLabel: configuration.effort === 'default'
-      ? 'Default settings'
-      : configuration.effort[0]!.toUpperCase() + configuration.effort.slice(1),
+    // Lowercase, like the benchmark data's reasoning levels.
+    effortLabel: configuration.effort === 'default' ? 'default settings' : configuration.effort,
     effortOrder: effortOrder.get(configuration.effort) ?? 0,
     intelligence: null,
     omniscience: null,

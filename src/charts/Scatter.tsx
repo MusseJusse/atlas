@@ -1,12 +1,12 @@
 import { taskCostLabel } from './PricingDetails';
-import { useMemo } from 'react';
+import { useMemo, type MouseEvent } from 'react';
 import { SvgLogo } from '../Logo';
 import { modelColor, shortName } from '../model-presentation';
 import { format } from '../formatModel';
 import { scoreLabels, metrics, type Metric, type ScoreMetric } from '../chart-definitions';
 import type { Settings } from '../state';
-import { pinHandlers, type Interactions } from './interactions';
-import { scatterGeometry, type ScatterRow } from './geometry';
+import { nearestPoint, pinHandlers, type Interactions } from './interactions';
+import { scatterGeometry, scatterLabelGutter, type ScatterRow } from './geometry';
 
 export function Scatter({
   rows,
@@ -27,7 +27,6 @@ export function Scatter({
   height: number;
   interactions: Interactions;
 }) {
-  const mobile = width < 600;
   const {
     left,
     right,
@@ -40,6 +39,7 @@ export function Scatter({
     frontierFamilies,
     series,
     labels,
+    labelSpacing,
     logTicks,
     path,
   } = useMemo(
@@ -55,6 +55,15 @@ export function Scatter({
         color: modelColor(activeModel),
       }
     : null;
+  // Hit areas overlap where levels sit close together, so a tap pins the point nearest to it, not the one painted last.
+  const points = useMemo(() => rows.map((row) => ({ row, x: x(row.value), y: y(row.score) })), [rows, x, y]);
+  function pointAt(event: MouseEvent<SVGGElement>, fallback: ScatterRow) {
+    const svg = event.currentTarget.ownerSVGElement;
+    const matrix = svg?.getScreenCTM()?.inverse();
+    if (!svg || !matrix) return fallback;
+    const { x: pointX, y: pointY } = new DOMPoint(event.clientX, event.clientY).matrixTransform(matrix);
+    return nearestPoint(points, pointX, pointY, 13)?.row ?? fallback;
+  }
 
   return (
     <>
@@ -63,7 +72,7 @@ export function Scatter({
       </text>
       {y.ticks(6).map((tick) => (
         <g key={tick} transform={`translate(0,${y(tick)})`}>
-          <line x1={left} x2={right} stroke="var(--line)" strokeDasharray="2 6" />
+          <line x1={left} x2={right} stroke="var(--grid)" strokeDasharray="2 6" />
           <text x={left - 17} y={4} textAnchor="end" fill="var(--fg-3)" fontSize="12">
             {tick}
           </text>
@@ -102,13 +111,14 @@ export function Scatter({
         </g>
       )}
       {series.map((series) => (
-        <g key={series.id} opacity={activeFamily && activeFamily !== series.family ? 0.15 : 1}>
+        // A keyboard-focused point stays fully visible even when another series is pinned.
+        <g key={series.id} opacity={activeFamily && activeFamily !== series.family ? 0.15 : 1} className="[&:has(:focus-visible)]:opacity-100">
           <path
             d={path(series.rows)}
             fill="none"
             stroke={modelColor(series.rows[0]!)}
             strokeWidth="2.25"
-            opacity={settings.frontier ? (frontierFamilies.has(series.family) ? 0.25 : 0.08) : 0.45}
+            opacity={settings.frontier ? (frontierFamilies.has(series.family) ? 0.25 : 0.08) : 0.6}
           />
           {series.rows.map((model) => {
             const onFrontier = frontierIds.has(model.id);
@@ -122,11 +132,22 @@ export function Scatter({
                 aria-pressed={interactions.pinned?.id === model.id}
                 className="cursor-pointer focus-visible:[&>circle:last-child]:stroke-accent focus-visible:[&>circle:last-child]:stroke-[3] mobile:focus-visible:[outline:none]"
                 opacity={settings.frontier && !onFrontier && !active && !activeFamily ? 0.15 : 1}
-                onMouseEnter={() => interactions.hover(model)}
+                data-point={model.id}
+                // Hover, click and focus all resolve to the nearest point, so the preview, the pin and Enter agree.
+                onMouseMove={(event) => {
+                  const nearest = pointAt(event, model);
+                  if (nearest.id !== activeModel?.id) interactions.hover(nearest);
+                }}
                 onMouseLeave={() => interactions.hover(null)}
                 onFocus={() => interactions.hover(model)}
                 onBlur={() => interactions.hover(null)}
                 {...pinHandlers(model, interactions.togglePin)}
+                onClick={(event) => {
+                  const nearest = pointAt(event, model);
+                  interactions.togglePin(nearest);
+                  if (nearest.id !== model.id)
+                    event.currentTarget.ownerSVGElement?.querySelector<SVGGElement>(`[data-point="${CSS.escape(nearest.id)}"]`)?.focus({ preventScroll: true });
+                }}
               >
                 <circle
                   cx={x(model.value)}
@@ -157,25 +178,27 @@ export function Scatter({
           })}
         </g>
       ))}
-      {settings.labels &&
-        !mobile &&
+      {scatterLabelGutter(width, settings.labels) > 0 &&
         labels.map((series) => {
           const dim = activeFamily
             ? activeFamily !== series.family
             : settings.frontier && !(series.end.codingAgent ? frontierIds.has(series.end.id) : frontierFamilies.has(series.family));
           const name = shortName(series.end);
-          const nameLimit = Math.max(8, Math.floor((width - right - 62) / 6.5));
-          const labelName = series.end.codingAgent && name.length > nameLimit
-            ? `${name.slice(0, nameLimit - 1)}…`
+          const apiSuffix = metric === 'cost' && series.end.taskPricing?.basis === 'api-fallback';
+          // Fit the name, plus its "(API)" suffix, inside the gutter. A truncated name keeps a full-name tooltip.
+          const compact = !series.end.codingAgent && labelSpacing < 18;
+          const nameLimit = Math.max(6, Math.floor((width - right - 57 - (apiSuffix ? 32 : 0)) / (compact ? 6.6 : 7.6)));
+          const labelName = name.length > nameLimit
+            ? `${name.slice(0, nameLimit - 1).trimEnd()}…`
             : name;
           return (
             <g
               key={series.id}
-              className="cursor-pointer focus-visible:[&>rect:nth-child(2)]:stroke-accent focus-visible:[&>rect:nth-child(2)]:stroke-[3]"
+              className="cursor-pointer focus-visible:opacity-100 focus-visible:[&>rect:nth-child(2)]:stroke-accent focus-visible:[&>rect:nth-child(2)]:stroke-[3]"
               opacity={dim ? 0.2 : 1}
               role="button"
               tabIndex={0}
-              aria-label={`Highlight ${series.end.codingAgent?.configuration ?? series.end.name}`}
+              aria-label={`Select ${series.end.codingAgent?.configuration ?? series.end.name}`}
               onMouseEnter={() => interactions.highlight(series.family)}
               onMouseLeave={() => interactions.highlight(null)}
               aria-pressed={interactions.pinned?.id === series.end.id}
@@ -184,8 +207,8 @@ export function Scatter({
               <path
                 d={`M${x(series.end.value) + 8},${y(series.end.score)} L${right + 20},${series.y}`}
                 stroke={modelColor(series.end)}
-                strokeWidth="0.7"
-                opacity="0.45"
+                strokeWidth="0.8"
+                style={{ opacity: 'var(--leader-opacity)' }}
                 fill="none"
               />
               <rect
@@ -199,11 +222,13 @@ export function Scatter({
               <text
                 x={right + 53}
                 y={series.y + 4}
-                fontSize={series.end.codingAgent ? 12 : 14}
+                fontSize={series.end.codingAgent || compact ? 12 : 14}
                 fontWeight="550"
-                fill={modelColor(series.end)}
+                // Mix toward the text colour so light series still pass 4.5:1 as label text.
+                style={{ fill: `color-mix(in srgb, ${modelColor(series.end)} 78%, var(--fg))` }}
               >
-                {labelName}{metric === 'cost' && series.end.taskPricing?.basis === 'api-fallback' && <tspan fontSize={10}> · API</tspan>}
+                {labelName !== name && <title>{name}</title>}
+                {labelName}{apiSuffix && <tspan fontSize={11}> (API)</tspan>}
               </text>
               {series.end.codingAgent && (
                 <text x={right + 53} y={series.y + 18} fontSize="10" fill="var(--fg-2)">

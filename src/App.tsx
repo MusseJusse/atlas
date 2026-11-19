@@ -1,5 +1,5 @@
 import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { ArrowDown, Ellipsis, SlidersHorizontal } from 'lucide-react';
+import { Settings2 } from 'lucide-react';
 import { PricingControls } from './PricingControls';
 import { pricingDisclosure, subscriptionRows, usesSubscriptionPricing } from './data/subscriptions';
 import { Chart } from './Charts';
@@ -8,13 +8,19 @@ import { visibleChartRows } from './chart-rows';
 import { Sidebar } from './Sidebar';
 import { Selection } from './Selection';
 import { useMediaQuery } from './useMediaQuery';
-import { useChartNavigation } from './useChartNavigation';
+import { useScrollEdges } from './useScrollEdges';
+import { revealTab, useChartNavigation } from './useChartNavigation';
 import { fetchedAt, paretoFrontier, visibleModels } from './models';
-import { resolveView, views } from './chart-definitions';
+import { resolveView, viewDescriptions, views } from './chart-definitions';
 import { chartDescending, readSettings, readView, writeSettings, type Settings } from './state';
-import { ThemeToggle } from './ThemeToggle';
 import { formatUtcDate } from './formatDate';
-import { Brand } from './Brand';
+import { SiteHeader } from './SiteHeader';
+
+const segments = 'flex gap-0.5 rounded-lg bg-track p-0.5';
+const segment =
+  'min-h-8 flex-1 rounded-md px-2.5 text-[12px] font-[500] whitespace-nowrap text-fg-2 hover:text-fg aria-pressed:bg-thumb aria-pressed:text-accent aria-pressed:shadow-[var(--shadow-raised)]';
+const menuItem = 'inline-flex min-h-10 w-full items-center gap-2.5 rounded-md px-2 text-[13px] text-fg hover:bg-hover';
+const menuLabel = 'px-2 pb-1 text-[13px] font-[600] text-fg';
 
 const loadChangelog = () => import('./Changelog');
 const loadEfficiency = () => import('./Efficiency');
@@ -93,6 +99,23 @@ function Benchmarks() {
   const mobile = useMediaQuery('(max-width: 900px)');
   const phone = useMediaQuery('(max-width: 600px)');
   const { active, navigate, feed, chartNavigation } = useChartNavigation(mobile);
+  const [tabEdges, updateTabEdges, tabEdgesRef] = useScrollEdges();
+  const stickyBar = useRef<HTMLDivElement>(null);
+  // Phone sections scroll to just below the sticky bar, whose height changes with the open category.
+  // The section's top rule tucks under the bar's own border so the two never double up.
+  useEffect(() => {
+    const bar = stickyBar.current;
+    if (!mobile || !bar) return;
+    const root = document.documentElement;
+    const measure = () => root.style.setProperty('--sticky-offset', `calc(var(--header-height) + ${Math.ceil(bar.offsetHeight) - 1}px)`);
+    measure();
+    const observer = new ResizeObserver(measure);
+    observer.observe(bar);
+    return () => {
+      observer.disconnect();
+      root.style.removeProperty('--sticky-offset');
+    };
+  }, [mobile]);
   const update = useCallback(
     (patch: Partial<Settings>) => setSettings((current) => ({ ...current, ...patch })),
     [],
@@ -140,36 +163,7 @@ function Benchmarks() {
       >
         Skip to benchmarks
       </a>
-      <header className="flex items-center gap-8 border-b border-line px-7 compact:gap-6 mobile:sticky mobile:top-0 mobile:z-[8] mobile:h-[var(--header-height)] mobile:gap-4 mobile:bg-bg mobile:px-4">
-        <Brand />
-        <nav className="flex items-center gap-6 phone:gap-3" aria-label="Sections">
-          <button
-            className="min-h-11 text-[12px] font-semibold text-fg phone:hidden"
-            aria-current="page"
-            onClick={() => navigate(views[0].id)}
-          >
-            Benchmarks
-          </button>
-          <a
-            href="?page=efficiency"
-            className="flex min-h-11 items-center text-[12px] text-fg-2 hover:text-accent"
-          >
-            Efficiency
-          </a>
-          <a
-            href="?page=changelog"
-            className="flex min-h-11 items-center text-[12px] text-fg-2 hover:text-accent"
-          >
-            Changelog
-          </a>
-        </nav>
-        <div className="ml-auto flex items-center gap-3 phone:gap-0">
-          <ThemeToggle
-            className="flex size-10 items-center justify-center rounded-md text-fg-2 hover:bg-hover hover:text-accent"
-            showTitle
-          />
-        </div>
-      </header>
+      <SiteHeader current="benchmarks" onCurrent={() => navigate(views[0].id)} />
       <div className="grid min-h-0 grid-cols-[var(--sidebar-width)_minmax(0,1fr)] gap-6 px-7 pt-6 pb-2 short:pt-4 compact:gap-5 compact:px-5 mobile:block mobile:px-4 mobile:pt-4 mobile:pb-0">
         <Sidebar
           settings={settings}
@@ -182,31 +176,35 @@ function Benchmarks() {
         <main
           id="benchmark-workspace"
           tabIndex={-1}
-          className="grid min-h-0 min-w-0 grid-rows-[auto_minmax(0,1fr)] rounded-xl bg-panel [outline:none] mobile:block"
+          className="grid min-h-0 min-w-0 grid-rows-[auto_minmax(0,1fr)] rounded-[14px] bg-panel [outline:none] mobile:block mobile:overflow-clip"
         >
           <h1 className="sr-only">Model benchmarks</h1>
-          <div className="min-w-0 px-6 mobile:sticky mobile:top-[var(--header-height)] mobile:z-[6] mobile:rounded-t-xl mobile:bg-panel mobile:px-4">
+          <div ref={stickyBar} data-sticky-bar className="min-w-0 px-6 mobile:sticky mobile:top-[var(--header-height)] mobile:z-[6] mobile:bg-panel mobile:px-4">
             <button
-              className="hidden w-full items-center gap-2 border-b border-line py-3 text-left text-[12px] text-fg-2 mobile:flex!"
+              className="hidden min-h-12 w-full items-center gap-2 pt-1 text-left text-[13px] text-fg-2 mobile:flex!"
               onClick={() => setMobileOpen(true)}
               aria-haspopup="dialog"
               aria-controls="model-filters"
               aria-expanded={mobileOpen}
             >
-              <SlidersHorizontal size={15} aria-hidden="true" />
-              <span className="font-medium text-fg">Models</span>
-              <span>{settings.selected.length} selected</span>
-              <span className="ml-auto text-accent">Edit selection</span>
+              <span className="font-[600] text-fg">Models</span>
+              <span className="tabular-nums">{settings.selected.length} selected</span>
+              <span className="ml-auto rounded-md bg-accent-soft px-2.5 py-1 text-[12px] font-[550] text-accent">Edit selection</span>
             </button>
             <div ref={chartNavigation}><nav
-
+              ref={tabEdgesRef}
+              onScroll={(event) => updateTabEdges(event.currentTarget)}
+              onFocus={(event) => revealTab(event.currentTarget, event.target)}
+              // Fade whichever edge hides more tabs, since overlay scrollbars give no other cue.
+              // Scroll padding keeps a tab scrolled into view clear of the faded edge.
+              style={tabEdges.start || tabEdges.end ? { scrollPaddingInline: '32px', maskImage: `linear-gradient(to right, ${tabEdges.start ? 'transparent, #000 32px' : '#000'}, ${tabEdges.end ? '#000 calc(100% - 32px), transparent' : '#000'})` } : undefined}
               className="flex mobile:hidden min-w-0 gap-6 overflow-x-auto border-b border-line [scrollbar-width:thin] [scrollbar-color:var(--line-2)_transparent] compact:gap-5"
               aria-label="Chart views"
             >
               {views.map((view) => (
                 <button
                   key={view.id}
-                  className="min-h-[50px] shrink-0 short:min-h-11 border-b-2 border-transparent text-[12px] text-fg-2 aria-[current=page]:border-accent aria-[current=page]:font-semibold aria-[current=page]:text-accent hover:text-accent"
+                  className="-mb-px min-h-[52px] shrink-0 border-b-2 border-transparent text-[13px] font-[500] text-fg-2 short:min-h-11 hover:text-fg focus-visible:-outline-offset-2 aria-[current=page]:border-accent aria-[current=page]:text-accent"
                   aria-current={active === view.id ? 'page' : undefined}
                   onClick={() => navigate(view.id)}
                 >
@@ -227,56 +225,61 @@ function Benchmarks() {
               const hasFallback = !(scatter && settings.frontier) && chartRows.some((row) => row.cost !== null && row.taskPricing?.basis === 'api-fallback');
               return (
                 <section
-                  className="chart-section flex h-full snap-start flex-col px-6 pt-5 pb-4 short:pt-4 short:pb-3 [&+section]:border-t [&+section]:border-line mobile:h-auto mobile:scroll-mt-[180px] mobile:px-4 mobile:pb-6"
+                  className="chart-section flex h-full snap-start flex-col px-6 pt-5 pb-4 short:pt-4 short:pb-3 mobile:h-auto mobile:scroll-mt-[var(--sticky-offset,190px)] mobile:px-4 mobile:pb-6"
                   id={view.id}
                   key={view.id}
                   aria-label={view.label}
                 >
                   <div className="flex shrink-0 items-start justify-between gap-3">
-                    <h2 className="m-0 text-[25px] leading-tight font-[550] tracking-[-0.8px] phone:text-[22px]">
-                      {view.label}
-                    </h2>
+                    <div className="min-w-0">
+                      <h2 className="display m-0 text-[30px] leading-[1.1] short:text-[24px] phone:text-[24px]">
+                        {view.label}
+                      </h2>
+                      <p className="mt-1 mb-0 max-w-[80ch] text-[13px] leading-5 text-pretty text-fg-2 short:mt-0.5 short:text-[12px] short:leading-[18px]">
+                        {view.id === 'tokens-task' && scatter
+                          ? 'Each point is a reasoning level. Up and to the left uses fewer tokens for more intelligence.'
+                          : viewDescriptions[view.id]}
+                        {!subscription && view.metric === 'cost' && ' Costs use API prices.'}
+                      </p>
+                    </div>
                     <ChartOptions
                       settings={settings}
                       update={update}
                       descending={chartDescending(view.metric, phone, settings.descending)}
                       pricing={view.id === 'cost-intelligence' || view.id === 'cost-task'}
+                      scatter={scatter}
+                      ranking={phone && !scatter}
                     />
                   </div>
-                  <div
-                    className={`flex min-h-[58px] shrink-0 short:min-h-12 short:py-1 flex-wrap items-center justify-between gap-x-4 gap-y-1 py-2 text-[12px] ${!scatter && view.mode !== 'optional-scatter' ? 'mobile:hidden' : ''}`}
-                  >
-                    {scatter ? (
+                  {scatter || view.mode === 'optional-scatter' ? (
+                  <div className="flex min-h-[56px] shrink-0 flex-wrap items-center justify-between gap-x-4 gap-y-1 py-2 text-[12px] short:min-h-12 short:py-1">
+                    {scatter && (
                       <button
-                        className="inline-flex min-h-10 items-center gap-2 text-fg aria-pressed:text-accent hover:text-accent"
+                        className="-ml-1 inline-flex min-h-9 items-center gap-2 rounded-md px-1 text-[13px] text-fg hover:text-accent aria-pressed:text-accent"
                         aria-pressed={settings.frontier}
-                        title="Show configurations with no better and cheaper alternative."
+                        title="Highlight configurations that no other beats on both axes."
                         onClick={() => update({ frontier: !settings.frontier })}
                       >
                         <Selection checked={settings.frontier} />
                         Pareto frontier
                       </button>
-                    ) : (
-                      <span className="text-fg-2 mobile:hidden">
-                        {settings.grouped ? 'Grouped by model' : 'All configurations'}
-                      </span>
                     )}
                     <div className="ml-auto flex items-center gap-5 phone:gap-3">
                       {view.mode === 'optional-scatter' && (
                         <div
-                          className="flex gap-1 rounded-md bg-surface p-1"
+                          className={segments}
                           role="group"
                           aria-label="Tokens per task chart type"
                         >
                           <button
-                            className="min-h-8 rounded-sm px-2.5 text-[12px] text-fg-2 aria-pressed:bg-panel aria-pressed:font-medium aria-pressed:text-accent"
+                            className={segment}
                             aria-pressed={!settings.scatter}
                             onClick={() => update({ scatter: false })}
                           >
                             Bars
                           </button>
                           <button
-                            className="min-h-8 rounded-sm px-2.5 text-[12px] text-fg-2 aria-pressed:bg-panel aria-pressed:font-medium aria-pressed:text-accent"
+                            className={segment}
                             aria-pressed={settings.scatter}
                             onClick={() => update({ scatter: true })}
                           >
@@ -290,10 +293,10 @@ function Benchmarks() {
                           role="group"
                           aria-label={`${view.label} axis scale`}
                         >
-                          <span className="text-[11px] text-fg-2 phone:hidden">Scale</span>
-                          <div className="flex gap-1 rounded-md bg-surface p-1">
+                          <span className="text-[12px] text-fg-3 phone:hidden">Scale</span>
+                          <div className={segments}>
                             <button
-                              className="min-h-8 rounded-sm px-2.5 text-[12px] text-fg-2 aria-pressed:bg-panel aria-pressed:font-medium aria-pressed:text-accent"
+                              className={segment}
                               aria-pressed={linear}
                               onClick={() =>
                                 update({ linear: [...new Set([...settings.linear, view.id])] })
@@ -302,7 +305,7 @@ function Benchmarks() {
                               Linear
                             </button>
                             <button
-                              className="min-h-8 rounded-sm px-2.5 text-[12px] text-fg-2 aria-pressed:bg-panel aria-pressed:font-medium aria-pressed:text-accent"
+                              className={segment}
                               aria-pressed={!linear}
                               onClick={() =>
                                 update({ linear: settings.linear.filter((id) => id !== view.id) })
@@ -315,16 +318,16 @@ function Benchmarks() {
                       )}
                     </div>
                   </div>
+                  ) : <div className="h-4 shrink-0 mobile:h-2" />}
                   {subscription && (
-                    <p className="mt-0 mb-2 shrink-0 text-[11px] leading-5 text-fg-2">
-                      Estimated subscription · One model uses full allowance · {settings.countResets ? 'Bonus resets on where supported' : 'Bonus resets off'}
-                      {hasFallback && ' · Includes API fallback'}
-                      {scatter && settings.frontier && ' · Frontier compares subscription estimates only'}
-                      {scatter && !linear && chartRows.some((row) => row.cost === 0) && ' · Zero costs omitted on log scale'}
+                    <p className="mt-0 mb-2 max-w-[80ch] shrink-0 text-[12px] leading-5 text-fg-2">
+                      <strong className="font-[600] text-fg">Estimated subscription pricing.</strong>{' '}
+                      Assumes one model uses the full allowance.{' '}
+                      {settings.countResets ? 'Counts confirmed bonus resets.' : 'Excludes bonus resets.'}
+                      {hasFallback && ' Models without a subscription estimate use API prices.'}
+                      {scatter && settings.frontier && ' The frontier compares subscription estimates only.'}
+                      {scatter && !linear && chartRows.some((row) => row.cost === 0) && ' Log scale hides $0 configurations.'}
                     </p>
-                  )}
-                  {!subscription && view.metric === 'cost' && (
-                    <p className="mt-0 mb-2 shrink-0 text-[11px] leading-5 text-fg-2">API pricing</p>
                   )}
                   <Chart
                     active={mobile || active === view.id}
@@ -342,7 +345,7 @@ function Benchmarks() {
           </div>
         </main>
       </div>
-      <footer className="flex flex-wrap items-center justify-between gap-x-5 gap-y-1 px-7 py-3 short:py-2 text-[11px] leading-5 text-fg-2 compact:px-5 mobile:px-4 mobile:pt-5 mobile:pb-[calc(20px+env(safe-area-inset-bottom))]">
+      <footer className="flex flex-wrap items-center justify-between gap-x-5 gap-y-1 px-7 py-3 short:py-2 text-[12px] leading-5 text-fg-3 compact:px-5 mobile:px-4 mobile:pt-5 mobile:pb-[calc(20px+env(safe-area-inset-bottom))]">
         <span>
           Data from{' '}
           <a
@@ -354,7 +357,7 @@ function Benchmarks() {
             Artificial Analysis
           </a>
         </span>
-        <span title={`Local snapshot captured ${fetchedAt}`}>
+        <span title={`Snapshot captured ${fetchedAt}`}>
           Snapshot captured{' '}
           <time dateTime={fetchedAt}>
             {formatUtcDate(fetchedAt, 'short')}
@@ -370,20 +373,35 @@ function ChartOptions({
   update,
   descending,
   pricing,
+  scatter,
+  ranking,
 }: {
   settings: Settings;
   update: (patch: Partial<Settings>) => void;
   descending: boolean;
   pricing: boolean;
+  /** Only the options for the visible chart type are shown. */
+  scatter: boolean;
+  /** Phones show bar charts as rankings, which cannot combine reasoning bars. */
+  ranking: boolean;
 }) {
   const menu = useRef<HTMLDetailsElement>(null);
   const [open, setOpen] = useState(false);
+  const [side, setSide] = useState<'below' | 'above'>('below');
   function fitMenu() {
     const element = menu.current;
     if (!element) return;
-    const feedBottom = element.closest('section')?.parentElement?.getBoundingClientRect().bottom ?? window.innerHeight;
-    const available = Math.min(window.innerHeight, feedBottom) - element.getBoundingClientRect().bottom - 18;
-    element.style.setProperty('--chart-menu-height', `${Math.max(0, available)}px`);
+    // Open toward whichever side of the trigger has more of the visible chart area.
+    // On phones the sticky header and chart bar cover the top of the feed, so space above starts below them.
+    const feed = element.closest('section')?.parentElement?.getBoundingClientRect();
+    const stickyBottom = document.querySelector('[data-sticky-bar]')?.getBoundingClientRect().bottom ?? 0;
+    const trigger = element.getBoundingClientRect();
+    const below = Math.min(window.innerHeight, feed?.bottom ?? window.innerHeight) - trigger.bottom - 18;
+    const above = trigger.top - Math.max(0, feed?.top ?? 0, stickyBottom) - 18;
+    const next = below >= 240 || below >= above ? 'below' : 'above';
+    setSide(next);
+    // Cap the height to the chosen side, so every control stays reachable by scrolling the menu.
+    element.style.setProperty('--chart-menu-height', `${Math.max(0, next === 'below' ? below : above)}px`);
   }
   useEffect(() => {
     if (!open) return;
@@ -402,6 +420,9 @@ function ChartOptions({
     <details ref={menu} className="group relative shrink-0" onToggle={(event) => {
       setOpen(event.currentTarget.open);
       if (event.currentTarget.open) fitMenu();
+    }} onClickCapture={(event) => {
+      // Summary clicks run before the menu opens, so the first painted frame is already on the right side.
+      if (!menu.current?.open && event.target instanceof Element && event.target.closest('summary')) fitMenu();
     }} onKeyDown={(event) => {
       if (event.key === 'Escape' && menu.current?.open) {
         menu.current.open = false;
@@ -410,57 +431,62 @@ function ChartOptions({
       }
     }}>
       <summary
-        className="flex size-10 cursor-pointer list-none items-center justify-center rounded-md text-fg-2 group-open:bg-surface group-open:text-accent hover:bg-surface hover:text-accent focus-visible:outline-2 focus-visible:outline-accent focus-visible:outline-offset-2 [&::-webkit-details-marker]:hidden"
+        className="flex size-10 cursor-pointer list-none items-center justify-center rounded-lg border border-line text-fg-2 group-open:border-accent group-open:text-accent hover:border-line-2 hover:bg-hover hover:text-fg focus-visible:outline-2 focus-visible:outline-accent focus-visible:outline-offset-2 [&::-webkit-details-marker]:hidden"
         aria-label="Chart settings"
         title="Chart settings"
       >
-        <Ellipsis size={19} aria-hidden="true" />
+        <Settings2 size={17} aria-hidden="true" />
       </summary>
       <div
-        className={`absolute top-[calc(100%+6px)] right-0 z-20 flex ${pricing ? 'w-[310px]' : 'w-[220px]'} max-w-[calc(100vw-48px)] flex-col items-start gap-1 overflow-y-auto overscroll-contain rounded-lg border border-line bg-panel p-3 shadow-lg`}
+        className={`absolute ${side === 'below' ? 'top-[calc(100%+6px)]' : 'bottom-[calc(100%+6px)]'} right-0 z-20 flex ${pricing ? 'w-[344px]' : 'w-[240px]'} max-w-[calc(100vw-64px)] scroll-fade flex-col items-start gap-0.5 overflow-y-auto overscroll-contain rounded-xl p-2 shadow-[var(--shadow-pop)]`}
         style={{ maxHeight: 'var(--chart-menu-height, 60dvh)' }}
         aria-label="Chart settings"
       >
         {pricing && <PricingControls settings={settings} update={update} />}
-        <span className="px-1 pt-1 text-[11px] text-fg-2">Scatter charts</span>
-        <button
-          className="inline-flex min-h-10 items-center gap-2 px-1 text-[12px] text-fg hover:text-accent"
-          aria-pressed={settings.labels}
-          onClick={() => update({ labels: !settings.labels })}
-        >
-          <Selection checked={settings.labels} />
-          Labels
-        </button>
-        <span className="mt-2 px-1 text-[11px] text-fg-2">Bar charts</span>
-        <button
-          className="inline-flex min-h-10 items-center gap-2 px-1 text-[12px] text-fg hover:text-accent"
-          aria-pressed={settings.grouped}
-          onClick={() => update({ grouped: !settings.grouped })}
-        >
-          <Selection checked={settings.grouped} />
-          Group by model
-        </button>
-        <button
-          className="inline-flex min-h-10 items-center gap-2 px-1 text-[12px] text-fg hover:text-accent disabled:opacity-50 disabled:hover:text-fg"
-          aria-pressed={settings.combined}
-          disabled={!settings.grouped}
-          title={settings.grouped ? 'Combine reasoning configurations into one bar per model.' : 'Group by model to combine reasoning bars.'}
-          onClick={() => update({ combined: !settings.combined })}
-        >
-          <Selection checked={settings.combined} />
-          Combine reasoning bars
-        </button>
-        <button
-          className="inline-flex min-h-10 items-center gap-2 px-1 text-[12px] text-fg hover:text-accent"
-          onClick={() => update({ descending: !descending })}
-        >
-          <ArrowDown
-            size={14}
-            style={{ transform: descending ? 'rotate(180deg)' : undefined }}
-            aria-hidden="true"
-          />
-          {descending ? 'Highest first' : 'Highest last'}
-        </button>
+        {scatter ? (
+          <>
+            <span className={`${menuLabel} ${pricing ? 'pt-3' : 'pt-2'}`}>Scatter chart</span>
+            <button
+              className={menuItem}
+              aria-pressed={settings.labels}
+              onClick={() => update({ labels: !settings.labels })}
+            >
+              <Selection checked={settings.labels} />
+              Model labels
+            </button>
+          </>
+        ) : (
+          <>
+            <span className={`${menuLabel} ${pricing ? 'pt-3' : 'pt-2'}`}>{ranking ? 'Ranking' : 'Bar chart'}</span>
+            <button
+              className={menuItem}
+              aria-pressed={settings.grouped}
+              onClick={() => update({ grouped: !settings.grouped })}
+            >
+              <Selection checked={settings.grouped} />
+              Group by model
+            </button>
+            {!ranking && <button
+              className={`${menuItem} disabled:opacity-50 disabled:hover:bg-transparent`}
+              aria-pressed={settings.combined}
+              disabled={!settings.grouped}
+              title={settings.grouped ? 'Combine reasoning configurations into one bar per model.' : 'Group by model to combine reasoning bars.'}
+              onClick={() => update({ combined: !settings.combined })}
+            >
+              <Selection checked={settings.combined} />
+              Combine reasoning bars
+            </button>}
+            <div className={`${segments} mx-2 mt-2 mb-1 w-[calc(100%-16px)]`} role="group" aria-label={ranking ? 'Ranking order' : 'Bar order'}>
+              {/* Re-selecting the current order must not pin it, or lower-is-better charts lose their default. */}
+              <button className={segment} aria-pressed={descending} onClick={() => { if (!descending) update({ descending: true }); }}>
+                Highest first
+              </button>
+              <button className={segment} aria-pressed={!descending} onClick={() => { if (descending) update({ descending: false }); }}>
+                Lowest first
+              </button>
+            </div>
+          </>
+        )}
       </div>
     </details>
   );

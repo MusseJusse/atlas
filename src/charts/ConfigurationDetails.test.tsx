@@ -88,12 +88,12 @@ it('distinguishes subscription estimates and API fallbacks with provenance', asy
   const { defaults } = await import('../state');
   const [priced] = subscriptionRows([sol], { ...defaults, pricingMode: 'subscription' });
   const markup = render(priced!);
-  expect(markup).toContain('Estimated subscription / task');
-  expect(markup).toContain('Measured API / task');
+  expect(markup).toContain('Estimated subscription cost per task');
+  expect(markup).toContain('Measured API cost per task');
   expect(markup).toContain('External coding token mix');
   expect(markup).toContain('ChatGPT Pro 10x');
   const [fallback] = subscriptionRows([{ ...sol, family: 'unknown' }], { ...defaults, pricingMode: 'subscription' });
   expect(render(fallback!)).toContain('API fallback');
-  expect(render(fallback!)).not.toContain('Estimated subscription / task');
-  expect(render(sol)).toContain('Cost per task · API');
+  expect(render(fallback!)).not.toContain('Estimated subscription cost per task');
+  expect(render(sol)).toContain('Cost per task (API)');
 });

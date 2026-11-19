@@ -54,14 +54,19 @@ export function SvgLogo({
       height={size}
     />
   ) : (
-    <text
-      x={x + size / 2}
-      y={y + size * 0.8}
-      textAnchor="middle"
-      fill="var(--fg-2)"
-      fontSize={size * 0.8}
-    >
-      {model.labName[0]}
-    </text>
+    // A rounded chip, like the HTML Logo, so a lab initial never reads as a reasoning letter.
+    <g>
+      <rect x={x} y={y} width={size} height={size} rx={3} fill="var(--hover)" />
+      <text
+        x={x + size / 2}
+        y={y + size * 0.74}
+        textAnchor="middle"
+        fill="var(--fg-2)"
+        fontSize={size * 0.65}
+        fontWeight={600}
+      >
+        {model.labName[0]}
+      </text>
+    </g>
   );
 }

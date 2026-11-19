@@ -2,6 +2,7 @@ import {
   memo,
   useEffect,
   useLayoutEffect,
+  type CSSProperties,
   useMemo,
   useRef,
   useState,
@@ -19,7 +20,9 @@ import { ConfigurationDetails } from './charts/ConfigurationDetails';
 import { Scatter } from './charts/Scatter';
 import { Bars, FixedBarAxis } from './charts/Bars';
 import { Ranking } from './charts/Ranking';
-import { combinedBarWidth, measureRows, measureScatterRows } from './charts/geometry';
+import { useScrollEdges } from './useScrollEdges';
+import { useMediaQuery } from './useMediaQuery';
+import { barLayout, scatterLabelGutter, combinedBarWidth, measureRows, measureScatterRows, separateBarWidth } from './charts/geometry';
 import type { Interactions } from './charts/interactions';
 
 function useSize(enabled: boolean) {
@@ -109,7 +112,8 @@ export const Chart = memo(function Chart({
     [rows, view.metric, scatter, linear, score],
   );
   const validRows = prepared.rows;
-  const plotWidth = !scatter && !phone && settings.grouped && settings.combined ? combinedBarWidth(validRows, width) : width;
+  const plotWidth = scatter || phone ? width
+    : settings.grouped && settings.combined ? combinedBarWidth(validRows, width) : separateBarWidth(validRows, width, settings.grouped);
   const { pinned, activeModel } = resolveChartInteraction(validRows, pinnedId, hoveredId);
   const interactions: Interactions = {
     pinned,
@@ -119,6 +123,73 @@ export const Chart = memo(function Chart({
     togglePin: (model) => setPinnedId((previous) => previous === model.id ? null : model.id),
     highlight: (id) => flushSync(() => onHighlight(id)),
   };
+  const [overflow, updateOverflow, overflowRef] = useScrollEdges();
+  const scroller = useRef<HTMLDivElement | null>(null);
+  const scrollable = plotWidth > width;
+  // A scrolling plot opens at its best end: the highest scores sort last on desktop, the lowest costs first.
+  const bestAtEnd = metrics[view.metric].higherIsBetter !== chartDescending(view.metric, false, settings.descending);
+  useLayoutEffect(() => {
+    const element = scroller.current;
+    if (scrollable && element) element.scrollLeft = bestAtEnd ? element.scrollWidth : 0;
+  }, [scrollable, bestAtEnd, plotWidth]);
+  const container = useRef<HTMLDivElement>(null);
+  const mobile = useMediaQuery('(width <= 900px)');
+  // Mobile sections grow with their content, so a pinned card can sit below a narrow scatter plot.
+  // Fixed-height desktop sections keep the overlay, which would otherwise squeeze the plot.
+  const detailsBelow = scatter && ready && mobile && width < 600;
+  const belowCard = useRef<HTMLElement>(null);
+  const overlay = useRef<HTMLElement>(null);
+  const gutter = scatterLabelGutter(width, settings.labels) || 24;
+  // Scatter cards sit in whichever plot corner covers fewest points, and never over the selected one.
+  // Each placement caps the card to the height it actually has, and narrow plots use the compact card.
+  const compactCard = width < 760 ? { width: 200, padding: 12 } : {};
+  const corners = {
+    'bottom-right': { right: gutter, bottom: 74, maxHeight: 'calc(100% - 82px)', ...compactCard },
+    'top-left': { left: 64, top: 34, maxHeight: 'calc(100% - 42px)', ...compactCard },
+    'top-right': { right: gutter, top: 34, maxHeight: 'calc(100% - 42px)', ...compactCard },
+    'bottom-left': { left: 64, bottom: 74, maxHeight: 'calc(100% - 82px)', ...compactCard },
+  } satisfies Record<string, CSSProperties>;
+  const [placement, setPlacement] = useState<CSSProperties>(corners['bottom-right']);
+  useEffect(() => {
+    // Reveal a card that opened below the fold, without moving the plot when it's already in view.
+    // Focus follows into the card, so it never stays on a point the scroll moved behind the sticky bar;
+    // Escape or the close button returns it to the point.
+    if (!detailsBelow || !pinned || !belowCard.current) return;
+    belowCard.current.scrollIntoView({ block: 'nearest' });
+    if (ref.current?.contains(document.activeElement)) belowCard.current.focus({ preventScroll: true });
+  }, [detailsBelow, pinned?.id]);
+  useLayoutEffect(() => {
+    const card = overlay.current;
+    const plot = ref.current;
+    if (!scatter || !card || !plot) return;
+    const bounds = plot.getBoundingClientRect();
+    const points = [...plot.querySelectorAll<SVGGElement>('[data-point]')].map((point) => {
+      const box = point.querySelector('circle:last-child')!.getBoundingClientRect();
+      return { x: box.x + box.width / 2 - bounds.x, y: box.y + box.height / 2 - bounds.y, selected: point.dataset.point === activeModel?.id };
+    });
+    const size = { width: card.offsetWidth, height: card.offsetHeight };
+    const cost = (place: CSSProperties) => {
+      const x = typeof place.left === 'number' ? place.left : bounds.width - Number(place.right) - size.width;
+      const y = typeof place.top === 'number' ? place.top : bounds.height - Number(place.bottom) - size.height;
+      return points.reduce((total, point) => {
+        // The selected point needs a wider 12px berth than its neighbours.
+        const margin = point.selected ? 12 : 6;
+        return total + (point.x >= x - margin && point.x <= x + size.width + margin && point.y >= y - margin && point.y <= y + size.height + margin ? point.selected ? 1000 : 1 : 0);
+      }, 0);
+    };
+    const best = Object.values(corners).reduce<CSSProperties>((current, next) => cost(next) < cost(current) ? next : current, corners['bottom-right']);
+    const selected = points.find((point) => point.selected);
+    // A card bigger than every free corner goes beside the selected point instead, on its roomier side.
+    const besideTop = selected && Math.max(8, Math.min(bounds.height - size.height - 8, selected.y - size.height / 2));
+    const beside = selected && besideTop !== undefined && cost(best) >= 1000 && {
+      left: selected.x > bounds.width / 2 ? Math.max(0, selected.x - 16 - size.width) : selected.x + 16,
+      top: besideTop,
+      maxHeight: `calc(100% - ${besideTop + 8}px)`,
+      ...compactCard,
+    };
+    const next = beside || best;
+    setPlacement((current) => JSON.stringify(current) === JSON.stringify(next) ? current : next);
+  }, [scatter, activeModel?.id, width, height, settings.labels]);
   const legend = [...new Map(validRows.map((row) => [row.codingAgent ? row.id : row.family, row])).values()];
 
   function closeOnBackground(event: MouseEvent<SVGSVGElement>) {
@@ -130,14 +201,19 @@ export const Chart = memo(function Chart({
   }
 
   function clearSelection() {
-    // Keep keyboard users in the chart when removing the inspector's focused control.
-    ref.current?.querySelector<SVGGElement>('g[aria-pressed="true"]')?.focus({ preventScroll: true });
+    // Keep keyboard users in the chart when removing the inspector's focused control:
+    // the pinned plot point, or the pressed configuration in a phone ranking.
+    const trigger = container.current?.querySelector<HTMLElement | SVGGElement>('g[aria-pressed="true"], .ranking-configurations button[aria-pressed="true"]');
+    trigger?.focus({ preventScroll: true });
+    // A card below the plot may have scrolled the point away, so bring it back clear of the sticky bar.
+    if (detailsBelow) trigger?.scrollIntoView({ block: 'center' });
     setPinnedId(null);
     setHoveredId(null);
   }
 
   return (
     <div
+      ref={container}
       className="relative flex min-h-0 min-w-0 flex-1 flex-col"
       onKeyDown={(event) => {
         if (event.key === 'Escape') clearSelection();
@@ -157,7 +233,17 @@ export const Chart = memo(function Chart({
             </div>
           ) : (scatter || !phone) && (
             <>
-            <div className="absolute inset-0 overflow-x-auto overflow-y-hidden [scrollbar-width:thin]">
+            <div
+              className="absolute inset-0 overflow-x-auto overflow-y-hidden [scrollbar-width:thin] focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-accent"
+              onScroll={(event) => updateOverflow(event.currentTarget)}
+              ref={(element) => {
+                scroller.current = element;
+                return overflowRef(element);
+              }}
+              // Wide plots scroll; the region is a tab stop so arrow keys can pan it.
+              style={{ scrollPaddingInline: `${barLayout.left + 8}px 8px` }}
+              {...(plotWidth > width ? { tabIndex: 0, role: 'region', 'aria-label': `${view.label}, scrolls sideways to show all ${legend.length} models` } : {})}
+            >
             <svg
               className="absolute inset-0 block size-full font-sans [&_g[role=button]:focus]:[outline:none]"
               style={{ width: plotWidth }}
@@ -170,8 +256,8 @@ export const Chart = memo(function Chart({
               }
               onClick={closeOnBackground}
             >
-              <title>{view.label}{pricingContext ? ' · Estimated subscription pricing' : ' · API benchmark measurements'}</title>
-              <desc>{pricingContext?.join(' ') ?? 'Measured Artificial Analysis benchmark data.'}</desc>
+              <title>{view.label}{pricingContext ? ', estimated subscription pricing' : ', Artificial Analysis benchmarks'}</title>
+              <desc>{pricingContext?.join(' ') ?? 'Artificial Analysis benchmark data.'}</desc>
               {pricingContext && <metadata>{JSON.stringify({ pricing: pricingContext })}</metadata>}
               <rect
                 className="chart-background"
@@ -198,18 +284,23 @@ export const Chart = memo(function Chart({
                   width={plotWidth}
                   height={height}
                   interactions={interactions}
+                  fixedAxis={plotWidth > width}
                 />
               )}
             </svg>
             </div>
+            {/* Edge shadows mark more columns beyond the visible plot, past the fixed axis on the left. */}
+            {plotWidth > width && overflow.start && <div aria-hidden="true" className="pointer-events-none absolute top-[25px] bottom-0 z-[1] w-3 bg-linear-to-r from-[var(--scroll-shadow)] to-transparent" style={{ left: barLayout.left }} />}
+            {plotWidth > width && overflow.end && <div aria-hidden="true" className="pointer-events-none absolute top-[25px] right-0 bottom-0 z-[1] w-3 bg-linear-to-l from-[var(--scroll-shadow)] to-transparent" />}
             {!prepared.scatter && plotWidth > width && <FixedBarAxis rows={prepared.rows} metric={view.metric} settings={settings} plotWidth={plotWidth} width={width} height={height} />}
             </>
           ))}
-        {(scatter || !phone) && activeModel && (
+        {(scatter || !phone) && activeModel && !(detailsBelow && pinned) && (
           <aside
-            className={`configuration-details${pinned ? '' : ' pointer-events-none'}`}
-            data-placement={scatter ? 'bottom-right' : settings.descending ? 'top-right' : 'top-left'}
-            style={scatter ? { right: settings.labels && width >= 600 ? 235 : 24 } : undefined}
+            ref={overlay}
+            className={`configuration-details scroll-fade${pinned ? '' : ' pointer-events-none'}`}
+            data-placement={scatter ? undefined : settings.descending ? 'top-right' : 'top-left'}
+            style={scatter ? placement : undefined}
             aria-label="Selected configuration"
             tabIndex={pinned ? 0 : undefined}
           >
@@ -222,6 +313,12 @@ export const Chart = memo(function Chart({
           </aside>
         )}
       </div>
+      {/* Narrow scatter plots have no free corner, so a pinned card sits below the plot instead of covering points. */}
+      {detailsBelow && pinned && activeModel && (
+        <aside ref={belowCard} className="configuration-details scroll-mt-[var(--sticky-offset,190px)]" data-placement="below" aria-label="Selected configuration" tabIndex={0}>
+          <ConfigurationDetails model={activeModel} metric={view.metric} pinned onClose={clearSelection} />
+        </aside>
+      )}
       {ready && validRows.length > 0 && !scatter && phone && (
         <div className="hidden phone:block">
           {!prepared.scatter && <Ranking rows={prepared.rows} metric={view.metric} grouped={settings.grouped}
@@ -229,18 +326,21 @@ export const Chart = memo(function Chart({
             logarithmic={false} />}
         </div>
       )}
-      {/* Reserve the mobile legend's height in the initial HTML before hydration. */}
+      {/* Narrow plots drop direct labels, so the legend follows the measured plot width.
+          Before measuring, the viewport breakpoint reserves its height in the initial HTML. */}
       {scatter && settings.labels && (
-        <div className="hidden plot-mobile:grid grid-cols-2 gap-x-3 gap-y-0.5 pt-2.5">
+        <div className={`${ready ? (scatterLabelGutter(width, true) ? 'hidden' : 'grid') : 'hidden plot-mobile:grid'} grid-cols-2 gap-x-3 gap-y-0.5 pt-2.5`}>
           {legend.map((model) => (
             <button
-              className="flex min-h-8 items-center gap-[7px] overflow-hidden text-left text-[13px] font-[550] whitespace-nowrap text-fg"
+              className="flex min-h-8 min-w-0 items-center gap-[7px] text-left text-[13px] leading-tight font-[550] text-fg"
               key={model.codingAgent ? model.id : model.family}
               aria-label={model.codingAgent?.configuration}
+              aria-pressed={model.codingAgent ? interactions.pinned?.id === model.id : interactions.pinned?.family === model.family}
               onClick={() => interactions.togglePin(model)}
             >
               <Logo model={model} />
-              <span aria-hidden="true" className="hidden phone:block size-2 shrink-0 rounded-full" style={{ background: modelColor(model) }} />
+              {/* Labs share logos, so the swatch is what matches a row to its line. */}
+              <span aria-hidden="true" className="size-2 shrink-0 rounded-full" style={{ background: modelColor(model) }} />
               {model.codingAgent ? (
                 <span className="min-w-0">
                   <span className="block truncate">{shortName(model)}</span>
@@ -248,7 +348,7 @@ export const Chart = memo(function Chart({
                     {model.codingAgent.name}, {model.effortLabel}
                   </span>
                 </span>
-              ) : <span>{shortName(model)}{view.metric === 'cost' && model.taskPricing?.basis === 'api-fallback' && <span className="text-[10px] font-normal text-fg-2"> · API</span>}</span>}
+              ) : <span className="min-w-0">{shortName(model)}{view.metric === 'cost' && model.taskPricing?.basis === 'api-fallback' && <span className="text-[11px] font-normal text-fg-2"> (API)</span>}</span>}
             </button>
           ))}
         </div>

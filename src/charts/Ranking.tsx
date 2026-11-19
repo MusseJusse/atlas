@@ -69,14 +69,14 @@ export function Ranking({ rows, metric, grouped, descending, interactions, logar
                 requestAnimationFrame(() => row.nextElementSibling?.scrollIntoView({ block: 'nearest', behavior: 'instant' }));
               }
             }}>
-            <span className="ranking-name"><span className="ranking-number">{index + 1}</span><Logo model={best} size={19} /><span>{shortName(best)}{metric === 'time' && best.timeEstimate ? <small>Estimated speed endpoint</small> : grouped ? <small>{group.rows.length} {group.rows.length === 1 ? 'configuration' : 'configurations'}</small> : <small>{best.effortLabel}</small>}{metric === 'cost' && best.taskPricing?.basis === 'api-fallback' && <small>API fallback</small>}</span></span>
+            <span className="ranking-name"><span className="ranking-number">{index + 1}</span><Logo model={best} size={19} /><span>{shortName(best)}{metric === 'time' && best.timeEstimate ? <small>Estimated time</small> : grouped ? <small>{group.rows.length} {group.rows.length === 1 ? 'configuration' : 'configurations'}</small> : <small>{lineStart(best.effortLabel)}</small>}{metric === 'cost' && best.taskPricing?.basis === 'api-fallback' && <small>API fallback</small>}</span></span>
             <span className="ranking-plot" aria-hidden="true">
               {ticks.map((tick) => <span className={`ranking-gridline${tick === 0 ? ' ranking-zero' : ''}`} key={tick} style={{ left: `${position(tick)}%` }} />)}
               <span className={`ranking-bar${best.value < 0 ? ' ranking-negative' : ''}`} style={{ left: `${Math.min(zero, endpoint)}%`, width: `${Math.abs(endpoint - zero)}%` }} />
               <span className="ranking-range" style={{ left: `${position(group.minimum)}%`, width: `${position(group.maximum) - position(group.minimum)}%` }} />
               {[...group.rows.filter((row) => row.id !== best.id), best].map((row) => <span className={`ranking-dot${row.id === best.id ? ' ranking-best' : ''}`} data-configuration={row.id} key={row.id} style={{ left: `${position(row.value)}%` }} />)}
             </span>
-            <span className="ranking-value"><span><b>{formatModelValue(best, metric)}</b>{overlapCount > 1 && <small title="Expand the row to compare the exact reasoning values">{overlapCount} overlap</small>}</span><ChevronDown data-expand-indicator size={14} aria-hidden="true" style={{ transform: open ? 'rotate(180deg)' : undefined }} /></span>
+            <span className="ranking-value"><span><b>{formatModelValue(best, metric)}</b>{overlapCount > 1 && <small title="Show configurations to compare exact values.">{overlapCount} levels overlap</small>}</span><ChevronDown data-expand-indicator size={14} aria-hidden="true" style={{ transform: open ? 'rotate(180deg)' : undefined }} /></span>
           </button>
           {open && <div id={`ranking-${metric}-${group.id}`} className="ranking-expanded">
             <div className="ranking-configurations" role="group" aria-label={`${best.name} reasoning configurations`}>
@@ -85,7 +85,7 @@ export function Ranking({ rows, metric, grouped, descending, interactions, logar
                   const panel = event.currentTarget.closest('.ranking-expanded');
                   requestAnimationFrame(() => panel?.scrollIntoView({ block: 'nearest', behavior: 'instant' }));
                 }}>
-                <span>{row.codingAgent?.configuration ?? row.effortLabel}</span><b>{formatModelValue(row, metric)}</b>
+                <span>{row.codingAgent?.configuration ?? lineStart(row.effortLabel)}</span><b>{formatModelValue(row, metric)}</b>
               </button>)}
             </div>
             {selected && interactions.activeModel && <aside aria-label="Selected configuration" className="ranking-inspector"><ConfigurationDetails model={interactions.activeModel} metric={metric} pinned onClose={() => {
@@ -97,4 +97,9 @@ export function Ranking({ rows, metric, grouped, descending, interactions, logar
       })}
     </div>
   </div>;
+}
+
+/** Effort labels are lowercase mid-sentence; at the start of their own line they take a capital, like "Default". */
+function lineStart(label: string) {
+  return label.charAt(0).toUpperCase() + label.slice(1);
 }

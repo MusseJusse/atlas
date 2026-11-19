@@ -6,7 +6,7 @@ import { format, formatModelValue } from '../formatModel';
 import { metrics, type Metric } from '../chart-definitions';
 import type { Settings } from '../state';
 import { pinHandlers, type Interactions } from './interactions';
-import { barGeometry, type MeasuredRow } from './geometry';
+import { apiSuffixWidth, barGeometry, captionLines, captionWidth, diagonalCaption, fitDiagonalCaption, type MeasuredRow } from './geometry';
 
 export function Bars({
   rows,
@@ -15,6 +15,7 @@ export function Bars({
   width,
   height,
   interactions,
+  fixedAxis = false,
 }: {
   rows: MeasuredRow[];
   metric: Metric;
@@ -22,10 +23,12 @@ export function Bars({
   width: number;
   height: number;
   interactions: Interactions;
+  /** A scrolling plot draws its unit and ticks in FixedBarAxis instead, so they aren't doubled underneath. */
+  fixedAxis?: boolean;
 }) {
   const clipId = useId();
   const combined = settings.grouped && settings.combined;
-  const { left, right, bottom, y, positioned } = useMemo(
+  const { left, right, bottom, y, ticks, positioned, diagonal, diagonalMax } = useMemo(
     () => barGeometry(rows, metric, width, height, settings.grouped, settings.descending ?? false, settings.combined),
     [rows, metric, width, height, settings.grouped, settings.descending, settings.combined],
   );
@@ -36,12 +39,14 @@ export function Bars({
 
   return (
     <>
-      <text x={left} y={17} fill="var(--fg-2)" fontSize={12}>
-        {metrics[metric].unit}
-      </text>
-      {y.ticks(4).map((tick) => (
+      {!fixedAxis && (
+        <text x={left} y={17} fill="var(--fg-2)" fontSize={12}>
+          {metrics[metric].unit}
+        </text>
+      )}
+      {ticks.map((tick) => (
         <g key={tick} transform={`translate(0,${y(tick)})`}>
-          <line x1={left} x2={right} stroke="var(--line)" strokeDasharray="2 6" />
+          <line x1={left} x2={right} stroke="var(--grid)" strokeDasharray="2 6" />
           <text x={left - 10} y={4} textAnchor="end" fill="var(--fg-3)" fontSize={11}>
             {format(tick, metric, true)}
           </text>
@@ -50,8 +55,7 @@ export function Bars({
       <line x1={left} x2={right} y1={y(0)} y2={y(0)} stroke="var(--line-2)" />
       {positioned.map((group, index) => {
         const model = group.rows[0]!;
-        const name = shortName(model);
-        const split = name.lastIndexOf(' ');
+        const nameLines = captionLines(shortName(model), group.groupWidth - 6);
         const columnClipId = `${clipId}-${index}`;
         const columnTop = y(Math.max(0, group.maximum));
         const columnBottom = y(Math.min(0, group.minimum));
@@ -61,6 +65,8 @@ export function Bars({
           <g
             key={group.id}
             opacity={activeFamily && activeFamily !== model.family ? 0.65 : 1}
+            // Keyboard focus stays fully visible even while another model is pinned.
+            className="[&:has(:focus-visible)]:opacity-100"
             pointerEvents="none"
           >
             {combined && (
@@ -82,14 +88,15 @@ export function Bars({
               const segmentHeight = Math.abs(baseY - barY);
               const segmentOpacity = settings.combined
                 ? 0.95 - 0.5 * Math.min(1, row.effortOrder / 60)
-                : 0.62 + (0.38 * row.effortOrder) / 60;
+                // The 0.74 floor keeps the faintest dark-mode bar, Luna at low effort, above 3:1 against the plot.
+                : 0.74 + (0.26 * row.effortOrder) / 60;
               const effortMark =
                 row.effort === 'max' ? 'Mx' : row.effortLabel.charAt(0).toUpperCase();
               const fullEffort = row.effortLabel;
               const abbreviatedEffort = fullEffort === 'medium' ? 'med' : effortMark;
               const effortLabel = fullEffort.length * 7 + 16 <= group.barWidth ? fullEffort : abbreviatedEffort;
               const showEffort = combined && segmentHeight >= 28 && effortLabel.length * 7 + 16 <= group.barWidth;
-              const visibleLabel = !combined && group.barWidth > 8 ? `${effortMark}${text}, ` : '';
+              const visibleLabel = !combined && group.barWidth > 6 ? `${effortMark}${text}, ` : '';
               return (
                 <g
                   key={row.id}
@@ -98,7 +105,7 @@ export function Bars({
                   }
                   role="button"
                   tabIndex={0}
-                  className="cursor-pointer focus-visible:[&>rect[data-focus-target]]:stroke-accent focus-visible:[&>rect[data-focus-target]]:stroke-[3] mobile:focus-visible:[outline:none]"
+                  className="cursor-pointer focus-visible:opacity-100 focus-visible:[&>rect[data-focus-target]]:stroke-accent focus-visible:[&>rect[data-focus-target]]:stroke-[3] mobile:focus-visible:[outline:none]"
                   aria-label={`${visibleLabel}${row.name}, ${row.effortLabel} reasoning, ${metric === 'cost' ? taskCostLabel(row) : metrics[metric].label} ${metric === 'time' && row.timeEstimate ? 'estimated ' : ''}${formatModelValue(row, metric)}`}
                   aria-pressed={interactions.pinned?.id === row.id}
                   onMouseEnter={() => interactions.hover(row)}
@@ -118,7 +125,10 @@ export function Bars({
                     rx={combined ? 0 : 4}
                     clipPath={combined ? `url(#${columnClipId})` : undefined}
                     fill={modelColor(row)}
-                    opacity={segmentOpacity}
+                    fillOpacity={segmentOpacity}
+                    // Opacity encodes effort; a full-colour edge keeps every segment above 3:1 against the plot.
+                    stroke={modelColor(row)}
+                    strokeWidth={1}
                   />
                   {showEffort && (
                     <text
@@ -134,13 +144,13 @@ export function Bars({
                       {effortLabel}
                     </text>
                   )}
-                  {!combined && group.barWidth > 8 && (
+                  {!combined && group.barWidth > 6 && (
                     <text
                       x={barX + group.barWidth / 2}
-                      y={bottom + 15}
+                      y={bottom + 16}
                       textAnchor="middle"
                       fill="var(--fg-3)"
-                      fontSize={9}
+                      fontSize={11}
                     >
                       {effortMark}
                     </text>
@@ -173,25 +183,44 @@ export function Bars({
                   clipPath={`url(#${columnClipId})`}
                 />
               ))}
-            {group.groupWidth > 33 && (
+            {diagonal ? diagonalMax > 0 && (
+              <g>
+                <SvgLogo model={model} x={group.center - 7} y={bottom + 28} size={14} />
+                {/* Dense plots set names on a diagonal from under the logo. Names past the cap keep a full-name tooltip. */}
+                <text
+                  x={group.center + 4}
+                  y={bottom + 54}
+                  transform={`rotate(-${diagonalCaption.angle} ${group.center + 4} ${bottom + 54})`}
+                  textAnchor="end"
+                  fill="var(--fg-2)"
+                  fontSize={13}
+                  fontWeight={500}
+                  // The group ignores the pointer, so the caption opts back in for its tooltip.
+                  pointerEvents="visiblePainted"
+                >
+                  <title>{shortName(model)}</title>
+                  {fitDiagonalCaption(shortName(model), diagonalMax - (metric === 'cost' && model.taskPricing?.basis === 'api-fallback' ? apiSuffixWidth : 0))}
+                  {metric === 'cost' && model.taskPricing?.basis === 'api-fallback' && (
+                    <tspan fontSize={11} fontWeight={400} fill="var(--fg-3)"> (API)</tspan>
+                  )}
+                </text>
+              </g>
+            ) : group.groupWidth > 33 && (
               <g>
                 <SvgLogo model={model} x={group.center - 7} y={bottom + 28} size={14} />
                 <text
                   x={group.center}
-                  y={bottom + 57}
+                  y={bottom + 58}
                   textAnchor="middle"
                   fill="var(--fg-2)"
-                  fontSize={16}
+                  fontSize={13}
                   fontWeight={500}
                 >
-                  <tspan x={group.center}>{split > 0 ? name.slice(0, split) : name}</tspan>
-                  {split > 0 && (
-                    <tspan x={group.center} dy={20}>
-                      {name.slice(split + 1)}
-                    </tspan>
-                  )}
+                  {nameLines.map((line, lineIndex) => (
+                    <tspan key={lineIndex} x={group.center} dy={lineIndex ? 16 : 0}>{line}</tspan>
+                  ))}
                   {metric === 'cost' && model.taskPricing?.basis === 'api-fallback' && (
-                    <tspan x={group.center} dy={16} fontSize={10}>API</tspan>
+                    <tspan x={group.center} dy={15} fontSize={11} fontWeight={400} fill="var(--fg-3)">API</tspan>
                   )}
                 </text>
               </g>
@@ -220,14 +249,14 @@ export function Bars({
 export function FixedBarAxis({ rows, metric, settings, plotWidth, width, height }: {
   rows: MeasuredRow[]; metric: Metric; settings: Settings; plotWidth: number; width: number; height: number;
 }) {
-  const { left, y } = useMemo(
+  const { left, y, ticks } = useMemo(
     () => barGeometry(rows, metric, plotWidth, height, settings.grouped, settings.descending ?? false, settings.combined),
     [rows, metric, plotWidth, height, settings.grouped, settings.descending, settings.combined],
   );
   return <svg aria-hidden="true" className="pointer-events-none absolute inset-0 size-full font-sans" viewBox={`0 0 ${width} ${height}`} data-fixed-bar-axis>
     <rect width={left} height={height} fill="var(--panel)" />
-    <rect width={left + metrics[metric].unit.length * 7} height={25} fill="var(--panel)" />
+    <rect width={left + captionWidth(metrics[metric].unit) + 12} height={25} fill="var(--panel)" />
     <text x={left} y={17} fill="var(--fg-2)" fontSize={12}>{metrics[metric].unit}</text>
-    {y.ticks(4).map((tick) => <text key={tick} x={left - 10} y={y(tick) + 4} textAnchor="end" fill="var(--fg-3)" fontSize={11}>{format(tick, metric, true)}</text>)}
+    {ticks.map((tick) => <text key={tick} x={left - 10} y={y(tick) + 4} textAnchor="end" fill="var(--fg-3)" fontSize={11}>{format(tick, metric, true)}</text>)}
   </svg>;
 }
