@@ -350,7 +350,6 @@
  .ranking-configurations button { flex: 1 1 42%; justify-content: space-between; }
 }
 
-
 @media (width <= 600px) { .ranking-axis { position: static; } }
 
 .ranking-expanded:not(:has(.ranking-inspector)) { grid-template-columns: 1fr; }
@@ -371,6 +370,5 @@
 .benchmark-feed::-webkit-scrollbar-track { background: var(--panel); }
 .benchmark-feed::-webkit-scrollbar-thumb { background: var(--line-2); border: 2px solid var(--panel); border-radius: 8px; }
 @media (width <= 900px) { .benchmark-feed { scrollbar-gutter: auto; } }
-
 
 }

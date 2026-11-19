@@ -21,7 +21,8 @@ function formatValue(value: FieldChange['before'], field: FieldChange['field'], 
   if (value === null) return 'Not available';
   if (typeof value === 'boolean') return value ? 'Yes' : 'No';
   if (typeof value !== 'number') return value;
-  const number = String(exact ? value : Number(value.toPrecision(6)));
+  // Whole counts stay exact: rounding them saves no width and hides real differences.
+  const number = String(exact || Number.isInteger(value) ? value : Number(value.toPrecision(6)));
   if (['cost', 'costTotal', 'inputPrice', 'outputPrice'].includes(field)) return `$${number}`;
   if (field === 'speed') return `${number} tok/s`;
   if (field === 'time') return `${number}s`;
