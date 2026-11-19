@@ -60,6 +60,8 @@ export function Bars({
           <g
             key={group.id}
             opacity={activeFamily && activeFamily !== model.family ? 0.65 : 1}
+            // Keyboard focus stays fully visible even while another model is pinned.
+            className="[&:has(:focus-visible)]:opacity-100"
             pointerEvents="none"
           >
             {combined && (
@@ -98,7 +100,7 @@ export function Bars({
                   }
                   role="button"
                   tabIndex={0}
-                  className="cursor-pointer focus-visible:[&>rect[data-focus-target]]:stroke-accent focus-visible:[&>rect[data-focus-target]]:stroke-[3] mobile:focus-visible:[outline:none]"
+                  className="cursor-pointer focus-visible:opacity-100 focus-visible:[&>rect[data-focus-target]]:stroke-accent focus-visible:[&>rect[data-focus-target]]:stroke-[3] mobile:focus-visible:[outline:none]"
                   aria-label={`${visibleLabel}${row.name}, ${row.effortLabel} reasoning, ${metric === 'cost' ? taskCostLabel(row) : metrics[metric].label} ${metric === 'time' && row.timeEstimate ? 'estimated ' : ''}${formatModelValue(row, metric)}`}
                   aria-pressed={interactions.pinned?.id === row.id}
                   onMouseEnter={() => interactions.hover(row)}
