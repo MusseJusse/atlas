@@ -211,3 +211,82 @@ for (const combined of [false, true]) {
     await expect(details).toBeVisible();
   });
 }
+
+test('vibes page supports label clicks, pin precedence, 3D cost axis, and mobile layout', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 1100 });
+  await page.goto('/');
+  await page.getByRole('navigation', { name: 'Sections' }).getByRole('link', { name: 'Vibes' }).click();
+  await expect(page).toHaveURL(/\?page=vibes/);
+  await expect(page.getByRole('heading', { name: 'Vibes', exact: true })).toBeVisible();
+  await expect(page.locator('.vibes-plot svg [data-vibe-family]')).toHaveCount(7);
+
+  const headingBottom = await page.locator('.vibes-heading').evaluate((el) => el.getBoundingClientRect().bottom);
+  const capTop = await page.locator('[data-axis-label="capability"]').evaluate((el) => el.getBoundingClientRect().top);
+  expect(capTop).toBeGreaterThanOrEqual(headingBottom + 8);
+
+  // Pin Coding, then hover Fable: pinned Coding card and its Close button must stay intact.
+  const codingBtn = page.getByRole('button', { name: /Coding.*Opus 5\.5/ });
+  await codingBtn.click();
+  const details = page.getByRole('complementary', { name: 'Selected model details' });
+  await expect(details).toBeVisible();
+  await expect(details).toContainText('Opus 5.5');
+  await expect(details.getByRole('button', { name: 'Clear selected configuration' })).toBeVisible();
+
+  await page.locator('[data-vibe-family="claude-fable-5-2"]').hover();
+  await expect(details).toContainText('Opus 5.5');
+  await expect(details).toContainText('Default pick for day-to-day engineering');
+
+  // Escape while focused on Best for clears the pin without stealing focus into the SVG chart.
+  await codingBtn.focus();
+  await page.keyboard.press('Escape');
+  await expect(details).not.toBeVisible();
+  expect(await page.evaluate(() => document.activeElement?.getAttribute('data-use-case'))).toBe('coding');
+
+  // Clicking a model's text label directly pins that model, and background click clears it.
+  await page.locator('[data-vibe-family="gpt-6-2-astra"] text').first().click();
+  await expect(details).toContainText('GPT-6.2 Astra');
+  await page.locator('.vibes-plot svg rect.chart-background').click({ position: { x: 80, y: 80 } });
+  await expect(details).not.toBeVisible();
+
+  // Assistive click (detail === 0) on a chart point pins and unpins cleanly.
+  await page.locator('[data-vibe-family="claude-opus-5-5"]').dispatchEvent('click', { detail: 0, bubbles: true });
+  await expect(details).toContainText('Opus 5.5');
+  await page.locator('[data-vibe-family="claude-opus-5-5"]').dispatchEvent('click', { detail: 0, bubbles: true });
+  await expect(details).not.toBeVisible();
+
+  await page.getByRole('button', { name: '+ Benchmarks', exact: true }).click();
+  await expect(page.locator('.vibes-plot svg[role="group"]')).toContainText('Intel ');
+
+  // 3D Cost axis: all 3 axis labels stay in bounds, rotate controls work, and background click clears a pin.
+  const costToggle = page.getByRole('button', { name: 'Cost axis', exact: true });
+  await costToggle.click();
+  await expect(costToggle).toHaveAttribute('aria-pressed', 'true');
+  await expect(page.locator('.vibes-plot svg[role="group"] [data-cost-axis="true"]')).toBeVisible();
+
+  await page.setViewportSize({ width: 1280, height: 640 });
+  await expect.poll(async () => {
+    return page.evaluate(() => {
+      const svg = document.querySelector('.vibes-plot svg[role="group"]')!.getBoundingClientRect();
+      return ['capability', 'coherency', 'cost'].every((axis) => {
+        const el = document.querySelector(`[data-axis-label="${axis}"]`);
+        if (!el) return false;
+        const rect = el.getBoundingClientRect();
+        return rect.left >= svg.left && rect.right <= svg.right && rect.top >= svg.top && rect.bottom <= svg.bottom;
+      });
+    });
+  }).toBe(true);
+
+  await page.getByRole('button', { name: /Cheap & cheerful.*GPT-6\.1 Terra/ }).click();
+  await expect(details).toContainText('GPT-6.1 Terra');
+  await page.locator('.vibes-plot svg[role="group"]').click({ position: { x: 20, y: 20 } });
+  await expect(details).not.toBeVisible();
+
+  await page.getByRole('button', { name: 'Rotate 3D view left' }).click();
+  const resetBtn = page.getByRole('button', { name: 'Reset 3D view angle' });
+  await expect(resetBtn).toBeVisible();
+  await resetBtn.click();
+  await expect(resetBtn).not.toBeVisible();
+
+  await page.setViewportSize({ width: 320, height: 740 });
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+});

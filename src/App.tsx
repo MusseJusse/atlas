@@ -24,8 +24,10 @@ const menuLabel = 'px-2 pb-1 text-[13px] font-[600] text-fg';
 
 const loadChangelog = () => import('./Changelog');
 const loadEfficiency = () => import('./Efficiency');
+const loadVibes = () => import('./Vibes');
 const Changelog = lazy(() => loadChangelog().then(({ Changelog }) => ({ default: Changelog })));
 const Efficiency = lazy(() => loadEfficiency().then(({ Efficiency }) => ({ default: Efficiency })));
+const Vibes = lazy(() => loadVibes().then(({ Vibes }) => ({ default: Vibes })));
 
 function currentPage() {
   return typeof location === 'undefined' ? null : new URLSearchParams(location.search).get('page');
@@ -41,7 +43,7 @@ export function App() {
       const target = event.target instanceof Element ? event.target.closest('a') : null;
       if (!target || target.target || target.hasAttribute('download')) return;
       const href = target.getAttribute('href');
-      if (href !== '/' && href !== '?page=efficiency' && href !== '?page=changelog') return;
+      if (href !== '/' && href !== '?page=efficiency' && href !== '?page=vibes' && href !== '?page=changelog') return;
       event.preventDefault();
       if (target.href === location.href) return;
       const previousPage = currentPage();
@@ -55,6 +57,7 @@ export function App() {
       const link = event.target instanceof Element ? event.target.closest('a') : null;
       if (link?.getAttribute('href') === '?page=changelog') void loadChangelog().catch(() => {});
       if (link?.getAttribute('href') === '?page=efficiency') void loadEfficiency().catch(() => {});
+      if (link?.getAttribute('href') === '?page=vibes') void loadVibes().catch(() => {});
     };
     window.addEventListener('popstate', pop);
     document.addEventListener('click', click);
@@ -64,6 +67,7 @@ export function App() {
     // Load other sections after the initial render without blocking it.
     const timer = window.setTimeout(() => {
       void loadEfficiency().catch(() => {});
+      void loadVibes().catch(() => {});
     }, 1000);
     return () => {
       window.removeEventListener('popstate', pop);
@@ -74,7 +78,7 @@ export function App() {
       window.clearTimeout(timer);
     };
   }, []);
-  const Page = page === 'changelog' ? Changelog : page === 'efficiency' ? Efficiency : null;
+  const Page = page === 'changelog' ? Changelog : page === 'efficiency' ? Efficiency : page === 'vibes' ? Vibes : null;
   return Page ? (
     <Suspense
       fallback={
