@@ -5,7 +5,8 @@ type Interval = readonly [number, number];
 /** Include every signed measurement and zero, with optional space beyond the bar ends. */
 export function barDomain(values: number[], padding = 0): Interval {
   const min = Math.min(0, ...values);
-  const max = Math.max(min < 0 ? 0 : 1, ...values);
+  // An all-zero plot still needs a span; otherwise small values like sub-dollar costs fill the height.
+  const max = Math.max(0, ...values) || (min < 0 ? 0 : 1);
   return [min * (1 + padding), max * (1 + padding)];
 }
 

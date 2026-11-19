@@ -19,7 +19,7 @@ import { ConfigurationDetails } from './charts/ConfigurationDetails';
 import { Scatter } from './charts/Scatter';
 import { Bars, FixedBarAxis } from './charts/Bars';
 import { Ranking } from './charts/Ranking';
-import { combinedBarWidth, measureRows, measureScatterRows } from './charts/geometry';
+import { combinedBarWidth, measureRows, measureScatterRows, separateBarWidth } from './charts/geometry';
 import type { Interactions } from './charts/interactions';
 
 function useSize(enabled: boolean) {
@@ -109,7 +109,8 @@ export const Chart = memo(function Chart({
     [rows, view.metric, scatter, linear, score],
   );
   const validRows = prepared.rows;
-  const plotWidth = !scatter && !phone && settings.grouped && settings.combined ? combinedBarWidth(validRows, width) : width;
+  const plotWidth = scatter || phone ? width
+    : settings.grouped && settings.combined ? combinedBarWidth(validRows, width) : separateBarWidth(validRows, width, settings.grouped);
   const { pinned, activeModel } = resolveChartInteraction(validRows, pinnedId, hoveredId);
   const interactions: Interactions = {
     pinned,
@@ -229,9 +230,10 @@ export const Chart = memo(function Chart({
             logarithmic={false} />}
         </div>
       )}
-      {/* Reserve the mobile legend's height in the initial HTML before hydration. */}
+      {/* Narrow plots drop direct labels, so the legend follows the measured plot width.
+          Before measuring, the viewport breakpoint reserves its height in the initial HTML. */}
       {scatter && settings.labels && (
-        <div className="hidden plot-mobile:grid grid-cols-2 gap-x-3 gap-y-0.5 pt-2.5">
+        <div className={`${ready ? (width < 600 ? 'grid' : 'hidden') : 'hidden plot-mobile:grid'} grid-cols-2 gap-x-3 gap-y-0.5 pt-2.5`}>
           {legend.map((model) => (
             <button
               className="flex min-h-8 items-center gap-[7px] overflow-hidden text-left text-[13px] font-[550] whitespace-nowrap text-fg"

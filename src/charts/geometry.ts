@@ -106,6 +106,22 @@ export function scatterGeometry(
 
 export const barLayout = { left: 64, narrowLeft: 46, right: 18, padding: 16, gap: 4, gapRatio: 0.025, markerWidth: 12 };
 
+/**
+ * Separate bars scroll once a group could no longer fit 5px bars and a 52px caption, as with the All preset.
+ * Weights match barGeometry, where a group spans max(3, bars) shares of the plot.
+ */
+export function separateBarWidth(rows: Model[], width: number, grouped: boolean) {
+  const counts = new Map<string, number>();
+  for (const row of rows) {
+    const key = grouped ? row.family : row.id;
+    counts.set(key, (counts.get(key) ?? 0) + 1);
+  }
+  const weights = [...counts.values()].map((count) => Math.max(3, count));
+  const share = Math.max(0, ...[...counts.values()].map((count) => Math.max(52, count * (5 + barLayout.gap) + barLayout.padding) / Math.max(3, count)));
+  const total = weights.reduce((sum, weight) => sum + weight, 0);
+  return Math.max(width, Math.ceil(total * share + barLayout.left + barLayout.right));
+}
+
 /** Dense grouped bar plots scroll only when configuration targets cannot fit. */
 export function combinedBarWidth(rows: Model[], width: number) {
   const counts = new Map<string, number>();
@@ -167,21 +183,30 @@ export function barGeometry(
     bars.sort((a, b) => effortOrder.get(a.row.id)! - effortOrder.get(b.row.id)!);
     return { ...group, center, groupWidth, barWidth, bars };
   });
-  const positioned = placeValueLabels(laidOut, y, left, right);
+  const positioned = placeValueLabels(laidOut, y, left, right, bottom);
   return { left, right, top, bottom, y, positioned };
 }
 
 type LaidOutGroup = { barWidth: number; bars: { row: MeasuredRow; x: number; labelX: number; labelY: number; text: string }[] };
 
-/** Label widths are estimated from the 11px tabular digits used for bar values. */
-const valueLabelMetrics = { charWidth: 6.4, lineHeight: 17, gap: 4 };
+// Glyph side bearings already leave air between labels, so 1px of extra gap reads as separate.
+const valueLabelMetrics = { lineHeight: 17, gap: 1 };
+// Advance widths of 11px DM Sans UI, measured in the browser. Other characters use the widest digit.
+const glyphWidths: Record<string, number> = { '1': 3.7, '.': 2.3, ',': 2.3, '-': 6, '$': 6.5, M: 9.2, k: 5.6, s: 5.6, ' ': 2.6 };
+
+/** Estimate a bar value label's rendered width, so labels pack as tightly as they really are. */
+export function valueLabelWidth(text: string) {
+  return [...text].reduce((width, char) => width + (glyphWidths[char] ?? 7.4), 0);
+}
 
 /**
  * Place each value label at its bar's end without covering another label or any bar.
  * Labels wider than their bar first slide sideways over the shorter neighbour, then step away from the axis.
+ * Labels stay between the unit heading and the reasoning marks; one with no free spot is dropped,
+ * and its value remains in the focus and pin details.
  */
-function placeValueLabels<Group extends LaidOutGroup>(groups: Group[], y: (value: number) => number, left: number, right: number) {
-  const { charWidth, lineHeight, gap } = valueLabelMetrics;
+function placeValueLabels<Group extends LaidOutGroup>(groups: Group[], y: (value: number) => number, left: number, right: number, bottom: number) {
+  const { lineHeight, gap } = valueLabelMetrics;
   const columns = groups.flatMap((group) => group.bars.map((bar) => ({
     x0: bar.x, x1: bar.x + group.barWidth,
     y0: Math.min(y(bar.row.value), y(0)), y1: Math.max(y(bar.row.value), y(0)),
@@ -195,7 +220,7 @@ function placeValueLabels<Group extends LaidOutGroup>(groups: Group[], y: (value
     ...group,
     bars: group.bars.map((bar) => {
       if (!bar.text) return bar;
-      const width = bar.text.length * charWidth;
+      const width = valueLabelWidth(bar.text);
       const negative = bar.row.value < 0;
       const fit = (x: number) => Math.max(left + width / 2, Math.min(right - width / 2, x));
       const centre = bar.x + group.barWidth / 2;
@@ -203,11 +228,12 @@ function placeValueLabels<Group extends LaidOutGroup>(groups: Group[], y: (value
         ? [centre, bar.x + group.barWidth - width / 2, bar.x + width / 2].map(fit)
         : [fit(centre)];
       const start = y(bar.row.value) + (negative ? 16 : -8);
-      let spot = { x: xs[0]!, y: start };
-      search: for (let step = 0; step < 24; step++) {
-        const labelY = start + step * (negative ? lineHeight : -lineHeight);
+      // The unit heading's baseline is at 17px; reasoning marks start about 8px below the axis bottom.
+      const inside = (labelY: number) => (negative ? labelY + 3 <= bottom + 6 : labelY - 9 >= 22);
+      let spot: { x: number; y: number } | null = null;
+      search: for (let labelY = start; inside(labelY); labelY += negative ? lineHeight : -lineHeight)
         for (const x of xs) if (clear(x, labelY, width)) { spot = { x, y: labelY }; break search; }
-      }
+      if (!spot) return { ...bar, text: '' };
       placed.push({ ...spot, width });
       return { ...bar, labelX: spot.x, labelY: spot.y };
     }),

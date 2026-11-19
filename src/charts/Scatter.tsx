@@ -1,11 +1,11 @@
 import { taskCostLabel } from './PricingDetails';
-import { useMemo } from 'react';
+import { useMemo, type MouseEvent } from 'react';
 import { SvgLogo } from '../Logo';
 import { modelColor, shortName } from '../model-presentation';
 import { format } from '../formatModel';
 import { scoreLabels, metrics, type Metric, type ScoreMetric } from '../chart-definitions';
 import type { Settings } from '../state';
-import { pinHandlers, type Interactions } from './interactions';
+import { nearestPoint, pinHandlers, type Interactions } from './interactions';
 import { scatterGeometry, type ScatterRow } from './geometry';
 
 export function Scatter({
@@ -55,6 +55,15 @@ export function Scatter({
         color: modelColor(activeModel),
       }
     : null;
+  // Hit areas overlap where levels sit close together, so a tap pins the point nearest to it, not the one painted last.
+  const points = useMemo(() => rows.map((row) => ({ row, x: x(row.value), y: y(row.score) })), [rows, x, y]);
+  function pointAt(event: MouseEvent<SVGGElement>, fallback: ScatterRow) {
+    const svg = event.currentTarget.ownerSVGElement;
+    const matrix = svg?.getScreenCTM()?.inverse();
+    if (!svg || !matrix) return fallback;
+    const { x: pointX, y: pointY } = new DOMPoint(event.clientX, event.clientY).matrixTransform(matrix);
+    return nearestPoint(points, pointX, pointY, 13)?.row ?? fallback;
+  }
 
   return (
     <>
@@ -102,13 +111,14 @@ export function Scatter({
         </g>
       )}
       {series.map((series) => (
-        <g key={series.id} opacity={activeFamily && activeFamily !== series.family ? 0.15 : 1}>
+        // A keyboard-focused point stays fully visible even when another series is pinned.
+        <g key={series.id} opacity={activeFamily && activeFamily !== series.family ? 0.15 : 1} className="[&:has(:focus-visible)]:opacity-100">
           <path
             d={path(series.rows)}
             fill="none"
             stroke={modelColor(series.rows[0]!)}
             strokeWidth="2.25"
-            opacity={settings.frontier ? (frontierFamilies.has(series.family) ? 0.25 : 0.08) : 0.45}
+            opacity={settings.frontier ? (frontierFamilies.has(series.family) ? 0.25 : 0.08) : 0.6}
           />
           {series.rows.map((model) => {
             const onFrontier = frontierIds.has(model.id);
@@ -127,6 +137,7 @@ export function Scatter({
                 onFocus={() => interactions.hover(model)}
                 onBlur={() => interactions.hover(null)}
                 {...pinHandlers(model, interactions.togglePin)}
+                onClick={(event) => interactions.togglePin(pointAt(event, model))}
               >
                 <circle
                   cx={x(model.value)}
@@ -171,7 +182,7 @@ export function Scatter({
           return (
             <g
               key={series.id}
-              className="cursor-pointer focus-visible:[&>rect:nth-child(2)]:stroke-accent focus-visible:[&>rect:nth-child(2)]:stroke-[3]"
+              className="cursor-pointer focus-visible:opacity-100 focus-visible:[&>rect:nth-child(2)]:stroke-accent focus-visible:[&>rect:nth-child(2)]:stroke-[3]"
               opacity={dim ? 0.2 : 1}
               role="button"
               tabIndex={0}

@@ -71,20 +71,29 @@ function FieldRow({ fieldChange, compact }: { fieldChange: FieldChange; compact:
               aria-expanded={open}
               aria-controls={exactRow}
               onClick={(event) => { event.stopPropagation(); setOpen(!open); }}
-              className="inline-flex items-start gap-1 text-left hover:text-fg"
+              className="text-left hover:text-fg"
             >
               {label}
-              <ChevronDown size={12} aria-hidden="true" className={`mt-1 shrink-0${open ? ' rotate-180' : ''}`} />
             </button>
           ) : label}
         </th>
-        <td className="py-1.5 pr-3 text-fg-2 [overflow-wrap:break-word]">{value(shown[0])}</td>
-        <td className="py-1.5 pr-3 font-[550] [overflow-wrap:break-word]">{value(shown[1])}</td>
+        <td className="py-1.5 pr-3 text-right text-fg-2 tabular-nums [overflow-wrap:break-word]">{value(shown[0])}</td>
+        <td className="py-1.5 pr-3 text-right font-[550] tabular-nums [overflow-wrap:break-word]">
+          {value(shown[1])}
+          {/* The chevron ends the row so the field name keeps the full first column. */}
+          {expandable && <ChevronDown size={12} aria-hidden="true" className={`ml-1 inline align-[-1px] text-fg-2${open ? ' rotate-180' : ''}`} />}
+        </td>
       </tr>
       {expandable && (
         <tr id={exactRow} hidden={!open}>
-          <td colSpan={3} className="px-3 pb-2 text-fg-2 [overflow-wrap:anywhere]">
-            Exact {exact[0]} <span aria-hidden="true">→</span><span className="sr-only">to</span> <span className="font-[550] text-fg">{exact[1]}</span>
+          <td colSpan={3} className="px-3 pb-2">
+            {/* Each exact value keeps its unit on its own line, with the same before and after labels as the header. */}
+            <dl className="m-0 grid grid-cols-[max-content_minmax(0,1fr)] gap-x-3">
+              <dt className="text-fg-2">Before</dt>
+              <dd className="m-0 text-fg-2 [overflow-wrap:anywhere]">{exact[0]}</dd>
+              <dt className="text-fg-2">After</dt>
+              <dd className="m-0 font-[550] [overflow-wrap:anywhere]">{exact[1]}</dd>
+            </dl>
           </td>
         </tr>
       )}
@@ -189,13 +198,13 @@ export function Changelog({ history = bundledHistory }: { history?: ChangeHistor
                       </caption>
                       <thead className="text-fg-2">
                         <tr>
-                          <th scope="col" className="w-[30%] px-3 pt-2 pb-1.5 font-normal">
+                          <th scope="col" className="w-[30%] px-3 pt-2 pb-1.5 font-normal phone:w-[38%]">
                             Field
                           </th>
-                          <th scope="col" className="w-[35%] pt-2 pr-3 pb-1.5 font-normal">
+                          <th scope="col" className="w-[35%] pt-2 pr-3 pb-1.5 text-right font-normal phone:w-[31%]">
                             Before
                           </th>
-                          <th scope="col" className="pt-2 pr-3 pb-1.5 font-normal">
+                          <th scope="col" className="pt-2 pr-3 pb-1.5 text-right font-normal">
                             After
                           </th>
                         </tr>

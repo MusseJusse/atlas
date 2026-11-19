@@ -50,9 +50,7 @@ export function Bars({
       <line x1={left} x2={right} y1={y(0)} y2={y(0)} stroke="var(--line-2)" />
       {positioned.map((group, index) => {
         const model = group.rows[0]!;
-        const name = shortName(model);
-        // Names wrap at their last space only when one 13px line would crowd the neighbouring group.
-        const split = name.length * 7.2 > group.groupWidth - 8 ? name.lastIndexOf(' ') : -1;
+        const nameLines = captionLines(shortName(model), group.groupWidth - 6);
         const columnClipId = `${clipId}-${index}`;
         const columnTop = y(Math.max(0, group.maximum));
         const columnBottom = y(Math.min(0, group.minimum));
@@ -83,7 +81,8 @@ export function Bars({
               const segmentHeight = Math.abs(baseY - barY);
               const segmentOpacity = settings.combined
                 ? 0.95 - 0.5 * Math.min(1, row.effortOrder / 60)
-                : 0.62 + (0.38 * row.effortOrder) / 60;
+                // The 0.74 floor keeps the faintest dark-mode bar, Luna at low effort, above 3:1 against the plot.
+                : 0.74 + (0.26 * row.effortOrder) / 60;
               const effortMark =
                 row.effort === 'max' ? 'Mx' : row.effortLabel.charAt(0).toUpperCase();
               const fullEffort = row.effortLabel;
@@ -185,12 +184,9 @@ export function Bars({
                   fontSize={13}
                   fontWeight={500}
                 >
-                  <tspan x={group.center}>{split > 0 ? name.slice(0, split) : name}</tspan>
-                  {split > 0 && (
-                    <tspan x={group.center} dy={16}>
-                      {name.slice(split + 1)}
-                    </tspan>
-                  )}
+                  {nameLines.map((line, lineIndex) => (
+                    <tspan key={lineIndex} x={group.center} dy={lineIndex ? 16 : 0}>{line}</tspan>
+                  ))}
                   {metric === 'cost' && model.taskPricing?.basis === 'api-fallback' && (
                     <tspan x={group.center} dy={15} fontSize={11} fontWeight={400} fill="var(--fg-3)">API</tspan>
                   )}
@@ -215,6 +211,28 @@ export function Bars({
       )}
     </>
   );
+}
+
+// Rough 13px DM Sans advances: narrow punctuation and digits, wide capitals, and an average for the rest.
+const captionGlyph = (char: string) => '.,-1 ilIjt()'.includes(char) ? 4 : 'MWmw'.includes(char) ? 11 : /[A-Z0-9]/.test(char) ? 8.4 : 7;
+const captionWidth = (text: string) => [...text].reduce((sum, char) => sum + captionGlyph(char), 0);
+
+/**
+ * Fit a 13px model name under its group: one line when it fits, otherwise two lines split at the
+ * space nearest the middle, with any line still too wide cut short with an ellipsis.
+ */
+function captionLines(name: string, width: number) {
+  const fit = (line: string) => {
+    if (captionWidth(line) <= width) return line;
+    let cut = line;
+    while (cut.length > 1 && captionWidth(`${cut}…`) > width) cut = cut.slice(0, -1);
+    return `${cut.trimEnd()}…`;
+  };
+  if (captionWidth(name) <= width) return [name];
+  const spaces = [...name.matchAll(/ /g)].map((match) => match.index);
+  if (!spaces.length) return [fit(name)];
+  const split = spaces.reduce((best, index) => Math.abs(index - name.length / 2) < Math.abs(best - name.length / 2) ? index : best);
+  return [fit(name.slice(0, split)), fit(name.slice(split + 1))];
 }
 
 /** Keep the value reference visible while dense columns scroll underneath. */
