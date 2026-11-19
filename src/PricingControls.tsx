@@ -2,6 +2,8 @@ import { useId } from 'react';
 import type { Settings } from './state';
 import { subscriptionProviders, subscriptionSource } from './data/subscriptions';
 import { formatUtcDate } from './formatDate';
+import { Select } from './Select';
+import { Selection } from './Selection';
 
 /** Pricing settings reuse global state inside each eligible chart settings menu. */
 export function PricingControls({ settings, update }: {
@@ -15,12 +17,12 @@ export function PricingControls({ settings, update }: {
       <fieldset className="m-0 min-w-0 border-0 p-0">
         <legend className="p-0 text-[13px] font-[600] text-fg">Task cost</legend>
         <p className="mt-0.5 mb-3 text-[12px] leading-5 text-fg-2">Used by Cost per task and Cost vs intelligence. Subscription costs are estimates.</p>
-        <div className="flex gap-0.5 rounded-md bg-surface p-0.5">
+        <div className="flex gap-0.5 rounded-lg bg-track p-0.5">
           {(['api', 'subscription'] as const).map((mode) => (
-            <label key={mode} className="flex min-h-9 flex-1 cursor-pointer items-center justify-center rounded-[5px] px-2 has-[:checked]:bg-panel has-[:checked]:shadow-[var(--shadow-raised)] has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-accent has-[:focus-visible]:outline-offset-2">
+            <label key={mode} className="flex min-h-9 flex-1 cursor-pointer items-center justify-center rounded-md px-2 font-[500] has-[:checked]:bg-thumb has-[:checked]:shadow-[var(--shadow-raised)] has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-accent has-[:focus-visible]:outline-offset-2">
               <input className="sr-only" type="radio" name={`${id}-pricing`} checked={settings.pricingMode === mode}
                 onChange={() => update({ pricingMode: mode })} />
-              <span className={`whitespace-nowrap ${settings.pricingMode === mode ? 'font-[550] text-accent' : 'text-fg-2 hover:text-fg'}`}>
+              <span className={`whitespace-nowrap ${settings.pricingMode === mode ? 'text-accent' : 'text-fg-2 hover:text-fg'}`}>
                 {mode === 'api' ? 'API prices' : 'Subscription'}
               </span>
             </label>
@@ -34,7 +36,7 @@ export function PricingControls({ settings, update }: {
             {subscriptionProviders.map((provider) => (
               <label key={provider.id} className="contents">
                 <span className="text-[12px] text-fg-2">{provider.name}</span>
-                <select className="min-h-9 w-full min-w-0 rounded-md border border-line-2 bg-panel px-2 text-[13px] text-fg hover:border-fg-3 focus-visible:outline-2 focus-visible:outline-accent"
+                <Select
                   value={settings.subscriptionPlans[provider.id] ?? ''}
                   onChange={(event) => {
                     const plans = { ...settings.subscriptionPlans };
@@ -44,12 +46,13 @@ export function PricingControls({ settings, update }: {
                   }}>
                   <option value="">Default for each model</option>
                   {provider.plans.map((plan) => <option key={plan.id} value={plan.id}>{plan.id}, ${plan.feeUsd}/mo</option>)}
-                </select>
+                </Select>
               </label>
             ))}
           </div>
-          <label className="mt-3 flex min-h-10 cursor-pointer items-center gap-2.5 text-fg">
-            <input className="size-3.5 accent-[var(--accent)]" type="checkbox" checked={settings.countResets} onChange={(event) => update({ countResets: event.target.checked })} />
+          <label className="-mx-2 mt-3 flex min-h-10 cursor-pointer items-center gap-2.5 rounded-md px-2 text-fg hover:bg-hover has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-accent">
+            <input className="sr-only" type="checkbox" checked={settings.countResets} onChange={(event) => update({ countResets: event.target.checked })} />
+            <Selection checked={settings.countResets} />
             Count bonus resets
           </label>
           <p className="mt-1 mb-0 text-[12px] leading-5 text-fg-2">

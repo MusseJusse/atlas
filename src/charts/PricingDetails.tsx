@@ -2,8 +2,8 @@ import type { Model } from '../data/schema';
 import { subscriptionSource } from '../data/subscriptions';
 
 export function taskCostLabel(model: Model) {
-  return model.taskPricing?.basis === 'subscription' ? 'Estimated subscription / task'
-    : model.taskPricing?.basis === 'api-fallback' ? 'Cost per task · API fallback' : 'Cost per task · API';
+  return model.taskPricing?.basis === 'subscription' ? 'Estimated subscription cost per task'
+    : model.taskPricing?.basis === 'api-fallback' ? 'Cost per task (API fallback)' : 'Cost per task (API)';
 }
 
 /** Keep estimate provenance available in both the desktop inspector and phone ranges. */

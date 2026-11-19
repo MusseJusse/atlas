@@ -39,7 +39,8 @@ export function format(
       '$' +
       formatNumber(
         value,
-        metric === 'costTotal' ? 0 : value < 1 ? 3 : 2,
+        // Axis ticks below a tenth of a cent need more places, or neighbouring ticks read the same.
+        metric === 'costTotal' ? 0 : compact && value > 0 && value < 0.001 ? Math.ceil(-Math.log10(value)) + 1 : value < 1 ? 3 : 2,
         metric === 'cost' && !compact ? 2 : 0,
       )
     );

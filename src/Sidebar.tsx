@@ -26,6 +26,7 @@ export const Sidebar = memo(function Sidebar({
   const [showOpen, setShowOpen] = useState(false);
   const [showOlder, setShowOlder] = useState(false);
   const input = useRef<HTMLInputElement>(null);
+  const catalog = useRef<HTMLDivElement>(null);
   const panel = useRef<HTMLElement>(null);
 
   useEffect(() => {
@@ -115,7 +116,7 @@ export const Sidebar = memo(function Sidebar({
   return (
     <aside
       id="model-filters"
-      className={`flex h-full min-h-0 flex-col gap-4 overflow-hidden pr-1 pb-3 [scrollbar-width:thin] [scrollbar-color:var(--line-2)_var(--bg)] [&>:not(.model-catalog)]:shrink-0 mobile:fixed mobile:inset-0 mobile:z-10 mobile:h-dvh mobile:overflow-auto mobile:bg-bg mobile:px-4 mobile:pt-0 mobile:pb-[calc(24px+env(safe-area-inset-bottom))] ${open ? 'mobile:flex' : 'mobile:hidden'}`}
+      className={`flex h-full min-h-0 flex-col gap-4 short:gap-3 overflow-hidden pr-1 pb-3 [scrollbar-width:thin] [scrollbar-color:var(--line-2)_var(--bg)] [&>:not(.model-catalog)]:shrink-0 mobile:fixed mobile:inset-0 mobile:z-10 mobile:h-dvh mobile:overflow-auto mobile:bg-bg mobile:px-4 mobile:pt-0 mobile:pb-[calc(24px+env(safe-area-inset-bottom))] ${open ? 'mobile:flex' : 'mobile:hidden'}`}
       ref={panel}
       aria-label="Model filters"
       role={open ? 'dialog' : undefined}
@@ -161,10 +162,10 @@ export const Sidebar = memo(function Sidebar({
       <div
         role="group"
         aria-label="Model selection"
-        className="flex gap-0.5 rounded-lg bg-surface-2 p-0.5"
+        className="flex gap-0.5 rounded-lg bg-track p-0.5"
       >
         <button
-          className="min-h-8 flex-1 rounded-md text-[12px] text-fg-2 hover:text-fg aria-pressed:bg-panel aria-pressed:font-[550] aria-pressed:text-accent aria-pressed:shadow-[var(--shadow-raised)] mobile:min-h-11 mobile:text-[13px]"
+          className="min-h-8 flex-1 rounded-md text-[12px] font-[500] text-fg-2 hover:text-fg aria-pressed:bg-thumb aria-pressed:text-accent aria-pressed:shadow-[var(--shadow-raised)] mobile:min-h-11 mobile:text-[13px]"
           aria-pressed={
             settings.selected.length === defaults.selected.length &&
             defaults.selected.every((id) => settings.selected.includes(id))
@@ -174,23 +175,24 @@ export const Sidebar = memo(function Sidebar({
           Default
         </button>
         <button
-          className="min-h-8 flex-1 rounded-md text-[12px] text-fg-2 hover:text-fg aria-pressed:bg-panel aria-pressed:font-[550] aria-pressed:text-accent aria-pressed:shadow-[var(--shadow-raised)] mobile:min-h-11 mobile:text-[13px]"
+          className="min-h-8 flex-1 rounded-md text-[12px] font-[500] text-fg-2 hover:text-fg aria-pressed:bg-thumb aria-pressed:text-accent aria-pressed:shadow-[var(--shadow-raised)] mobile:min-h-11 mobile:text-[13px]"
           aria-pressed={settings.selected.length === families.length}
           onClick={() => update({ selected: families.map((family) => family.family) })}
         >
           All
         </button>
         <button
-          className="min-h-8 flex-1 rounded-md text-[12px] text-fg-2 hover:text-fg aria-pressed:bg-panel aria-pressed:font-[550] aria-pressed:text-accent aria-pressed:shadow-[var(--shadow-raised)] mobile:min-h-11 mobile:text-[13px]"
+          className="min-h-8 flex-1 rounded-md text-[12px] font-[500] text-fg-2 hover:text-fg aria-pressed:bg-thumb aria-pressed:text-accent aria-pressed:shadow-[var(--shadow-raised)] mobile:min-h-11 mobile:text-[13px]"
           aria-pressed={settings.selected.length === 0}
           onClick={() => update({ selected: [] })}
         >
           Clear
         </button>
       </div>
-      <div className="model-catalog min-h-0 flex-1 overflow-y-auto pr-1 mobile:flex-none mobile:overflow-visible">
+      <div ref={catalog}
+        className="model-catalog scroll-fade min-h-0 flex-1 overflow-y-auto pr-1 [--fade-surface:var(--bg)] mobile:flex-none mobile:overflow-visible">
         {sections.map((section) => (
-          <div className="mb-4 last:mb-0" key={section.name}>
+          <div className="mb-4 last:mb-0" key={section.name} data-section={section.name}>
             <div className="mb-1 flex items-baseline gap-2.5">
               <h3 className="flex-1 text-[13px] font-[600] mobile:text-[15px]">{section.name}</h3>
               {section.name !== 'Frontier' && section.items.length > 0 && (
@@ -205,7 +207,7 @@ export const Sidebar = memo(function Sidebar({
             {section.items.map((family) => (
               <button
                 key={family.family}
-                className={`group flex min-h-8 w-full items-center gap-2.5 rounded-md px-1.5 text-left text-[13px] text-fg-2 hover:bg-hover hover:text-fg aria-pressed:font-[550] aria-pressed:text-fg mobile:min-h-11 mobile:text-[15px] ${settings.frontier && settings.selected.includes(family.family) ? (frontier.has(family.family) ? 'font-[550]' : 'opacity-50 hover:opacity-100 focus-visible:opacity-100') : ''}`}
+                className={`group flex min-h-8 short:min-h-7 w-full items-center gap-2.5 rounded-md px-1.5 text-left text-[13px] text-fg-2 hover:bg-hover hover:text-fg aria-pressed:font-[550] aria-pressed:text-fg mobile:min-h-11 mobile:text-[15px] ${settings.frontier && settings.selected.includes(family.family) ? (frontier.has(family.family) ? 'font-[550]' : 'opacity-50 hover:opacity-100 focus-visible:opacity-100') : ''}`}
                 aria-pressed={settings.selected.includes(family.family)}
                 onClick={() => toggle(family.family)}
                 onMouseEnter={() => onHighlight(family.family)}
@@ -219,7 +221,7 @@ export const Sidebar = memo(function Sidebar({
                 {/* A filled model-colour check makes selection readable without relying on weight alone. */}
                 <span
                   aria-hidden="true"
-                  className="flex size-4 shrink-0 items-center justify-center rounded-[4px] border border-line-2 text-on-accent group-aria-pressed:border-transparent group-aria-pressed:bg-[var(--model-color)]"
+                  className="flex size-4 shrink-0 items-center justify-center rounded-[4px] border border-control-border text-on-accent group-aria-pressed:border-transparent group-aria-pressed:bg-[var(--model-color)]"
                   style={{ '--model-color': modelColor(family.model) } as CSSProperties}
                 >
                   <Check size={11} strokeWidth={3.25} className="hidden group-aria-pressed:block" />
@@ -257,7 +259,11 @@ export const Sidebar = memo(function Sidebar({
         <button
           className="inline-flex min-h-10 items-center gap-1.5 self-start text-left text-[13px] font-[550] text-accent hover:underline mobile:min-h-11 mobile:text-[14px]"
           aria-expanded={browse}
-          onClick={() => setBrowse(!browse)}
+          onClick={() => {
+            setBrowse(!browse);
+            // Bring the newly listed models into view instead of appending them below the fold.
+            if (!browse) requestAnimationFrame(() => catalog.current?.querySelector('[data-section="Other"]')?.scrollIntoView({ block: 'start', behavior: 'smooth' }));
+          }}
         >
           {browse ? 'Show fewer models' : 'Show all models'}
           <ChevronDown size={14} aria-hidden="true" className={browse ? 'rotate-180' : undefined} />
@@ -265,14 +271,14 @@ export const Sidebar = memo(function Sidebar({
         {browse && (
           <div className="flex gap-2">
             <button
-              className="min-h-7 rounded-full border border-line-2 px-2.5 text-[12px] text-fg-2 hover:text-fg aria-pressed:border-accent aria-pressed:bg-accent-soft aria-pressed:text-accent mobile:min-h-9 mobile:text-[14px]"
+              className="min-h-8 rounded-md border border-dashed border-line-2 px-2.5 text-[12px] text-fg-3 hover:bg-hover hover:text-fg aria-pressed:border-solid aria-pressed:border-transparent aria-pressed:bg-accent-soft aria-pressed:font-[550] aria-pressed:text-accent mobile:min-h-11 mobile:px-3 mobile:text-[14px]"
               aria-pressed={showOpen}
               onClick={() => setShowOpen(!showOpen)}
             >
               Open weights
             </button>
             <button
-              className="min-h-7 rounded-full border border-line-2 px-2.5 text-[12px] text-fg-2 hover:text-fg aria-pressed:border-accent aria-pressed:bg-accent-soft aria-pressed:text-accent mobile:min-h-9 mobile:text-[14px]"
+              className="min-h-8 rounded-md border border-dashed border-line-2 px-2.5 text-[12px] text-fg-3 hover:bg-hover hover:text-fg aria-pressed:border-solid aria-pressed:border-transparent aria-pressed:bg-accent-soft aria-pressed:font-[550] aria-pressed:text-accent mobile:min-h-11 mobile:px-3 mobile:text-[14px]"
               aria-pressed={showOlder}
               onClick={() => setShowOlder(!showOlder)}
             >

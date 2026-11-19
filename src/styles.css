@@ -39,6 +39,11 @@
     --accent: var(--lightningcss-light, #3456d8) var(--lightningcss-dark, #a4b8ff);
     --accent-soft: var(--lightningcss-light, #e0e7fd) var(--lightningcss-dark, #304374);
     --surface-2: var(--lightningcss-light, #e3e9f3) var(--lightningcss-dark, #0e1522);
+    /* Segmented controls: the track is always darker than the selected thumb, in both themes. */
+    --track: var(--lightningcss-light, #e6ebf3) var(--lightningcss-dark, #0f1724);
+    --thumb: var(--lightningcss-light, #fff) var(--lightningcss-dark, #2b3a56);
+    /* Empty checkbox outlines meet 3:1 against the sheet. */
+    --control-border: var(--lightningcss-light, #8592a8) var(--lightningcss-dark, #73829c);
     --positive: var(--lightningcss-light, #1d7f55) var(--lightningcss-dark, #74d3a8);
     --positive-soft: var(--lightningcss-light, #ddf2e7) var(--lightningcss-dark, #1d3b34);
     --negative: var(--lightningcss-light, #b4372f) var(--lightningcss-dark, #ffa296);
@@ -146,6 +151,9 @@
   --color-surface: var(--surface);
   --color-accent: var(--accent);
   --color-surface-2: var(--surface-2);
+  --color-track: var(--track);
+  --color-thumb: var(--thumb);
+  --color-control-border: var(--control-border);
   --color-positive: var(--positive);
   --color-positive-soft: var(--positive-soft);
   --color-negative: var(--negative);
@@ -159,6 +167,17 @@
   font-variation-settings: 'opsz' 40;
   font-weight: 720;
   letter-spacing: -0.028em;
+}
+
+/* Shadows appear at an edge only while more content scrolls past it, using the surface colour beneath. */
+@utility scroll-fade {
+  --fade-surface: var(--panel);
+  background:
+    linear-gradient(var(--fade-surface) 30%, transparent) top / 100% 24px no-repeat local,
+    linear-gradient(transparent, var(--fade-surface) 70%) bottom / 100% 24px no-repeat local,
+    linear-gradient(color-mix(in srgb, var(--fg) 10%, transparent), transparent) top / 100% 12px no-repeat scroll,
+    linear-gradient(transparent, color-mix(in srgb, var(--fg) 10%, transparent)) bottom / 100% 12px no-repeat scroll,
+    var(--fade-surface);
 }
 
 /* Workspace breakpoints, including short desktop windows. */
@@ -265,13 +284,13 @@
 .chart-navigation { border-bottom: 1px solid var(--line); padding-top: 4px; }
 .chart-categories, .chart-subnavigation { display: flex; justify-content: space-between; gap: 2px; }
 /* Categories read as a segmented control; the charts inside one read as tabs. */
-.chart-categories { padding: 2px; border-radius: 8px; background: var(--surface); }
+.chart-categories { padding: 2px; border-radius: 8px; background: var(--track); }
 .chart-subnavigation { flex-wrap: wrap; gap: 8px; }
-.chart-navigation button { position: relative; flex: 1 1 auto; min-height: 44px; font-size: 13px; color: var(--fg-2); }
+.chart-navigation button { position: relative; flex: 1 1 auto; min-height: 44px; font-size: 13px; font-weight: 500; color: var(--fg-2); }
 .chart-categories button { min-height: 38px; border-radius: 6px; }
-.chart-categories button[aria-current] { color: var(--accent); font-weight: 600; background: var(--panel); box-shadow: var(--shadow-raised); }
+.chart-categories button[aria-current] { color: var(--accent); background: var(--thumb); box-shadow: var(--shadow-raised); }
 .chart-subnavigation button { margin-bottom: -1px; border-bottom: 2px solid transparent; }
-.chart-subnavigation button[aria-current] { color: var(--accent); font-weight: 600; border-bottom-color: var(--accent); }
+.chart-subnavigation button[aria-current] { color: var(--accent); border-bottom-color: var(--accent); }
 .chart-navigation-phone:not(:has(.chart-subnavigation)) { padding-bottom: 6px; }
 @media (width < 380px) { .chart-subnavigation:has(button:nth-child(4)) { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 
@@ -339,7 +358,15 @@
 
 .ranking-expanded:not(:has(.ranking-inspector)) { grid-template-columns: 1fr; }
 .ranking-row, .ranking-configurations button { scroll-margin-top: 40px; }
-@media (width <= 900px) { .ranking-row, .ranking-configurations button, .ranking-expanded { scroll-margin-top: calc(var(--header-height) + 160px); } }
+@media (width <= 900px) { .ranking-row, .ranking-configurations button, .ranking-expanded { scroll-margin-top: var(--sticky-offset, calc(var(--header-height) + 160px)); } }
+
+/* Divide stacked charts with a rule inset to the content, matching the tab rule above. */
+.chart-section + .chart-section {
+  background: linear-gradient(var(--line), var(--line)) no-repeat 24px 0 / calc(100% - 48px) 1px;
+}
+@media (width <= 900px) {
+  .chart-section + .chart-section { background-position: 16px 0; background-size: calc(100% - 32px) 1px; }
+}
 
 .ranking-toolbar { min-height: 44px; padding-block: 4px; }
 .benchmark-feed { scrollbar-width: auto; scrollbar-gutter: stable; }

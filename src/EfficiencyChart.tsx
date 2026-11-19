@@ -5,7 +5,7 @@ import { efficiencyGeometry } from './charts/efficiency-geometry';
 import { formatUtcDate } from './formatDate';
 import { nearestPoint, pinHandlers } from './charts/interactions';
 
-const monthFormat = new Intl.DateTimeFormat('en-GB', { month: 'short', year: '2-digit', timeZone: 'UTC' });
+const monthFormat = new Intl.DateTimeFormat('en-US', { month: 'short', year: 'numeric', timeZone: 'UTC' });
 const costFormat = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumSignificantDigits: 4 });
 
 // Threshold colors stay distinct and readable in both existing Atlas themes.

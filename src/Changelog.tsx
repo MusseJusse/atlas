@@ -58,14 +58,14 @@ export function Changelog({ history = bundledHistory }: { history?: ChangeHistor
         <div
           role="group"
           aria-label="Filter model changes"
-          className="mt-5 inline-flex flex-wrap gap-0.5 rounded-lg bg-surface p-0.5"
+          className="mt-5 inline-flex gap-0.5 rounded-lg bg-track p-0.5 phone:flex"
         >
           {filters.map(({ id, label }) => (
             <button
               key={id}
               onClick={() => setFilter(id)}
               aria-pressed={filter === id}
-              className="min-h-9 rounded-md px-3.5 text-[13px] text-fg-2 aria-pressed:bg-panel aria-pressed:font-[550] aria-pressed:text-accent aria-pressed:shadow-[var(--shadow-raised)] [&:hover]:text-fg phone:px-2.5"
+              className="min-h-9 rounded-md px-3.5 text-[13px] font-[500] whitespace-nowrap text-fg-2 aria-pressed:bg-thumb aria-pressed:text-accent aria-pressed:shadow-[var(--shadow-raised)] [&:hover]:text-fg phone:min-h-10 phone:flex-1 phone:px-1"
             >
               {label}
             </button>
@@ -101,9 +101,10 @@ export function Changelog({ history = bundledHistory }: { history?: ChangeHistor
             {batch.changes.map((change) => (
               <article
                 key={change.id}
-                className="grid grid-cols-[80px_minmax(0,1fr)] gap-5 border-t border-line py-4 phone:grid-cols-[72px_minmax(0,1fr)] phone:gap-3"
+                className={`grid gap-5 border-t border-line py-3.5 phone:gap-3 ${filter === 'all' ? 'grid-cols-[80px_minmax(0,1fr)] phone:grid-cols-[68px_minmax(0,1fr)]' : 'grid-cols-1'}`}
               >
-                <span className="mt-0.5">
+                {/* The filter already names the kind, so only "All changes" repeats it visually. */}
+                <span className={filter === 'all' ? 'mt-0.5' : 'sr-only'}>
                   <span className={`inline-flex rounded-full px-2 py-0.5 text-[11px] font-[600] ${kindStyles[change.kind]}`}>
                     {kindLabels[change.kind]}
                   </span>
@@ -113,10 +114,8 @@ export function Changelog({ history = bundledHistory }: { history?: ChangeHistor
                     {change.name}
                     <span className="ml-2 text-[12px] font-normal text-fg-2">{change.effortLabel}</span>
                   </h3>
-                  {change.kind !== 'updated' && (
-                    <p className="mt-0.5 mb-0 text-[12px] text-fg-2">
-                      {change.kind === 'added' ? 'New benchmark entry' : 'No longer present in the source'}
-                    </p>
+                  {change.kind === 'removed' && (
+                    <p className="mt-0.5 mb-0 text-[12px] text-fg-2">No longer present in the source</p>
                   )}
                   {change.fields.length > 0 && (
                     <table className="mt-3 w-full table-fixed border-collapse overflow-hidden rounded-md bg-surface text-left text-[12px] leading-5">
@@ -157,14 +156,16 @@ export function Changelog({ history = bundledHistory }: { history?: ChangeHistor
                 </div>
               </article>
             ))}
-            <p className="mt-2 mb-0 text-[11px] leading-5 text-fg-3">
-              Source snapshot {formatUtcDateTime(batch.fetchedAt)}
-            </p>
+            {formatUtcDateTime(batch.fetchedAt) !== formatUtcDateTime(batch.checkedAt) && (
+              <p className="mt-2 mb-0 text-[12px] leading-5 text-fg-3">
+                Source snapshot {formatUtcDateTime(batch.fetchedAt)}
+              </p>
+            )}
           </section>
         ))}
         <footer className="mt-10 border-t border-line pt-4 text-[12px] leading-6 text-fg-2">
           Data from{' '}
-          <a href={history.source} target="_blank" rel="noreferrer" className="underline underline-offset-4">
+          <a href={history.source} target="_blank" rel="noreferrer" className="underline underline-offset-4 hover:text-accent">
             Artificial Analysis
           </a>
           . This page shows published data updates.

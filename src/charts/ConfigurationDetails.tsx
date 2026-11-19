@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import { PricingDetails, taskCostLabel } from './PricingDetails';
 import { X } from 'lucide-react';
 import { Logo } from '../Logo';
@@ -12,11 +13,14 @@ export function ConfigurationDetails({
   metric,
   pinned,
   onClose,
+  summary,
 }: {
   model: Model;
   metric: Metric;
   pinned: boolean;
   onClose: () => void;
+  /** The page's headline finding for this configuration, shown before the measurements. */
+  summary?: ReactNode;
 }) {
   const scoreMetric = metric === 'omniscience' ? 'omniscience' : 'intelligence';
   // Keep the active chart metric and two supporting values without duplicate rows.
@@ -25,7 +29,7 @@ export function ConfigurationDetails({
     ? [['Coding Agent Index v2.0', format(model.codingScore ?? null, 'intelligence')], ['Cost per task', format(model.cost, 'cost')]]
     : model.cyber
     ? [['Cyber Index', format(model.cyberScore ?? null, 'intelligence')], ['Cost per task', format(model.cost, 'cost')]]
-    : displayMetrics.map((measurement) => [measurement === 'cost' ? taskCostLabel(model) : measurement === 'costTotal' ? 'Total cost · API' : metrics[measurement].label, formatModelValue(model, measurement)]);
+    : displayMetrics.map((measurement) => [measurement === 'cost' ? taskCostLabel(model) : measurement === 'costTotal' ? 'Total cost (API)' : metrics[measurement].label, formatModelValue(model, measurement)]);
   return (
     <div className="configuration-inspector">
       <div className="flex items-start justify-between gap-2">
@@ -44,11 +48,12 @@ export function ConfigurationDetails({
         )}
       </div>
       <div className="mt-1 flex items-baseline justify-between gap-3 text-[12px] text-fg-2">
-        <span>{model.codingAgent?.configuration ?? model.cyber?.configuration ?? (model.effort === 'none' ? 'No reasoning' : model.effortLabel)}</span>
+        <span>{model.codingAgent?.configuration ?? model.cyber?.configuration ?? (model.effort === 'none' ? 'No reasoning' : `Reasoning: ${model.effortLabel}`)}</span>
         {!pinned && <span className="text-fg-3">Click to pin</span>}
       </div>
+      {summary}
       {model.taskPricing?.basis === 'subscription' && (
-        <p className="mt-2 mb-0 text-[10px] leading-4 text-fg-2">Full allowance for one model. External token mix, not measured subscription spend.</p>
+        <p className="mt-2 mb-0 text-[11px] leading-4 text-fg-2">Full allowance for one model. External token mix, not measured subscription spend.</p>
       )}
       <dl className="mt-3 mb-3 divide-y divide-line border-y border-line text-[12px]">
         {measurements.map(([label, value]) => (
@@ -59,13 +64,13 @@ export function ConfigurationDetails({
         ))}
       </dl>
       {model.taskPricing?.basis === 'subscription' && (
-        <div className="flex items-baseline justify-between gap-3 text-[11px]">
-          <span className="text-fg-2">Measured API / task</span><span className="font-semibold">{format(model.taskPricing.apiCost, 'cost')}</span>
+        <div className="flex items-baseline justify-between gap-3 text-[12px]">
+          <span className="text-fg-2">Measured API cost per task</span><span className="font-[600] tabular-nums">{format(model.taskPricing.apiCost, 'cost')}</span>
         </div>
       )}
       <PricingDetails model={model} />
       {pinned && model.speedSource && (
-        <p className="mt-3 mb-2 text-[10px] text-fg-2">
+        <p className="mt-3 mb-2 text-[11px] text-fg-2">
           Speed snapshot: {model.speedSource.fetchedAt.slice(0, 10)}
         </p>
       )}

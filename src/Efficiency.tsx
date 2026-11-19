@@ -8,6 +8,7 @@ import { EfficiencyChart, efficiencyColors, recordKey } from './EfficiencyChart'
 import { ConfigurationDetails } from './charts/ConfigurationDetails';
 import { resolveChartInteraction } from './chart-interactions';
 import { formatUtcDate } from './formatDate';
+import { Select } from './Select';
 
 const source = 'https://artificialanalysis.ai/trends#efficiency';
 const lines = efficiencySeries(snapshot.models);
@@ -65,9 +66,9 @@ export function Efficiency() {
       >
         <aside aria-label="Efficiency controls" className="min-h-0 min-w-0 overflow-y-auto pt-2 mobile:contents">
           <fieldset className="efficiency-filters m-0 min-w-0 border-0 p-0">
-            <legend className="mb-1 text-[13px] font-[600]">Intelligence Index</legend>
+            <legend className="mb-1 text-[18px] font-[650] tracking-[-0.3px]">Intelligence index</legend>
             <p className="mt-0 mb-3 text-[12px] leading-5 text-fg-2 mobile:hidden">Show the cheapest model at or above each score.</p>
-            <div className="flex flex-col gap-0.5 mobile:flex-row mobile:flex-wrap mobile:gap-x-2 mobile:gap-y-0">
+            <div className="flex flex-col gap-0.5 mobile:grid mobile:grid-cols-6 mobile:gap-x-1 phone:grid-cols-3">
               {lines.map((line) => (
                 <label key={line.threshold} className="flex min-h-10 cursor-pointer items-center gap-2.5 rounded-md px-1.5 text-[13px] hover:bg-hover has-[:checked]:font-[550] mobile:min-h-11">
                   <input
@@ -84,7 +85,7 @@ export function Efficiency() {
                   />
                   <span
                     aria-hidden="true"
-                    className="flex size-4 shrink-0 items-center justify-center rounded-[4px] border border-line-2 text-white peer-checked:border-transparent peer-checked:bg-[var(--line-color)] peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-accent [&>svg]:invisible peer-checked:[&>svg]:visible"
+                    className="flex size-4 shrink-0 items-center justify-center rounded-[4px] border border-control-border text-on-accent peer-checked:border-transparent peer-checked:bg-[var(--line-color)] peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-accent [&>svg]:invisible peer-checked:[&>svg]:visible"
                     style={{ '--line-color': efficiencyColors[line.threshold] } as CSSProperties}
                   >
                     <Check size={11} strokeWidth={3.25} />
@@ -107,30 +108,27 @@ export function Efficiency() {
                   metric="cost"
                   pinned={activePinned}
                   onClose={clearSelection}
+                  summary={activeLine && (
+                    <p className="mt-3 mb-0 text-[15px] leading-5 font-[600] text-fg">
+                      {activeLine.points[0] === active.point
+                        ? 'First record at this threshold'
+                        : `${new Intl.NumberFormat('en', { maximumFractionDigits: 1 }).format(costMultiplier(activeLine, active.point))}× cheaper after ${elapsedTimeSinceFirstRecord(activeLine, active.point)}`}
+                    </p>
+                  )}
                 />
-                <div role="group" aria-label="Record details" className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 border-t border-line pt-2 text-[11px] text-fg-2">
+                <div role="group" aria-label="Record details" className="mt-3 flex flex-col gap-2 border-t border-line pt-3 text-[12px] text-fg-2">
                   {coincident.length > 1 ? (
-                    <select
+                    <Select
                       aria-label="Threshold for overlapping records"
                       value={recordKey(active)}
                       onChange={(event) => { setPinned(event.currentTarget.value); setHovered(null); }}
-                      className="min-h-10 min-w-0 max-w-full rounded border border-line bg-panel px-2 font-sans text-[11px] text-fg focus-visible:outline-2 focus-visible:outline-accent focus-visible:outline-offset-2"
+                      className="w-full"
                     >
                       {coincident.map((record) => <option key={recordKey(record)} value={recordKey(record)}>Intelligence ≥ {record.threshold}</option>)}
-                    </select>
+                    </Select>
                   ) : <span>Intelligence ≥ {active.threshold}</span>}
                   <time dateTime={active.point.date}>{formatUtcDate(active.point.date, 'short')}</time>
                 </div>
-                {activeLine && (
-                  <div className="mt-2 text-[11px] text-fg-2">
-                    <div className="text-[18px] font-semibold tracking-[-0.3px] text-fg">
-                      {activeLine.points[0] === active.point ? 'First record' : `${new Intl.NumberFormat('en', { maximumFractionDigits: 1 }).format(costMultiplier(activeLine, active.point))}× cheaper`}
-                    </div>
-                    {activeLine.points[0] !== active.point && (
-                      <div className="text-[18px] font-semibold tracking-[-0.3px] text-fg">after {elapsedTimeSinceFirstRecord(activeLine, active.point)}</div>
-                    )}
-                  </div>
-                )}
               </aside>
             )}
           </div>
@@ -159,9 +157,12 @@ export function Efficiency() {
             />
           </div>
           <div className="efficiency-footer">
-            <footer className="mt-1 flex shrink-0 flex-wrap justify-between gap-x-4 text-[12px] leading-5 text-fg-3">
-              <a href={source} className="underline underline-offset-4 hover:text-accent">Source: Artificial Analysis</a>
-              <span>Snapshot <time dateTime={snapshot.fetchedAt}>{formatUtcDate(snapshot.fetchedAt, 'short')}</time></span>
+            <footer className="mt-3 flex shrink-0 flex-wrap justify-between gap-x-4 text-[12px] leading-5 text-fg-3">
+              <span>
+                Data from{' '}
+                <a href={source} className="underline-offset-4 hover:text-accent hover:underline">Artificial Analysis</a>
+              </span>
+              <span>Snapshot captured <time dateTime={snapshot.fetchedAt}>{formatUtcDate(snapshot.fetchedAt, 'short')}</time></span>
             </footer>
           </div>
         </section>

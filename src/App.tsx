@@ -1,5 +1,5 @@
 import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { ArrowDown, Ellipsis, SlidersHorizontal } from 'lucide-react';
+import { Settings2 } from 'lucide-react';
 import { PricingControls } from './PricingControls';
 import { pricingDisclosure, subscriptionRows, usesSubscriptionPricing } from './data/subscriptions';
 import { Chart } from './Charts';
@@ -15,11 +15,11 @@ import { chartDescending, readSettings, readView, writeSettings, type Settings }
 import { formatUtcDate } from './formatDate';
 import { SiteHeader } from './SiteHeader';
 
-const segments = 'flex gap-0.5 rounded-md bg-surface p-0.5';
+const segments = 'flex gap-0.5 rounded-lg bg-track p-0.5';
 const segment =
-  'min-h-8 rounded-[5px] px-2.5 text-[12px] text-fg-2 hover:text-fg aria-pressed:bg-panel aria-pressed:font-[550] aria-pressed:text-accent aria-pressed:shadow-[var(--shadow-raised)]';
+  'min-h-8 flex-1 rounded-md px-2.5 text-[12px] font-[500] whitespace-nowrap text-fg-2 hover:text-fg aria-pressed:bg-thumb aria-pressed:text-accent aria-pressed:shadow-[var(--shadow-raised)]';
 const menuItem = 'inline-flex min-h-10 w-full items-center gap-2.5 rounded-md px-2 text-[13px] text-fg hover:bg-hover';
-const menuLabel = 'px-2 pt-3 pb-1 text-[13px] font-[600] text-fg';
+const menuLabel = 'px-2 pt-2 pb-1 text-[13px] font-[600] text-fg';
 
 const loadChangelog = () => import('./Changelog');
 const loadEfficiency = () => import('./Efficiency');
@@ -98,6 +98,22 @@ function Benchmarks() {
   const mobile = useMediaQuery('(max-width: 900px)');
   const phone = useMediaQuery('(max-width: 600px)');
   const { active, navigate, feed, chartNavigation } = useChartNavigation(mobile);
+  const stickyBar = useRef<HTMLDivElement>(null);
+  // Phone sections scroll to just below the sticky bar, whose height changes with the open category.
+  // The section's top rule tucks under the bar's own border so the two never double up.
+  useEffect(() => {
+    const bar = stickyBar.current;
+    if (!mobile || !bar) return;
+    const root = document.documentElement;
+    const measure = () => root.style.setProperty('--sticky-offset', `calc(var(--header-height) + ${Math.ceil(bar.offsetHeight) - 1}px)`);
+    measure();
+    const observer = new ResizeObserver(measure);
+    observer.observe(bar);
+    return () => {
+      observer.disconnect();
+      root.style.removeProperty('--sticky-offset');
+    };
+  }, [mobile]);
   const update = useCallback(
     (patch: Partial<Settings>) => setSettings((current) => ({ ...current, ...patch })),
     [],
@@ -158,21 +174,18 @@ function Benchmarks() {
         <main
           id="benchmark-workspace"
           tabIndex={-1}
-          className="grid min-h-0 min-w-0 grid-rows-[auto_minmax(0,1fr)] rounded-[14px] bg-panel [outline:none] mobile:block"
+          className="grid min-h-0 min-w-0 grid-rows-[auto_minmax(0,1fr)] rounded-[14px] bg-panel [outline:none] mobile:block mobile:overflow-clip"
         >
           <h1 className="sr-only">Model benchmarks</h1>
-          <div className="min-w-0 px-6 mobile:sticky mobile:top-[var(--header-height)] mobile:z-[6] mobile:rounded-t-xl mobile:bg-panel mobile:px-4">
+          <div ref={stickyBar} className="min-w-0 px-6 mobile:sticky mobile:top-[var(--header-height)] mobile:z-[6] mobile:bg-panel mobile:px-4">
             <button
-              className="hidden w-full items-center gap-2.5 border-b border-line py-2 text-left text-[13px] text-fg-2 mobile:flex!"
+              className="hidden min-h-12 w-full items-center gap-2 pt-1 text-left text-[13px] text-fg-2 mobile:flex!"
               onClick={() => setMobileOpen(true)}
               aria-haspopup="dialog"
               aria-controls="model-filters"
               aria-expanded={mobileOpen}
             >
-              <span className="flex size-7 items-center justify-center rounded-md bg-surface text-fg">
-                <SlidersHorizontal size={15} aria-hidden="true" />
-              </span>
-              <span className="font-[550] text-fg">Models</span>
+              <span className="font-[600] text-fg">Models</span>
               <span className="tabular-nums">{settings.selected.length} selected</span>
               <span className="ml-auto rounded-md bg-accent-soft px-2.5 py-1 text-[12px] font-[550] text-accent">Edit selection</span>
             </button>
@@ -184,7 +197,7 @@ function Benchmarks() {
               {views.map((view) => (
                 <button
                   key={view.id}
-                  className="-mb-px min-h-[52px] shrink-0 border-b-2 border-transparent text-[13px] text-fg-2 short:min-h-11 hover:text-fg aria-[current=page]:border-accent aria-[current=page]:font-[550] aria-[current=page]:text-accent"
+                  className="-mb-px min-h-[52px] shrink-0 border-b-2 border-transparent text-[13px] font-[500] text-fg-2 short:min-h-11 hover:text-fg aria-[current=page]:border-accent aria-[current=page]:text-accent"
                   aria-current={active === view.id ? 'page' : undefined}
                   onClick={() => navigate(view.id)}
                 >
@@ -205,7 +218,7 @@ function Benchmarks() {
               const hasFallback = !(scatter && settings.frontier) && chartRows.some((row) => row.cost !== null && row.taskPricing?.basis === 'api-fallback');
               return (
                 <section
-                  className="chart-section flex h-full snap-start flex-col px-6 pt-5 pb-4 short:pt-4 short:pb-3 [&+section]:border-t [&+section]:border-line mobile:h-auto mobile:scroll-mt-[190px] mobile:px-4 mobile:pb-6"
+                  className="chart-section flex h-full snap-start flex-col px-6 pt-5 pb-4 short:pt-4 short:pb-3 mobile:h-auto mobile:scroll-mt-[var(--sticky-offset,190px)] mobile:px-4 mobile:pb-6"
                   id={view.id}
                   key={view.id}
                   aria-label={view.label}
@@ -215,7 +228,7 @@ function Benchmarks() {
                       <h2 className="display m-0 text-[30px] leading-[1.1] short:text-[24px] phone:text-[24px]">
                         {view.label}
                       </h2>
-                      <p className="mt-1 mb-0 max-w-[72ch] text-[13px] leading-5 text-pretty text-fg-2 short:hidden">
+                      <p className="mt-1 mb-0 max-w-[80ch] text-[13px] leading-5 text-pretty text-fg-2 short:mt-0.5 short:text-[12px] short:leading-[18px]">
                         {view.id === 'tokens-task' && scatter
                           ? 'Each point is a reasoning level. Up and to the left uses fewer tokens for more intelligence.'
                           : viewDescriptions[view.id]}
@@ -227,14 +240,14 @@ function Benchmarks() {
                       update={update}
                       descending={chartDescending(view.metric, phone, settings.descending)}
                       pricing={view.id === 'cost-intelligence' || view.id === 'cost-task'}
+                      scatter={scatter}
                     />
                   </div>
-                  <div
-                    className={`flex min-h-[58px] shrink-0 short:min-h-12 short:py-1 flex-wrap items-center justify-between gap-x-4 gap-y-1 py-2 text-[12px] ${!scatter && view.mode !== 'optional-scatter' ? 'mobile:hidden' : ''}`}
-                  >
-                    {scatter ? (
+                  {scatter || view.mode === 'optional-scatter' ? (
+                  <div className="flex min-h-[56px] shrink-0 flex-wrap items-center justify-between gap-x-4 gap-y-1 py-2 text-[12px] short:min-h-12 short:py-1">
+                    {scatter && (
                       <button
-                        className="inline-flex min-h-8 items-center gap-2 rounded-md border border-line-2 px-2.5 text-[12px] text-fg hover:border-accent hover:text-accent aria-pressed:border-accent aria-pressed:bg-accent-soft aria-pressed:font-[550] aria-pressed:text-accent"
+                        className="-ml-1 inline-flex min-h-9 items-center gap-2 rounded-md px-1 text-[13px] text-fg hover:text-accent aria-pressed:text-accent"
                         aria-pressed={settings.frontier}
                         title="Show configurations with no better and cheaper alternative."
                         onClick={() => update({ frontier: !settings.frontier })}
@@ -242,10 +255,6 @@ function Benchmarks() {
                         <Selection checked={settings.frontier} />
                         Pareto frontier
                       </button>
-                    ) : (
-                      <span className="text-[12px] text-fg-3 mobile:hidden">
-                        {settings.grouped ? 'Grouped by model' : 'All configurations'}
-                      </span>
                     )}
                     <div className="ml-auto flex items-center gap-5 phone:gap-3">
                       {view.mode === 'optional-scatter' && (
@@ -301,6 +310,7 @@ function Benchmarks() {
                       )}
                     </div>
                   </div>
+                  ) : <div className="h-4 shrink-0 mobile:h-2" />}
                   {subscription && (
                     <p className="mt-0 mb-2 max-w-[80ch] shrink-0 text-[12px] leading-5 text-fg-2">
                       <strong className="font-[600] text-fg">Estimated subscription pricing.</strong>{' '}
@@ -355,11 +365,14 @@ function ChartOptions({
   update,
   descending,
   pricing,
+  scatter,
 }: {
   settings: Settings;
   update: (patch: Partial<Settings>) => void;
   descending: boolean;
   pricing: boolean;
+  /** Only the options for the visible chart type are shown. */
+  scatter: boolean;
 }) {
   const menu = useRef<HTMLDetailsElement>(null);
   const [open, setOpen] = useState(false);
@@ -395,58 +408,61 @@ function ChartOptions({
       }
     }}>
       <summary
-        className="flex size-10 cursor-pointer list-none items-center justify-center rounded-md border border-transparent text-fg-2 group-open:border-line group-open:bg-surface group-open:text-accent hover:bg-surface hover:text-accent focus-visible:outline-2 focus-visible:outline-accent focus-visible:outline-offset-2 [&::-webkit-details-marker]:hidden"
+        className="flex size-10 cursor-pointer list-none items-center justify-center rounded-lg border border-line text-fg-2 group-open:border-accent group-open:text-accent hover:border-line-2 hover:bg-hover hover:text-fg focus-visible:outline-2 focus-visible:outline-accent focus-visible:outline-offset-2 [&::-webkit-details-marker]:hidden"
         aria-label="Chart settings"
         title="Chart settings"
       >
-        <Ellipsis size={19} aria-hidden="true" />
+        <Settings2 size={17} aria-hidden="true" />
       </summary>
       <div
-        className={`absolute top-[calc(100%+6px)] right-0 z-20 flex ${pricing ? 'w-[344px]' : 'w-[240px]'} max-w-[calc(100vw-48px)] flex-col items-start gap-0.5 overflow-y-auto overscroll-contain rounded-xl bg-panel p-2 shadow-[var(--shadow-pop)]`}
+        className={`absolute top-[calc(100%+6px)] right-0 z-20 flex ${pricing ? 'w-[344px]' : 'w-[240px]'} max-w-[calc(100vw-64px)] scroll-fade flex-col items-start gap-0.5 overflow-y-auto overscroll-contain rounded-xl p-2 shadow-[var(--shadow-pop)]`}
         style={{ maxHeight: 'var(--chart-menu-height, 60dvh)' }}
         aria-label="Chart settings"
       >
         {pricing && <PricingControls settings={settings} update={update} />}
-        <span className={menuLabel}>Scatter charts</span>
-        <button
-          className={menuItem}
-          aria-pressed={settings.labels}
-          onClick={() => update({ labels: !settings.labels })}
-        >
-          <Selection checked={settings.labels} />
-          Labels
-        </button>
-        <span className={`${menuLabel} mt-2 w-full border-t border-line pt-4`}>Bar charts</span>
-        <button
-          className={menuItem}
-          aria-pressed={settings.grouped}
-          onClick={() => update({ grouped: !settings.grouped })}
-        >
-          <Selection checked={settings.grouped} />
-          Group by model
-        </button>
-        <button
-          className={`${menuItem} disabled:opacity-50 disabled:hover:bg-transparent`}
-          aria-pressed={settings.combined}
-          disabled={!settings.grouped}
-          title={settings.grouped ? 'Combine reasoning configurations into one bar per model.' : 'Group by model to combine reasoning bars.'}
-          onClick={() => update({ combined: !settings.combined })}
-        >
-          <Selection checked={settings.combined} />
-          Combine reasoning bars
-        </button>
-        <button
-          className={menuItem}
-          onClick={() => update({ descending: !descending })}
-        >
-          <ArrowDown
-            className="text-fg-2"
-            size={14}
-            style={{ transform: descending ? 'rotate(180deg)' : undefined }}
-            aria-hidden="true"
-          />
-          {descending ? 'Highest first' : 'Highest last'}
-        </button>
+        {scatter ? (
+          <>
+            <span className={menuLabel}>Scatter chart</span>
+            <button
+              className={menuItem}
+              aria-pressed={settings.labels}
+              onClick={() => update({ labels: !settings.labels })}
+            >
+              <Selection checked={settings.labels} />
+              Model labels
+            </button>
+          </>
+        ) : (
+          <>
+            <span className={menuLabel}>Bar chart</span>
+            <button
+              className={menuItem}
+              aria-pressed={settings.grouped}
+              onClick={() => update({ grouped: !settings.grouped })}
+            >
+              <Selection checked={settings.grouped} />
+              Group by model
+            </button>
+            <button
+              className={`${menuItem} disabled:opacity-50 disabled:hover:bg-transparent`}
+              aria-pressed={settings.combined}
+              disabled={!settings.grouped}
+              title={settings.grouped ? 'Combine reasoning configurations into one bar per model.' : 'Group by model to combine reasoning bars.'}
+              onClick={() => update({ combined: !settings.combined })}
+            >
+              <Selection checked={settings.combined} />
+              Combine reasoning bars
+            </button>
+            <div className={`${segments} mx-2 mt-2 mb-1 w-[calc(100%-16px)]`} role="group" aria-label="Bar order">
+              <button className={segment} aria-pressed={descending} onClick={() => update({ descending: true })}>
+                Highest first
+              </button>
+              <button className={segment} aria-pressed={!descending} onClick={() => update({ descending: false })}>
+                Highest last
+              </button>
+            </div>
+          </>
+        )}
       </div>
     </details>
   );
