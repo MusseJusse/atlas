@@ -128,7 +128,9 @@ function Rung({ line, open, toggle }: { line: EfficiencyLine; open: boolean; tog
             <li key={point.model.id}>
               <time dateTime={point.date}>{day(point.date)}</time>
               <span><b>{shortName(point.model)}</b> <span className="text-fg-3">{point.model.effortLabel}</span></span>
-              <span className="ladder-after">{point === first ? 'First record' : `after ${elapsedTimeSinceFirstRecord(line, point)}`}</span>
+              <span className="ladder-after">
+                {point === first ? 'First record' : <><b className="text-fg-2">{times(costMultiplier(line, point))}</b> cheaper after {elapsedTimeSinceFirstRecord(line, point)}</>}
+              </span>
               <b className={point === now ? 'text-accent' : undefined}>{format(point.value, 'cost')}</b>
             </li>
           ))}
