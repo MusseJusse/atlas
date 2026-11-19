@@ -73,6 +73,7 @@ export function VibesChart({
   onClear: () => void;
 }) {
   const ref = useRef<HTMLDivElement>(null);
+  const rotateLeftRef = useRef<HTMLButtonElement>(null);
   const [size, setSize] = useState({ width: 720, height: 460 });
   const [animT, setAnimT] = useState(showCost ? 1 : 0);
   const [yaw, setYaw] = useState(DEFAULT_YAW);
@@ -322,11 +323,12 @@ export function VibesChart({
     >
       {showCost && (
         <div
-          className="absolute top-2 right-2 z-10 flex items-center gap-1 rounded-lg bg-track p-0.5"
+          className="absolute top-2 right-2 z-[2] flex items-center gap-1 rounded-lg bg-track p-0.5"
           role="group"
           aria-label="3D view angle"
         >
           <button
+            ref={rotateLeftRef}
             type="button"
             onClick={() => setYaw((current) => clamp(current - 0.16, MIN_YAW, MAX_YAW))}
             className="flex size-8 items-center justify-center rounded-md text-fg-2 hover:bg-thumb hover:text-fg"
@@ -348,6 +350,7 @@ export function VibesChart({
             <button
               type="button"
               onClick={() => {
+                rotateLeftRef.current?.focus({ preventScroll: true });
                 setYaw(DEFAULT_YAW);
                 setPitch(DEFAULT_PITCH);
               }}
@@ -383,23 +386,29 @@ export function VibesChart({
         }}
         onPointerMove={(event) => {
           if (dragState.current.pointerId === event.pointerId) {
-            const totalTravel = Math.hypot(
-              event.clientX - dragState.current.startX,
-              event.clientY - dragState.current.startY,
-            );
-            if (!dragState.current.moved && totalTravel > DRAG_THRESHOLD_PX) {
-              dragState.current.moved = true;
-              setDragging(true);
-              event.currentTarget.setPointerCapture?.(event.pointerId);
-            }
-            if (dragState.current.moved) {
-              const dx = event.clientX - dragState.current.lastX;
-              const dy = event.clientY - dragState.current.lastY;
-              dragState.current.lastX = event.clientX;
-              dragState.current.lastY = event.clientY;
-              setYaw((current) => clamp(current + dx * 0.008, MIN_YAW, MAX_YAW));
-              setPitch((current) => clamp(current + dy * 0.006, MIN_PITCH, MAX_PITCH));
-              return;
+            // If a mouse button was released outside the SVG before capture began, abort the pending drag.
+            if (event.pointerType === 'mouse' && (event.buttons & 1) === 0) {
+              dragState.current = { pointerId: null, startX: 0, startY: 0, lastX: 0, lastY: 0, moved: false };
+              setDragging(false);
+            } else {
+              const totalTravel = Math.hypot(
+                event.clientX - dragState.current.startX,
+                event.clientY - dragState.current.startY,
+              );
+              if (!dragState.current.moved && totalTravel > DRAG_THRESHOLD_PX) {
+                dragState.current.moved = true;
+                setDragging(true);
+                event.currentTarget.setPointerCapture?.(event.pointerId);
+              }
+              if (dragState.current.moved) {
+                const dx = event.clientX - dragState.current.lastX;
+                const dy = event.clientY - dragState.current.lastY;
+                dragState.current.lastX = event.clientX;
+                dragState.current.lastY = event.clientY;
+                setYaw((current) => clamp(current + dx * 0.008, MIN_YAW, MAX_YAW));
+                setPitch((current) => clamp(current + dy * 0.006, MIN_PITCH, MAX_PITCH));
+                return;
+              }
             }
           }
           if (event.pointerType === 'touch') return;
@@ -423,7 +432,10 @@ export function VibesChart({
           }
         }}
         onPointerLeave={() => {
-          if (dragState.current.pointerId === null) flushSync(() => onPreview(null));
+          if (!dragState.current.moved) {
+            dragState.current.pointerId = null;
+            flushSync(() => onPreview(null));
+          }
         }}
         onClick={(event) => {
           if (dragState.current.moved) {
@@ -665,6 +677,7 @@ export function VibesChart({
         {/* Plotted models (sorted back-to-front in 3D) */}
         {projectedModels.map(({ entry, cost01, point, floor }) => {
           const color = modelColor(entry.model);
+          const labelFill = `color-mix(in srgb, ${color} 80%, var(--fg))`;
           const cColor = costColor(cost01);
           const label = shortName(entry.model);
           const isActive = activeFamily === entry.family;
@@ -685,11 +698,15 @@ export function VibesChart({
             .filter(Boolean)
             .join(', ');
           const costTag = entry.model.cost !== null ? format(entry.model.cost, 'cost', true) : null;
-          const showSubtext = showBenchmarks
-            ? benchmarkSubtext
-            : t > 0.35 && costTag
-              ? costTag
-              : null;
+          // On compact 3D viewports, show secondary tags only on the active model to prevent crowding.
+          const allowSubtext = !compact || t <= 0.35 || isActive;
+          const showSubtext = !allowSubtext
+            ? null
+            : showBenchmarks
+              ? benchmarkSubtext
+              : t > 0.35 && costTag
+                ? costTag
+                : null;
 
           return (
             <g
@@ -767,25 +784,26 @@ export function VibesChart({
                 opacity={muted ? 0.72 : 1}
               />
               <text
+                data-vibe-label={entry.family}
                 x={point.x + dx}
                 y={point.y + dy}
                 textAnchor={anchor}
-                fill={color}
+                fill={labelFill}
                 fontSize={compact ? 11.5 : isActive ? 13.5 : 12.5}
                 fontWeight={isActive ? 650 : 550}
-                opacity={muted ? 0.85 : 1}
               >
                 {label}
               </text>
               {showSubtext && (
                 <text
+                  data-vibe-sublabel={entry.family}
                   x={point.x + dx}
                   y={point.y + dy + (compact ? 13 : 14)}
                   textAnchor={anchor}
                   fill={!showBenchmarks && t > 0.35 ? cColor : 'var(--fg-2)'}
                   fontSize={compact ? 10 : 10.5}
                   fontWeight={!showBenchmarks && t > 0.35 ? 600 : 400}
-                  opacity={(showBenchmarks ? 1 : Math.min(1, (t - 0.35) / 0.65)) * (muted ? 0.85 : 1)}
+                  opacity={showBenchmarks ? 1 : Math.min(1, (t - 0.35) / 0.65)}
                 >
                   {showSubtext}
                 </text>

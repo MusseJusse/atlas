@@ -242,7 +242,14 @@ test('vibes page supports label clicks, pin precedence, 3D cost axis, and mobile
   await expect(details).not.toBeVisible();
   expect(await page.evaluate(() => document.activeElement?.getAttribute('data-use-case'))).toBe('coding');
 
-  // Clicking a model's text label directly pins that model, and background click clears it.
+  // Clicking a model's text label directly pins that model; X closes it cleanly without re-opening a preview.
+  await page.locator('[data-vibe-family="gpt-6-2-astra"] text').first().click();
+  await expect(details).toContainText('GPT-6.2 Astra');
+  await details.getByRole('button', { name: 'Clear selected configuration' }).click();
+  await expect(details).not.toBeVisible();
+  expect(await page.evaluate(() => document.activeElement?.getAttribute('data-vibe-family'))).toBe('gpt-6-2-astra');
+
+  // Background click also clears a chart pin in 2D.
   await page.locator('[data-vibe-family="gpt-6-2-astra"] text').first().click();
   await expect(details).toContainText('GPT-6.2 Astra');
   await page.locator('.vibes-plot svg rect.chart-background').click({ position: { x: 80, y: 80 } });
@@ -257,11 +264,28 @@ test('vibes page supports label clicks, pin precedence, 3D cost axis, and mobile
   await page.getByRole('button', { name: '+ Benchmarks', exact: true }).click();
   await expect(page.locator('.vibes-plot svg[role="group"]')).toContainText('Intel ');
 
-  // 3D Cost axis: all 3 axis labels stay in bounds, rotate controls work, and background click clears a pin.
+  // 3D Cost axis: all 3 axis labels stay in bounds, labels don't collide, rotate/reset preserves focus, and background click clears a pin.
   const costToggle = page.getByRole('button', { name: 'Cost axis', exact: true });
   await costToggle.click();
   await expect(costToggle).toHaveAttribute('aria-pressed', 'true');
   await expect(page.locator('.vibes-plot svg[role="group"] [data-cost-axis="true"]')).toBeVisible();
+
+  const hasLabelCollision = () =>
+    page.evaluate(() => {
+      const boxes = [...document.querySelectorAll('[data-vibe-label], [data-vibe-sublabel]')].map((el) => ({
+        fam: el.getAttribute('data-vibe-label') || el.getAttribute('data-vibe-sublabel'),
+        r: el.getBoundingClientRect(),
+      }));
+      for (let i = 0; i < boxes.length; i++) {
+        for (let j = i + 1; j < boxes.length; j++) {
+          const a = boxes[i]!;
+          const b = boxes[j]!;
+          if (a.fam === b.fam) continue;
+          if (a.r.left < b.r.right && a.r.right > b.r.left && a.r.top < b.r.bottom && a.r.bottom > b.r.top) return true;
+        }
+      }
+      return false;
+    });
 
   await page.setViewportSize({ width: 1280, height: 640 });
   await expect.poll(async () => {
@@ -275,6 +299,7 @@ test('vibes page supports label clicks, pin precedence, 3D cost axis, and mobile
       });
     });
   }).toBe(true);
+  expect(await hasLabelCollision()).toBe(false);
 
   await page.getByRole('button', { name: /Cheap & cheerful.*GPT-6\.1 Terra/ }).click();
   await expect(details).toContainText('GPT-6.1 Terra');
@@ -286,7 +311,14 @@ test('vibes page supports label clicks, pin precedence, 3D cost axis, and mobile
   await expect(resetBtn).toBeVisible();
   await resetBtn.click();
   await expect(resetBtn).not.toBeVisible();
+  expect(await page.evaluate(() => document.activeElement?.getAttribute('aria-label'))).toBe('Rotate 3D view left');
+
+  // Mobile/tablet width: hovering Best for must not shift layout by mounting a hover preview above it.
+  await page.setViewportSize({ width: 800, height: 1000 });
+  await codingBtn.hover();
+  await expect(details).not.toBeVisible();
 
   await page.setViewportSize({ width: 320, height: 740 });
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+  expect(await hasLabelCollision()).toBe(false);
 });

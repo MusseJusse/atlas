@@ -47,6 +47,7 @@ export const vibeModels: readonly VibeModelEntry[] = [
     coherency: 19,
     labelPlacement: 'right',
     labelPlacement3D: 'right',
+    compactLabelPlacement3D: 'above',
     summary: 'Frontier raw problem-solving ceiling, though it takes more steering to keep on track.',
   },
   {
@@ -62,7 +63,8 @@ export const vibeModels: readonly VibeModelEntry[] = [
     capability: 72,
     coherency: 40,
     labelPlacement: 'below',
-    labelPlacement3D: 'right',
+    labelPlacement3D: 'left',
+    compactLabelPlacement3D: 'left',
     summary: 'Tenacious and fast for digging deep into thorny issues and driving computer-use loops.',
   },
   {
@@ -79,7 +81,8 @@ export const vibeModels: readonly VibeModelEntry[] = [
     capability: 18,
     coherency: 38,
     labelPlacement: 'right',
-    labelPlacement3D: 'left',
+    labelPlacement3D: 'right',
+    compactLabelPlacement3D: 'right',
     summary: 'Benchmarks look solid on paper, but day-to-day capability and coherency trail Neon.',
   },
   {
@@ -87,7 +90,8 @@ export const vibeModels: readonly VibeModelEntry[] = [
     capability: 48,
     coherency: 30,
     labelPlacement: 'right',
-    labelPlacement3D: 'right',
+    labelPlacement3D: 'left',
+    compactLabelPlacement3D: 'left',
     summary: 'Low-cost everyday workhorse when you want quick, cheap, and cheerful output without overthinking spend.',
   },
 ];

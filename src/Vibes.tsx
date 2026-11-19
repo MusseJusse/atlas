@@ -55,18 +55,20 @@ export function Vibes() {
       typeof document !== 'undefined' &&
       detailsRef.current !== null &&
       detailsRef.current.contains(document.activeElement);
+    // Restore focus before clearing state so synchronous onFocus on the SVG point doesn't re-open a preview.
+    if (previous && (restoreFocus || focusInDetails)) {
+      if (previous.useCaseId) {
+        sidebarRef.current
+          ?.querySelector<HTMLButtonElement>(`button[data-use-case="${previous.useCaseId}"]`)
+          ?.focus({ preventScroll: true });
+      } else {
+        chartRef.current
+          ?.querySelector<SVGGElement>(`g[data-vibe-family="${previous.family}"]`)
+          ?.focus({ preventScroll: true });
+      }
+    }
     setPinned(null);
     setHovered(null);
-    if (!previous || (!restoreFocus && !focusInDetails)) return;
-    if (previous.useCaseId) {
-      sidebarRef.current
-        ?.querySelector<HTMLButtonElement>(`button[data-use-case="${previous.useCaseId}"]`)
-        ?.focus({ preventScroll: true });
-    } else {
-      chartRef.current
-        ?.querySelector<SVGGElement>(`g[data-vibe-family="${previous.family}"]`)
-        ?.focus({ preventScroll: true });
-    }
   }
 
   function togglePinModel(family: string) {
@@ -192,7 +194,15 @@ export function Vibes() {
               pinnedFamily={pinned?.family ?? null}
               showBenchmarks={showBenchmarks}
               showCost={showCost}
-              onPreview={(family) => setHovered(family ? { family, useCaseId: null } : null)}
+              onPreview={(family) =>
+                setHovered((current) =>
+                  family
+                    ? current?.family === family && current.useCaseId === null
+                      ? current
+                      : { family, useCaseId: null }
+                    : null,
+                )
+              }
               onTogglePin={togglePinModel}
               onClear={() => clearSelection(false)}
             />
@@ -225,8 +235,13 @@ export function Vibes() {
                     aria-pressed={selected}
                     onClick={() => togglePinUseCase(item.id, item.family)}
                     onPointerEnter={(event) => {
-                      if (event.pointerType === 'touch') return;
-                      setHovered({ family: item.family, useCaseId: item.id });
+                      // On mobile widths, the details card mounts above Best for; skip hover preview to prevent layout shifts.
+                      if (event.pointerType === 'touch' || mobile) return;
+                      setHovered((current) =>
+                        current?.family === item.family && current.useCaseId === item.id
+                          ? current
+                          : { family: item.family, useCaseId: item.id },
+                      );
                     }}
                     onPointerLeave={() => setHovered(null)}
                     className={`group flex min-h-11 w-full items-center gap-2.5 rounded-md px-2 py-1.5 text-left transition-colors ${
