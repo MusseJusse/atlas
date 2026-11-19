@@ -45,9 +45,11 @@ export function useChartNavigation(mobile: boolean) {
     if (!navigation || !button) return;
     const bounds = navigation.getBoundingClientRect();
     const rect = button.getBoundingClientRect();
-    const offset = rect.left < bounds.left
-      ? rect.left - bounds.left
-      : Math.max(0, rect.right - bounds.right);
+    // Clear the 32px edge fade as well as the strip's edge, so the active tab never sits dimmed.
+    const fade = 32;
+    const offset = rect.left < bounds.left + fade
+      ? Math.min(0, rect.left - bounds.left - fade)
+      : Math.max(0, rect.right - bounds.right + fade);
     // Scroll only this strip, preserving the page's vertical scroll position.
     if (offset) navigation.scrollBy({ left: offset, behavior: 'instant' });
   }, [active, mobile]);

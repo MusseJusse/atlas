@@ -59,13 +59,16 @@ function FieldRow({ fieldChange, compact }: { fieldChange: FieldChange; compact:
   const expandable = compact && (rounded[0] !== exact[0] || rounded[1] !== exact[1]);
   const shown = compact ? rounded : exact;
   const label = fieldLabels[fieldChange.field];
+  // Numbers keep their unit on one line on phones; text values such as IDs wrap anywhere instead.
+  const wrap = [fieldChange.before, fieldChange.after].some((value) => typeof value === 'string')
+    ? '[overflow-wrap:anywhere]' : '[overflow-wrap:break-word] phone:whitespace-nowrap';
   // A dotted underline marks rounded values that open to their exact form.
   const value = (text: string) => expandable ? <span className="underline decoration-line-2 decoration-dotted underline-offset-4">{text}</span> : text;
   return (
     <>
       {/* The whole row is a tap target on phones; the field button gives keyboard and screen reader access. */}
       <tr className={`border-t border-line align-top${expandable ? ' cursor-pointer' : ''}`} onClick={expandable ? () => setOpen(!open) : undefined}>
-        <th scope="row" className="px-3 py-1.5 font-normal text-fg-2 max-[360px]:px-2">
+        <th scope="row" className="px-3 py-1.5 font-normal text-fg-2 [overflow-wrap:anywhere] max-[360px]:px-2">
           {expandable ? (
             <button
               aria-expanded={open}
@@ -73,23 +76,24 @@ function FieldRow({ fieldChange, compact }: { fieldChange: FieldChange; compact:
               onClick={(event) => { event.stopPropagation(); setOpen(!open); }}
               className="text-left hover:text-fg"
             >
-              {/* The chevron rides on the last word, so it never takes width from the value columns. */}
+              {/* The chevron rides on the last word, so it never takes width from the value columns.
+                  A one-word name may still break inside itself when the column is too narrow. */}
               {label.slice(0, label.lastIndexOf(' ') + 1)}
-              <span className="whitespace-nowrap">
+              <span className={label.includes(' ') ? 'whitespace-nowrap' : undefined}>
                 {label.slice(label.lastIndexOf(' ') + 1)}
                 <ChevronDown size={12} aria-hidden="true" className={`ml-0.5 inline align-[-1px]${open ? ' rotate-180' : ''}`} />
               </span>
             </button>
           ) : label}
         </th>
-        <td className="py-1.5 pr-3 text-right text-fg-2 tabular-nums [overflow-wrap:break-word] phone:whitespace-nowrap max-[360px]:pr-2">{value(shown[0])}</td>
-        <td className="py-1.5 pr-3 text-right font-[550] tabular-nums [overflow-wrap:break-word] phone:whitespace-nowrap max-[360px]:pr-2">
+        <td className={`py-1.5 pr-3 text-right text-fg-2 tabular-nums ${wrap} max-[360px]:pr-2`}>{value(shown[0])}</td>
+        <td className={`py-1.5 pr-3 text-right font-[550] tabular-nums ${wrap} max-[360px]:pr-2`}>
           {value(shown[1])}
         </td>
       </tr>
       {expandable && (
         <tr id={exactRow} hidden={!open}>
-          <td colSpan={3} className="px-3 pb-2">
+          <td colSpan={3} className="px-3 pb-2 max-[360px]:px-2">
             {/* Each exact value keeps its unit on its own line, with the same before and after labels as the header. */}
             <dl className="m-0 grid grid-cols-[max-content_minmax(0,1fr)] gap-x-3">
               <dt className="text-fg-2">Before</dt>
@@ -207,7 +211,7 @@ export function Changelog({ history = bundledHistory }: { history?: ChangeHistor
                           <th scope="col" className="w-[35%] pt-2 pr-3 pb-1.5 text-right font-normal phone:w-[31%] max-[360px]:w-[37%] max-[360px]:pr-2">
                             Before
                           </th>
-                          <th scope="col" className="pt-2 pr-3 pb-1.5 text-right font-normal">
+                          <th scope="col" className="pt-2 pr-3 pb-1.5 text-right font-normal max-[360px]:pr-2">
                             After
                           </th>
                         </tr>

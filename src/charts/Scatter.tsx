@@ -6,7 +6,7 @@ import { format } from '../formatModel';
 import { scoreLabels, metrics, type Metric, type ScoreMetric } from '../chart-definitions';
 import type { Settings } from '../state';
 import { nearestPoint, pinHandlers, type Interactions } from './interactions';
-import { scatterGeometry, type ScatterRow } from './geometry';
+import { scatterGeometry, scatterLabelGutter, type ScatterRow } from './geometry';
 
 export function Scatter({
   rows,
@@ -27,7 +27,6 @@ export function Scatter({
   height: number;
   interactions: Interactions;
 }) {
-  const mobile = width < 600;
   const {
     left,
     right,
@@ -178,8 +177,7 @@ export function Scatter({
           })}
         </g>
       ))}
-      {settings.labels &&
-        !mobile &&
+      {scatterLabelGutter(width, settings.labels) > 0 &&
         labels.map((series) => {
           const dim = activeFamily
             ? activeFamily !== series.family

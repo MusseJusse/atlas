@@ -3,6 +3,7 @@ import { scatterDomain, scatterRows } from '../scatter-data';
 import { barGroups, paretoFrontier, type Model } from '../models';
 import { format, formatModelValue } from '../formatModel';
 import { shortName } from '../model-presentation';
+import { durationTicks } from './ranking-geometry';
 import type { Metric, ScoreMetric } from '../chart-definitions';
 
 export type MeasuredRow = Model & { value: number };
@@ -21,6 +22,14 @@ export function measureScatterRows(rows: Model[], metric: Metric, linear: boolea
   return scatterRows(rows, metric, linear, score).map((row) => ({ ...row, value: row[metric]!, score: row[score]! }));
 }
 
+/**
+ * Width reserved right of the scatter plot for direct model labels. Plots narrower than 480px
+ * use the legend below instead; plots under 760px get a slimmer gutter that still fits short names.
+ */
+export function scatterLabelGutter(width: number, labels: boolean) {
+  return !labels || width < 480 ? 0 : width < 760 ? 165 : 235;
+}
+
 /** Geometry depends only on measured rows, dimensions and the visible axis choices. */
 export function scatterGeometry(
   rows: ScatterRow[],
@@ -32,7 +41,7 @@ export function scatterGeometry(
 ) {
   const mobile = width < 600;
   const left = mobile ? 46 : 64;
-  const right = width - (labelsEnabled && !mobile ? 235 : 24);
+  const right = width - (scatterLabelGutter(width, labelsEnabled) || 24);
   const top = 30;
   const bottom = Math.max(130, height - 60);
   const domain = scatterDomain(rows, metric, linear);
@@ -114,35 +123,36 @@ export const barLayout = { left: 64, narrowLeft: 46, right: 18, padding: 16, gap
 const captionGlyph = (char: string) => '.,-1 ilIjt()'.includes(char) ? 4 : 'MWmw'.includes(char) ? 11 : /[A-Z0-9]/.test(char) ? 8.4 : 7;
 export const captionWidth = (text: string) => [...text].reduce((sum, char) => sum + captionGlyph(char), 0);
 
-/**
- * Fit a 13px model name under its group: one line when it fits, otherwise two lines split at the
- * space nearest the middle, with any line still too wide cut short with an ellipsis.
- */
+/** Split a name at the space nearest its middle. */
+function splitCaption(name: string) {
+  const spaces = [...name.matchAll(/ /g)].map((match) => match.index);
+  if (!spaces.length) return [name];
+  const split = spaces.reduce((best, index) => Math.abs(index - name.length / 2) < Math.abs(best - name.length / 2) ? index : best);
+  return [name.slice(0, split), name.slice(split + 1)];
+}
+
+/** A 13px model name under its group: one line when it fits, otherwise two. */
 export function captionLines(name: string, width: number) {
-  const fit = (line: string) => {
-    if (captionWidth(line) <= width) return line;
-    let cut = line;
-    while (cut.length > 1 && captionWidth(`${cut}…`) > width) cut = cut.slice(0, -1);
-    return `${cut.trimEnd()}…`;
-  };
-  if (captionWidth(name) <= width) return [name];
-  const spaces = [...name.matchAll(/ /g)].map((match) => match.index);
-  if (!spaces.length) return [fit(name)];
-  const split = spaces.reduce((best, index) => Math.abs(index - name.length / 2) < Math.abs(best - name.length / 2) ? index : best);
-  return [fit(name.slice(0, split)), fit(name.slice(split + 1))];
+  return captionWidth(name) <= width ? [name] : splitCaption(name);
 }
 
-/** The wider line of a name's two-line caption, before any truncation. */
+/** The wider line of a name's caption, as captionLines would set it in two lines. */
 function captionSpan(name: string) {
-  if (!name.includes(' ')) return captionWidth(name);
-  const spaces = [...name.matchAll(/ /g)].map((match) => match.index);
-  const split = spaces.reduce((best, index) => Math.abs(index - name.length / 2) < Math.abs(best - name.length / 2) ? index : best);
-  return Math.min(captionWidth(name), Math.max(captionWidth(name.slice(0, split)), captionWidth(name.slice(split + 1))));
+  return Math.min(captionWidth(name), Math.max(...splitCaption(name).map(captionWidth)));
+}
+
+/** Diagonal captions run at most this long; longer names end in an ellipsis. */
+export const diagonalCaption = { angle: 40, maxWidth: 150 };
+export function fitDiagonalCaption(name: string) {
+  if (captionWidth(name) <= diagonalCaption.maxWidth) return name;
+  let cut = name;
+  while (cut.length > 1 && captionWidth(`${cut}…`) > diagonalCaption.maxWidth) cut = cut.slice(0, -1);
+  return `${cut.trimEnd()}…`;
 }
 
 /**
- * Separate bars scroll once a group could no longer fit 5px bars and a 52px caption, as with the All preset.
- * Once scrolling, width is free, so groups also widen until both caption lines fit untruncated.
+ * Separate bars scroll once a group could no longer fit 5px bars, as with the All preset.
+ * Names that don't fit their group turn diagonal (see barGeometry), so dense plots stay compact.
  * Weights match barGeometry, where a group spans max(3, bars) shares of the plot.
  */
 export function separateBarWidth(rows: Model[], width: number, grouped: boolean) {
@@ -154,9 +164,7 @@ export function separateBarWidth(rows: Model[], width: number, grouped: boolean)
   const total = [...groups.values()].reduce((sum, group) => sum + Math.max(3, group.length), 0);
   const plot = (minimum: (group: Model[]) => number) =>
     Math.ceil(total * Math.max(0, ...[...groups.values()].map((group) => minimum(group) / Math.max(3, group.length))) + barLayout.left + barLayout.right);
-  const bars = (group: Model[]) => Math.max(52, group.length * (5 + barLayout.gap) + barLayout.padding);
-  if (plot(bars) <= width) return width;
-  return Math.max(width, plot((group) => Math.max(bars(group), captionSpan(shortName(group[0]!)) + 8)));
+  return Math.max(width, plot((group) => Math.max(32, group.length * (5 + barLayout.gap) + barLayout.padding)));
 }
 
 /** Dense grouped bar plots scroll only when configuration targets cannot fit. */
@@ -182,19 +190,39 @@ export function barGeometry(
   const left = width < 600 ? barLayout.narrowLeft : barLayout.left;
   const right = width - barLayout.right;
   const top = metric === 'omniscience' ? 50 : 30;
-  const bottom = height - 96;
   const groups = barGroups(rows, metric, grouped, descending);
+  const totalWeight = groups.reduce((total, group) => total + (combined ? 1 : Math.max(3, group.rows.length)), 0);
+  const weightOf = (group: (typeof groups)[number]) => combined ? 1 : Math.max(3, group.rows.length);
+  // When any name can't fit its group in two lines, every caption runs diagonally from under its logo,
+  // and the plot gives up enough height for the longest one.
+  const names = groups.map((group) => shortName(group.rows[0]!));
+  const diagonal = groups.some((group, index) => captionSpan(names[index]!) > ((right - left) * weightOf(group)) / totalWeight - 6);
+  const radians = (diagonalCaption.angle * Math.PI) / 180;
+  const diagonalWidths = names.map((name) => Math.min(diagonalCaption.maxWidth, captionWidth(name)));
+  const diagonalDepth = Math.sin(radians) * Math.max(0, ...diagonalWidths);
+  // Diagonal captions reach left of their group, so the first groups start far enough in to keep theirs clear of the axis.
+  let inset = 0;
+  if (diagonal) {
+    let offset = 0;
+    groups.forEach((group, index) => {
+      const groupWidth = ((right - left) * weightOf(group)) / totalWeight;
+      // The 12px margin absorbs error in the width estimate and the slight rescale from the inset itself.
+      inset = Math.max(inset, Math.cos(radians) * diagonalWidths[index]! + 12 - (offset + groupWidth / 2));
+      offset += groupWidth;
+    });
+  }
+  const groupWidthOf = (group: (typeof groups)[number]) => ((right - left - inset) * weightOf(group)) / totalWeight;
+  const bottom = diagonal ? Math.min(height - 96, height - 62 - diagonalDepth) : height - 96;
   const values = rows.map((row) => row.value);
   // Leave room for negative value labels above the reasoning marks and model names.
   const labelSpace = values.some((value) => value < 0) ? 42 : 0;
-  const y = linearScale(
-    barDomain(values, 0.15),
-    [bottom - labelSpace, top],
-  );
-  const totalWeight = groups.reduce((total, group) => total + (combined ? 1 : Math.max(3, group.rows.length)), 0);
-  let groupStart = left;
+  const domain = barDomain(values, 0.15);
+  const y = linearScale(domain, [bottom - labelSpace, top]);
+  // Durations tick at whole seconds, minutes and hours, as the phone ranking does, never at "8.3m".
+  const ticks = metric === 'time' ? durationTicks(domain[1]) : y.ticks(4);
+  let groupStart = left + inset;
   const laidOut = groups.map((group) => {
-    const groupWidth = ((right - left) * (combined ? 1 : Math.max(3, group.rows.length))) / totalWeight;
+    const groupWidth = groupWidthOf(group);
     const center = groupStart + groupWidth / 2;
     groupStart += groupWidth;
     const gap = Math.min(barLayout.gap, groupWidth * barLayout.gapRatio);
@@ -221,7 +249,7 @@ export function barGeometry(
     return { ...group, center, groupWidth, barWidth, bars };
   });
   const positioned = placeValueLabels(laidOut, y, left, right, bottom);
-  return { left, right, top, bottom, y, positioned };
+  return { left, right, top, bottom, y, ticks, positioned, diagonal };
 }
 
 type LaidOutGroup = { barWidth: number; bars: { row: MeasuredRow; x: number; labelX: number; labelY: number; text: string }[] };
@@ -259,30 +287,37 @@ function placeValueLabels<Group extends LaidOutGroup>(groups: Group[], y: (value
     placed.every((label) => Math.abs(label.x - x) >= (label.width + width) / 2 + gap || Math.abs(label.y - labelY) >= lineHeight) &&
     // The glyph box spans roughly cap height above the baseline and a little below it.
     columns.every((column) => x + width / 2 <= column.x0 - 1 || x - width / 2 >= column.x1 + 1 || labelY + 3 <= column.y0 || labelY - 9 >= column.y1);
-  return groups.map((group) => ({
+  // Tallest bars place first: they block their neighbours anyway, and their labels matter most.
+  const order = groups.flatMap((group, groupIndex) => group.bars.map((bar, barIndex) => ({ group, bar, groupIndex, barIndex })))
+    .toSorted((a, b) => Math.abs(b.bar.row.value) - Math.abs(a.bar.row.value));
+  const placedBars = new Map<string, Group['bars'][number]>();
+  for (const { group, bar, groupIndex, barIndex } of order) placedBars.set(`${groupIndex}:${barIndex}`, place(group, bar));
+  return groups.map((group, groupIndex) => ({
     ...group,
-    bars: group.bars.map((bar) => {
-      if (!bar.text) return bar;
-      const width = valueLabelWidth(bar.text);
-      const negative = bar.row.value < 0;
-      const fit = (x: number) => Math.max(left + width / 2, Math.min(right - width / 2, x));
-      const centre = bar.x + group.barWidth / 2;
-      const xs = width > group.barWidth
-        ? [centre, bar.x + group.barWidth - width / 2, bar.x + width / 2].map(fit)
-        : [fit(centre)];
-      const start = y(bar.row.value) + (negative ? 16 : -8);
-      // The unit heading's baseline is at 17px; reasoning marks start about 8px below the axis bottom.
-      const inside = (labelY: number) => (negative ? labelY + 3 <= bottom + 6 : labelY - 9 >= 22);
-      let spot: { x: number; y: number } | null = null;
-      search: for (const labelY of [start, start + (negative ? lineHeight : -lineHeight)]) {
-        if (!inside(labelY)) break;
-        for (const x of xs) if (clear(x, labelY, width)) { spot = { x, y: labelY }; break search; }
-      }
-      if (!spot) return { ...bar, text: '' };
-      placed.push({ ...spot, width });
-      return { ...bar, labelX: spot.x, labelY: spot.y };
-    }),
+    bars: group.bars.map((_, barIndex) => placedBars.get(`${groupIndex}:${barIndex}`)!),
   }));
+
+  function place(group: Group, bar: Group['bars'][number]) {
+    if (!bar.text) return bar;
+    const width = valueLabelWidth(bar.text);
+    const negative = bar.row.value < 0;
+    const fit = (x: number) => Math.max(left + width / 2, Math.min(right - width / 2, x));
+    const centre = bar.x + group.barWidth / 2;
+    const xs = width > group.barWidth
+      ? [centre, bar.x + group.barWidth - width / 2, bar.x + width / 2].map(fit)
+      : [fit(centre)];
+    const start = y(bar.row.value) + (negative ? 16 : -8);
+    // The unit heading's baseline is at 17px; reasoning marks start about 8px below the axis bottom.
+    const inside = (labelY: number) => (negative ? labelY + 3 <= bottom + 6 : labelY - 9 >= 22);
+    let spot: { x: number; y: number } | null = null;
+    search: for (const labelY of [start, start + (negative ? lineHeight : -lineHeight)]) {
+      if (!inside(labelY)) break;
+      for (const x of xs) if (clear(x, labelY, width)) { spot = { x, y: labelY }; break search; }
+    }
+    if (!spot) return { ...bar, text: '' };
+    placed.push({ ...spot, width });
+    return { ...bar, labelX: spot.x, labelY: spot.y };
+  }
 }
 
 export function rangeGeometry(

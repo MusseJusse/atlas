@@ -20,7 +20,8 @@ import { Scatter } from './charts/Scatter';
 import { Bars, FixedBarAxis } from './charts/Bars';
 import { Ranking } from './charts/Ranking';
 import { useScrollEdges } from './useScrollEdges';
-import { barLayout, combinedBarWidth, measureRows, measureScatterRows, separateBarWidth } from './charts/geometry';
+import { useMediaQuery } from './useMediaQuery';
+import { barLayout, scatterLabelGutter, combinedBarWidth, measureRows, measureScatterRows, separateBarWidth } from './charts/geometry';
 import type { Interactions } from './charts/interactions';
 
 function useSize(enabled: boolean) {
@@ -123,7 +124,35 @@ export const Chart = memo(function Chart({
   };
   const [overflow, updateOverflow, overflowRef] = useScrollEdges();
   const container = useRef<HTMLDivElement>(null);
-  const detailsBelow = scatter && ready && width < 600;
+  const mobile = useMediaQuery('(width <= 900px)');
+  // Mobile sections grow with their content, so a pinned card can sit below a narrow scatter plot.
+  // Fixed-height desktop sections keep the overlay, which would otherwise squeeze the plot.
+  const detailsBelow = scatter && ready && mobile && width < 600;
+  const belowCard = useRef<HTMLElement>(null);
+  const overlay = useRef<HTMLElement>(null);
+  const [corner, setCorner] = useState<'bottom-right' | 'top-left'>('bottom-right');
+  useEffect(() => {
+    // Reveal a card that opened below the fold, without moving the plot when it's already in view.
+    if (detailsBelow && pinned) belowCard.current?.scrollIntoView({ block: 'nearest' });
+  }, [detailsBelow, pinned?.id]);
+  useLayoutEffect(() => {
+    // Put the scatter card in whichever free corner covers fewer points, so none hide behind it.
+    const card = overlay.current;
+    const plot = ref.current;
+    if (!scatter || !card || !plot) return;
+    const bounds = plot.getBoundingClientRect();
+    const points = [...plot.querySelectorAll('[data-point] circle:last-child')].map((point) => {
+      const box = point.getBoundingClientRect();
+      return { x: box.x + box.width / 2 - bounds.x, y: box.y + box.height / 2 - bounds.y };
+    });
+    const size = { width: card.offsetWidth, height: card.offsetHeight };
+    const covered = (x: number, y: number) => points.filter((point) =>
+      point.x >= x - 6 && point.x <= x + size.width + 6 && point.y >= y - 6 && point.y <= y + size.height + 6).length;
+    const rightInset = scatterLabelGutter(width, settings.labels) || 24;
+    const bottomRight = covered(bounds.width - rightInset - size.width, bounds.height - 74 - size.height);
+    const topLeft = covered(64, 34);
+    setCorner(topLeft < bottomRight ? 'top-left' : 'bottom-right');
+  }, [scatter, activeModel?.id, width, height, settings.labels]);
   const legend = [...new Map(validRows.map((row) => [row.codingAgent ? row.id : row.family, row])).values()];
 
   function closeOnBackground(event: MouseEvent<SVGSVGElement>) {
@@ -137,7 +166,10 @@ export const Chart = memo(function Chart({
   function clearSelection() {
     // Keep keyboard users in the chart when removing the inspector's focused control:
     // the pinned plot point, or the pressed configuration in a phone ranking.
-    container.current?.querySelector<HTMLElement | SVGGElement>('g[aria-pressed="true"], .ranking-configurations button[aria-pressed="true"]')?.focus({ preventScroll: true });
+    const trigger = container.current?.querySelector<HTMLElement | SVGGElement>('g[aria-pressed="true"], .ranking-configurations button[aria-pressed="true"]');
+    trigger?.focus({ preventScroll: true });
+    // A card below the plot may have scrolled the point away, so bring it back clear of the sticky bar.
+    if (detailsBelow) trigger?.scrollIntoView({ block: 'center' });
     setPinnedId(null);
     setHoveredId(null);
   }
@@ -169,6 +201,7 @@ export const Chart = memo(function Chart({
               onScroll={(event) => updateOverflow(event.currentTarget)}
               ref={overflowRef}
               // Wide plots scroll; the region is a tab stop so arrow keys can pan it.
+              style={{ scrollPaddingInline: `${barLayout.left + 8}px 8px` }}
               {...(plotWidth > width ? { tabIndex: 0, role: 'region', 'aria-label': `${view.label}, scrolls sideways to show all ${legend.length} models` } : {})}
             >
             <svg
@@ -216,16 +249,17 @@ export const Chart = memo(function Chart({
             </svg>
             </div>
             {/* Edge shadows mark more columns beyond the visible plot, past the fixed axis on the left. */}
-            {plotWidth > width && overflow.start && <div aria-hidden="true" className="pointer-events-none absolute inset-y-0 z-[1] w-3 bg-linear-to-r from-[var(--scroll-shadow)] to-transparent" style={{ left: barLayout.left }} />}
-            {plotWidth > width && overflow.end && <div aria-hidden="true" className="pointer-events-none absolute inset-y-0 right-0 z-[1] w-3 bg-linear-to-l from-[var(--scroll-shadow)] to-transparent" />}
+            {plotWidth > width && overflow.start && <div aria-hidden="true" className="pointer-events-none absolute top-[25px] bottom-0 z-[1] w-3 bg-linear-to-r from-[var(--scroll-shadow)] to-transparent" style={{ left: barLayout.left }} />}
+            {plotWidth > width && overflow.end && <div aria-hidden="true" className="pointer-events-none absolute top-[25px] right-0 bottom-0 z-[1] w-3 bg-linear-to-l from-[var(--scroll-shadow)] to-transparent" />}
             {!prepared.scatter && plotWidth > width && <FixedBarAxis rows={prepared.rows} metric={view.metric} settings={settings} plotWidth={plotWidth} width={width} height={height} />}
             </>
           ))}
         {(scatter || !phone) && activeModel && !(detailsBelow && pinned) && (
           <aside
+            ref={overlay}
             className={`configuration-details${pinned ? '' : ' pointer-events-none'}`}
-            data-placement={scatter ? 'bottom-right' : settings.descending ? 'top-right' : 'top-left'}
-            style={scatter ? { right: settings.labels && width >= 600 ? 235 : 24 } : undefined}
+            data-placement={scatter ? corner : settings.descending ? 'top-right' : 'top-left'}
+            style={scatter && corner === 'bottom-right' ? { right: scatterLabelGutter(width, settings.labels) || 24 } : undefined}
             aria-label="Selected configuration"
             tabIndex={pinned ? 0 : undefined}
           >
@@ -240,7 +274,7 @@ export const Chart = memo(function Chart({
       </div>
       {/* Narrow scatter plots have no free corner, so a pinned card sits below the plot instead of covering points. */}
       {detailsBelow && pinned && activeModel && (
-        <aside className="configuration-details" data-placement="below" aria-label="Selected configuration" tabIndex={0}>
+        <aside ref={belowCard} className="configuration-details scroll-mt-[var(--sticky-offset,190px)]" data-placement="below" aria-label="Selected configuration" tabIndex={0}>
           <ConfigurationDetails model={activeModel} metric={view.metric} pinned onClose={clearSelection} />
         </aside>
       )}
@@ -254,12 +288,13 @@ export const Chart = memo(function Chart({
       {/* Narrow plots drop direct labels, so the legend follows the measured plot width.
           Before measuring, the viewport breakpoint reserves its height in the initial HTML. */}
       {scatter && settings.labels && (
-        <div className={`${ready ? (width < 600 ? 'grid' : 'hidden') : 'hidden plot-mobile:grid'} grid-cols-2 gap-x-3 gap-y-0.5 pt-2.5`}>
+        <div className={`${ready ? (scatterLabelGutter(width, true) ? 'hidden' : 'grid') : 'hidden plot-mobile:grid'} grid-cols-2 gap-x-3 gap-y-0.5 pt-2.5`}>
           {legend.map((model) => (
             <button
-              className="flex min-h-8 items-center gap-[7px] overflow-hidden text-left text-[13px] font-[550] whitespace-nowrap text-fg"
+              className="flex min-h-8 min-w-0 items-center gap-[7px] text-left text-[13px] leading-tight font-[550] text-fg"
               key={model.codingAgent ? model.id : model.family}
               aria-label={model.codingAgent?.configuration}
+              aria-pressed={model.codingAgent ? interactions.pinned?.id === model.id : interactions.pinned?.family === model.family}
               onClick={() => interactions.togglePin(model)}
             >
               <Logo model={model} />
@@ -272,7 +307,7 @@ export const Chart = memo(function Chart({
                     {model.codingAgent.name}, {model.effortLabel}
                   </span>
                 </span>
-              ) : <span>{shortName(model)}{view.metric === 'cost' && model.taskPricing?.basis === 'api-fallback' && <span className="text-[11px] font-normal text-fg-2"> (API)</span>}</span>}
+              ) : <span className="min-w-0">{shortName(model)}{view.metric === 'cost' && model.taskPricing?.basis === 'api-fallback' && <span className="text-[11px] font-normal text-fg-2"> (API)</span>}</span>}
             </button>
           ))}
         </div>

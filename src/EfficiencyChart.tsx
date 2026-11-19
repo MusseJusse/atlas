@@ -127,7 +127,7 @@ export function EfficiencyChart({ lines, selected, fetchedAt, active, highlighte
                     tabIndex={0}
                     aria-pressed={pinned === key}
                     aria-label={`Intelligence index at least ${line.threshold}, ${point.model.name}, ${point.model.effortLabel}, ${formatUtcDate(point.date)}, ${costFormat.format(point.value)}`}
-                    className="cursor-pointer focus:[outline:none] [&:focus_.record-target]:stroke-accent [&:focus_.record-target]:stroke-2"
+                    className="cursor-pointer focus:[outline:none] [&:focus-visible_.record-target]:stroke-accent [&:focus-visible_.record-target]:stroke-2"
                     onFocus={() => preview(key)}
                     onBlur={() => preview(null)}
                     onKeyDown={handlers.onKeyDown}

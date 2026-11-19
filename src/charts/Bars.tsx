@@ -6,7 +6,7 @@ import { format, formatModelValue } from '../formatModel';
 import { metrics, type Metric } from '../chart-definitions';
 import type { Settings } from '../state';
 import { pinHandlers, type Interactions } from './interactions';
-import { barGeometry, captionLines, type MeasuredRow } from './geometry';
+import { barGeometry, captionLines, diagonalCaption, fitDiagonalCaption, type MeasuredRow } from './geometry';
 
 export function Bars({
   rows,
@@ -25,7 +25,7 @@ export function Bars({
 }) {
   const clipId = useId();
   const combined = settings.grouped && settings.combined;
-  const { left, right, bottom, y, positioned } = useMemo(
+  const { left, right, bottom, y, ticks, positioned, diagonal } = useMemo(
     () => barGeometry(rows, metric, width, height, settings.grouped, settings.descending ?? false, settings.combined),
     [rows, metric, width, height, settings.grouped, settings.descending, settings.combined],
   );
@@ -39,7 +39,7 @@ export function Bars({
       <text x={left} y={17} fill="var(--fg-2)" fontSize={12}>
         {metrics[metric].unit}
       </text>
-      {y.ticks(4).map((tick) => (
+      {ticks.map((tick) => (
         <g key={tick} transform={`translate(0,${y(tick)})`}>
           <line x1={left} x2={right} stroke="var(--grid)" strokeDasharray="2 6" />
           <text x={left - 10} y={4} textAnchor="end" fill="var(--fg-3)" fontSize={11}>
@@ -178,7 +178,26 @@ export function Bars({
                   clipPath={`url(#${columnClipId})`}
                 />
               ))}
-            {group.groupWidth > 33 && (
+            {diagonal ? (
+              <g>
+                <SvgLogo model={model} x={group.center - 7} y={bottom + 28} size={14} />
+                {/* Dense plots set names on a diagonal from under the logo, so every name stays whole. */}
+                <text
+                  x={group.center + 4}
+                  y={bottom + 54}
+                  transform={`rotate(-${diagonalCaption.angle} ${group.center + 4} ${bottom + 54})`}
+                  textAnchor="end"
+                  fill="var(--fg-2)"
+                  fontSize={13}
+                  fontWeight={500}
+                >
+                  {fitDiagonalCaption(shortName(model))}
+                  {metric === 'cost' && model.taskPricing?.basis === 'api-fallback' && (
+                    <tspan fontSize={11} fontWeight={400} fill="var(--fg-3)"> (API)</tspan>
+                  )}
+                </text>
+              </g>
+            ) : group.groupWidth > 33 && (
               <g>
                 <SvgLogo model={model} x={group.center - 7} y={bottom + 28} size={14} />
                 <text
@@ -222,7 +241,7 @@ export function Bars({
 export function FixedBarAxis({ rows, metric, settings, plotWidth, width, height }: {
   rows: MeasuredRow[]; metric: Metric; settings: Settings; plotWidth: number; width: number; height: number;
 }) {
-  const { left, y } = useMemo(
+  const { left, y, ticks } = useMemo(
     () => barGeometry(rows, metric, plotWidth, height, settings.grouped, settings.descending ?? false, settings.combined),
     [rows, metric, plotWidth, height, settings.grouped, settings.descending, settings.combined],
   );
@@ -230,6 +249,6 @@ export function FixedBarAxis({ rows, metric, settings, plotWidth, width, height 
     <rect width={left} height={height} fill="var(--panel)" />
     <rect width={left + metrics[metric].unit.length * 7} height={25} fill="var(--panel)" />
     <text x={left} y={17} fill="var(--fg-2)" fontSize={12}>{metrics[metric].unit}</text>
-    {y.ticks(4).map((tick) => <text key={tick} x={left - 10} y={y(tick) + 4} textAnchor="end" fill="var(--fg-3)" fontSize={11}>{format(tick, metric, true)}</text>)}
+    {ticks.map((tick) => <text key={tick} x={left - 10} y={y(tick) + 4} textAnchor="end" fill="var(--fg-3)" fontSize={11}>{format(tick, metric, true)}</text>)}
   </svg>;
 }

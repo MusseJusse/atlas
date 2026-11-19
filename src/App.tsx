@@ -195,14 +195,15 @@ function Benchmarks() {
               ref={tabEdgesRef}
               onScroll={(event) => updateTabEdges(event.currentTarget)}
               // Fade whichever edge hides more tabs, since overlay scrollbars give no other cue.
-              style={tabEdges.start || tabEdges.end ? { maskImage: `linear-gradient(to right, ${tabEdges.start ? 'transparent, #000 32px' : '#000'}, ${tabEdges.end ? '#000 calc(100% - 32px), transparent' : '#000'})` } : undefined}
+              // Scroll padding keeps a tab scrolled into view clear of the faded edge.
+              style={tabEdges.start || tabEdges.end ? { scrollPaddingInline: '32px', maskImage: `linear-gradient(to right, ${tabEdges.start ? 'transparent, #000 32px' : '#000'}, ${tabEdges.end ? '#000 calc(100% - 32px), transparent' : '#000'})` } : undefined}
               className="flex mobile:hidden min-w-0 gap-6 overflow-x-auto border-b border-line [scrollbar-width:thin] [scrollbar-color:var(--line-2)_transparent] compact:gap-5"
               aria-label="Chart views"
             >
               {views.map((view) => (
                 <button
                   key={view.id}
-                  className="-mb-px min-h-[52px] shrink-0 border-b-2 border-transparent text-[13px] font-[500] text-fg-2 short:min-h-11 hover:text-fg aria-[current=page]:border-accent aria-[current=page]:text-accent"
+                  className="-mb-px min-h-[52px] shrink-0 border-b-2 border-transparent text-[13px] font-[500] text-fg-2 short:min-h-11 hover:text-fg focus-visible:-outline-offset-2 aria-[current=page]:border-accent aria-[current=page]:text-accent"
                   aria-current={active === view.id ? 'page' : undefined}
                   onClick={() => navigate(view.id)}
                 >
