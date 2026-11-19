@@ -9,6 +9,7 @@ export const frontierFamilies = [
   'claude-sonnet-5-5',
   'claude-opus-5-5',
   'claude-fable-5-2',
+  'gemini-4-neon',
   'gemini-4-carbon',
   'gemini-4-hydrogen',
   'grok-4-7',
