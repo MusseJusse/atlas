@@ -1,172 +1,138 @@
-import { useEffect, useMemo, useRef, useState, type CSSProperties } from 'react';
+import { useEffect, useState, type CSSProperties } from 'react';
 import snapshot from 'virtual:benchmarks';
-import { Check } from 'lucide-react';
+import { ChevronDown } from 'lucide-react';
 import { SiteHeader } from './SiteHeader';
-import { costMultiplier, efficiencySeries, elapsedTimeSinceFirstRecord } from './efficiency-data';
-import { readEfficiencySettings, writeEfficiencySettings } from './efficiency-state';
-import { EfficiencyChart, efficiencyColors, recordKey } from './EfficiencyChart';
-import { ConfigurationDetails } from './charts/ConfigurationDetails';
-import { resolveChartInteraction } from './chart-interactions';
+import { costMultiplier, efficiencySeries, elapsedTimeSinceFirstRecord, type EfficiencyLine } from './efficiency-data';
 import { formatUtcDate } from './formatDate';
-import { Select } from './Select';
+import { format } from './formatModel';
+import { shortName } from './model-presentation';
 
 const source = 'https://artificialanalysis.ai/trends#efficiency';
 const lines = efficiencySeries(snapshot.models);
 
+// Every row shares one log cost axis, so a longer arrow is a bigger price drop.
+const values = lines.flatMap((line) => line.points.map((point) => point.value));
+const low = Math.log10(Math.min(...values) * 0.7);
+const high = Math.log10(Math.max(...values) * 1.4);
+const position = (value: number) => `${((Math.log10(value) - low) / (high - low)) * 100}%`;
+const ticks = [0.01, 0.03, 0.1, 0.3, 1, 3, 10, 30, 100].filter((tick) => Math.log10(tick) > low && Math.log10(tick) < high);
+
+const times = (multiplier: number) =>
+  `${new Intl.NumberFormat('en', { maximumFractionDigits: multiplier < 10 ? 1 : 0 }).format(multiplier)}×`;
+const day = (date: string) => new Date(`${date}T00:00:00Z`).toLocaleDateString('en', { month: 'short', day: 'numeric', timeZone: 'UTC' });
+const month = (date: string) => new Date(`${date}T00:00:00Z`).toLocaleDateString('en', {
+  month: 'long', timeZone: 'UTC', ...(date.slice(0, 4) === snapshot.fetchedAt.slice(0, 4) ? {} : { year: 'numeric' }),
+});
+const latest = (line: EfficiencyLine) => line.points.at(-1)!;
+
+// The headline names the score whose price fell the most.
+const biggest = lines
+  .filter((line) => line.points.length > 1)
+  .reduce<EfficiencyLine | null>((best, line) => !best || costMultiplier(line, latest(line)) > costMultiplier(best, latest(best)) ? line : best, null);
+
 export function Efficiency() {
-  const [settings, setSettings] = useState(() => readEfficiencySettings(typeof location === 'undefined' ? '' : location.search));
-  const [hovered, setHovered] = useState<string | null>(null);
-  const [pinned, setPinned] = useState<string | null>(null);
-  const chart = useRef<HTMLDivElement>(null);
-  const selected = useMemo(() => lines.filter((line) => settings.thresholds.includes(line.threshold)), [lines, settings.thresholds]);
-  const records = useMemo(() => selected.flatMap((line) => line.points.map((point) => ({
-    id: recordKey({ threshold: line.threshold, point }), threshold: line.threshold, point,
-  }))), [selected]);
-  const { pinned: pinnedRecord, activeModel: active } = resolveChartInteraction(records, pinned, hovered);
-  const coincident = active ? records.filter(({ point }) =>
-    point.date === active.point.date && point.value === active.point.value,
-  ) : [];
-  const activePinned = pinnedRecord !== null;
-  const activeLine = active ? selected.find((line) => line.threshold === active.threshold) : undefined;
-
-  useEffect(() => {
-    document.title = 'Atlas · Efficiency';
-    const pop = () => {
-      setSettings(readEfficiencySettings(location.search));
-      setHovered(null);
-      setPinned(null);
-    };
-    window.addEventListener('popstate', pop);
-    return () => window.removeEventListener('popstate', pop);
-  }, []);
-  useEffect(() => {
-    history.replaceState(null, '', writeEfficiencySettings(settings));
-  }, [settings]);
-
-  function clearSelection() {
-    const point = chart.current?.querySelector<SVGGElement>('g[aria-pressed="true"]');
-    point?.focus({ preventScroll: true });
-    point?.scrollIntoView({ block: 'nearest', inline: 'nearest' });
-    setPinned(null);
-    setHovered(null);
-  }
+  const [open, setOpen] = useState<number | null>(null);
+  useEffect(() => { document.title = 'Atlas · Efficiency'; }, []);
 
   return (
-    <div className="grid h-dvh grid-rows-[var(--header-height)_minmax(0,1fr)_auto] mobile:block mobile:h-auto">
-      <a href="#efficiency-workspace" className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-30 focus:rounded-md focus:bg-panel focus:p-3">Skip to efficiency</a>
+    <div className="grid h-dvh grid-rows-[var(--header-height)_minmax(0,1fr)_auto] phone:block phone:h-auto">
+      <a href="#efficiency-workspace" className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-40 focus:rounded-md focus:bg-panel focus:p-3">Skip to efficiency</a>
       <SiteHeader current="efficiency" />
       <main
         id="efficiency-workspace"
         tabIndex={-1}
-        className="efficiency-workspace [outline:none] grid min-h-0 grid-cols-[var(--sidebar-width)_minmax(0,1fr)] gap-6 px-7 pt-6 pb-2 compact:gap-5 compact:px-5 mobile:flex mobile:flex-col mobile:gap-0 mobile:px-4 mobile:py-4"
-        onKeyDown={(event) => {
-          // Native selects consume Escape for their popup; other controls clear the pin.
-          if (event.key === 'Escape' && !(event.target instanceof HTMLSelectElement)) clearSelection();
-        }}
+        className="efficiency-workspace mx-7 mt-6 mb-2 min-h-0 min-w-0 overflow-y-auto rounded-[14px] bg-panel px-7 pt-6 pb-5 [outline:none] [scrollbar-width:thin] short:mt-4 compact:mx-5 mobile:mx-4 mobile:mt-4 mobile:mb-0 phone:overflow-visible phone:px-4 phone:pt-5"
       >
-        <aside aria-label="Efficiency controls" className="min-h-0 min-w-0 overflow-y-auto pt-2 mobile:contents">
-          <fieldset className="efficiency-filters m-0 min-w-0 border-0 p-0">
-            <legend className="mb-1 text-[18px] font-[650] tracking-[-0.3px]">Intelligence index</legend>
-            <p className="mt-0 mb-3 text-[12px] leading-5 text-fg-2 mobile:hidden">Track record-low cost at or above each score.</p>
-            <div className="flex flex-col gap-0.5 mobile:grid mobile:grid-cols-[repeat(6,auto)] mobile:justify-between mobile:gap-x-1 phone:grid-cols-[repeat(3,auto)]">
-              {lines.map((line) => (
-                <label key={line.threshold} className="flex min-h-8 cursor-pointer items-center gap-2.5 rounded-md px-1.5 text-[13px] mobile:gap-1.5 mobile:px-1 text-fg-2 hover:bg-hover hover:text-fg has-[:checked]:font-[550] has-[:checked]:text-fg mobile:min-h-11 mobile:text-[15px]" style={{ '--line-color': efficiencyColors[line.threshold] } as CSSProperties}>
-                  <input
-                    type="checkbox"
-                    checked={settings.thresholds.includes(line.threshold)}
-                    onChange={(event) => {
-                      const checked = event.currentTarget.checked;
-                      setSettings((current) => ({ ...current, thresholds: lines.flatMap(({ threshold }) =>
-                        (threshold === line.threshold ? checked : current.thresholds.includes(threshold)) ? [threshold] : [],
-                      ) }));
-                    }}
-                    aria-label={`Intelligence index at least ${line.threshold}`}
-                    className="peer sr-only"
-                  />
-                  {/* A line swatch sits where Benchmarks shows a lab logo, and the check stays on the right.
-                      In the phone grid the check stays beside its own label instead of near the next column. */}
-                  <span aria-hidden="true" className="h-0.5 w-3.5 shrink-0 rounded-full bg-[var(--line-color)] mobile:w-3" />
-                  <span className="flex-1 tabular-nums whitespace-nowrap mobile:flex-none">≥ {line.threshold}</span>
-                  {!line.points.length && <span className="text-[11px] font-normal text-fg-2">No data</span>}
-                  <span
-                    aria-hidden="true"
-                    className="flex size-4 shrink-0 items-center justify-center rounded-[4px] border border-control-border text-on-accent peer-checked:border-transparent peer-checked:bg-[var(--line-color)] peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-accent [&>svg]:invisible peer-checked:[&>svg]:visible"
-                  >
-                    <Check size={11} strokeWidth={3.25} />
-                  </span>
-                </label>
-              ))}
+        <h1 className="display m-0 max-w-[26ch] text-[30px] leading-[1.1] text-balance phone:text-[24px]">
+          {biggest
+            ? `Reaching ${biggest.threshold} on the Intelligence index costs ${times(costMultiplier(biggest, latest(biggest)))} less than in ${month(biggest.points[0]!.date)}.`
+            : 'The cheapest model at each Intelligence index score.'}
+        </h1>
+        <p className="mt-2 mb-0 max-w-[72ch] text-[13px] leading-5 text-pretty text-fg-2">
+          Each arrow runs from the first model to reach a score to the cheapest one today, in API cost per Intelligence index task. Prices are today's, ordered by release date. Open a row for every record.
+        </p>
+        <p className="mt-3 mb-4 flex flex-wrap items-center gap-x-4 gap-y-1 text-[12px] text-fg-2" aria-hidden="true">
+          <span className="inline-flex items-center gap-1.5"><span className="ladder-dot ladder-first" />First record</span>
+          <span className="inline-flex items-center gap-1.5"><span className="ladder-dot ladder-between" />Records in between</span>
+          <span className="inline-flex items-center gap-1.5"><span className="ladder-dot ladder-now" />Cheapest today</span>
+        </p>
+        <div className="ladder">
+          <div className="ladder-grid" aria-hidden="true">
+            <span />
+            <div className="ladder-axis">
+              {ticks.map((tick) => <span key={tick} style={{ left: position(tick) }}>{format(tick, 'cost', true)}</span>)}
             </div>
-          </fieldset>
-          <div className="efficiency-details-slot">
-            {active && (
-              <aside
-                className={`configuration-details efficiency-details${activePinned ? '' : ' pointer-events-none'}`}
-                data-placement="top-left"
-                aria-label="Selected configuration"
-              >
-                <ConfigurationDetails
-                  model={active.point.model}
-                  metric="cost"
-                  pinned={activePinned}
-                  onClose={clearSelection}
-                  summary={activeLine && (
-                    <p className="mt-3 mb-0 text-[15px] leading-5 font-[600] text-fg">
-                      {activeLine.points[0] === active.point
-                        ? 'First record at this threshold'
-                        : `${new Intl.NumberFormat('en', { maximumFractionDigits: 1 }).format(costMultiplier(activeLine, active.point))}× cheaper after ${elapsedTimeSinceFirstRecord(activeLine, active.point)}`}
-                    </p>
-                  )}
-                />
-                <div role="group" aria-label="Record details" className="mt-3 flex flex-col gap-2 border-t border-line pt-3 text-[12px] text-fg-2">
-                  {coincident.length > 1 ? (
-                    <Select
-                      aria-label="Threshold for overlapping records"
-                      value={recordKey(active)}
-                      onChange={(event) => { setPinned(event.currentTarget.value); setHovered(null); }}
-                      className="w-full"
-                    >
-                      {coincident.map((record) => <option key={recordKey(record)} value={recordKey(record)}>Intelligence ≥ {record.threshold}</option>)}
-                    </Select>
-                  ) : <span>Intelligence ≥ {active.threshold}</span>}
-                  <time dateTime={active.point.date}>{formatUtcDate(active.point.date, 'short')}</time>
-                </div>
-              </aside>
-            )}
           </div>
-        </aside>
-        <section aria-labelledby="efficiency-title" className="flex min-h-0 min-w-0 flex-col overflow-y-auto rounded-[14px] bg-panel px-6 pt-5 pb-4 mobile:contents">
-          <div className="efficiency-heading">
-            <h1 id="efficiency-title" className="display m-0 text-[30px] leading-[1.1] phone:text-[24px]">
-              Cost at each intelligence threshold
-            </h1>
-            <p className="mt-1 mb-0 max-w-[72ch] text-[13px] leading-5 text-pretty text-fg-2">
-              Each step down is a new record: a model released that day reaches the threshold for less. Costs are per Intelligence index task (USD, log scale) at current prices.
-            </p>
-          </div>
-          <div
-            ref={chart}
-            className="efficiency-plot relative flex min-h-0 flex-1 flex-col"
-            onClick={(event) => {
-              if (event.target instanceof SVGRectElement && event.target.classList.contains('chart-background')) setPinned(null);
-            }}
-          >
-            <EfficiencyChart
-              lines={lines} selected={selected} fetchedAt={snapshot.fetchedAt}
-              active={active} highlightedThreshold={records.find((record) => record.id === hovered)?.threshold ?? active?.threshold ?? null}
-              pinned={pinned} preview={setHovered}
-              togglePin={(key) => setPinned((current) => current === key ? null : key)}
-            />
-          </div>
-        </section>
+          {lines.map((line) => (
+            <Rung key={line.threshold} line={line} open={open === line.threshold}
+              toggle={() => setOpen((current) => current === line.threshold ? null : line.threshold)} />
+          ))}
+        </div>
       </main>
-      <footer className="flex flex-wrap items-center justify-between gap-x-5 gap-y-1 px-7 py-3 text-[12px] leading-5 text-fg-3 compact:px-5 mobile:px-4 mobile:pt-5 mobile:pb-[calc(20px+env(safe-area-inset-bottom))]">
+      <footer className="flex flex-wrap items-center justify-between gap-x-5 gap-y-1 px-7 py-3 text-[12px] leading-5 text-fg-3 short:py-2 compact:px-5 mobile:px-4 phone:pt-5 phone:pb-[calc(20px+env(safe-area-inset-bottom))]">
         <span>
           Data from{' '}
           <a href={source} className="underline-offset-4 hover:text-accent hover:underline">Artificial Analysis</a>
         </span>
         <span>Snapshot captured <time dateTime={snapshot.fetchedAt}>{formatUtcDate(snapshot.fetchedAt, 'short')}</time></span>
       </footer>
+    </div>
+  );
+}
+
+/** One score's price history: an arrow from its first record to its cheapest model today. */
+function Rung({ line, open, toggle }: { line: EfficiencyLine; open: boolean; toggle: () => void }) {
+  const score = `Score ≥ ${line.threshold}`;
+  if (!line.points.length)
+    return (
+      <div className="ladder-grid ladder-row">
+        <span className="ladder-score">{score}</span>
+        <span className="text-[12px] text-fg-2">No model reaches this score yet.</span>
+      </div>
+    );
+  const first = line.points[0]!;
+  const now = latest(line);
+  const multiplier = costMultiplier(line, now);
+  const change = line.points.length > 1
+    ? <><b>{times(multiplier)}</b> cheaper <span className="text-fg-3">in {elapsedTimeSinceFirstRecord(line, now)}</span></>
+    : <span className="text-fg-3">First record</span>;
+  const id = `efficiency-records-${line.threshold}`;
+  return (
+    <div className={`ladder-row${open ? ' ladder-open' : ''}`}>
+      <button
+        className="ladder-grid ladder-toggle"
+        aria-expanded={open}
+        aria-controls={id}
+        onClick={toggle}
+        aria-label={line.points.length > 1
+          ? `${score}: ${format(first.value, 'cost')} to ${format(now.value, 'cost')}, ${times(multiplier)} cheaper in ${elapsedTimeSinceFirstRecord(line, now)}`
+          : `${score}: ${format(now.value, 'cost')}, first record`}
+      >
+        <span className="ladder-score">{score}</span>
+        <span className="ladder-track" aria-hidden="true">
+          {line.points.length > 1 && <span className="ladder-arrow" style={{ left: `calc(${position(now.value)} + 8px)`, right: `calc(100% - ${position(first.value)})` } as CSSProperties} />}
+          {line.points.slice(1, -1).map((point) => <span key={point.model.id} className="ladder-dot ladder-between" style={{ left: position(point.value) }} />)}
+          {line.points.length > 1 && <span className="ladder-dot ladder-first" style={{ left: position(first.value) }} />}
+          <span className="ladder-dot ladder-now" style={{ left: position(now.value) }} />
+          <span className="ladder-price ladder-price-now" style={{ left: position(now.value) }}>{format(now.value, 'cost')}</span>
+          {line.points.length > 1 && <span className="ladder-price" style={{ left: position(first.value) }}>{format(first.value, 'cost')}</span>}
+        </span>
+        <span className="ladder-change">
+          {change}
+          <ChevronDown size={14} aria-hidden="true" className={`ml-1 shrink-0 text-fg-3 ${open ? 'rotate-180' : ''}`} />
+        </span>
+      </button>
+      {open && (
+        <ol id={id} className="ladder-records" aria-label={`${score} records`}>
+          {line.points.map((point) => (
+            <li key={point.model.id}>
+              <time dateTime={point.date}>{day(point.date)}</time>
+              <span><b>{shortName(point.model)}</b> <span className="text-fg-3">{point.model.effortLabel}</span></span>
+              <b className={point === now ? 'text-accent' : undefined}>{format(point.value, 'cost')}</b>
+            </li>
+          ))}
+        </ol>
+      )}
     </div>
   );
 }

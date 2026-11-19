@@ -130,19 +130,15 @@ test('phone rankings plot configurations and expand without horizontal overflow'
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
 });
 
-test('phone efficiency shows the chart before optional details', async ({ page }) => {
+test('phone efficiency rows open into their records without horizontal overflow', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto('/?page=efficiency');
-  await expect(page.locator('.efficiency-plot svg')).toBeVisible();
-  const positions = await page.evaluate(() => ({
-    title: document.querySelector('.efficiency-heading')!.getBoundingClientRect().top,
-    filters: document.querySelector('.efficiency-filters')!.getBoundingClientRect().top,
-    plot: document.querySelector('.efficiency-plot')!.getBoundingClientRect().top,
-    details: document.querySelector('.efficiency-details-slot')!.getBoundingClientRect().height,
-  }));
-  expect(positions.title).toBeLessThan(positions.filters);
-  expect(positions.filters).toBeLessThan(positions.plot);
-  expect(positions.details).toBe(0);
+  const row = page.getByRole('button', { name: /^Score ≥ 40:/ });
+  await expect(row).toHaveAttribute('aria-expanded', 'false');
+  await row.click();
+  await expect(row).toHaveAttribute('aria-expanded', 'true');
+  await expect(page.getByRole('list', { name: 'Score ≥ 40 records' }).getByRole('listitem').first()).toBeVisible();
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
 });
 
 test('dense combined bars scroll inside the plot and keep keyboard selection usable', async ({ page }) => {

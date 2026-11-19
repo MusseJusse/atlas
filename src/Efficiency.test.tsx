@@ -1,25 +1,24 @@
 import { renderToStaticMarkup } from 'react-dom/server';
-import { afterEach, expect, it, vi } from 'vitest';
+import { expect, it, vi } from 'vitest';
 import { Efficiency } from './Efficiency';
 
 vi.mock('virtual:benchmarks', async () => {
   const { default: baseline } = await import('./data/benchmarks.json');
+  const record = (id: string, released: string, intelligence: number, cost: number) => ({
+    ...baseline.models[0], id, name: id, effortLabel: 'High', released, intelligence, cost,
+  });
   return {
     default: {
       fetchedAt: '2026-10-26T12:00:00.000Z',
-      models: [{
-        ...baseline.models[0], id: 'shared', name: 'Shared record', effortLabel: 'High',
-        released: '2026-09-22', intelligence: 25, cost: 0.1, speed: 100,
-      }],
+      models: [record('First', '2026-07-01', 45, 8), record('Cheaper', '2026-09-01', 42, 0.5)],
     },
   };
 });
 
-afterEach(() => vi.unstubAllGlobals());
-
-it('waits for a hovered or pinned point before showing the model card', () => {
-  vi.stubGlobal('location', { search: '?page=efficiency&thresholds=10,20' });
+it('leads with the biggest price drop and keeps every row closed until opened', () => {
   const markup = renderToStaticMarkup(<Efficiency />);
-  expect(markup).not.toContain('class="configuration-inspector"');
-  expect(markup).not.toContain('<select');
+  expect(markup).toContain('Reaching 10 on the Intelligence index costs 16× less than in July.');
+  expect(markup).toContain('Score ≥ 40: $8.00 to $0.50, 16× cheaper in 2 months');
+  expect(markup).toContain('No model reaches this score yet.');
+  expect(markup).not.toContain('<ol');
 });
