@@ -80,9 +80,12 @@ export function scatterGeometry(
     const significant = value / 10 ** Math.floor(Math.log10(value));
     return targets.some((target) => Math.abs(significant - target) < 0.001);
   });
-  // Wide cost ranges on phones keep only powers of ten, so tick labels don't run together.
-  const mobileTicks = mobile ? tickSteps([1, 3]) : [];
-  const logTicks = !mobile ? tickSteps([1, 2, 5]) : mobileTicks.length > 5 ? tickSteps([1]) : mobileTicks;
+  // Use the densest tick set whose labels all fit, so wide cost ranges never run labels together.
+  // Phones also stop at five 1-3 ticks, which keeps the narrow axis calm.
+  const tickSets = (mobile ? [[1, 3], [1]] : [[1, 2, 5], [1, 3], [1]]).map(tickSteps);
+  const logTicks = tickSets.find((ticks) =>
+    (!mobile || ticks.length <= 5) && spacedAxisTicks(ticks, x, metric).length === ticks.length,
+  ) ?? tickSets.at(-1)!;
   const path = (data: ScatterRow[]) =>
     data
       .map((model, index) => `${index ? 'L' : 'M'}${x(model.value)},${y(model.score)}`)
