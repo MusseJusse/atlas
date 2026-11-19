@@ -237,7 +237,7 @@
 }
 
 /* Efficiency price ladder. Rows share one log cost axis; positions are percentages of the track. */
-.ladder-grid { display: grid; grid-template-columns: 110px minmax(0, 1fr) 200px; align-items: center; column-gap: 24px; }
+.ladder-grid { display: grid; grid-template-columns: 110px minmax(0, 1fr) 230px; align-items: center; column-gap: 24px; }
 .ladder-axis { position: relative; height: 22px; font-size: 11px; color: var(--fg-3); }
 .ladder-axis > span { position: absolute; top: 2px; transform: translateX(-50%); white-space: nowrap; }
 .ladder > .ladder-grid:first-child { border-bottom: 1px solid var(--line); }
@@ -246,15 +246,19 @@
 .ladder-toggle { width: 100%; min-height: 60px; padding: 4px 0; text-align: left; border-radius: 6px; }
 .ladder-toggle:hover, .ladder-open .ladder-toggle { background: var(--hover); }
 .ladder-score { padding-left: 8px; font-size: 14px; font-weight: 640; white-space: nowrap; }
-.ladder-change { display: flex; align-items: center; justify-content: flex-end; gap: 4px; padding-right: 8px; font-size: 13px; color: var(--fg-2); white-space: nowrap; }
+.ladder-change { display: flex; align-items: center; justify-content: flex-end; gap: 4px; padding-right: 8px; font-size: 13px; color: var(--fg-2); }
+/* The multiplier and its time wrap as two pieces when the column is tight; the chevron stays beside them. */
+.ladder-change-text { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: flex-end; column-gap: 4px; text-align: right; }
+.ladder-change-text > span { white-space: nowrap; }
 .ladder-change b { font-size: 16px; font-weight: 700; color: var(--fg); }
 .ladder-track { position: relative; height: 44px; }
 .ladder-dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; }
 .ladder-track .ladder-dot { position: absolute; top: 14px; transform: translate(-50%, -50%); }
 .ladder-first { border: 2px solid var(--accent); background: var(--panel); }
 .ladder-now { width: 11px; height: 11px; background: var(--accent); }
-.ladder-between { width: 6px; height: 6px; background: color-mix(in srgb, var(--accent) 45%, var(--panel)); }
-.ladder-track .ladder-between { z-index: 1; }
+.ladder-between { width: 6px; height: 6px; background: color-mix(in srgb, var(--accent) 65%, var(--panel)); }
+/* Later markers paint over earlier ones, so a record close to either end sits under its end dot. */
+.ladder-track .ladder-first, .ladder-track .ladder-now { z-index: 1; }
 .ladder-arrow { position: absolute; top: 13px; height: 2.4px; background: var(--accent); border-radius: 2px; }
 /* The arrow starts just past the filled dot, with its head pointing at the cheaper end. */
 .ladder-arrow::before { content: ''; position: absolute; left: 1px; top: 50%; width: 7px; height: 7px; border-left: 2.4px solid var(--accent); border-bottom: 2.4px solid var(--accent); transform: translateY(-50%) rotate(45deg); }
@@ -268,7 +272,8 @@
 .ladder-records li > b { text-align: right; }
 .ladder-after { color: var(--fg-3); font-size: 12px; white-space: nowrap; }
 @media (width <= 600px) {
-  .ladder-grid { grid-template-columns: minmax(0, 1fr) auto; row-gap: 2px; }
+  /* The change column takes the leftover width and wraps its time below, so it never runs into the score. */
+  .ladder-grid { grid-template-columns: auto minmax(0, 1fr); row-gap: 2px; }
   .ladder > .ladder-grid:first-child > span:first-child { display: none; }
   /* Inset the shared axis so prices and ticks at either end stay on screen. */
   .ladder-axis, .ladder-track { grid-column: 1 / -1; margin-inline: 18px; }

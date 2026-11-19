@@ -19,6 +19,7 @@ it('leads with the biggest price drop and keeps every row closed until opened', 
   const markup = renderToStaticMarkup(<Efficiency />);
   expect(markup).toContain('Reaching 10 on the Intelligence index costs 16× less than in July.');
   expect(markup).toContain('Score ≥ 40: $8.00 to $0.50, 16× cheaper in 2 months');
-  expect(markup).toContain('No model reaches this score yet.');
-  expect(markup).not.toContain('<ol');
+  expect(markup).toContain('No model with a measured cost reaches this score yet.');
+  expect(markup).not.toContain('aria-expanded="true"');
+  expect(markup.match(/<ol [^>]*hidden/g)).toHaveLength(4);
 });

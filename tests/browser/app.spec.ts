@@ -139,6 +139,11 @@ test('phone efficiency rows open into their records without horizontal overflow'
   await expect(row).toHaveAttribute('aria-expanded', 'true');
   await expect(page.getByRole('list', { name: 'Score ≥ 40 records' }).getByRole('listitem').first()).toBeVisible();
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+  // The narrowest phones wrap the elapsed time instead of running the multiplier into the score.
+  await page.setViewportSize({ width: 320, height: 740 });
+  const overlaps = await page.locator('.ladder-toggle').evaluateAll((rows) => rows.filter((row) =>
+    row.querySelector('.ladder-score')!.getBoundingClientRect().right > row.querySelector('.ladder-change-text > span')!.getBoundingClientRect().left).length);
+  expect(overlaps).toBe(0);
 });
 
 test('dense combined bars scroll inside the plot and keep keyboard selection usable', async ({ page }) => {

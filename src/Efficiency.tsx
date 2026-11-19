@@ -17,12 +17,16 @@ const high = Math.log10(Math.max(...values) * 1.4);
 const position = (value: number) => `${((Math.log10(value) - low) / (high - low)) * 100}%`;
 const ticks = [0.01, 0.03, 0.1, 0.3, 1, 3, 10, 30, 100].filter((tick) => Math.log10(tick) > low && Math.log10(tick) < high);
 
-const times = (multiplier: number) =>
-  `${new Intl.NumberFormat('en', { maximumFractionDigits: multiplier < 10 ? 1 : 0 }).format(multiplier)}×`;
-const day = (date: string) => new Date(`${date}T00:00:00Z`).toLocaleDateString('en', { month: 'short', day: 'numeric', timeZone: 'UTC' });
-const month = (date: string) => new Date(`${date}T00:00:00Z`).toLocaleDateString('en', {
-  month: 'long', timeZone: 'UTC', ...(date.slice(0, 4) === snapshot.fetchedAt.slice(0, 4) ? {} : { year: 'numeric' }),
+// Drops under 2× read as a percentage, so a tiny change never rounds to "1× cheaper".
+const times = (multiplier: number) => multiplier < 2
+  ? `${Math.round((1 - 1 / multiplier) * 100)}%`
+  : `${new Intl.NumberFormat('en', { maximumFractionDigits: multiplier < 10 ? 1 : 0 }).format(multiplier)}×`;
+// Dates outside the snapshot's year keep their year, so records across years stay unambiguous.
+const date = (value: string, options: Intl.DateTimeFormatOptions) => new Date(`${value}T00:00:00Z`).toLocaleDateString('en', {
+  ...options, timeZone: 'UTC', ...(value.slice(0, 4) === snapshot.fetchedAt.slice(0, 4) ? {} : { year: 'numeric' }),
 });
+const day = (value: string) => date(value, { month: 'short', day: 'numeric' });
+const month = (value: string) => date(value, { month: 'long' });
 const latest = (line: EfficiencyLine) => line.points.at(-1)!;
 
 // The headline names the score whose price fell the most.
@@ -87,15 +91,15 @@ function Rung({ line, open, toggle }: { line: EfficiencyLine; open: boolean; tog
     return (
       <div className="ladder-grid ladder-row">
         <span className="ladder-score">{score}</span>
-        <span className="text-[12px] text-fg-2">No model reaches this score yet.</span>
+        <span className="text-[12px] text-fg-2">No model with a measured cost reaches this score yet.</span>
       </div>
     );
   const first = line.points[0]!;
   const now = latest(line);
   const multiplier = costMultiplier(line, now);
   const change = line.points.length > 1
-    ? <><b>{times(multiplier)}</b> cheaper <span className="text-fg-3">in {elapsedTimeSinceFirstRecord(line, now)}</span></>
-    : <span className="text-fg-3">First record</span>;
+    ? <><span><b>{times(multiplier)}</b> cheaper</span> <span>in {elapsedTimeSinceFirstRecord(line, now)}</span></>
+    : <span>First record</span>;
   const id = `efficiency-records-${line.threshold}`;
   return (
     <div className={`ladder-row${open ? ' ladder-open' : ''}`}>
@@ -118,24 +122,23 @@ function Rung({ line, open, toggle }: { line: EfficiencyLine; open: boolean; tog
           {line.points.length > 1 && <span className="ladder-price" style={{ left: position(first.value) }}>{format(first.value, 'cost')}</span>}
         </span>
         <span className="ladder-change">
-          {change}
+          <span className="ladder-change-text">{change}</span>
           <ChevronDown size={14} aria-hidden="true" className={`ml-1 shrink-0 text-fg-3 ${open ? 'rotate-180' : ''}`} />
         </span>
       </button>
-      {open && (
-        <ol id={id} className="ladder-records" aria-label={`${score} records`}>
-          {line.points.map((point) => (
-            <li key={point.model.id}>
-              <time dateTime={point.date}>{day(point.date)}</time>
-              <span><b>{shortName(point.model)}</b> <span className="text-fg-3">{point.model.effortLabel}</span></span>
-              <span className="ladder-after">
-                {point === first ? 'First record' : <><b className="text-fg-2">{times(costMultiplier(line, point))}</b> cheaper after {elapsedTimeSinceFirstRecord(line, point)}</>}
-              </span>
-              <b className={point === now ? 'text-accent' : undefined}>{format(point.value, 'cost')}</b>
-            </li>
-          ))}
-        </ol>
-      )}
+      {/* The list stays mounted while closed, so the button's aria-controls always resolves. */}
+      <ol id={id} className="ladder-records" aria-label={`${score} records`} hidden={!open}>
+        {line.points.map((point) => (
+          <li key={point.model.id}>
+            <time dateTime={point.date}>{day(point.date)}</time>
+            <span><b>{shortName(point.model)}</b> <span className="text-fg-3">{point.model.effortLabel}</span></span>
+            <span className="ladder-after">
+              {point === first ? 'First record' : <><b className="text-fg-2">{times(costMultiplier(line, point))}</b> cheaper after {elapsedTimeSinceFirstRecord(line, point)}</>}
+            </span>
+            <b className={point === now ? 'text-accent' : undefined}>{format(point.value, 'cost')}</b>
+          </li>
+        ))}
+      </ol>
     </div>
   );
 }
