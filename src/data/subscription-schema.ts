@@ -14,7 +14,7 @@ const model = z.object({
   sameAs: text.optional(),
 });
 const plan = z.object({
-  id: text, feeUsd: positive, confidence: z.enum(['high', 'medium', 'low', 'assumed']),
+  id: text, feeUsd: positive, confidence: z.enum(['high', 'medium', 'low', 'assumed', 'preliminary']),
   // The upstream's synthetic month is four weeks, not a calendar month.
   periodDays: positive,
 });

@@ -87,10 +87,13 @@ it('subtracts displaced weekly allowance for restarted clocks and requires prior
   expect(resetBoost('test', 28, resetSource('restart', [event('2026-10-01T00:00:00.000Z', { providerConfirmed: false }), event('2026-10-04T12:00:00.000Z')]))).toBe(1);
 });
 
-it('changes costs with source-supported resets and scopes conversion to full-index cost views', () => {
+it('applies the captured reset boost and scopes conversion to full-index cost views', () => {
   const [baseline] = subscriptionRows([sol], settings);
   const [reset] = subscriptionRows([sol], { ...settings, countResets: true });
-  expect(reset!.cost).toBeLessThan(baseline!.cost!);
+  const periodDays = captured.plans.find((plan) => plan.id === captured.defaultPlan)!.periodDays;
+  const boost = resetBoost(captured.provider, periodDays);
+  expect(reset?.taskPricing).toMatchObject({ basis: 'subscription', resetBoost: boost });
+  expect(reset?.cost).toBeCloseTo(baseline!.cost! / boost, 14);
   expect(usesSubscriptionPricing('cost-intelligence', settings)).toBe(true);
   expect(usesSubscriptionPricing('cost-task', settings)).toBe(true);
   for (const id of ['tokens-task', 'intelligence', 'coding-agents', 'cyber-index', 'cost-total'])
@@ -114,12 +117,23 @@ it('uses MyPriors assumed allowances and the published Fable shared-limit ratio'
   const fable = models.find((model) => model.id === 'claude-fable-5-2')!;
   const [pricedAstra, pricedFable] = subscriptionRows([astra, fable], settings);
   expect(pricedAstra?.taskPricing).toMatchObject({
-    basis: 'subscription', plan: 'ChatGPT Pro 10x', confidence: 'assumed', sameAs: 'GPT-6 Astra',
+    basis: 'subscription', plan: 'ChatGPT Pro 20x', confidence: 'assumed', sameAs: 'GPT-6 Astra',
   });
   expect(pricedFable?.taskPricing).toMatchObject({
     basis: 'subscription', plan: 'Claude Ultra', reading: 'Shared limit', ratio: 0.0367281045,
   });
   expect(pricedFable?.cost).toBe(fable.cost! * 0.0367281045);
+});
+
+it('applies preliminary Neon pricing to every benchmark reasoning level', () => {
+  const neon = models.filter((model) => model.family === 'gemini-4-neon');
+  expect(neon).toHaveLength(4);
+  for (const row of subscriptionRows(neon, settings)) {
+    expect(row.taskPricing).toMatchObject({
+      basis: 'subscription', plan: 'Google AI Ultra 20x', confidence: 'preliminary',
+    });
+    expect(row.cost).toBeLessThan(neon.find((model) => model.id === row.id)!.cost!);
+  }
 });
 
 it('uses refreshed task costs and isolates changed API rates to the affected model', () => {

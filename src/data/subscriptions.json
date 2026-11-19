@@ -1,9 +1,9 @@
 {
-  "capturedAt": "2026-11-18T13:20:11.360Z",
-  "sourceGeneratedAt": "2026-11-18T13:05:22.010Z",
+  "capturedAt": "2026-11-19T07:04:44.405Z",
+  "sourceGeneratedAt": "2026-11-19T06:57:18.881Z",
   "source": "https://mypriors.com/api/snapshot?view=core",
-  "sourceHash": "b59cfb9f5e2112fb70fb9d4137facbe7d61beea4b0287c2ac053e85da6621277",
-  "benchmarkSourceHash": "fe12ca0409e792a7b8745684f7eef36368169ef687670671da3a48a461930a82",
+  "sourceHash": "e972332ab6ae956c8c0b9d2c50f5528756b861ccb75b5e53273ab771da338ebc",
+  "benchmarkSourceHash": "0cc6360633aac094eba3d52e2f7dafb0bb5d8e51b8a8e24726949943d18f8aee",
   "methodology": "https://github.com/Fei2411/real-api-pricing/blob/main/CONVENTIONS.md",
   "models": [
     {
@@ -11,8 +11,8 @@
       "sourceModel": "gpt-5.6-sol",
       "provider": "openai",
       "providerName": "OpenAI",
-      "defaultPlan": "ChatGPT Pro 10x",
-      "dataDate": "2026-07-30~2026-10-30",
+      "defaultPlan": "ChatGPT Pro 20x",
+      "dataDate": "2026-06-10~2026-09-06",
       "mix": {
         "cache": 0.97,
         "input": 0.025,
@@ -111,8 +111,8 @@
       "sourceModel": "gpt-6-astra",
       "provider": "openai",
       "providerName": "OpenAI",
-      "defaultPlan": "ChatGPT Pro 10x",
-      "dataDate": "2026-09-11",
+      "defaultPlan": "ChatGPT Pro 20x",
+      "dataDate": "2026-09-07~2026-09-21",
       "mix": {
         "cache": 0.97,
         "input": 0.025,
@@ -412,12 +412,12 @@
       "sourceModel": "claude-opus-5",
       "provider": "anthropic",
       "providerName": "Anthropic",
-      "defaultPlan": "Claude Ultra",
-      "dataDate": "2026-08",
+      "defaultPlan": "Claude Pro",
+      "dataDate": "2026-09-14~2026-09-22",
       "mix": {
         "cache": 0.97,
-        "input": 0.025,
-        "cacheWrite": 0,
+        "input": 0,
+        "cacheWrite": 0.025,
         "output": 0.005
       },
       "apiPrices": {
@@ -491,8 +491,8 @@
       "sourceModel": "claude-opus-5.5",
       "provider": "anthropic",
       "providerName": "Anthropic",
-      "defaultPlan": "Claude Ultra",
-      "dataDate": "2026-09-22~2026-09-27",
+      "defaultPlan": "Claude Max 5x",
+      "dataDate": "2026-09-29~2026-10-03",
       "mix": {
         "cache": 0.97,
         "input": 0,
@@ -634,8 +634,8 @@
       "sourceModel": "gpt-5.6-terra",
       "provider": "openai",
       "providerName": "OpenAI",
-      "defaultPlan": "ChatGPT Pro 10x",
-      "dataDate": "2026-07-30~2026-10-30",
+      "defaultPlan": "ChatGPT Pro 20x",
+      "dataDate": "2026-06-10~2026-09-06",
       "mix": {
         "cache": 0.97,
         "input": 0.025,
@@ -684,8 +684,8 @@
       "sourceModel": "gpt-5.5",
       "provider": "openai",
       "providerName": "OpenAI",
-      "defaultPlan": "ChatGPT Pro 10x",
-      "dataDate": "2026-07-30~2026-10-30",
+      "defaultPlan": "ChatGPT Pro 20x",
+      "dataDate": "2026-06-10~2026-09-06",
       "mix": {
         "cache": 0.97,
         "input": 0.025,
@@ -734,12 +734,12 @@
       "sourceModel": "claude-sonnet-5",
       "provider": "anthropic",
       "providerName": "Anthropic",
-      "defaultPlan": "Claude Ultra",
-      "dataDate": "2026-08",
+      "defaultPlan": "Claude Pro",
+      "dataDate": "2026-09-14~2026-09-22",
       "mix": {
         "cache": 0.97,
-        "input": 0.025,
-        "cacheWrite": 0,
+        "input": 0,
+        "cacheWrite": 0.025,
         "output": 0.005
       },
       "apiPrices": {
@@ -777,12 +777,12 @@
       "sourceModel": "claude-opus-4.8",
       "provider": "anthropic",
       "providerName": "Anthropic",
-      "defaultPlan": "Claude Ultra",
-      "dataDate": "2026-08",
+      "defaultPlan": "Claude Pro",
+      "dataDate": "2026-09-14~2026-09-22",
       "mix": {
         "cache": 0.97,
-        "input": 0.025,
-        "cacheWrite": 0,
+        "input": 0,
+        "cacheWrite": 0.025,
         "output": 0.005
       },
       "apiPrices": {
@@ -813,7 +813,7 @@
       "sourceModel": "claude-fable-5",
       "provider": "anthropic",
       "providerName": "Anthropic",
-      "defaultPlan": "Claude Ultra",
+      "defaultPlan": "Claude Max 5x",
       "dataDate": "2026-08",
       "mix": {
         "cache": 0.97,
@@ -849,8 +849,8 @@
       "sourceModel": "claude-sonnet-5.5",
       "provider": "anthropic",
       "providerName": "Anthropic",
-      "defaultPlan": "Claude Ultra",
-      "dataDate": "2026-09-22~2026-09-27",
+      "defaultPlan": "Claude Max 5x",
+      "dataDate": "2026-09-29~2026-10-03",
       "mix": {
         "cache": 0.97,
         "input": 0,
@@ -892,8 +892,8 @@
       "sourceModel": "claude-haiku-5.5",
       "provider": "anthropic",
       "providerName": "Anthropic",
-      "defaultPlan": "Claude Ultra",
-      "dataDate": "2026-09-22~2026-09-27",
+      "defaultPlan": "Claude Max 5x",
+      "dataDate": "2026-09-29~2026-10-03",
       "mix": {
         "cache": 0.97,
         "input": 0,
@@ -971,7 +971,7 @@
       "sourceModel": "gpt-6.2-astra",
       "provider": "openai",
       "providerName": "OpenAI",
-      "defaultPlan": "ChatGPT Pro 10x",
+      "defaultPlan": "ChatGPT Pro 20x",
       "dataDate": "2026-11-17",
       "sameAs": "GPT-6 Astra",
       "mix": {
@@ -1095,7 +1095,7 @@
       "sourceModel": "gemini-4-carbon",
       "provider": "google",
       "providerName": "Google",
-      "defaultPlan": "Google AI Ultra 5x",
+      "defaultPlan": "Google AI Ultra 20x",
       "dataDate": "2026-11-16",
       "sameAs": "Gemini 3.8 Flash",
       "mix": {
@@ -1154,6 +1154,49 @@
           "usdPerMtok": 0.0077450601,
           "confidence": "assumed",
           "periodDays": 28
+        }
+      ]
+    },
+    {
+      "family": "gemini-4-neon",
+      "sourceModel": "gemini-4-neon",
+      "provider": "google",
+      "providerName": "Google",
+      "defaultPlan": "Google AI Ultra 20x",
+      "dataDate": "2026-11-18",
+      "mix": {
+        "cache": 0.97,
+        "input": 0.025,
+        "cacheWrite": 0,
+        "output": 0.005
+      },
+      "apiPrices": {
+        "input": 3,
+        "output": 15,
+        "cached": 0.15,
+        "cacheWrite": 3
+      },
+      "plans": [
+        {
+          "id": "Google AI Ultra 20x",
+          "feeUsd": 199.99,
+          "confidence": "preliminary",
+          "periodDays": 28,
+          "usdPerMtok": 0.006151503724807179
+        },
+        {
+          "id": "Google AI Ultra 5x",
+          "feeUsd": 99.99,
+          "confidence": "preliminary",
+          "periodDays": 28,
+          "usdPerMtok": 0.01231229798889679
+        },
+        {
+          "id": "Google AI Pro",
+          "feeUsd": 19.99,
+          "confidence": "preliminary",
+          "periodDays": 28,
+          "usdPerMtok": 0.014223360783698753
         }
       ]
     }
