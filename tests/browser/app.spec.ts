@@ -239,12 +239,12 @@ test('vibes page supports label clicks, pin precedence, 3D cost axis, and mobile
   await page.goto('/');
   await page.getByRole('navigation', { name: 'Sections' }).getByRole('link', { name: 'Vibes' }).click();
   await expect(page).toHaveURL(/\?page=vibes/);
-  await expect(page.getByRole('heading', { name: 'Vibes', exact: true })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Vibes', exact: true })).toHaveCount(1);
   await expect(page.locator('.vibes-plot svg [data-vibe-family]')).toHaveCount(7);
 
-  const headingBottom = await page.locator('.vibes-heading').evaluate((el) => el.getBoundingClientRect().bottom);
+  const toolbarBottom = await page.locator('.vibes-toolbar').evaluate((el) => el.getBoundingClientRect().bottom);
   const capTop = await page.locator('[data-axis-label="capability"]').evaluate((el) => el.getBoundingClientRect().top);
-  expect(capTop).toBeGreaterThanOrEqual(headingBottom + 8);
+  expect(capTop).toBeGreaterThanOrEqual(toolbarBottom + 8);
 
   // Pin Coding, then hover Fable: pinned Coding card and its Close button must stay intact.
   const codingBtn = page.getByRole('button', { name: /Coding.*Opus 5\.5/ });
@@ -335,13 +335,33 @@ test('vibes page supports label clicks, pin precedence, 3D cost axis, and mobile
   await expect(resetBtn).not.toBeVisible();
   expect(await page.evaluate(() => document.activeElement?.getAttribute('aria-label'))).toBe('Rotate 3D view left');
 
-  // Mobile/tablet width: hovering Best for must not shift layout by mounting a hover preview above it.
+  // Tablet width keeps the fixed-height canvas layout; hovering Best for previews over the plot without shifting layout.
   await page.setViewportSize({ width: 800, height: 1000 });
   const beforeTop = await codingBtn.evaluate((el) => el.getBoundingClientRect().top);
   await codingBtn.hover();
   await page.evaluate(() => new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve))));
-  await expect(details).not.toBeVisible();
+  await expect(details).toBeVisible();
   expect(await codingBtn.evaluate((el) => el.getBoundingClientRect().top)).toBe(beforeTop);
+
+  // Compact tablet (620x600) keeps the fixed-height canvas layout with a usable plot.
+  await page.setViewportSize({ width: 620, height: 600 });
+  await expect.poll(() => page.locator('.vibes-plot').evaluate((el) => el.getBoundingClientRect().height)).toBeGreaterThan(280);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+
+  // Phone width skips hover previews to prevent layout shifts and mounts pinned details below the plot.
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.mouse.move(1, 1);
+  await expect(details).not.toBeVisible();
+  const phoneBeforeTop = await codingBtn.evaluate((el) => el.getBoundingClientRect().top);
+  await codingBtn.hover();
+  await page.evaluate(() => new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve))));
+  await expect(details).not.toBeVisible();
+  expect(await codingBtn.evaluate((el) => el.getBoundingClientRect().top)).toBe(phoneBeforeTop);
+  await codingBtn.click();
+  await expect(details).toBeVisible();
+  await expect(details).toHaveAttribute('data-placement', 'below');
+  await codingBtn.click();
+  await expect(details).not.toBeVisible();
 
   await page.setViewportSize({ width: 320, height: 740 });
   await expect.poll(() =>

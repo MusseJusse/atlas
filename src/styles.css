@@ -244,8 +244,7 @@
 .efficiency-details-slot {
   margin-top: 20px;
 }
-.efficiency-details.configuration-details,
-.vibes-details.configuration-details {
+.efficiency-details.configuration-details {
   position: static;
   width: 100%;
   max-width: none;
@@ -279,12 +278,10 @@
     padding: 16px;
     background: var(--panel);
   }
-  .efficiency-details.configuration-details,
-  .vibes-details.configuration-details {
+  .efficiency-details.configuration-details {
     max-height: none;
   }
-  .efficiency-details-slot:empty,
-  .vibes-details-slot:empty { display: none; }
+  .efficiency-details-slot:empty { display: none; }
   .efficiency-plot {
     order: 3;
     padding: 0 16px 16px;

@@ -1,7 +1,9 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useLayoutEffect, useMemo, useRef, useState, type CSSProperties } from 'react';
 import { Code2, Coins, Monitor, PenLine, SearchCode } from 'lucide-react';
 import snapshot from 'virtual:benchmarks';
 import { ConfigurationDetails } from './charts/ConfigurationDetails';
+import { placeCard } from './charts/card-placement';
+import { formatUtcDate } from './formatDate';
 import { Selection } from './Selection';
 import { SiteHeader } from './SiteHeader';
 import { useMediaQuery } from './useMediaQuery';
@@ -28,17 +30,36 @@ const iconMap: Record<UseCaseIcon, typeof Code2> = {
 
 export function Vibes() {
   const vibes = useMemo(() => resolveVibes(snapshot.models), []);
-  const mobile = useMediaQuery('(max-width: 900px)');
+  const phone = useMediaQuery('(max-width: 600px)');
   const [hovered, setHovered] = useState<VibeSelection | null>(null);
   const [pinned, setPinned] = useState<VibeSelection | null>(null);
   const [showBenchmarks, setShowBenchmarks] = useState(false);
   const [showCost, setShowCost] = useState(false);
+  const [plotSize, setPlotSize] = useState({ width: 960, height: 520 });
   const chartRef = useRef<HTMLDivElement>(null);
-  const sidebarRef = useRef<HTMLElement>(null);
-  const detailsRef = useRef<HTMLElement>(null);
+  const picksRef = useRef<HTMLDivElement>(null);
+  const overlayRef = useRef<HTMLElement>(null);
+  const belowCardRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
     document.title = 'Atlas · Vibes';
+  }, []);
+
+  useLayoutEffect(() => {
+    const element = chartRef.current;
+    if (!element) return;
+    const resize = () => {
+      const width = Math.round(element.clientWidth);
+      const height = Math.round(element.clientHeight);
+      if (width > 0 && height > 0) {
+        setPlotSize((current) => (current.width === width && current.height === height ? current : { width, height }));
+      }
+    };
+    resize();
+    if (typeof ResizeObserver === 'undefined') return;
+    const observer = new ResizeObserver(resize);
+    observer.observe(element);
+    return () => observer.disconnect();
   }, []);
 
   // Pin takes precedence over hover, matching Benchmarks and Efficiency.
@@ -48,23 +69,88 @@ export function Vibes() {
     ? vibes.recommendations.find((item) => item.id === active.useCaseId) ?? null
     : null;
   const isPinned = pinned !== null;
+  const detailsBelow = phone;
+
+  const compactCard = plotSize.width < 760 ? { width: 200, padding: 12 } : {};
+  const corners = {
+    'bottom-right': { right: 20, bottom: 62, maxHeight: 'calc(100% - 70px)', ...compactCard },
+    'top-left': { left: 48, top: 44, maxHeight: 'calc(100% - 52px)', ...compactCard },
+    'top-right': {
+      right: 20,
+      top: showCost ? 52 : 44,
+      maxHeight: `calc(100% - ${showCost ? 60 : 52}px)`,
+      ...compactCard,
+    },
+    'bottom-left': { left: 48, bottom: 62, maxHeight: 'calc(100% - 70px)', ...compactCard },
+  } satisfies Record<string, CSSProperties>;
+  const [placement, setPlacement] = useState<CSSProperties>(corners['bottom-right']);
+
+  useEffect(() => {
+    // On phones, reveal a card pinned below the fold and follow chart focus into it so focus never hides behind the header.
+    if (!detailsBelow || !isPinned || !belowCardRef.current) return;
+    belowCardRef.current.scrollIntoView({ block: 'nearest' });
+    if (chartRef.current?.contains(document.activeElement)) belowCardRef.current.focus({ preventScroll: true });
+  }, [detailsBelow, isPinned, pinned?.family, pinned?.useCaseId]);
+
+  useLayoutEffect(() => {
+    const card = overlayRef.current;
+    const plot = chartRef.current;
+    if (detailsBelow || !card || !plot || !activeEntry) return;
+    const bounds = plot.getBoundingClientRect();
+    if (bounds.width <= 0 || bounds.height <= 0) return;
+
+    const points = [...plot.querySelectorAll<SVGGElement>('g[data-vibe-family]')].flatMap((group) => {
+      const dot = group.querySelector<SVGCircleElement>('[data-vibe-dot]');
+      if (!dot) return [];
+      const box = dot.getBoundingClientRect();
+      return [
+        {
+          x: box.x + box.width / 2 - bounds.x,
+          y: box.y + box.height / 2 - bounds.y,
+          selected: group.dataset.vibeFamily === activeEntry.family,
+        },
+      ];
+    });
+    const labels = [...plot.querySelectorAll<SVGTextElement>('[data-vibe-label], [data-vibe-sublabel]')].map(
+      (element) => {
+        const box = element.getBoundingClientRect();
+        return {
+          left: box.left - bounds.x,
+          right: box.right - bounds.x,
+          top: box.top - bounds.y,
+          bottom: box.bottom - bounds.y,
+        };
+      },
+    );
+
+    const next = placeCard({
+      corners: Object.values(corners),
+      points,
+      labels,
+      plot: bounds,
+      card: { width: card.offsetWidth, height: card.offsetHeight },
+      compact: compactCard,
+    });
+    setPlacement((current) => (JSON.stringify(current) === JSON.stringify(next) ? current : next));
+  }, [detailsBelow, activeEntry?.family, activeUseCase?.id, isPinned, showCost, showBenchmarks, plotSize.width, plotSize.height]);
 
   function clearSelection(restoreFocus = false) {
     const previous = pinned;
+    const detailsElement = detailsBelow ? belowCardRef.current : overlayRef.current;
     const focusInDetails =
       typeof document !== 'undefined' &&
-      detailsRef.current !== null &&
-      detailsRef.current.contains(document.activeElement);
+      detailsElement !== null &&
+      detailsElement.contains(document.activeElement);
     // Restore focus before clearing state so synchronous onFocus on the SVG point doesn't re-open a preview.
     if (previous && (restoreFocus || focusInDetails)) {
       if (previous.useCaseId) {
-        sidebarRef.current
+        picksRef.current
           ?.querySelector<HTMLButtonElement>(`button[data-use-case="${previous.useCaseId}"]`)
           ?.focus({ preventScroll: true });
       } else {
-        chartRef.current
-          ?.querySelector<SVGGElement>(`g[data-vibe-family="${previous.family}"]`)
-          ?.focus({ preventScroll: true });
+        const trigger = chartRef.current?.querySelector<SVGGElement>(`g[data-vibe-family="${previous.family}"]`);
+        trigger?.focus({ preventScroll: true });
+        if (detailsBelow) trigger?.scrollIntoView({ block: 'center' });
       }
     }
     setPinned(null);
@@ -81,51 +167,41 @@ export function Vibes() {
     setPinned((current) => (current?.useCaseId === id ? null : { family, useCaseId: id }));
   }
 
-  const detailsCard = activeEntry && (
-    <div className="vibes-details-slot">
-      <aside
-        ref={detailsRef}
-        className={`configuration-details vibes-details${isPinned ? '' : ' pointer-events-none'}`}
-        aria-label="Selected model details"
-      >
-        <ConfigurationDetails
-          model={activeEntry.model}
-          metric="cost"
-          pinned={isPinned}
-          onClose={() => clearSelection(true)}
-          summary={
-            <>
-              {activeEntry.useCases.length > 0 && (
-                <div className="mt-2.5 flex flex-wrap gap-1.5">
-                  {activeEntry.useCases.map((useCase) => (
-                    <span
-                      key={useCase.id}
-                      className={`rounded-full px-2 py-0.5 text-[10.5px] font-[500] ${
-                        activeUseCase?.id === useCase.id
-                          ? 'bg-accent-soft text-accent'
-                          : 'bg-surface text-fg-2'
-                      }`}
-                    >
-                      {useCase.label}
-                    </span>
-                  ))}
-                </div>
-              )}
-              <p className="mt-2.5 mb-0 text-[12px] leading-5 text-fg">
-                {activeUseCase ? activeUseCase.note : activeEntry.summary}
-              </p>
-            </>
-          }
-        />
-      </aside>
-    </div>
+  const detailsContent = activeEntry && (
+    <ConfigurationDetails
+      model={activeEntry.model}
+      metric="cost"
+      pinned={isPinned}
+      onClose={() => clearSelection(true)}
+      summary={
+        <>
+          {activeEntry.useCases.length > 0 && (
+            <div className="mt-2.5 flex flex-wrap gap-1.5">
+              {activeEntry.useCases.map((useCase) => (
+                <span
+                  key={useCase.id}
+                  className={`rounded-full px-2 py-0.5 text-[10.5px] font-[500] ${
+                    activeUseCase?.id === useCase.id ? 'bg-accent-soft text-accent' : 'bg-surface text-fg-2'
+                  }`}
+                >
+                  {useCase.label}
+                </span>
+              ))}
+            </div>
+          )}
+          <p className="mt-2.5 mb-0 text-[12px] leading-5 text-fg">
+            {activeUseCase ? activeUseCase.note : activeEntry.summary}
+          </p>
+        </>
+      }
+    />
   );
 
   return (
-    <div className="grid h-dvh grid-rows-[var(--header-height)_minmax(0,1fr)] mobile:block mobile:h-auto">
+    <div className="grid h-dvh grid-rows-[var(--header-height)_minmax(0,1fr)_auto] phone:block phone:h-auto">
       <a
         href="#vibes-workspace"
-        className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-30 focus:rounded-md focus:bg-panel focus:p-3"
+        className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-40 focus:rounded-md focus:bg-panel focus:p-3"
       >
         Skip to vibes
       </a>
@@ -134,31 +210,83 @@ export function Vibes() {
       <main
         id="vibes-workspace"
         tabIndex={-1}
-        className="vibes-workspace [outline:none] grid min-h-0 grid-cols-[var(--sidebar-width)_minmax(0,1fr)] gap-6 px-7 pt-6 pb-4 compact:gap-5 compact:px-5 mobile:flex mobile:flex-col mobile:gap-4 mobile:px-4 mobile:py-4"
+        className="vibes-workspace mx-7 mt-6 mb-2 min-h-0 min-w-0 rounded-[14px] bg-panel [outline:none] short:mt-4 compact:mx-5 mobile:mx-4 mobile:mt-4 mobile:mb-0"
         onKeyDown={(event) => {
           if (event.key === 'Escape' && pinned !== null) clearSelection(false);
         }}
       >
-        {/* Main chart precedes the sidebar in DOM order so mobile keyboard tabbing matches visual order. */}
+        <h1 id="vibes-title" className="sr-only">
+          Vibes
+        </h1>
         <section
           aria-labelledby="vibes-title"
-          className="col-start-2 row-start-1 flex min-h-0 min-w-0 flex-col overflow-y-auto rounded-[14px] bg-panel px-6 pt-5 pb-4 mobile:rounded-[14px] mobile:px-4 mobile:py-4"
+          className="flex h-full flex-col px-6 pt-4 pb-3 phone:h-auto mobile:px-4 phone:pb-5"
         >
-          <div className="vibes-heading flex flex-wrap items-start justify-between gap-3">
-            <div>
-              <h1 id="vibes-title" className="display m-0 text-[30px] leading-[1.1] phone:text-[24px]">
-                Vibes
-              </h1>
-              <p className="mt-1 mb-0 text-[13px] leading-5 text-fg-2">
-                {showCost
-                  ? 'Capability (height), Coherency (front), and high-effort API cost per task (depth, log scale).'
-                  : 'Personal model recommendations across Capability and Coherency.'}
-              </p>
+          <div className="vibes-toolbar flex shrink-0 flex-wrap items-center gap-x-4 gap-y-2">
+            <div
+              ref={picksRef}
+              role="group"
+              aria-label="Best for"
+              className="flex min-w-0 items-center gap-1.5 mobile:max-w-full mobile:overflow-x-auto mobile:[scrollbar-width:none] phone:flex-wrap phone:overflow-visible"
+            >
+              {vibes.recommendations.map((item) => {
+                const Icon = iconMap[item.icon];
+                const selected = pinned?.useCaseId === item.id;
+                const highlighted =
+                  active?.useCaseId === item.id || (!active?.useCaseId && active?.family === item.family);
+                const color = modelColor(item.entry.model);
+                return (
+                  <button
+                    key={item.id}
+                    type="button"
+                    data-use-case={item.id}
+                    aria-pressed={selected}
+                    onClick={() => togglePinUseCase(item.id, item.family)}
+                    onPointerEnter={(event) => {
+                      // On phones, details mount below the plot; skip hover previews on touch or phone widths.
+                      if (event.pointerType === 'touch' || phone) return;
+                      setHovered((current) =>
+                        current?.family === item.family && current.useCaseId === item.id
+                          ? current
+                          : { family: item.family, useCaseId: item.id },
+                      );
+                    }}
+                    onPointerLeave={() => setHovered(null)}
+                    className={`group flex min-h-10 shrink-0 items-center gap-2 rounded-lg px-2.5 py-1 text-left mobile:px-2 phone:min-h-11 ${
+                      selected
+                        ? 'bg-accent-soft text-accent shadow-[inset_0_0_0_1px_color-mix(in_srgb,var(--accent)_28%,transparent)]'
+                        : highlighted
+                          ? 'bg-hover text-fg shadow-[inset_0_0_0_1px_var(--line-2)]'
+                          : 'bg-surface text-fg-2 hover:bg-hover hover:text-fg'
+                    }`}
+                  >
+                    <Icon
+                      size={13}
+                      className="shrink-0 text-fg-3 group-hover:text-accent group-aria-pressed:text-accent"
+                      aria-hidden="true"
+                    />
+                    <span className="min-w-0">
+                      <span className="block text-[10.5px] leading-tight text-fg-2 group-aria-pressed:text-accent">
+                        {item.label}
+                      </span>
+                      <span className="mt-0.5 flex items-center gap-1.5 text-[12px] leading-tight font-[560] text-fg">
+                        <span
+                          aria-hidden="true"
+                          className="size-[7px] shrink-0 rounded-full"
+                          style={{ background: color }}
+                        />
+                        <span className="whitespace-nowrap">{shortName(item.entry.model)}</span>
+                      </span>
+                    </span>
+                  </button>
+                );
+              })}
             </div>
-            <div className="flex flex-wrap items-center gap-3">
+
+            <div className="ml-auto flex shrink-0 items-center gap-4 phone:ml-0 phone:w-full phone:justify-between phone:gap-3">
               <button
                 type="button"
-                className="inline-flex min-h-10 items-center gap-2 text-[12px] font-[500] text-fg aria-pressed:text-accent hover:text-accent"
+                className="inline-flex min-h-9 items-center gap-2 rounded-md px-1 text-[13px] text-fg hover:text-accent aria-pressed:text-accent"
                 aria-pressed={showCost}
                 title="Tilt into a 3D view with a log-scaled high-effort API cost per task axis."
                 onClick={() => setShowCost((current) => !current)}
@@ -206,83 +334,64 @@ export function Vibes() {
               onTogglePin={togglePinModel}
               onClear={() => clearSelection(false)}
             />
+            {!detailsBelow && activeEntry && (
+              <aside
+                ref={overlayRef}
+                className={`configuration-details scroll-fade${isPinned ? '' : ' pointer-events-none'}`}
+                style={placement}
+                aria-label="Selected model details"
+                tabIndex={isPinned ? 0 : undefined}
+              >
+                {detailsContent}
+              </aside>
+            )}
+          </div>
+
+          {/* Narrow phone plots have no free corner, so a pinned card sits below the plot instead of covering points. */}
+          {detailsBelow && isPinned && activeEntry && (
+            <aside
+              ref={belowCardRef}
+              className="configuration-details scroll-mt-[calc(var(--header-height)+12px)]"
+              data-placement="below"
+              aria-label="Selected model details"
+              tabIndex={0}
+            >
+              {detailsContent}
+            </aside>
+          )}
+
+          <div className="flex shrink-0 flex-wrap items-baseline justify-between gap-x-6 gap-y-1 pt-2 phone:pt-3">
+            <p className="m-0 text-[12px] leading-5 text-pretty text-fg-2">
+              <strong className="font-[600] text-fg">{reasoningGuidance.title}:</strong> Default to{' '}
+              <strong className="font-[550] text-fg">high</strong>. Never use{' '}
+              <strong className="font-[550] text-fg">max</strong>: {reasoningGuidance.quote.toLowerCase()}
+            </p>
+            {showCost && (
+              <p className="m-0 text-[12px] leading-5 text-fg-3">
+                Depth: high-effort API cost per task (log). Drag to rotate.
+              </p>
+            )}
           </div>
         </section>
-
-        <aside
-          ref={sidebarRef}
-          aria-label="Personal recommendations"
-          className="col-start-1 row-start-1 flex min-h-0 min-w-0 flex-col gap-5 overflow-y-auto pt-2 mobile:overflow-visible mobile:rounded-[14px] mobile:bg-panel mobile:p-4"
-        >
-          {mobile && detailsCard}
-
-          <section className="vibes-recommendations" aria-labelledby="vibes-use-cases-heading">
-            <h2 id="vibes-use-cases-heading" className="mb-2 text-[12px] font-[550] text-fg mobile:text-[13px]">
-              Best for
-            </h2>
-            <div className="flex flex-col gap-0.5 mobile:grid mobile:grid-cols-2 mobile:gap-1.5 phone:grid-cols-1">
-              {vibes.recommendations.map((item) => {
-                const Icon = iconMap[item.icon];
-                const selected = pinned?.useCaseId === item.id;
-                const highlighted =
-                  active?.useCaseId === item.id || (!active?.useCaseId && active?.family === item.family);
-                const color = modelColor(item.entry.model);
-                return (
-                  <button
-                    key={item.id}
-                    type="button"
-                    data-use-case={item.id}
-                    aria-pressed={selected}
-                    onClick={() => togglePinUseCase(item.id, item.family)}
-                    onPointerEnter={(event) => {
-                      // On mobile widths, the details card mounts above Best for; skip hover preview to prevent layout shifts.
-                      if (event.pointerType === 'touch' || mobile) return;
-                      setHovered((current) =>
-                        current?.family === item.family && current.useCaseId === item.id
-                          ? current
-                          : { family: item.family, useCaseId: item.id },
-                      );
-                    }}
-                    onPointerLeave={() => setHovered(null)}
-                    className={`group flex min-h-11 w-full items-center gap-2.5 rounded-md px-2 py-1.5 text-left transition-colors ${
-                      selected
-                        ? 'bg-panel font-medium text-fg shadow-[inset_0_0_0_1px_var(--line)] mobile:bg-surface'
-                        : highlighted
-                          ? 'bg-hover text-fg'
-                          : 'text-fg-2 hover:bg-hover hover:text-fg'
-                    }`}
-                  >
-                    <Icon
-                      size={14}
-                      className="shrink-0 text-fg-3 group-hover:text-accent group-aria-pressed:text-accent"
-                      aria-hidden="true"
-                    />
-                    <span className="min-w-0 flex-1">
-                      <span className="block text-[11px] leading-tight text-fg-2">{item.label}</span>
-                      <span className="mt-0.5 flex items-center gap-1.5 text-[12.5px] font-[550] text-fg">
-                        <span aria-hidden="true" className="size-[7px] shrink-0 rounded-full" style={{ background: color }} />
-                        <span className="truncate">{shortName(item.entry.model)}</span>
-                      </span>
-                    </span>
-                  </button>
-                );
-              })}
-            </div>
-          </section>
-
-          <section className="vibes-reasoning border-t border-line pt-4" aria-labelledby="vibes-reasoning-heading">
-            <h2 id="vibes-reasoning-heading" className="m-0 text-[12px] font-[550] text-fg mobile:text-[13px]">
-              {reasoningGuidance.title}
-            </h2>
-            <p className="mt-1.5 mb-0 text-[12px] leading-5 text-fg-2">
-              Default to <strong className="font-medium text-fg">high</strong>. Never use{' '}
-              <strong className="font-medium text-fg">max</strong>: {reasoningGuidance.quote.toLowerCase()}
-            </p>
-          </section>
-
-          {!mobile && detailsCard}
-        </aside>
       </main>
+
+      <footer className="flex flex-wrap items-center justify-between gap-x-5 gap-y-1 px-7 py-3 short:py-2 text-[12px] leading-5 text-fg-3 compact:px-5 mobile:px-4 phone:pt-5 phone:pb-[calc(20px+env(safe-area-inset-bottom))]">
+        <span>
+          Data from{' '}
+          <a
+            className="underline-offset-4 hover:text-accent hover:underline"
+            href="https://artificialanalysis.ai/"
+            target="_blank"
+            rel="noreferrer"
+          >
+            Artificial Analysis
+          </a>
+        </span>
+        <span title={`Snapshot captured ${snapshot.fetchedAt}`}>
+          Snapshot captured{' '}
+          <time dateTime={snapshot.fetchedAt}>{formatUtcDate(snapshot.fetchedAt, 'short')}</time>
+        </span>
+      </footer>
     </div>
   );
 }

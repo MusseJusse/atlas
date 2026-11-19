@@ -17,6 +17,7 @@ import { scoreLabels, metrics, resolveView, type View } from './chart-definition
 import { chartDescending, type Settings } from './state';
 import { Logo } from './Logo';
 import { ConfigurationDetails } from './charts/ConfigurationDetails';
+import { placeCard } from './charts/card-placement';
 import { Scatter } from './charts/Scatter';
 import { Bars, FixedBarAxis } from './charts/Bars';
 import { Ranking } from './charts/Ranking';
@@ -111,8 +112,7 @@ export const Chart = memo(function Chart({
   const belowCard = useRef<HTMLElement>(null);
   const overlay = useRef<HTMLElement>(null);
   const gutter = scatterLabelGutter(width, settings.labels) || 24;
-  // Scatter cards sit in whichever plot corner covers fewest points, and never over the selected one.
-  // Each placement caps the card to the height it actually has, and narrow plots use the compact card.
+  // Each corner caps the card to the height it actually has, and narrow plots use the compact card.
   const compactCard = width < 760 ? { width: 200, padding: 12 } : {};
   const corners = {
     'bottom-right': { right: gutter, bottom: 74, maxHeight: 'calc(100% - 82px)', ...compactCard },
@@ -138,27 +138,7 @@ export const Chart = memo(function Chart({
       const box = point.querySelector('circle:last-child')!.getBoundingClientRect();
       return { x: box.x + box.width / 2 - bounds.x, y: box.y + box.height / 2 - bounds.y, selected: point.dataset.point === activeModel?.id };
     });
-    const size = { width: card.offsetWidth, height: card.offsetHeight };
-    const cost = (place: CSSProperties) => {
-      const x = typeof place.left === 'number' ? place.left : bounds.width - Number(place.right) - size.width;
-      const y = typeof place.top === 'number' ? place.top : bounds.height - Number(place.bottom) - size.height;
-      return points.reduce((total, point) => {
-        // The selected point needs a wider 12px berth than its neighbours.
-        const margin = point.selected ? 12 : 6;
-        return total + (point.x >= x - margin && point.x <= x + size.width + margin && point.y >= y - margin && point.y <= y + size.height + margin ? point.selected ? 1000 : 1 : 0);
-      }, 0);
-    };
-    const best = Object.values(corners).reduce<CSSProperties>((current, next) => cost(next) < cost(current) ? next : current, corners['bottom-right']);
-    const selected = points.find((point) => point.selected);
-    // A card bigger than every free corner goes beside the selected point instead, on its roomier side.
-    const besideTop = selected && Math.max(8, Math.min(bounds.height - size.height - 8, selected.y - size.height / 2));
-    const beside = selected && besideTop !== undefined && cost(best) >= 1000 && {
-      left: selected.x > bounds.width / 2 ? Math.max(0, selected.x - 16 - size.width) : selected.x + 16,
-      top: besideTop,
-      maxHeight: `calc(100% - ${besideTop + 8}px)`,
-      ...compactCard,
-    };
-    const next = beside || best;
+    const next = placeCard({ corners: Object.values(corners), points, plot: bounds, card: { width: card.offsetWidth, height: card.offsetHeight }, compact: compactCard });
     setPlacement((current) => JSON.stringify(current) === JSON.stringify(next) ? current : next);
   }, [scatter, activeModel?.id, width, height, settings.labels]);
   const legend = [...new Map(validRows.map((row) => [row.codingAgent ? row.id : row.family, row])).values()];
