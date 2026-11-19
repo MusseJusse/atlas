@@ -122,6 +122,8 @@ export const Chart = memo(function Chart({
     highlight: (id) => flushSync(() => onHighlight(id)),
   };
   const [overflow, updateOverflow, overflowRef] = useScrollEdges();
+  const container = useRef<HTMLDivElement>(null);
+  const detailsBelow = scatter && ready && width < 600;
   const legend = [...new Map(validRows.map((row) => [row.codingAgent ? row.id : row.family, row])).values()];
 
   function closeOnBackground(event: MouseEvent<SVGSVGElement>) {
@@ -133,14 +135,16 @@ export const Chart = memo(function Chart({
   }
 
   function clearSelection() {
-    // Keep keyboard users in the chart when removing the inspector's focused control.
-    ref.current?.querySelector<SVGGElement>('g[aria-pressed="true"]')?.focus({ preventScroll: true });
+    // Keep keyboard users in the chart when removing the inspector's focused control:
+    // the pinned plot point, or the pressed configuration in a phone ranking.
+    container.current?.querySelector<HTMLElement | SVGGElement>('g[aria-pressed="true"], .ranking-configurations button[aria-pressed="true"]')?.focus({ preventScroll: true });
     setPinnedId(null);
     setHoveredId(null);
   }
 
   return (
     <div
+      ref={container}
       className="relative flex min-h-0 min-w-0 flex-1 flex-col"
       onKeyDown={(event) => {
         if (event.key === 'Escape') clearSelection();
@@ -217,7 +221,7 @@ export const Chart = memo(function Chart({
             {!prepared.scatter && plotWidth > width && <FixedBarAxis rows={prepared.rows} metric={view.metric} settings={settings} plotWidth={plotWidth} width={width} height={height} />}
             </>
           ))}
-        {(scatter || !phone) && activeModel && (
+        {(scatter || !phone) && activeModel && !(detailsBelow && pinned) && (
           <aside
             className={`configuration-details${pinned ? '' : ' pointer-events-none'}`}
             data-placement={scatter ? 'bottom-right' : settings.descending ? 'top-right' : 'top-left'}
@@ -234,6 +238,12 @@ export const Chart = memo(function Chart({
           </aside>
         )}
       </div>
+      {/* Narrow scatter plots have no free corner, so a pinned card sits below the plot instead of covering points. */}
+      {detailsBelow && pinned && activeModel && (
+        <aside className="configuration-details" data-placement="below" aria-label="Selected configuration" tabIndex={0}>
+          <ConfigurationDetails model={activeModel} metric={view.metric} pinned onClose={clearSelection} />
+        </aside>
+      )}
       {ready && validRows.length > 0 && !scatter && phone && (
         <div className="hidden phone:block">
           {!prepared.scatter && <Ranking rows={prepared.rows} metric={view.metric} grouped={settings.grouped}
@@ -253,7 +263,8 @@ export const Chart = memo(function Chart({
               onClick={() => interactions.togglePin(model)}
             >
               <Logo model={model} />
-              <span aria-hidden="true" className="hidden phone:block size-2 shrink-0 rounded-full" style={{ background: modelColor(model) }} />
+              {/* Labs share logos, so the swatch is what matches a row to its line. */}
+              <span aria-hidden="true" className="size-2 shrink-0 rounded-full" style={{ background: modelColor(model) }} />
               {model.codingAgent ? (
                 <span className="min-w-0">
                   <span className="block truncate">{shortName(model)}</span>

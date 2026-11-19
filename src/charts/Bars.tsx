@@ -118,7 +118,10 @@ export function Bars({
                     rx={combined ? 0 : 4}
                     clipPath={combined ? `url(#${columnClipId})` : undefined}
                     fill={modelColor(row)}
-                    opacity={segmentOpacity}
+                    fillOpacity={segmentOpacity}
+                    // Opacity encodes effort; a full-colour edge keeps every segment above 3:1 against the plot.
+                    stroke={modelColor(row)}
+                    strokeWidth={1}
                   />
                   {showEffort && (
                     <text

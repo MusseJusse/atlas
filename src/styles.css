@@ -225,6 +225,15 @@
     padding: 12px;
   }
 }
+.configuration-details[data-placement='below'] {
+  position: static;
+  width: 100%;
+  max-width: none;
+  max-height: none;
+  margin-top: 12px;
+  border: 1px solid var(--line);
+  box-shadow: none;
+}
 
 /* A floated legend lays out as ordinary content, so the fieldset background stays continuous. */
 .efficiency-filters > legend { float: left; width: 100%; padding: 0; }

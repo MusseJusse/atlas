@@ -132,12 +132,22 @@ export function Scatter({
                 aria-pressed={interactions.pinned?.id === model.id}
                 className="cursor-pointer focus-visible:[&>circle:last-child]:stroke-accent focus-visible:[&>circle:last-child]:stroke-[3] mobile:focus-visible:[outline:none]"
                 opacity={settings.frontier && !onFrontier && !active && !activeFamily ? 0.15 : 1}
-                onMouseEnter={() => interactions.hover(model)}
+                data-point={model.id}
+                // Hover, click and focus all resolve to the nearest point, so the preview, the pin and Enter agree.
+                onMouseMove={(event) => {
+                  const nearest = pointAt(event, model);
+                  if (nearest.id !== activeModel?.id) interactions.hover(nearest);
+                }}
                 onMouseLeave={() => interactions.hover(null)}
                 onFocus={() => interactions.hover(model)}
                 onBlur={() => interactions.hover(null)}
                 {...pinHandlers(model, interactions.togglePin)}
-                onClick={(event) => interactions.togglePin(pointAt(event, model))}
+                onClick={(event) => {
+                  const nearest = pointAt(event, model);
+                  interactions.togglePin(nearest);
+                  if (nearest.id !== model.id)
+                    event.currentTarget.ownerSVGElement?.querySelector<SVGGElement>(`[data-point="${CSS.escape(nearest.id)}"]`)?.focus({ preventScroll: true });
+                }}
               >
                 <circle
                   cx={x(model.value)}
