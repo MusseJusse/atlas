@@ -68,14 +68,14 @@ export function EfficiencyChart({ lines, selected, fetchedAt, active, highlighte
     <div ref={ref} className="relative min-h-[280px] min-w-0 flex-1 mobile:h-[380px] mobile:flex-none phone:h-[360px]">
       {!populated ? (
         <div className="absolute inset-0 flex items-center justify-center text-center text-[13px] text-fg-2" role="status">
-          {selected.length ? 'No qualifying measurements for these thresholds.' : 'Select an intelligence threshold.'}
+          {selected.length ? 'No measured models reach these thresholds. Select a lower threshold.' : 'No thresholds selected. Select an Intelligence index threshold.'}
         </div>
       ) : geometry && (
         <svg
           className="absolute inset-0 block size-full overflow-visible text-[11px]"
           viewBox={`0 0 ${size.width} ${size.height}`}
           role="group"
-          aria-label="Cost per Intelligence Index task records by release date"
+          aria-label="Cost per Intelligence index task records by release date"
           aria-describedby={`${id}-description`}
           onPointerMove={(event) => {
             if (event.pointerType === 'touch') return;
@@ -126,7 +126,7 @@ export function EfficiencyChart({ lines, selected, fetchedAt, active, highlighte
                     role="button"
                     tabIndex={0}
                     aria-pressed={pinned === key}
-                    aria-label={`Intelligence Index at least ${line.threshold}, ${point.model.name}, ${point.model.effortLabel}, ${formatUtcDate(point.date)}, ${costFormat.format(point.value)}`}
+                    aria-label={`Intelligence index at least ${line.threshold}, ${point.model.name}, ${point.model.effortLabel}, ${formatUtcDate(point.date)}, ${costFormat.format(point.value)}`}
                     className="cursor-pointer focus:[outline:none] [&:focus_.record-target]:stroke-accent [&:focus_.record-target]:stroke-2"
                     onFocus={() => preview(key)}
                     onBlur={() => preview(null)}

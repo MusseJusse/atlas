@@ -170,8 +170,8 @@ export const Chart = memo(function Chart({
               }
               onClick={closeOnBackground}
             >
-              <title>{view.label}{pricingContext ? ' · Estimated subscription pricing' : ' · API benchmark measurements'}</title>
-              <desc>{pricingContext?.join(' ') ?? 'Measured Artificial Analysis benchmark data.'}</desc>
+              <title>{view.label}{pricingContext ? ', estimated subscription pricing' : ', Artificial Analysis benchmarks'}</title>
+              <desc>{pricingContext?.join(' ') ?? 'Artificial Analysis benchmark data.'}</desc>
               {pricingContext && <metadata>{JSON.stringify({ pricing: pricingContext })}</metadata>}
               <rect
                 className="chart-background"

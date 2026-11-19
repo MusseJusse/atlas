@@ -67,7 +67,7 @@ export function Efficiency() {
         <aside aria-label="Efficiency controls" className="min-h-0 min-w-0 overflow-y-auto pt-2 mobile:contents">
           <fieldset className="efficiency-filters m-0 min-w-0 border-0 p-0">
             <legend className="mb-1 text-[18px] font-[650] tracking-[-0.3px]">Intelligence index</legend>
-            <p className="mt-0 mb-3 text-[12px] leading-5 text-fg-2 mobile:hidden">Show the cheapest model at or above each score.</p>
+            <p className="mt-0 mb-3 text-[12px] leading-5 text-fg-2 mobile:hidden">Track record-low cost at or above each score.</p>
             <div className="flex flex-col gap-0.5 mobile:grid mobile:grid-cols-6 mobile:gap-x-1 phone:grid-cols-3">
               {lines.map((line) => (
                 <label key={line.threshold} className="flex min-h-10 cursor-pointer items-center gap-2.5 rounded-md px-1.5 text-[13px] hover:bg-hover has-[:checked]:font-[550] mobile:min-h-11">
@@ -80,7 +80,7 @@ export function Efficiency() {
                         (threshold === line.threshold ? checked : current.thresholds.includes(threshold)) ? [threshold] : [],
                       ) }));
                     }}
-                    aria-label={`Intelligence Index at least ${line.threshold}`}
+                    aria-label={`Intelligence index at least ${line.threshold}`}
                     className="peer sr-only"
                   />
                   <span
@@ -139,7 +139,7 @@ export function Efficiency() {
               Cost at each intelligence threshold
             </h1>
             <p className="mt-1 mb-0 max-w-[72ch] text-[13px] leading-5 text-pretty text-fg-2">
-              Each step down is a new record: a model released that day reaches the threshold for less. Costs are per Intelligence Index task in USD, on a log scale, at today’s prices.
+              Each step down is a new record: a model released that day reaches the threshold for less. Costs are per Intelligence index task (USD, log scale) at current prices.
             </p>
           </div>
           <div

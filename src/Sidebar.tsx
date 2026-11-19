@@ -131,8 +131,8 @@ export const Sidebar = memo(function Sidebar({
         </h2>
         <button
           className="flex size-8 items-center justify-center rounded-md text-fg-2 hover:bg-hover hover:text-accent mobile:size-10"
-          aria-label="Reset model filters"
-          title="Reset model filters"
+          aria-label="Reset filters and settings"
+          title="Reset filters and settings"
           onClick={() => {
             update(defaults);
             setSearch('');
@@ -229,7 +229,7 @@ export const Sidebar = memo(function Sidebar({
               </button>
             ))}
             {section.items.length === 0 && (
-              <p className="m-0 text-[12px] text-fg-2">No matching models.</p>
+              <p className="m-0 text-[12px] text-fg-2">No models match. Try another model or lab name.</p>
             )}
           </div>
         ))}
@@ -265,7 +265,7 @@ export const Sidebar = memo(function Sidebar({
             if (!browse) requestAnimationFrame(() => catalog.current?.querySelector('[data-section="Other"]')?.scrollIntoView({ block: 'start', behavior: 'smooth' }));
           }}
         >
-          {browse ? 'Show fewer models' : 'Show all models'}
+          {browse ? 'Show fewer models' : 'Show more models'}
           <ChevronDown size={14} aria-hidden="true" className={browse ? 'rotate-180' : undefined} />
         </button>
         {browse && (

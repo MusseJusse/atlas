@@ -101,9 +101,9 @@ export function pricingDisclosure(rows: Model[], countResets: boolean) {
   const hasDirectRatio = rows.some((row) => row.taskPricing?.basis === 'subscription' && row.taskPricing.reading);
   return [
     hasDirectRatio
-      ? 'Estimated subscription. Uses MyPriors API-cost ratios where available and an external coding token mix for token-price estimates.'
-      : 'Estimated subscription. One model uses the full allowance. External coding token mix, shared across efforts.',
-    `Pricing captured ${snapshot.capturedAt.slice(0, 10)}. ${plans.length ? plans.join('; ') : 'No supported plan estimates.'}`,
-    `${countResets ? 'Source-linked bonus resets included where supported' : 'Bonus resets excluded'}. ${rows.some((row) => row.taskPricing?.basis === 'api-fallback') ? 'Includes API fallback.' : 'Subscription estimates only.'}`,
+      ? 'Estimated subscription pricing. One model uses the full allowance. Uses MyPriors API-cost ratios where available and an external coding token mix otherwise.'
+      : 'Estimated subscription pricing. One model uses the full allowance. External coding token mix across reasoning levels.',
+    `MyPriors pricing captured ${snapshot.capturedAt.slice(0, 10)}. ${plans.length ? `Plans: ${plans.join(', ')}.` : 'No supported plan estimates.'}`,
+    `${countResets ? 'Includes confirmed bonus resets where available' : 'Excludes bonus resets'}. ${rows.some((row) => row.taskPricing?.basis === 'api-fallback') ? 'Includes API fallback.' : 'Subscription estimates only.'}`,
   ];
 }

@@ -250,7 +250,7 @@ function Benchmarks() {
                       <button
                         className="-ml-1 inline-flex min-h-9 items-center gap-2 rounded-md px-1 text-[13px] text-fg hover:text-accent aria-pressed:text-accent"
                         aria-pressed={settings.frontier}
-                        title="Show configurations with no better and cheaper alternative."
+                        title="Highlight configurations that no other beats on both axes."
                         onClick={() => update({ frontier: !settings.frontier })}
                       >
                         <Selection checked={settings.frontier} />
@@ -315,11 +315,11 @@ function Benchmarks() {
                   {subscription && (
                     <p className="mt-0 mb-2 max-w-[80ch] shrink-0 text-[12px] leading-5 text-fg-2">
                       <strong className="font-[600] text-fg">Estimated subscription pricing.</strong>{' '}
-                      Assumes one model uses the whole allowance.{' '}
-                      {settings.countResets ? 'Counts bonus resets where the plan has them.' : 'Bonus resets are not counted.'}
-                      {hasFallback && ' Models without a plan use API prices.'}
+                      Assumes one model uses the full allowance.{' '}
+                      {settings.countResets ? 'Counts confirmed bonus resets.' : 'Excludes bonus resets.'}
+                      {hasFallback && ' Models without a subscription estimate use API prices.'}
                       {scatter && settings.frontier && ' The frontier compares subscription estimates only.'}
-                      {scatter && !linear && chartRows.some((row) => row.cost === 0) && ' Configurations estimated at $0 are hidden on the log scale.'}
+                      {scatter && !linear && chartRows.some((row) => row.cost === 0) && ' Log scale hides $0 configurations.'}
                     </p>
                   )}
                   <Chart
@@ -350,7 +350,7 @@ function Benchmarks() {
             Artificial Analysis
           </a>
         </span>
-        <span title={`Local snapshot captured ${fetchedAt}`}>
+        <span title={`Snapshot captured ${fetchedAt}`}>
           Snapshot captured{' '}
           <time dateTime={fetchedAt}>
             {formatUtcDate(fetchedAt, 'short')}
@@ -470,7 +470,7 @@ function ChartOptions({
                 Highest first
               </button>
               <button className={segment} aria-pressed={!descending} onClick={() => { if (descending) update({ descending: false }); }}>
-                Highest last
+                Lowest first
               </button>
             </div>
           </>

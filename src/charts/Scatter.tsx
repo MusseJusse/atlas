@@ -175,7 +175,7 @@ export function Scatter({
               opacity={dim ? 0.2 : 1}
               role="button"
               tabIndex={0}
-              aria-label={`Highlight ${series.end.codingAgent?.configuration ?? series.end.name}`}
+              aria-label={`Select ${series.end.codingAgent?.configuration ?? series.end.name}`}
               onMouseEnter={() => interactions.highlight(series.family)}
               onMouseLeave={() => interactions.highlight(null)}
               aria-pressed={interactions.pinned?.id === series.end.id}

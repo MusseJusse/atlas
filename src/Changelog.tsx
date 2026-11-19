@@ -84,8 +84,8 @@ export function Changelog({ history = bundledHistory }: { history?: ChangeHistor
         {!updates.length && (
           <p className="my-10 max-w-[65ch] text-[14px] leading-7 text-fg-2">
             {history.updates.length
-              ? 'No changes match this filter.'
-              : `No changes recorded yet. History starts with the ${formatUtcDate(history.baselineFetchedAt)} snapshot. New entries appear when a data update is published.`}
+              ? 'No changes match this filter. Choose another filter or All changes.'
+              : `No changes recorded yet. History starts with the ${formatUtcDate(history.baselineFetchedAt)} snapshot. Entries appear after the next data update.`}
           </p>
         )}
         {updates.map((batch) => (
@@ -122,7 +122,7 @@ export function Changelog({ history = bundledHistory }: { history?: ChangeHistor
                     <span className="ml-2 text-[12px] font-normal text-fg-2">{change.effortLabel.toLowerCase()}</span>
                   </h3>
                   {change.kind === 'removed' && (
-                    <p className="mt-0.5 mb-0 text-[12px] text-fg-2">No longer present in the source</p>
+                    <p className="mt-0.5 mb-0 text-[12px] text-fg-2">No longer listed on Artificial Analysis</p>
                   )}
                   {change.fields.length > 0 && (
                     <table className="mt-3 w-full table-fixed border-collapse overflow-hidden rounded-md bg-surface text-left text-[12px] leading-5">
@@ -179,7 +179,7 @@ export function Changelog({ history = bundledHistory }: { history?: ChangeHistor
           <a href={history.source} target="_blank" rel="noreferrer" className="underline underline-offset-4 hover:text-accent">
             Artificial Analysis
           </a>
-          . This page shows published data updates.
+          . Lists changes between published snapshots.
         </footer>
       </main>
     </div>

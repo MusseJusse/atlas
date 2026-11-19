@@ -54,7 +54,7 @@ export function ConfigurationDetails({
       </div>
       {summary}
       {model.taskPricing?.basis === 'subscription' && (
-        <p className="mt-2 mb-0 text-[11px] leading-4 text-fg-2">Full allowance for one model. External token mix, not measured subscription spend.</p>
+        <p className="mt-2 mb-0 text-[11px] leading-4 text-fg-2">Assumes one model uses the full allowance. Estimated cost, not measured spend.</p>
       )}
       <dl className="mt-3 mb-3 divide-y divide-line border-y border-line text-[12px]">
         {measurements.map(([label, value]) => (
@@ -77,10 +77,10 @@ export function ConfigurationDetails({
       )}
       {pinned && model.timeEstimate && (
         <p className="mt-3 mb-2 text-[11px] leading-5 text-fg-2">
-          Local time estimate. Uses standard Sol High task tokens at Max-measured throughput.
+          Local time estimate. Divides GPT-6.1 Sol High output tokens by this endpoint’s Max output speed.
           <br />
           {model.timeEstimate.baselineTokens.toFixed(1)} tokens ÷ {format(model.speed, 'speed')} tokens/s.
-          Baseline from {formatUtcDate(model.timeEstimate.baselineFetchedAt, 'short')}.
+          Token count from {formatUtcDate(model.timeEstimate.baselineFetchedAt, 'short')}.
         </p>
       )}
       <a
