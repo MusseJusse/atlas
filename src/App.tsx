@@ -1,17 +1,15 @@
 import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Settings2 } from 'lucide-react';
+import { Search, Settings2 } from 'lucide-react';
 import { PricingControls } from './PricingControls';
 import { pricingDisclosure, subscriptionRows, usesSubscriptionPricing } from './data/subscriptions';
 import { Chart } from './Charts';
-import { ChartNavigation } from './ChartNavigation';
 import { visibleChartRows } from './chart-rows';
 import { Sidebar } from './Sidebar';
 import { Selection } from './Selection';
+import { AxisMenu, type AxisOption } from './AxisMenu';
 import { useMediaQuery } from './useMediaQuery';
-import { useScrollEdges } from './useScrollEdges';
-import { revealTab, useChartNavigation } from './useChartNavigation';
 import { fetchedAt, paretoFrontier, visibleModels } from './models';
-import { resolveView, viewDescriptions, views } from './chart-definitions';
+import { metrics, resolveView, scoreLabels, viewDescriptions, views, type ViewId } from './chart-definitions';
 import { chartDescending, readSettings, readView, writeSettings, type Settings } from './state';
 import { formatUtcDate } from './formatDate';
 import { SiteHeader } from './SiteHeader';
@@ -90,58 +88,48 @@ export function App() {
   );
 }
 
+const scatterViews = views.filter((view) => view.mode === 'scatter');
+const barViews = views.filter((view) => view.mode === 'bars');
+// Scatter plots always put Intelligence up, so the vertical menu lists what bars can rank,
+// and the horizontal menu lists what Intelligence can be plotted against.
+const verticalOptions = barViews.map((view) => ({ id: view.id, label: metrics[view.metric].label }));
+const horizontalOptions = [
+  ...scatterViews.map((view) => ({ id: view.id, label: metrics[view.metric].label })),
+  { id: 'models', label: 'Models, ranked', divider: true },
+] as const satisfies readonly AxisOption<ViewId | 'models'>[];
+
 function Benchmarks() {
   useEffect(() => { document.title = 'Atlas · AI model benchmarks'; }, []);
   const search = typeof location === 'undefined' ? '' : location.search;
   const [settings, setSettings] = useState(() => readSettings(search));
-  const [mobileOpen, setMobileOpen] = useState(false);
+  const [active, setActive] = useState(() => readView(search));
+  const [pickerOpen, setPickerOpen] = useState(false);
   const [highlighted, setHighlighted] = useState<string | null>(null);
-  const mobile = useMediaQuery('(max-width: 900px)');
   const phone = useMediaQuery('(max-width: 600px)');
-  const { active, navigate, feed, chartNavigation } = useChartNavigation(mobile);
-  const [tabEdges, updateTabEdges, tabEdgesRef] = useScrollEdges();
-  const stickyBar = useRef<HTMLDivElement>(null);
-  // Phone sections scroll to just below the sticky bar, whose height changes with the open category.
-  // The section's top rule tucks under the bar's own border so the two never double up.
-  useEffect(() => {
-    const bar = stickyBar.current;
-    if (!mobile || !bar) return;
-    const root = document.documentElement;
-    const measure = () => root.style.setProperty('--sticky-offset', `calc(var(--header-height) + ${Math.ceil(bar.offsetHeight) - 1}px)`);
-    measure();
-    const observer = new ResizeObserver(measure);
-    observer.observe(bar);
-    return () => {
-      observer.disconnect();
-      root.style.removeProperty('--sticky-offset');
-    };
-  }, [mobile]);
   const update = useCallback(
     (patch: Partial<Settings>) => setSettings((current) => ({ ...current, ...patch })),
     [],
   );
-  const closeMobile = useCallback(() => setMobileOpen(false), []);
-  useEffect(() => {
-    if (!mobile) setMobileOpen(false);
-  }, [mobile]);
   const rows = useMemo(
     () => visibleModels(settings.selected, []),
     [settings.selected],
   );
   const view = views.find((view) => view.id === active) ?? views[0]!;
-  const { score } = resolveView(view, settings);
+  const { scatter, linear, score } = resolveView(view, settings);
+  const subscription = usesSubscriptionPricing(view.id, settings);
   const pricedRows = useMemo(() => subscriptionRows(rows, settings),
     [rows, settings.pricingMode, settings.subscriptionPlans, settings.countResets]);
-  const subscriptionActive = usesSubscriptionPricing(view.id, settings);
-  const rowsByView = useMemo(() => new Map(views.map((view) => {
-    const source = usesSubscriptionPricing(view.id, settings) ? pricedRows : rows;
-    return [view.id, visibleChartRows(source, view, settings)];
-  })), [views, rows, pricedRows, settings]);
-  const activeRows = rowsByView.get(view.id)!;
-  const frontier = useMemo(
-    () => new Set(paretoFrontier(subscriptionActive ? activeRows.filter((row) => row.taskPricing?.basis === 'subscription') : activeRows, view.metric, (model) => model[score]).map((model) => model.family)),
-    [activeRows, view.metric, score, subscriptionActive],
+  const chartRows = useMemo(
+    () => visibleChartRows(subscription ? pricedRows : rows, view, settings),
+    [subscription, pricedRows, rows, view, settings],
   );
+  // With the frontier on, subscription pricing compares subscription estimates only.
+  const plotted = subscription && scatter && settings.frontier ? chartRows.filter((row) => row.taskPricing?.basis === 'subscription') : chartRows;
+  const frontier = useMemo(
+    () => new Set(paretoFrontier(subscription ? chartRows.filter((row) => row.taskPricing?.basis === 'subscription') : chartRows, view.metric, (model) => model[score]).map((model) => model.family)),
+    [chartRows, view.metric, score, subscription],
+  );
+  const hasFallback = !(scatter && settings.frontier) && chartRows.some((row) => row.cost !== null && row.taskPricing?.basis === 'api-fallback');
 
   useEffect(() => {
     history.replaceState(null, '', writeSettings(settings, active));
@@ -149,11 +137,11 @@ function Benchmarks() {
   useEffect(() => {
     const pop = () => {
       setSettings(readSettings(location.search));
-      navigate(readView(location.search));
+      setActive(readView(location.search));
     };
     window.addEventListener('popstate', pop);
     return () => window.removeEventListener('popstate', pop);
-  }, [navigate]);
+  }, []);
 
   return (
     <div className="grid h-dvh grid-rows-[var(--header-height)_minmax(0,1fr)_auto] mobile:block mobile:h-auto">
@@ -163,188 +151,127 @@ function Benchmarks() {
       >
         Skip to benchmarks
       </a>
-      <SiteHeader current="benchmarks" onCurrent={() => navigate(views[0].id)} />
-      <div className="grid min-h-0 grid-cols-[var(--sidebar-width)_minmax(0,1fr)] gap-6 px-7 pt-6 pb-2 short:pt-4 compact:gap-5 compact:px-5 mobile:block mobile:px-4 mobile:pt-4 mobile:pb-0">
-        <Sidebar
-          settings={settings}
-          update={update}
-          open={mobileOpen}
-          close={closeMobile}
-          frontier={frontier}
-          onHighlight={setHighlighted}
-        />
-        <main
-          id="benchmark-workspace"
-          tabIndex={-1}
-          className="grid min-h-0 min-w-0 grid-rows-[auto_minmax(0,1fr)] rounded-[14px] bg-panel [outline:none] mobile:block mobile:overflow-clip"
+      <SiteHeader current="benchmarks" onCurrent={() => setActive(views[0].id)} />
+      <Sidebar
+        settings={settings}
+        update={update}
+        open={pickerOpen}
+        setOpen={setPickerOpen}
+        frontier={frontier}
+        onHighlight={setHighlighted}
+      />
+      <main
+        id="benchmark-workspace"
+        tabIndex={-1}
+        className="mx-7 mt-6 mb-2 min-h-0 min-w-0 rounded-[14px] bg-panel [outline:none] short:mt-4 compact:mx-5 mobile:mx-4 mobile:mt-4 mobile:mb-0"
+      >
+        <h1 className="sr-only">Model benchmarks</h1>
+        <section
+          className="chart-section flex h-full flex-col px-6 pt-4 pb-3 mobile:h-auto mobile:px-4 mobile:pb-5"
+          id={view.id}
+          aria-label={view.label}
         >
-          <h1 className="sr-only">Model benchmarks</h1>
-          <div ref={stickyBar} data-sticky-bar className="min-w-0 px-6 mobile:sticky mobile:top-[var(--header-height)] mobile:z-[6] mobile:bg-panel mobile:px-4">
-            <button
-              className="hidden min-h-12 w-full items-center gap-2 pt-1 text-left text-[13px] text-fg-2 mobile:flex!"
-              onClick={() => setMobileOpen(true)}
-              aria-haspopup="dialog"
-              aria-controls="model-filters"
-              aria-expanded={mobileOpen}
-            >
-              <span className="font-[600] text-fg">Models</span>
-              <span className="tabular-nums">{settings.selected.length} selected</span>
-              <span className="ml-auto rounded-md bg-accent-soft px-2.5 py-1 text-[12px] font-[550] text-accent">Edit selection</span>
-            </button>
-            <div ref={chartNavigation}><nav
-              ref={tabEdgesRef}
-              onScroll={(event) => updateTabEdges(event.currentTarget)}
-              onFocus={(event) => revealTab(event.currentTarget, event.target)}
-              // Fade whichever edge hides more tabs, since overlay scrollbars give no other cue.
-              // Scroll padding keeps a tab scrolled into view clear of the faded edge.
-              style={tabEdges.start || tabEdges.end ? { scrollPaddingInline: '32px', maskImage: `linear-gradient(to right, ${tabEdges.start ? 'transparent, #000 32px' : '#000'}, ${tabEdges.end ? '#000 calc(100% - 32px), transparent' : '#000'})` } : undefined}
-              className="flex mobile:hidden min-w-0 gap-6 overflow-x-auto border-b border-line [scrollbar-width:thin] [scrollbar-color:var(--line-2)_transparent] compact:gap-5"
-              aria-label="Chart views"
-            >
-              {views.map((view) => (
+          <h2 className="sr-only">{view.label}</h2>
+          <div className="flex shrink-0 flex-wrap items-center gap-x-4 gap-y-2">
+            <AxisMenu
+              axis="Vertical axis"
+              label={scatter ? scoreLabels[score] : metrics[view.metric].label}
+              options={verticalOptions}
+              current={scatter ? 'intelligence' : view.id}
+              choose={(id) => { if (!(scatter && id === 'intelligence')) setActive(id); }}
+              side="below"
+              align="start"
+            />
+            {/* Phones keep the model and settings buttons beside the vertical axis, with scatter controls on their own row. */}
+            {scatter && (
+              <div className="ml-auto flex items-center gap-4 phone:order-last phone:ml-0 phone:w-full phone:justify-between">
                 <button
-                  key={view.id}
-                  className="-mb-px min-h-[52px] shrink-0 border-b-2 border-transparent text-[13px] font-[500] text-fg-2 short:min-h-11 hover:text-fg focus-visible:-outline-offset-2 aria-[current=page]:border-accent aria-[current=page]:text-accent"
-                  aria-current={active === view.id ? 'page' : undefined}
-                  onClick={() => navigate(view.id)}
+                  className="inline-flex min-h-9 items-center gap-2 rounded-md px-1 text-[13px] text-fg hover:text-accent aria-pressed:text-accent"
+                  aria-pressed={settings.frontier}
+                  title="Highlight configurations that no other beats on both axes."
+                  onClick={() => update({ frontier: !settings.frontier })}
                 >
-                  {view.label}
+                  <Selection checked={settings.frontier} />
+                  Frontier
                 </button>
-              ))}
-            </nav>
-            <div className="hidden mobile:block"><ChartNavigation active={active} navigate={navigate} /></div></div>
+                <div className={segments} role="group" aria-label={`${view.label} axis scale`}>
+                  <button
+                    className={segment}
+                    aria-pressed={linear}
+                    onClick={() => update({ linear: [...new Set([...settings.linear, view.id])] })}
+                  >
+                    Linear
+                  </button>
+                  <button
+                    className={segment}
+                    aria-pressed={!linear}
+                    onClick={() => update({ linear: settings.linear.filter((id) => id !== view.id) })}
+                  >
+                    Log
+                  </button>
+                </div>
+              </div>
+            )}
+            <div className={`flex items-center gap-3 ${scatter ? '' : 'ml-auto'} phone:ml-auto`}>
+              <button
+                className="inline-flex min-h-10 items-center gap-2 rounded-lg border border-line pr-2 pl-3 text-[13px] text-fg-2 hover:border-line-2 hover:bg-hover hover:text-fg aria-expanded:border-accent aria-expanded:text-accent"
+                onClick={() => setPickerOpen(true)}
+                aria-haspopup="dialog"
+                aria-controls="model-filters"
+                aria-expanded={pickerOpen}
+              >
+                <Search size={14} aria-hidden="true" />
+                <span><span className="font-[600] text-fg tabular-nums">{settings.selected.length}</span> {settings.selected.length === 1 ? 'model' : 'models'}</span>
+                <kbd className="flex size-5 items-center justify-center rounded-[4px] border border-line font-sans text-[11px] text-fg-3 mobile:hidden">/</kbd>
+              </button>
+              <ChartOptions
+                settings={settings}
+                update={update}
+                descending={chartDescending(view.metric, phone, settings.descending)}
+                pricing={view.id === 'cost-intelligence' || view.id === 'cost-task'}
+                scatter={scatter}
+                ranking={phone && !scatter}
+              />
+            </div>
           </div>
-          <div
-            className="relative min-h-0 snap-y snap-proximity overflow-y-auto rounded-b-xl [scrollbar-width:thin] [scrollbar-color:var(--line-2)_var(--panel)] mobile:snap-none mobile:overflow-visible"
-            ref={feed}
-          >
-            {views.map((view) => {
-              const { scatter, linear } = resolveView(view, settings);
-              const subscription = usesSubscriptionPricing(view.id, settings);
-              const chartRows = rowsByView.get(view.id)!;
-              const hasFallback = !(scatter && settings.frontier) && chartRows.some((row) => row.cost !== null && row.taskPricing?.basis === 'api-fallback');
-              return (
-                <section
-                  className="chart-section flex h-full snap-start flex-col px-6 pt-5 pb-4 short:pt-4 short:pb-3 mobile:h-auto mobile:scroll-mt-[var(--sticky-offset,190px)] mobile:px-4 mobile:pb-6"
-                  id={view.id}
-                  key={view.id}
-                  aria-label={view.label}
-                >
-                  <div className="flex shrink-0 items-start justify-between gap-3">
-                    <div className="min-w-0">
-                      <h2 className="display m-0 text-[30px] leading-[1.1] short:text-[24px] phone:text-[24px]">
-                        {view.label}
-                      </h2>
-                      <p className="mt-1 mb-0 max-w-[80ch] text-[13px] leading-5 text-pretty text-fg-2 short:mt-0.5 short:text-[12px] short:leading-[18px]">
-                        {view.id === 'tokens-task' && scatter
-                          ? 'Each point is a reasoning level. Up and to the left uses fewer tokens for more intelligence.'
-                          : viewDescriptions[view.id]}
-                        {!subscription && view.metric === 'cost' && ' Costs use API prices.'}
-                      </p>
-                    </div>
-                    <ChartOptions
-                      settings={settings}
-                      update={update}
-                      descending={chartDescending(view.metric, phone, settings.descending)}
-                      pricing={view.id === 'cost-intelligence' || view.id === 'cost-task'}
-                      scatter={scatter}
-                      ranking={phone && !scatter}
-                    />
-                  </div>
-                  {scatter || view.mode === 'optional-scatter' ? (
-                  <div className="flex min-h-[56px] shrink-0 flex-wrap items-center justify-between gap-x-4 gap-y-1 py-2 text-[12px] short:min-h-12 short:py-1">
-                    {scatter && (
-                      <button
-                        className="-ml-1 inline-flex min-h-9 items-center gap-2 rounded-md px-1 text-[13px] text-fg hover:text-accent aria-pressed:text-accent"
-                        aria-pressed={settings.frontier}
-                        title="Highlight configurations that no other beats on both axes."
-                        onClick={() => update({ frontier: !settings.frontier })}
-                      >
-                        <Selection checked={settings.frontier} />
-                        Pareto frontier
-                      </button>
-                    )}
-                    <div className="ml-auto flex items-center gap-5 phone:gap-3">
-                      {view.mode === 'optional-scatter' && (
-                        <div
-                          className={segments}
-                          role="group"
-                          aria-label="Tokens per task chart type"
-                        >
-                          <button
-                            className={segment}
-                            aria-pressed={!settings.scatter}
-                            onClick={() => update({ scatter: false })}
-                          >
-                            Bars
-                          </button>
-                          <button
-                            className={segment}
-                            aria-pressed={settings.scatter}
-                            onClick={() => update({ scatter: true })}
-                          >
-                            Scatter
-                          </button>
-                        </div>
-                      )}
-                      {scatter && (
-                        <div
-                          className="flex items-center gap-2"
-                          role="group"
-                          aria-label={`${view.label} axis scale`}
-                        >
-                          <span className="text-[12px] text-fg-3 phone:hidden">Scale</span>
-                          <div className={segments}>
-                            <button
-                              className={segment}
-                              aria-pressed={linear}
-                              onClick={() =>
-                                update({ linear: [...new Set([...settings.linear, view.id])] })
-                              }
-                            >
-                              Linear
-                            </button>
-                            <button
-                              className={segment}
-                              aria-pressed={!linear}
-                              onClick={() =>
-                                update({ linear: settings.linear.filter((id) => id !== view.id) })
-                              }
-                            >
-                              Log
-                            </button>
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                  ) : <div className="h-4 shrink-0 mobile:h-2" />}
-                  {subscription && (
-                    <p className="mt-0 mb-2 max-w-[80ch] shrink-0 text-[12px] leading-5 text-fg-2">
-                      <strong className="font-[600] text-fg">Estimated subscription pricing.</strong>{' '}
-                      Assumes one model uses the full allowance.{' '}
-                      {settings.countResets ? 'Counts confirmed bonus resets.' : 'Excludes bonus resets.'}
-                      {hasFallback && ' Models without a subscription estimate use API prices.'}
-                      {scatter && settings.frontier && ' The frontier compares subscription estimates only.'}
-                      {scatter && !linear && chartRows.some((row) => row.cost === 0) && ' Log scale hides $0 configurations.'}
-                    </p>
-                  )}
-                  <Chart
-                    active={mobile || active === view.id}
-                    phone={phone}
-                    view={view}
-                    rows={subscription && scatter && settings.frontier ? chartRows.filter((row) => row.taskPricing?.basis === 'subscription') : chartRows}
-                    pricingContext={subscription ? pricingDisclosure(scatter && settings.frontier ? chartRows.filter((row) => row.taskPricing?.basis === 'subscription') : chartRows, settings.countResets) : undefined}
-                    settings={settings}
-                    highlighted={active === view.id ? highlighted : null}
-                    onHighlight={setHighlighted}
-                  />
-                </section>
-              );
-            })}
+          {subscription && (
+            <p className="mt-2 mb-0 max-w-[80ch] shrink-0 text-[12px] leading-5 text-fg-2">
+              <strong className="font-[600] text-fg">Estimated subscription pricing.</strong>{' '}
+              Assumes one model uses the full allowance.{' '}
+              {settings.countResets ? 'Counts confirmed bonus resets.' : 'Excludes bonus resets.'}
+              {hasFallback && ' Models without a subscription estimate use API prices.'}
+              {scatter && settings.frontier && ' The frontier compares subscription estimates only.'}
+              {scatter && !linear && chartRows.some((row) => row.cost === 0) && ' Log scale hides $0 configurations.'}
+            </p>
+          )}
+          <Chart
+            key={view.id}
+            active
+            phone={phone}
+            view={view}
+            rows={plotted}
+            pricingContext={subscription ? pricingDisclosure(plotted, settings.countResets) : undefined}
+            settings={settings}
+            highlighted={highlighted}
+            onHighlight={setHighlighted}
+          />
+          <div className="flex shrink-0 flex-wrap items-center justify-between gap-x-6 gap-y-2 pt-2 mobile:pt-3">
+            <p className="m-0 min-w-0 flex-1 basis-[280px] text-[12px] leading-5 text-pretty text-fg-2">
+              {viewDescriptions[view.id]}
+              {!subscription && view.metric === 'cost' && ' Costs use API prices.'}
+            </p>
+            <AxisMenu
+              axis="Horizontal axis"
+              label={scatter ? `${metrics[view.metric].label}, ${linear ? 'linear' : 'log'}` : 'Models, ranked'}
+              options={horizontalOptions}
+              current={scatter ? view.id : 'models'}
+              choose={(id) => { if (id !== 'models') setActive(id); else if (scatter) setActive('intelligence'); }}
+              side="above"
+              align="end"
+            />
           </div>
-        </main>
-      </div>
+        </section>
+      </main>
       <footer className="flex flex-wrap items-center justify-between gap-x-5 gap-y-1 px-7 py-3 short:py-2 text-[12px] leading-5 text-fg-3 compact:px-5 mobile:px-4 mobile:pt-5 mobile:pb-[calc(20px+env(safe-area-inset-bottom))]">
         <span>
           Data from{' '}

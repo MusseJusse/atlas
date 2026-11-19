@@ -284,7 +284,6 @@ export const Chart = memo(function Chart({
                   width={plotWidth}
                   height={height}
                   interactions={interactions}
-                  fixedAxis={plotWidth > width}
                 />
               )}
             </svg>
@@ -315,7 +314,7 @@ export const Chart = memo(function Chart({
       </div>
       {/* Narrow scatter plots have no free corner, so a pinned card sits below the plot instead of covering points. */}
       {detailsBelow && pinned && activeModel && (
-        <aside ref={belowCard} className="configuration-details scroll-mt-[var(--sticky-offset,190px)]" data-placement="below" aria-label="Selected configuration" tabIndex={0}>
+        <aside ref={belowCard} className="configuration-details scroll-mt-[calc(var(--header-height)+12px)]" data-placement="below" aria-label="Selected configuration" tabIndex={0}>
           <ConfigurationDetails model={activeModel} metric={view.metric} pinned onClose={clearSelection} />
         </aside>
       )}

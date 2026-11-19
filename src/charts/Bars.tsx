@@ -6,7 +6,7 @@ import { format, formatModelValue } from '../formatModel';
 import { metrics, type Metric } from '../chart-definitions';
 import type { Settings } from '../state';
 import { pinHandlers, type Interactions } from './interactions';
-import { apiSuffixWidth, barGeometry, captionLines, captionWidth, diagonalCaption, fitDiagonalCaption, type MeasuredRow } from './geometry';
+import { apiSuffixWidth, barGeometry, captionLines, diagonalCaption, fitDiagonalCaption, type MeasuredRow } from './geometry';
 
 export function Bars({
   rows,
@@ -15,7 +15,6 @@ export function Bars({
   width,
   height,
   interactions,
-  fixedAxis = false,
 }: {
   rows: MeasuredRow[];
   metric: Metric;
@@ -24,7 +23,6 @@ export function Bars({
   height: number;
   interactions: Interactions;
   /** A scrolling plot draws its unit and ticks in FixedBarAxis instead, so they aren't doubled underneath. */
-  fixedAxis?: boolean;
 }) {
   const clipId = useId();
   const combined = settings.grouped && settings.combined;
@@ -39,11 +37,6 @@ export function Bars({
 
   return (
     <>
-      {!fixedAxis && (
-        <text x={left} y={17} fill="var(--fg-2)" fontSize={12}>
-          {metrics[metric].unit}
-        </text>
-      )}
       {ticks.map((tick) => (
         <g key={tick} transform={`translate(0,${y(tick)})`}>
           <line x1={left} x2={right} stroke="var(--grid)" strokeDasharray="2 6" />
@@ -255,8 +248,6 @@ export function FixedBarAxis({ rows, metric, settings, plotWidth, width, height 
   );
   return <svg aria-hidden="true" className="pointer-events-none absolute inset-0 size-full font-sans" viewBox={`0 0 ${width} ${height}`} data-fixed-bar-axis>
     <rect width={left} height={height} fill="var(--panel)" />
-    <rect width={left + captionWidth(metrics[metric].unit) + 12} height={25} fill="var(--panel)" />
-    <text x={left} y={17} fill="var(--fg-2)" fontSize={12}>{metrics[metric].unit}</text>
     {ticks.map((tick) => <text key={tick} x={left - 10} y={y(tick) + 4} textAnchor="end" fill="var(--fg-3)" fontSize={11}>{format(tick, metric, true)}</text>)}
   </svg>;
 }

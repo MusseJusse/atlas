@@ -42,7 +42,7 @@ Components use Tailwind utilities. `src/styles.css` holds the font, theme tokens
 
 ## Included
 
-- Cost versus intelligence.
+- Cost, tokens, or time per task against intelligence, chosen from the horizontal axis menu.
 - Cyber Index versus cost per task, using the same scatter chart layout.
 - Cost versus Coding Agent Index, with separate agent configurations and API cost per task.
 - Intelligence index, with grouped reasoning levels and no cost axis.
@@ -50,10 +50,10 @@ Components use Tailwind utilities. `src/styles.css` holds the font, theme tokens
 - Tokens per task, total tokens, cost per task, and total cost.
 - Output speed in tokens per second, with grouped reasoning levels and a separate GPT-6.1 Sol Ultrafast endpoint.
 - Time per task, with grouped reasoning levels and a labeled Ultrafast estimate.
-- Model search and selection, reasoning filters, and the full model browser.
+- A model picker that opens as a drawer from the Models button or the `/` key, with search, reasoning filters, and the full model browser.
 - Pareto frontiers, linear/log scales, grouped bars, sorting, and label controls.
 - Hover details, click-to-pin details, and light/dark themes.
-- Responsive charts and a keyboard-accessible model picker on small screens.
+- Responsive charts. Phones get the model picker as a full-screen sheet.
 - Efficiency trends with cost records over release dates, filtered by Intelligence Index threshold.
 - Filter and view settings in the URL. Theme preference stored locally.
 
@@ -81,7 +81,7 @@ Time per task uses the snapshot's AA decode time estimates, not wall-clock bench
 
 Benchmark data comes from [Artificial Analysis](https://artificialanalysis.ai/). Model logos originate from the public [Slopalytics](https://slopalytics.com/) interface. Atlas is an independent benchmark explorer, not the official Slopalytics or Artificial Analysis service. There is no analytics collection or usage telemetry in this project.
 
-The Atlas interface uses a left model picker, chart workspace, and compact configuration details. Previews and pinned details use the same overlay on desktop and mobile, without resizing the plot. Bar charts place the overlay at the top left when sorted lowest first and top right when sorted highest first. Scatter plots always use the bottom right of the plotting area, clear of the axes and model labels. The overlay shows the active chart metric and two supporting measurements without duplicate rows.
+The Benchmarks page shows one chart at a time, with no tabs or sidebar. The vertical axis title is a menu of the metrics bars can rank. The horizontal axis title picks a metric to plot against intelligence, or "Models, ranked" for bars, so scatter plots always put intelligence up. The model picker is a drawer over the chart, so selection changes show as you make them. Previews and pinned details use the same overlay on desktop and mobile, without resizing the plot. Bar charts place the overlay at the top left when sorted lowest first and top right when sorted highest first. Scatter plots always use the bottom right of the plotting area, clear of the axes and model labels. The overlay shows the active chart metric and two supporting measurements without duplicate rows.
 
 The overlay shows the full model name, logo, reasoning level and source. It fits within the plotting area at phone widths. Phone range charts keep their existing per-model expansion. Clearing the selection removes the overlay.
 
@@ -148,7 +148,7 @@ pnpm exec playwright install chromium
 pnpm test:browser
 ```
 
-The browser suite serves the production build on isolated port 4391. It checks prerendered content and inline CSS, DOM reuse during hydration, font-independent startup, saved dark views, history restoration, and phone chart navigation. CI runs the same suite in Chromium after building.
+The browser suite serves the production build on isolated port 4391. It checks prerendered content and inline CSS, DOM reuse during hydration, font-independent startup, saved dark views, history restoration, axis menu navigation, and the model picker. CI runs the same suite in Chromium after building.
 
 Focused tests cover frontier dominance, ties and missing measurements, reasoning filters, grouped bar ordering, and URL state round-tripping.
 
@@ -179,7 +179,7 @@ Local Chromium results against `f2a4a2b`, with no CPU or network throttling:
 
 The first local page load recorded first contentful paint at 148 ms before and 68 ms after. A later cached reload recorded 60 ms and 40 ms. These are local samples, not a network or device performance guarantee.
 
-Desktop chart contents mount as sections approach the viewport and stay mounted after visiting, so pinned details survive navigation. Phones render the dot plots without also building hidden SVG bar charts. Chart geometry and number formatters are reused across hover updates.
+Only the current chart mounts. Switching charts clears pinned details. Phones render the dot plots without also building hidden SVG bar charts. Chart geometry and number formatters are reused across hover updates.
 
 ## PageSpeed validation
 
