@@ -67,9 +67,6 @@ export function Scatter({
 
   return (
     <>
-      <text x={left} y={18} fill="var(--fg-2)" fontSize="12">
-        {scoreLabels[scoreMetric]}
-      </text>
       {y.ticks(6).map((tick) => (
         <g key={tick} transform={`translate(0,${y(tick)})`}>
           <line x1={left} x2={right} stroke="var(--grid)" strokeDasharray="2 6" />
@@ -238,16 +235,6 @@ export function Scatter({
             </g>
           );
         })}
-      <text
-        x={(left + right) / 2}
-        y={height - 4}
-        textAnchor="middle"
-        fill="var(--fg-2)"
-        fontSize="12"
-      >
-        {metrics[metric].label} ({metrics[metric].unit},{' '}
-        {linear ? 'linear' : 'log'} scale)
-      </text>
     </>
   );
 }

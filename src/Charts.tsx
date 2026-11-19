@@ -17,11 +17,11 @@ import { scoreLabels, metrics, resolveView, type View } from './chart-definition
 import { chartDescending, type Settings } from './state';
 import { Logo } from './Logo';
 import { ConfigurationDetails } from './charts/ConfigurationDetails';
+import { placeCard } from './charts/card-placement';
 import { Scatter } from './charts/Scatter';
 import { Bars, FixedBarAxis } from './charts/Bars';
 import { Ranking } from './charts/Ranking';
 import { useScrollEdges } from './useScrollEdges';
-import { useMediaQuery } from './useMediaQuery';
 import { barLayout, scatterLabelGutter, combinedBarWidth, measureRows, measureScatterRows, separateBarWidth } from './charts/geometry';
 import type { Interactions } from './charts/interactions';
 
@@ -56,7 +56,6 @@ function useSize(enabled: boolean) {
 }
 
 export const Chart = memo(function Chart({
-  active,
   phone,
   view,
   rows,
@@ -65,7 +64,6 @@ export const Chart = memo(function Chart({
   pricingContext,
   onHighlight,
 }: {
-  active: boolean;
   phone: boolean;
   view: View;
   rows: Model[];
@@ -74,34 +72,9 @@ export const Chart = memo(function Chart({
   pricingContext?: string[];
   onHighlight: (id: string | null) => void;
 }) {
-  const [visited, setVisited] = useState(active);
-  const hydrated = useHydrated();
-  const ready = hydrated && (active || visited);
+  const ready = useHydrated();
   const { scatter, linear, score } = resolveView(view, settings);
   const { ref, width, height } = useSize(ready && (scatter || !phone));
-
-  // Desktop sections have a fixed height, so charts can mount just before scrolling into view.
-  // Keep visited charts mounted to preserve pinned details and avoid navigation fetches.
-  useEffect(() => {
-    if (visited) return;
-    if (active) {
-      setVisited(true);
-      return;
-    }
-    const section = ref.current?.closest('section');
-    if (!section) return;
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries.some((entry) => entry.isIntersecting)) {
-          setVisited(true);
-          observer.disconnect();
-        }
-      },
-      { rootMargin: '100px' },
-    );
-    observer.observe(section);
-    return () => observer.disconnect();
-  }, [active, visited]);
   const [hoveredId, setHoveredId] = useState<string | null>(null);
   const [pinnedId, setPinnedId] = useState<string | null>(null);
   const prepared = useMemo(
@@ -133,15 +106,13 @@ export const Chart = memo(function Chart({
     if (scrollable && element) element.scrollLeft = bestAtEnd ? element.scrollWidth : 0;
   }, [scrollable, bestAtEnd, plotWidth]);
   const container = useRef<HTMLDivElement>(null);
-  const mobile = useMediaQuery('(width <= 900px)');
-  // Mobile sections grow with their content, so a pinned card can sit below a narrow scatter plot.
-  // Fixed-height desktop sections keep the overlay, which would otherwise squeeze the plot.
-  const detailsBelow = scatter && ready && mobile && width < 600;
+  // Phone pages grow with their content, so a pinned card can sit below the narrow scatter plot.
+  // Wider layouts have a fixed height and keep the overlay, which would otherwise squeeze the plot.
+  const detailsBelow = scatter && ready && phone;
   const belowCard = useRef<HTMLElement>(null);
   const overlay = useRef<HTMLElement>(null);
   const gutter = scatterLabelGutter(width, settings.labels) || 24;
-  // Scatter cards sit in whichever plot corner covers fewest points, and never over the selected one.
-  // Each placement caps the card to the height it actually has, and narrow plots use the compact card.
+  // Each corner caps the card to the height it actually has, and narrow plots use the compact card.
   const compactCard = width < 760 ? { width: 200, padding: 12 } : {};
   const corners = {
     'bottom-right': { right: gutter, bottom: 74, maxHeight: 'calc(100% - 82px)', ...compactCard },
@@ -167,27 +138,7 @@ export const Chart = memo(function Chart({
       const box = point.querySelector('circle:last-child')!.getBoundingClientRect();
       return { x: box.x + box.width / 2 - bounds.x, y: box.y + box.height / 2 - bounds.y, selected: point.dataset.point === activeModel?.id };
     });
-    const size = { width: card.offsetWidth, height: card.offsetHeight };
-    const cost = (place: CSSProperties) => {
-      const x = typeof place.left === 'number' ? place.left : bounds.width - Number(place.right) - size.width;
-      const y = typeof place.top === 'number' ? place.top : bounds.height - Number(place.bottom) - size.height;
-      return points.reduce((total, point) => {
-        // The selected point needs a wider 12px berth than its neighbours.
-        const margin = point.selected ? 12 : 6;
-        return total + (point.x >= x - margin && point.x <= x + size.width + margin && point.y >= y - margin && point.y <= y + size.height + margin ? point.selected ? 1000 : 1 : 0);
-      }, 0);
-    };
-    const best = Object.values(corners).reduce<CSSProperties>((current, next) => cost(next) < cost(current) ? next : current, corners['bottom-right']);
-    const selected = points.find((point) => point.selected);
-    // A card bigger than every free corner goes beside the selected point instead, on its roomier side.
-    const besideTop = selected && Math.max(8, Math.min(bounds.height - size.height - 8, selected.y - size.height / 2));
-    const beside = selected && besideTop !== undefined && cost(best) >= 1000 && {
-      left: selected.x > bounds.width / 2 ? Math.max(0, selected.x - 16 - size.width) : selected.x + 16,
-      top: besideTop,
-      maxHeight: `calc(100% - ${besideTop + 8}px)`,
-      ...compactCard,
-    };
-    const next = beside || best;
+    const next = placeCard({ corners: Object.values(corners), points, plot: bounds, card: { width: card.offsetWidth, height: card.offsetHeight }, compact: compactCard });
     setPlacement((current) => JSON.stringify(current) === JSON.stringify(next) ? current : next);
   }, [scatter, activeModel?.id, width, height, settings.labels]);
   const legend = [...new Map(validRows.map((row) => [row.codingAgent ? row.id : row.family, row])).values()];
@@ -220,7 +171,7 @@ export const Chart = memo(function Chart({
       }}
     >
       <div
-        className={`relative min-h-0 flex-1 mobile:aspect-[1/1.2] mobile:flex-none ${!scatter && (!ready || validRows.length > 0) ? 'phone:pointer-events-none phone:invisible phone:absolute phone:h-px phone:w-full phone:aspect-auto' : ''}`}
+        className={`relative min-h-0 flex-1 phone:aspect-[1/1.2] phone:flex-none ${!scatter && (!ready || validRows.length > 0) ? 'phone:pointer-events-none phone:invisible phone:absolute phone:h-px phone:w-full phone:aspect-auto' : ''}`}
         ref={ref}
       >
         {ready &&
@@ -284,7 +235,6 @@ export const Chart = memo(function Chart({
                   width={plotWidth}
                   height={height}
                   interactions={interactions}
-                  fixedAxis={plotWidth > width}
                 />
               )}
             </svg>
@@ -315,7 +265,7 @@ export const Chart = memo(function Chart({
       </div>
       {/* Narrow scatter plots have no free corner, so a pinned card sits below the plot instead of covering points. */}
       {detailsBelow && pinned && activeModel && (
-        <aside ref={belowCard} className="configuration-details scroll-mt-[var(--sticky-offset,190px)]" data-placement="below" aria-label="Selected configuration" tabIndex={0}>
+        <aside ref={belowCard} className="configuration-details scroll-mt-[calc(var(--header-height)+12px)]" data-placement="below" aria-label="Selected configuration" tabIndex={0}>
           <ConfigurationDetails model={activeModel} metric={view.metric} pinned onClose={clearSelection} />
         </aside>
       )}

@@ -14,7 +14,6 @@ const rangeView = views.find((view) => view.id === 'intelligence')!;
 function renderChart(rows: Model[], phone: boolean, view = rangeView) {
   return renderToStaticMarkup(
     <Chart
-      active
       phone={phone}
       view={view}
       rows={rows}
@@ -55,7 +54,7 @@ it('keeps subscription provenance inside the SVG and fallback points out of fron
   const rows = subscriptionRows(models.filter((row) => ['gpt-6-1-sol', 'gpt-6-1-terra'].includes(row.family)), settings);
   // App passes only supported estimates to subscription frontier charts.
   const eligible = rows.filter((row) => row.taskPricing?.basis === 'subscription');
-  const markup = renderToStaticMarkup(<Chart active phone={false} view={views[0]} rows={eligible} settings={settings}
+  const markup = renderToStaticMarkup(<Chart phone={false} view={views[0]} rows={eligible} settings={settings}
     pricingContext={pricingDisclosure(rows, false)} highlighted={null} onHighlight={() => {}} />);
   expect(markup).toContain('<metadata>');
   expect(markup).toContain('One model uses the full allowance');

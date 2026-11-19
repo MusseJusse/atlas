@@ -60,8 +60,8 @@ test('controls work while the UI font response is stalled', async ({ page }) => 
 test('saved dark views and back/forward restore chart and filter state', async ({ page }) => {
   await page.addInitScript(() => localStorage.setItem('benchmark-theme', 'dark'));
   await page.goto('/?selected=gpt-6-1-sol&chart=intelligence');
-  const navigation = page.getByRole('navigation', { name: 'Chart views' });
-  await expect(navigation.getByRole('button', { name: 'Intelligence index', exact: true })).toHaveAttribute('aria-current', 'page');
+  const vertical = (label: string) => page.locator(`summary[aria-label="Vertical axis: ${label}"]`);
+  await expect(vertical('Intelligence index')).toBeVisible();
   await expect(page.getByRole('button', { name: 'Switch to light mode' })).toBeVisible();
   await expect(page.locator('#model-filters')).toContainText('1 selected');
   await page.evaluate(() => {
@@ -69,30 +69,52 @@ test('saved dark views and back/forward restore chart and filter state', async (
     window.dispatchEvent(new PopStateEvent('popstate'));
   });
   await expect(page.locator('#model-filters')).toContainText('0 selected');
-  await expect(navigation.getByRole('button', { name: 'Cost per task', exact: true })).toHaveAttribute('aria-current', 'page');
+  await expect(vertical('Cost per task')).toBeVisible();
   await page.goBack();
   await expect(page.locator('#model-filters')).toContainText('1 selected');
-  await expect(navigation.getByRole('button', { name: 'Intelligence index', exact: true })).toHaveAttribute('aria-current', 'page');
+  await expect(vertical('Intelligence index')).toBeVisible();
   await page.goForward();
   await expect(page.locator('#model-filters')).toContainText('0 selected');
-  await expect(navigation.getByRole('button', { name: 'Cost per task', exact: true })).toHaveAttribute('aria-current', 'page');
+  await expect(vertical('Cost per task')).toBeVisible();
 });
 
-test('phone navigation scrolls to the requested chart and closes the model sheet', async ({ page }) => {
+test('axis menus switch between scatter plots and rankings', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto('/');
-  await page.getByRole('button', { name: /Models.*Edit selection/ }).click();
-  await expect(page.getByRole('dialog', { name: 'Model filters' })).toBeVisible();
-  await page.getByRole('button', { name: 'Done', exact: true }).click();
-  await expect(page.getByRole('dialog', { name: 'Model filters' })).toHaveCount(0);
-  const navigation = page.getByRole('navigation', { name: 'Chart views' });
-  await navigation.getByRole('button', { name: 'Resources', exact: true }).click();
-  const button = navigation.getByRole('button', { name: 'Task time', exact: true });
-  await button.click();
-  await expect(button).toHaveAttribute('aria-current', 'page');
+  await page.locator('summary[aria-label^="Horizontal axis"]:visible').click();
+  const menu = page.getByRole('group', { name: 'Horizontal axis' }).filter({ visible: true });
+  expect((await menu.boundingBox())!.x).toBeGreaterThanOrEqual(0);
+  await menu.getByRole('button', { name: 'Time per task', exact: true }).click();
+  await expect(page).toHaveURL(/chart=time-intelligence/);
+  await expect(page.locator('#time-intelligence svg[role=group]')).toBeVisible();
+  await page.locator('summary[aria-label^="Vertical axis"]').click();
+  await page.getByRole('button', { name: 'Time per task', exact: true }).click();
   await expect(page).toHaveURL(/chart=time-task/);
-  await expect.poll(() => page.locator('#time-task').evaluate((section) => Math.round(section.getBoundingClientRect().top))).toBeLessThan(220);
-  await expect(page.locator('#time-task').getByRole('button').first()).toBeVisible();
+  await expect(page.locator('#time-task .ranking-row').first()).toBeVisible();
+  await expect(page.locator('summary[aria-label="Horizontal axis: Models, ranked"]:visible')).toBeVisible();
+});
+
+test('the model picker opens from its button or the slash key and closes outside it', async ({ page }) => {
+  await page.goto('/');
+  const picker = page.getByRole('dialog', { name: 'Model filters' });
+  // Charts mount after hydration, which is when the shortcut starts listening.
+  await expect(page.locator('#cost-intelligence svg[role=group]')).toBeVisible();
+  await page.keyboard.press('/');
+  await expect(picker).toBeVisible();
+  await expect(picker.getByRole('textbox', { name: 'Find models' })).toBeFocused();
+  await picker.getByRole('button', { name: /Gemini 4 Neon/ }).click();
+  await expect(page.locator('button[aria-controls="model-filters"]')).toContainText('8 models');
+  // The click that closes the picker must not also flip the control under it.
+  const frontier = page.getByRole('button', { name: 'Frontier', exact: true });
+  const box = (await frontier.boundingBox())!;
+  await page.mouse.click(box.x + box.width / 2, box.y + box.height / 2);
+  await expect(picker).toHaveCount(0);
+  await expect(frontier).toHaveAttribute('aria-pressed', 'false');
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.locator('button[aria-controls="model-filters"]').click();
+  await expect(picker).toBeVisible();
+  await page.getByRole('button', { name: 'Done', exact: true }).click();
+  await expect(picker).toHaveCount(0);
 });
 
 test('phone rankings plot configurations and expand without horizontal overflow', async ({ page }) => {
@@ -108,23 +130,24 @@ test('phone rankings plot configurations and expand without horizontal overflow'
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
 });
 
-test('phone efficiency shows the chart before optional details', async ({ page }) => {
+test('phone efficiency rows open into their records without horizontal overflow', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto('/?page=efficiency');
-  await expect(page.locator('.efficiency-plot svg')).toBeVisible();
-  const positions = await page.evaluate(() => ({
-    title: document.querySelector('.efficiency-heading')!.getBoundingClientRect().top,
-    filters: document.querySelector('.efficiency-filters')!.getBoundingClientRect().top,
-    plot: document.querySelector('.efficiency-plot')!.getBoundingClientRect().top,
-    details: document.querySelector('.efficiency-details-slot')!.getBoundingClientRect().height,
-  }));
-  expect(positions.title).toBeLessThan(positions.filters);
-  expect(positions.filters).toBeLessThan(positions.plot);
-  expect(positions.details).toBe(0);
+  const row = page.getByRole('button', { name: /^Score ≥ 40:/ });
+  await expect(row).toHaveAttribute('aria-expanded', 'false');
+  await row.click();
+  await expect(row).toHaveAttribute('aria-expanded', 'true');
+  await expect(page.getByRole('list', { name: 'Score ≥ 40 records' }).getByRole('listitem').first()).toBeVisible();
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+  // The narrowest phones wrap the elapsed time instead of running the multiplier into the score.
+  await page.setViewportSize({ width: 320, height: 740 });
+  const overlaps = await page.locator('.ladder-toggle').evaluateAll((rows) => rows.filter((row) =>
+    row.querySelector('.ladder-score')!.getBoundingClientRect().right > row.querySelector('.ladder-change-text > span')!.getBoundingClientRect().left).length);
+  expect(overlaps).toBe(0);
 });
 
 test('dense combined bars scroll inside the plot and keep keyboard selection usable', async ({ page }) => {
-  await page.setViewportSize({ width: 1024, height: 900 });
+  await page.setViewportSize({ width: 800, height: 900 });
   await page.goto('/?chart=intelligence&combined=true');
   await expect(page.locator('#intelligence svg[role=group]')).toBeVisible();
   expect(await page.locator('#intelligence svg[role=group]').locator('..').evaluate((element) => element.scrollWidth <= element.clientWidth)).toBe(true);
@@ -173,9 +196,9 @@ test('combined bars are opt-in from chart settings and survive a reload', async 
   await expect.poll(positions).toEqual(separate);
 });
 
-for (const view of ['cost-task', 'time-task', 'tokens-task', 'tokens-total']) {
+for (const view of ['cost-task', 'time-task', 'tokens-ranking', 'tokens-total']) {
   test(`combined bars apply to ${view} and can be switched off`, async ({ page }) => {
-    await page.goto(`/?chart=${view}&selected=gpt-6-1-terra&combined=true&scatter=false`);
+    await page.goto(`/?chart=${view}&selected=gpt-6-1-terra&combined=true`);
     const section = page.locator(`#${view}`);
     const bars = section.locator('svg[role=group] g[role=button] > rect[data-bar-segment]');
     await expect(bars.first()).toBeVisible();
@@ -217,12 +240,12 @@ test('vibes page supports label clicks, pin precedence, 3D cost axis, and mobile
   await page.goto('/');
   await page.getByRole('navigation', { name: 'Sections' }).getByRole('link', { name: 'Vibes' }).click();
   await expect(page).toHaveURL(/\?page=vibes/);
-  await expect(page.getByRole('heading', { name: 'Vibes', exact: true })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Vibes', exact: true })).toHaveCount(1);
   await expect(page.locator('.vibes-plot svg [data-vibe-family]')).toHaveCount(7);
 
-  const headingBottom = await page.locator('.vibes-heading').evaluate((el) => el.getBoundingClientRect().bottom);
+  const toolbarBottom = await page.locator('.vibes-toolbar').evaluate((el) => el.getBoundingClientRect().bottom);
   const capTop = await page.locator('[data-axis-label="capability"]').evaluate((el) => el.getBoundingClientRect().top);
-  expect(capTop).toBeGreaterThanOrEqual(headingBottom + 8);
+  expect(capTop).toBeGreaterThanOrEqual(toolbarBottom + 8);
 
   // Pin Coding, then hover Fable: pinned Coding card and its Close button must stay intact.
   const codingBtn = page.getByRole('button', { name: /Coding.*Opus 5\.5/ });
@@ -313,13 +336,33 @@ test('vibes page supports label clicks, pin precedence, 3D cost axis, and mobile
   await expect(resetBtn).not.toBeVisible();
   expect(await page.evaluate(() => document.activeElement?.getAttribute('aria-label'))).toBe('Rotate 3D view left');
 
-  // Mobile/tablet width: hovering Best for must not shift layout by mounting a hover preview above it.
+  // Tablet width keeps the fixed-height canvas layout; hovering Best for previews over the plot without shifting layout.
   await page.setViewportSize({ width: 800, height: 1000 });
   const beforeTop = await codingBtn.evaluate((el) => el.getBoundingClientRect().top);
   await codingBtn.hover();
   await page.evaluate(() => new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve))));
-  await expect(details).not.toBeVisible();
+  await expect(details).toBeVisible();
   expect(await codingBtn.evaluate((el) => el.getBoundingClientRect().top)).toBe(beforeTop);
+
+  // Compact tablet (620x600) keeps the fixed-height canvas layout with a usable plot.
+  await page.setViewportSize({ width: 620, height: 600 });
+  await expect.poll(() => page.locator('.vibes-plot').evaluate((el) => el.getBoundingClientRect().height)).toBeGreaterThan(280);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+
+  // Phones collapse the picks into one menu. Picking a use case pins it below the plot.
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.mouse.move(1, 1);
+  await expect(details).not.toBeVisible();
+  await expect(codingBtn).toBeHidden();
+  const pickMenu = page.locator('summary[aria-label^="Best for"]');
+  await pickMenu.click();
+  await page.getByRole('group', { name: 'Best for' }).getByRole('button', { name: /Coding/ }).click();
+  await expect(details).toBeVisible();
+  await expect(details).toHaveAttribute('data-placement', 'below');
+  await expect(pickMenu).toHaveAttribute('aria-label', 'Best for: Coding, Opus 5.5');
+  await page.keyboard.press('Escape');
+  await expect(details).not.toBeVisible();
+  await expect(pickMenu).toHaveAttribute('aria-label', 'Best for: Pick a use case');
 
   await page.setViewportSize({ width: 320, height: 740 });
   await expect.poll(() =>

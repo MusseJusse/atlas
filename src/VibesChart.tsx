@@ -106,10 +106,16 @@ export function VibesChart({
       }
     };
     resize();
-    if (typeof ResizeObserver === 'undefined') return;
+    document.fonts?.addEventListener('loadingdone', resize);
+    if (typeof ResizeObserver === 'undefined') {
+      return () => document.fonts?.removeEventListener('loadingdone', resize);
+    }
     const observer = new ResizeObserver(resize);
     observer.observe(element);
-    return () => observer.disconnect();
+    return () => {
+      observer.disconnect();
+      document.fonts?.removeEventListener('loadingdone', resize);
+    };
   }, []);
 
   useEffect(() => {
@@ -320,10 +326,11 @@ export function VibesChart({
   return (
     <div
       ref={ref}
-      className="relative min-h-[320px] min-w-0 flex-1 mobile:h-[400px] mobile:flex-none phone:h-[360px]"
+      className="relative min-h-0 min-w-0 flex-1 phone:h-[360px] phone:flex-none"
     >
       {showCost && (
         <div
+          data-vibes-angle-controls
           className="absolute top-2 right-2 z-[2] flex items-center gap-1 rounded-lg bg-track p-0.5"
           role="group"
           aria-label="3D view angle"
@@ -778,6 +785,7 @@ export function VibesChart({
                 />
               )}
               <circle
+                data-vibe-dot
                 cx={point.x}
                 cy={point.y}
                 r={isActive ? 6.5 : 5.25}

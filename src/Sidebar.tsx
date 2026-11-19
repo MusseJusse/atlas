@@ -10,14 +10,14 @@ export const Sidebar = memo(function Sidebar({
   settings,
   update,
   open,
-  close,
+  setOpen,
   frontier,
   onHighlight,
 }: {
   settings: Settings;
   update: (patch: Partial<Settings>) => void;
   open: boolean;
-  close: () => void;
+  setOpen: (open: boolean) => void;
   frontier: Set<string>;
   onHighlight: (id: string | null) => void;
 }) {
@@ -28,19 +28,25 @@ export const Sidebar = memo(function Sidebar({
   const input = useRef<HTMLInputElement>(null);
   const catalog = useRef<HTMLDivElement>(null);
   const panel = useRef<HTMLElement>(null);
+  // "/" opens the picker straight into search; the Models button opens it on the Done button.
+  const focusSearch = useRef(false);
 
   useEffect(() => {
     function keyboard(event: KeyboardEvent) {
       const typing =
-        event.target instanceof HTMLInputElement || event.target instanceof HTMLTextAreaElement;
-      if (event.key === '/' && !typing) {
+        event.target instanceof HTMLInputElement || event.target instanceof HTMLTextAreaElement
+        || event.target instanceof HTMLSelectElement || (event.target instanceof HTMLElement && event.target.isContentEditable);
+      if (event.key === '/' && !typing && !event.metaKey && !event.ctrlKey && !event.altKey) {
         event.preventDefault();
-        input.current?.focus();
+        if (open) input.current?.focus();
+        else {
+          focusSearch.current = true;
+          setOpen(true);
+        }
       }
-      if (event.key === 'Escape') {
+      if (event.key === 'Escape' && open) {
         setSearch('');
-        input.current?.blur();
-        if (open) close();
+        setOpen(false);
       }
       if (event.key === 'Tab' && open && panel.current) {
         const controls = [...panel.current.querySelectorAll<HTMLElement>('button,input,a')].filter(
@@ -60,18 +66,26 @@ export const Sidebar = memo(function Sidebar({
     }
     window.addEventListener('keydown', keyboard);
     return () => window.removeEventListener('keydown', keyboard);
-  }, [open, close]);
+  }, [open, setOpen]);
   useEffect(() => {
     if (!open) return;
-    const previous = document.activeElement;
-    panel.current?.querySelector<HTMLElement>('.sheet-done')?.focus();
+    // Focus returns where it was. From inside a menu, that's the menu's button, since the menu closes below.
+    const previous = document.activeElement?.closest('details[open]')?.querySelector('summary') ?? document.activeElement;
+    // Menus left open would otherwise stay open behind the picker.
+    for (const menu of document.querySelectorAll('details[open]')) if (menu instanceof HTMLDetailsElement) menu.open = false;
+    (focusSearch.current ? input.current : panel.current?.querySelector<HTMLElement>('.sheet-done'))?.focus();
+    focusSearch.current = false;
     const overflow = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
     return () => {
       document.body.style.overflow = overflow;
-      if (previous instanceof HTMLElement) previous.focus();
+      // Chart points and bars are SVG, so restore focus to those too. A point whose model was just removed,
+      // a trigger hidden by crossing the phone breakpoint, or a click that never focused anything (Safari)
+      // falls back to the Models button.
+      const restorable = (previous instanceof HTMLElement || previous instanceof SVGElement) && previous !== document.body && previous.checkVisibility();
+      (restorable ? previous : document.querySelector<HTMLElement>('[aria-controls="model-filters"]'))?.focus();
     };
-  }, [open]);
+  }, [open, setOpen]);
 
   function toggle(id: string) {
     update({
@@ -114,15 +128,20 @@ export const Sidebar = memo(function Sidebar({
       ];
 
   return (
+    <>
+    {/* The chart stays visible beside the desktop drawer. This transparent layer takes the click that closes the
+        picker, so the same click can't also pin a point or flip a control underneath. */}
+    {open && <div aria-hidden="true" className="fixed inset-0 z-[29]" onClick={() => setOpen(false)} />}
     <aside
       id="model-filters"
-      className={`flex h-full min-h-0 flex-col gap-4 short:gap-3 overflow-hidden pr-1 pb-3 [scrollbar-width:thin] [scrollbar-color:var(--line-2)_var(--bg)] [&>:not(.model-catalog)]:shrink-0 mobile:fixed mobile:inset-0 mobile:z-10 mobile:h-dvh mobile:overflow-auto mobile:bg-bg mobile:px-4 mobile:pt-0 mobile:pb-[calc(24px+env(safe-area-inset-bottom))] ${open ? 'mobile:flex' : 'mobile:hidden'}`}
+      // A drawer over the chart on desktop, so selection changes show as you make them. Phones get a full-screen sheet.
+      className={`fixed inset-y-0 right-0 z-30 h-dvh w-[340px] flex-col gap-4 short:gap-3 overflow-hidden bg-bg px-5 pb-4 shadow-[var(--shadow-pop)] [scrollbar-width:thin] [scrollbar-color:var(--line-2)_var(--bg)] [&>:not(.model-catalog)]:shrink-0 phone:inset-x-0 phone:w-auto phone:overflow-auto phone:px-4 phone:shadow-none phone:pb-[calc(24px+env(safe-area-inset-bottom))] ${open ? 'flex' : 'hidden'}`}
       ref={panel}
       aria-label="Model filters"
-      role={open ? 'dialog' : undefined}
-      aria-modal={open ? true : undefined}
+      role="dialog"
+      aria-modal
     >
-      <div className="flex min-h-8 items-center gap-2 mobile:sticky mobile:top-0 mobile:z-[1] mobile:-mx-4 mobile:h-14 mobile:border-b mobile:border-line mobile:bg-bg mobile:px-4">
+      <div className="sticky top-0 z-[1] -mx-5 flex h-14 items-center gap-2 border-b border-line bg-bg px-5 phone:-mx-4 phone:px-4">
         <h2 className="flex-1 text-[18px] font-[650] tracking-[-0.3px] mobile:text-[18px]">
           Models{' '}
           <span className="ml-1 text-[12px] font-normal tracking-normal text-fg-3 tabular-nums">
@@ -141,8 +160,8 @@ export const Sidebar = memo(function Sidebar({
           <RotateCcw size={14} aria-hidden="true" />
         </button>
         <button
-          className="hidden! mobile:inline-flex! mobile:items-center mobile:gap-1.5 sheet-done justify-center mobile:w-auto mobile:h-10 mobile:py-0 mobile:pr-1 mobile:pl-3 mobile:text-[15px] mobile:font-[550] mobile:text-accent"
-          onClick={close}
+          className="sheet-done inline-flex h-9 items-center justify-center rounded-md pr-1 pl-3 text-[14px] font-[550] text-accent hover:bg-hover mobile:h-10 mobile:text-[15px]"
+          onClick={() => setOpen(false)}
         >
           Done
         </button>
@@ -190,7 +209,7 @@ export const Sidebar = memo(function Sidebar({
         </button>
       </div>
       <div ref={catalog}
-        className="model-catalog scroll-fade min-h-0 flex-1 overflow-y-auto py-1 pr-1 [--fade-surface:var(--bg)] mobile:flex-none mobile:overflow-visible">
+        className="model-catalog scroll-fade min-h-0 flex-1 overflow-y-auto py-1 pr-1 [--fade-surface:var(--bg)] phone:flex-none phone:overflow-visible">
         {sections.map((section) => (
           <div className="mb-4 last:mb-0 mobile:scroll-mt-[72px]" key={section.name} data-section={section.name}>
             <div className="mb-1 flex items-baseline gap-2.5">
@@ -288,5 +307,6 @@ export const Sidebar = memo(function Sidebar({
         )}
       </div>
     </aside>
+    </>
   );
 });
