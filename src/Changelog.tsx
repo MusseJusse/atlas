@@ -17,16 +17,22 @@ const kindStyles: Record<ChangeKind, string> = {
   removed: 'bg-negative-soft text-negative',
 };
 
-function formatValue(value: FieldChange['before'], field: FieldChange['field']) {
+function formatValue(value: FieldChange['before'], field: FieldChange['field'], exact = true) {
   if (value === null) return 'Not available';
   if (typeof value === 'boolean') return value ? 'Yes' : 'No';
   if (typeof value !== 'number') return value;
-  // Keep the original precision so small measurement changes remain distinguishable.
-  const number = String(value);
+  const number = String(exact ? value : Number(value.toPrecision(6)));
   if (['cost', 'costTotal', 'inputPrice', 'outputPrice'].includes(field)) return `$${number}`;
   if (field === 'speed') return `${number} tok/s`;
   if (field === 'time') return `${number}s`;
   return number;
+}
+
+/** Six significant figures read at a glance; fall back to full precision when rounding would hide the change. */
+function formatChange({ field, before, after }: FieldChange) {
+  const rounded = [formatValue(before, field, false), formatValue(after, field, false)] as const;
+  const exact = [formatValue(before, field), formatValue(after, field)] as const;
+  return rounded[0] === rounded[1] && exact[0] !== exact[1] ? { shown: exact, exact } : { shown: rounded, exact };
 }
 
 export function Changelog({ history = bundledHistory }: { history?: ChangeHistory }) {
@@ -51,7 +57,7 @@ export function Changelog({ history = bundledHistory }: { history?: ChangeHistor
           <h1 className="display m-0 text-[30px] leading-[1.1] phone:text-[24px]">Model changes</h1>
           <span className="text-[12px] text-fg-2">
             {latest
-              ? `Data checked ${formatUtcDate(latest.checkedAt, 'short')}, ${latest.checkedAt.slice(11, 16)} UTC`
+              ? `Data checked ${formatUtcDateTime(latest.checkedAt, 'short')}`
               : `Baseline snapshot ${formatUtcDate(history.baselineFetchedAt)}`}
           </span>
         </div>
@@ -136,20 +142,24 @@ export function Changelog({ history = bundledHistory }: { history?: ChangeHistor
                         </tr>
                       </thead>
                       <tbody>
-                        {change.fields.map(({ field, before, after }) => (
-                          <tr key={field} className="border-t border-line align-top">
-                            <th
-                              scope="row"
-                              className="px-3 py-1.5 font-normal text-fg-2 [overflow-wrap:anywhere]"
-                            >
-                              {fieldLabels[field]}
-                            </th>
-                            <td className="py-1.5 pr-3 text-fg-2 [overflow-wrap:anywhere]">
-                              {formatValue(before, field)}
-                            </td>
-                            <td className="py-1.5 pr-3 font-[550] [overflow-wrap:anywhere]">{formatValue(after, field)}</td>
-                          </tr>
-                        ))}
+                        {change.fields.map((fieldChange) => {
+                          const { field } = fieldChange;
+                          const { shown, exact } = formatChange(fieldChange);
+                          return (
+                            <tr key={field} className="border-t border-line align-top">
+                              <th
+                                scope="row"
+                                className="px-3 py-1.5 font-normal text-fg-2 [overflow-wrap:anywhere]"
+                              >
+                                {fieldLabels[field]}
+                              </th>
+                              <td className="py-1.5 pr-3 text-fg-2 [overflow-wrap:break-word]" title={shown[0] === exact[0] ? undefined : exact[0]}>
+                                {shown[0]}
+                              </td>
+                              <td className="py-1.5 pr-3 font-[550] [overflow-wrap:break-word]" title={shown[1] === exact[1] ? undefined : exact[1]}>{shown[1]}</td>
+                            </tr>
+                          );
+                        })}
                       </tbody>
                     </table>
                   )}

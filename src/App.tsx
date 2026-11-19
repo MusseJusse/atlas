@@ -389,8 +389,10 @@ function ChartOptions({
     const trigger = element.getBoundingClientRect();
     const below = Math.min(window.innerHeight, feed?.bottom ?? window.innerHeight) - trigger.bottom - 18;
     const above = trigger.top - Math.max(0, feed?.top ?? 0) - 18;
-    setSide(below >= 240 || below >= above ? 'below' : 'above');
-    element.style.setProperty('--chart-menu-height', `${Math.max(0, Math.max(below, above))}px`);
+    const next = below >= 240 || below >= above ? 'below' : 'above';
+    setSide(next);
+    // Cap the height to the chosen side, so every control stays reachable by scrolling the menu.
+    element.style.setProperty('--chart-menu-height', `${Math.max(0, next === 'below' ? below : above)}px`);
   }
   useEffect(() => {
     if (!open) return;

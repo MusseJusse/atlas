@@ -8,6 +8,6 @@ export function formatUtcDate(value: string, month: 'short' | 'long' = 'long') {
   }).replace('Sept', 'Sep');
 }
 
-export function formatUtcDateTime(value: string) {
-  return `${formatUtcDate(value)}, ${new Date(value).toISOString().slice(11, 16)} UTC`;
+export function formatUtcDateTime(value: string, month: 'short' | 'long' = 'long') {
+  return `${formatUtcDate(value, month)}, ${new Date(value).toISOString().slice(11, 16)} UTC`;
 }

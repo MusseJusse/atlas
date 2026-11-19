@@ -75,11 +75,14 @@ export function scatterGeometry(
     label.y = Math.min(label.y, nextY - labelSpacing);
     nextY = label.y;
   }
-  const logTicks = x.ticks(mobile ? 4 : 10).filter((value) => {
+  const tickSteps = (targets: number[]) => x.ticks(mobile ? 4 : 10).filter((value) => {
     if (linear) return true;
     const significant = value / 10 ** Math.floor(Math.log10(value));
-    return (mobile ? [1, 3] : [1, 2, 5]).some((target) => Math.abs(significant - target) < 0.001);
+    return targets.some((target) => Math.abs(significant - target) < 0.001);
   });
+  // Wide cost ranges on phones keep only powers of ten, so tick labels don't run together.
+  const mobileTicks = mobile ? tickSteps([1, 3]) : [];
+  const logTicks = !mobile ? tickSteps([1, 2, 5]) : mobileTicks.length > 5 ? tickSteps([1]) : mobileTicks;
   const path = (data: ScatterRow[]) =>
     data
       .map((model, index) => `${index ? 'L' : 'M'}${x(model.value)},${y(model.score)}`)
