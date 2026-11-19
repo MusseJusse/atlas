@@ -315,10 +315,16 @@ test('vibes page supports label clicks, pin precedence, 3D cost axis, and mobile
 
   // Mobile/tablet width: hovering Best for must not shift layout by mounting a hover preview above it.
   await page.setViewportSize({ width: 800, height: 1000 });
+  const beforeTop = await codingBtn.evaluate((el) => el.getBoundingClientRect().top);
   await codingBtn.hover();
+  await page.evaluate(() => new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve))));
   await expect(details).not.toBeVisible();
+  expect(await codingBtn.evaluate((el) => el.getBoundingClientRect().top)).toBe(beforeTop);
 
   await page.setViewportSize({ width: 320, height: 740 });
+  await expect.poll(() =>
+    page.locator('.vibes-plot svg[role="group"]').evaluate((svg) => Number(svg.getAttribute('viewBox')!.split(' ')[2])),
+  ).toBeLessThan(320);
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
   expect(await hasLabelCollision()).toBe(false);
 });

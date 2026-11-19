@@ -261,8 +261,9 @@ export function VibesChart({
 
   function resolvePointerFamily(svg: SVGSVGElement, target: EventTarget | null, clientX: number, clientY: number) {
     if (target instanceof Element) {
-      const direct = target.closest<SVGGElement>('g[data-vibe-family]');
-      if (direct?.dataset.vibeFamily) return direct.dataset.vibeFamily;
+      const label = target.closest<SVGTextElement>('text[data-vibe-label], text[data-vibe-sublabel]');
+      const family = label?.dataset.vibeLabel ?? label?.dataset.vibeSublabel;
+      if (family) return family;
     }
     const bounds = svg.getBoundingClientRect();
     if (bounds.width <= 0 || bounds.height <= 0) return null;
@@ -432,8 +433,10 @@ export function VibesChart({
           }
         }}
         onPointerLeave={() => {
-          if (!dragState.current.moved) {
+          const activeDrag = dragState.current.pointerId !== null && dragState.current.moved;
+          if (!activeDrag) {
             dragState.current.pointerId = null;
+            dragState.current.moved = false;
             flushSync(() => onPreview(null));
           }
         }}
@@ -786,7 +789,7 @@ export function VibesChart({
               <text
                 data-vibe-label={entry.family}
                 x={point.x + dx}
-                y={point.y + dy}
+                y={point.y + dy - (placement === 'above' && showSubtext ? (compact ? 13 : 14) : 0)}
                 textAnchor={anchor}
                 fill={labelFill}
                 fontSize={compact ? 11.5 : isActive ? 13.5 : 12.5}
@@ -798,7 +801,11 @@ export function VibesChart({
                 <text
                   data-vibe-sublabel={entry.family}
                   x={point.x + dx}
-                  y={point.y + dy + (compact ? 13 : 14)}
+                  y={
+                    point.y +
+                    dy +
+                    (placement === 'above' ? 0 : compact ? 13 : 14)
+                  }
                   textAnchor={anchor}
                   fill={!showBenchmarks && t > 0.35 ? cColor : 'var(--fg-2)'}
                   fontSize={compact ? 10 : 10.5}
