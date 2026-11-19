@@ -181,7 +181,7 @@ export function Bars({
             {diagonal ? (
               <g>
                 <SvgLogo model={model} x={group.center - 7} y={bottom + 28} size={14} />
-                {/* Dense plots set names on a diagonal from under the logo, so every name stays whole. */}
+                {/* Dense plots set names on a diagonal from under the logo. Names past the cap keep a full-name tooltip. */}
                 <text
                   x={group.center + 4}
                   y={bottom + 54}
@@ -190,7 +190,10 @@ export function Bars({
                   fill="var(--fg-2)"
                   fontSize={13}
                   fontWeight={500}
+                  // The group ignores the pointer, so the caption opts back in for its tooltip.
+                  pointerEvents="visiblePainted"
                 >
+                  <title>{shortName(model)}</title>
                   {fitDiagonalCaption(shortName(model))}
                   {metric === 'cost' && model.taskPricing?.basis === 'api-fallback' && (
                     <tspan fontSize={11} fontWeight={400} fill="var(--fg-3)"> (API)</tspan>

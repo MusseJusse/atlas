@@ -141,8 +141,11 @@ function captionSpan(name: string) {
   return Math.min(captionWidth(name), Math.max(...splitCaption(name).map(captionWidth)));
 }
 
-/** Diagonal captions run at most this long; longer names end in an ellipsis. */
-export const diagonalCaption = { angle: 40, maxWidth: 150 };
+/**
+ * Diagonal captions run at most this long, which keeps about 95% of names whole. Longer names end in an
+ * ellipsis; their full name is in the caption's tooltip and in the card a bar's hover, focus or pin opens.
+ */
+export const diagonalCaption = { angle: 40, maxWidth: 200 };
 export function fitDiagonalCaption(name: string) {
   if (captionWidth(name) <= diagonalCaption.maxWidth) return name;
   let cut = name;
