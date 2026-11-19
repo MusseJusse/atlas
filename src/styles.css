@@ -44,6 +44,7 @@
     --thumb: var(--lightningcss-light, #fff) var(--lightningcss-dark, #2b3a56);
     /* Empty checkbox outlines meet 3:1 against the sheet. */
     --control-border: var(--lightningcss-light, #8592a8) var(--lightningcss-dark, #73829c);
+    --scroll-shadow: var(--lightningcss-light, rgb(23 33 58 / 0.08)) var(--lightningcss-dark, rgb(0 0 0 / 0.45));
     --positive: var(--lightningcss-light, #1d7f55) var(--lightningcss-dark, #74d3a8);
     --positive-soft: var(--lightningcss-light, #ddf2e7) var(--lightningcss-dark, #1d3b34);
     --negative: var(--lightningcss-light, #b4372f) var(--lightningcss-dark, #ffa296);
@@ -175,8 +176,8 @@
   background:
     linear-gradient(var(--fade-surface) 30%, transparent) top / 100% 24px no-repeat local,
     linear-gradient(transparent, var(--fade-surface) 70%) bottom / 100% 24px no-repeat local,
-    linear-gradient(color-mix(in srgb, var(--fg) 10%, transparent), transparent) top / 100% 12px no-repeat scroll,
-    linear-gradient(transparent, color-mix(in srgb, var(--fg) 10%, transparent)) bottom / 100% 12px no-repeat scroll,
+    linear-gradient(var(--scroll-shadow), transparent) top / 100% 8px no-repeat scroll,
+    linear-gradient(transparent, var(--scroll-shadow)) bottom / 100% 8px no-repeat scroll,
     var(--fade-surface);
 }
 
@@ -269,15 +270,12 @@
   .efficiency-details-slot:empty { display: none; }
   .efficiency-plot {
     order: 3;
-    padding: 0 16px;
-    background: var(--panel);
-  }
-  .efficiency-footer {
-    order: 5;
     padding: 0 16px 16px;
-    border-radius: 0 0 12px 12px;
     background: var(--panel);
   }
+  /* The last panel piece closes the card: the plot, or the record details below it once pinned. */
+  .efficiency-workspace:has(.efficiency-details-slot:empty) .efficiency-plot,
+  .efficiency-details-slot { border-radius: 0 0 12px 12px; }
 }
 
 .chart-navigation-desktop { display: none; }

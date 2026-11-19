@@ -190,9 +190,9 @@ export const Sidebar = memo(function Sidebar({
         </button>
       </div>
       <div ref={catalog}
-        className="model-catalog scroll-fade min-h-0 flex-1 overflow-y-auto pr-1 [--fade-surface:var(--bg)] mobile:flex-none mobile:overflow-visible">
+        className="model-catalog scroll-fade min-h-0 flex-1 overflow-y-auto py-1 pr-1 [--fade-surface:var(--bg)] mobile:flex-none mobile:overflow-visible">
         {sections.map((section) => (
-          <div className="mb-4 last:mb-0" key={section.name} data-section={section.name}>
+          <div className="mb-4 last:mb-0 mobile:scroll-mt-[72px]" key={section.name} data-section={section.name}>
             <div className="mb-1 flex items-baseline gap-2.5">
               <h3 className="flex-1 text-[13px] font-[600] mobile:text-[15px]">{section.name}</h3>
               {section.name !== 'Frontier' && section.items.length > 0 && (
@@ -212,7 +212,7 @@ export const Sidebar = memo(function Sidebar({
                 onClick={() => toggle(family.family)}
                 onMouseEnter={() => onHighlight(family.family)}
                 onMouseLeave={() => onHighlight(null)}
-                title={`${family.model.name} · ${family.variants.length} configurations`}
+                title={`${family.model.name}, ${family.variants.length} ${family.variants.length === 1 ? 'configuration' : 'configurations'}`}
               >
                 <Logo model={family.model} size={13} />
                 <span className="flex-1 overflow-hidden text-ellipsis whitespace-nowrap">

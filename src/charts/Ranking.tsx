@@ -76,7 +76,7 @@ export function Ranking({ rows, metric, grouped, descending, interactions, logar
               <span className="ranking-range" style={{ left: `${position(group.minimum)}%`, width: `${position(group.maximum) - position(group.minimum)}%` }} />
               {[...group.rows.filter((row) => row.id !== best.id), best].map((row) => <span className={`ranking-dot${row.id === best.id ? ' ranking-best' : ''}`} data-configuration={row.id} key={row.id} style={{ left: `${position(row.value)}%` }} />)}
             </span>
-            <span className="ranking-value"><span><b>{formatModelValue(best, metric)}</b>{overlapCount > 1 && <small title="Expand the row to compare the exact reasoning values">{overlapCount} overlap</small>}</span><ChevronDown data-expand-indicator size={14} aria-hidden="true" style={{ transform: open ? 'rotate(180deg)' : undefined }} /></span>
+            <span className="ranking-value"><span><b>{formatModelValue(best, metric)}</b>{overlapCount > 1 && <small title="Expand the row to compare the exact reasoning values">{overlapCount} levels overlap</small>}</span><ChevronDown data-expand-indicator size={14} aria-hidden="true" style={{ transform: open ? 'rotate(180deg)' : undefined }} /></span>
           </button>
           {open && <div id={`ranking-${metric}-${group.id}`} className="ranking-expanded">
             <div className="ranking-configurations" role="group" aria-label={`${best.name} reasoning configurations`}>

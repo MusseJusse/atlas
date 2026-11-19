@@ -32,7 +32,7 @@ export function PricingControls({ settings, update }: {
       {/* Plans only change subscription estimates, so they stay out of the way for API prices. */}
       {subscription && (
         <div className="mt-4">
-          <div className="grid grid-cols-[84px_minmax(0,1fr)] items-center gap-x-3 gap-y-2">
+          <div className="grid grid-cols-[max-content_minmax(0,1fr)] items-center gap-x-3 gap-y-2">
             {subscriptionProviders.map((provider) => (
               <label key={provider.id} className="contents">
                 <span className="text-[12px] text-fg-2">{provider.name}</span>

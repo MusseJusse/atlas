@@ -52,13 +52,13 @@ export function Efficiency() {
   }
 
   return (
-    <div className="grid h-dvh grid-rows-[var(--header-height)_minmax(0,1fr)] mobile:block mobile:h-auto">
+    <div className="grid h-dvh grid-rows-[var(--header-height)_minmax(0,1fr)_auto] mobile:block mobile:h-auto">
       <a href="#efficiency-workspace" className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-30 focus:rounded-md focus:bg-panel focus:p-3">Skip to efficiency</a>
       <SiteHeader current="efficiency" />
       <main
         id="efficiency-workspace"
         tabIndex={-1}
-        className="efficiency-workspace [outline:none] grid min-h-0 grid-cols-[var(--sidebar-width)_minmax(0,1fr)] gap-6 px-7 py-6 compact:gap-5 compact:px-5 mobile:flex mobile:flex-col mobile:gap-0 mobile:px-4 mobile:py-4"
+        className="efficiency-workspace [outline:none] grid min-h-0 grid-cols-[var(--sidebar-width)_minmax(0,1fr)] gap-6 px-7 pt-6 pb-2 compact:gap-5 compact:px-5 mobile:flex mobile:flex-col mobile:gap-0 mobile:px-4 mobile:py-4"
         onKeyDown={(event) => {
           // Native selects consume Escape for their popup; other controls clear the pin.
           if (event.key === 'Escape' && !(event.target instanceof HTMLSelectElement)) clearSelection();
@@ -156,17 +156,15 @@ export function Efficiency() {
               togglePin={(key) => setPinned((current) => current === key ? null : key)}
             />
           </div>
-          <div className="efficiency-footer">
-            <footer className="mt-3 flex shrink-0 flex-wrap justify-between gap-x-4 text-[12px] leading-5 text-fg-3">
-              <span>
-                Data from{' '}
-                <a href={source} className="underline-offset-4 hover:text-accent hover:underline">Artificial Analysis</a>
-              </span>
-              <span>Snapshot captured <time dateTime={snapshot.fetchedAt}>{formatUtcDate(snapshot.fetchedAt, 'short')}</time></span>
-            </footer>
-          </div>
         </section>
       </main>
+      <footer className="flex flex-wrap items-center justify-between gap-x-5 gap-y-1 px-7 py-3 text-[12px] leading-5 text-fg-3 compact:px-5 mobile:px-4 mobile:pt-5 mobile:pb-[calc(20px+env(safe-area-inset-bottom))]">
+        <span>
+          Data from{' '}
+          <a href={source} className="underline-offset-4 hover:text-accent hover:underline">Artificial Analysis</a>
+        </span>
+        <span>Snapshot captured <time dateTime={snapshot.fetchedAt}>{formatUtcDate(snapshot.fetchedAt, 'short')}</time></span>
+      </footer>
     </div>
   );
 }

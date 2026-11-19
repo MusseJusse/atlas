@@ -51,21 +51,21 @@ export function Changelog({ history = bundledHistory }: { history?: ChangeHistor
           <h1 className="display m-0 text-[30px] leading-[1.1] phone:text-[24px]">Model changes</h1>
           <span className="text-[12px] text-fg-2">
             {latest
-              ? `Data checked ${formatUtcDateTime(latest.checkedAt)}`
+              ? `Data checked ${formatUtcDate(latest.checkedAt, 'short')}, ${latest.checkedAt.slice(11, 16)} UTC`
               : `Baseline snapshot ${formatUtcDate(history.baselineFetchedAt)}`}
           </span>
         </div>
         <div
           role="group"
           aria-label="Filter model changes"
-          className="mt-5 inline-flex gap-0.5 rounded-lg bg-track p-0.5 phone:flex"
+          className="mt-5 inline-flex gap-0.5 rounded-lg bg-track p-0.5 phone:flex max-[360px]:grid! max-[360px]:grid-cols-2"
         >
           {filters.map(({ id, label }) => (
             <button
               key={id}
               onClick={() => setFilter(id)}
               aria-pressed={filter === id}
-              className="min-h-9 rounded-md px-3.5 text-[13px] font-[500] whitespace-nowrap text-fg-2 aria-pressed:bg-thumb aria-pressed:text-accent aria-pressed:shadow-[var(--shadow-raised)] [&:hover]:text-fg phone:min-h-10 phone:flex-1 phone:px-1"
+              className="min-h-9 rounded-md px-3.5 text-[13px] font-[500] whitespace-nowrap text-fg-2 aria-pressed:bg-thumb aria-pressed:text-accent aria-pressed:shadow-[var(--shadow-raised)] [&:hover]:text-fg phone:min-h-10 phone:flex-auto phone:px-2"
             >
               {label}
             </button>
@@ -101,10 +101,10 @@ export function Changelog({ history = bundledHistory }: { history?: ChangeHistor
             {batch.changes.map((change) => (
               <article
                 key={change.id}
-                className={`grid gap-5 border-t border-line py-3.5 phone:gap-3 ${filter === 'all' ? 'grid-cols-[80px_minmax(0,1fr)] phone:grid-cols-[68px_minmax(0,1fr)]' : 'grid-cols-1'}`}
+                className={`grid gap-5 border-t border-line py-3.5 phone:gap-0 phone:py-2.5 ${filter === 'all' ? 'grid-cols-[80px_minmax(0,1fr)] phone:grid-cols-1' : 'grid-cols-1'}`}
               >
                 {/* The filter already names the kind, so only "All changes" repeats it visually. */}
-                <span className={filter === 'all' ? 'mt-0.5' : 'sr-only'}>
+                <span className={filter === 'all' ? 'mt-0.5 phone:mt-0 phone:mb-1' : 'sr-only'}>
                   <span className={`inline-flex rounded-full px-2 py-0.5 text-[11px] font-[600] ${kindStyles[change.kind]}`}>
                     {kindLabels[change.kind]}
                   </span>
@@ -112,7 +112,7 @@ export function Changelog({ history = bundledHistory }: { history?: ChangeHistor
                 <div className="min-w-0">
                   <h3 className="text-[14px] font-[550] leading-6">
                     {change.name}
-                    <span className="ml-2 text-[12px] font-normal text-fg-2">{change.effortLabel}</span>
+                    <span className="ml-2 text-[12px] font-normal text-fg-2">{change.effortLabel.toLowerCase()}</span>
                   </h3>
                   {change.kind === 'removed' && (
                     <p className="mt-0.5 mb-0 text-[12px] text-fg-2">No longer present in the source</p>

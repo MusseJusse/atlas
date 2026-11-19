@@ -6,6 +6,7 @@ import type { Model } from '../models';
 import { modelColor } from '../model-presentation';
 import { format, formatModelValue } from '../formatModel';
 import { metrics, type Metric } from '../chart-definitions';
+import { formatUtcDate } from '../formatDate';
 
 /** The same compact selection overlay on desktop and mobile. */
 export function ConfigurationDetails({
@@ -48,7 +49,7 @@ export function ConfigurationDetails({
         )}
       </div>
       <div className="mt-1 flex items-baseline justify-between gap-3 text-[12px] text-fg-2">
-        <span>{model.codingAgent?.configuration ?? model.cyber?.configuration ?? (model.effort === 'none' ? 'No reasoning' : `Reasoning: ${model.effortLabel}`)}</span>
+        <span>{model.codingAgent?.configuration ?? model.cyber?.configuration ?? (model.effort === 'none' ? 'No reasoning' : `Reasoning: ${model.effortLabel.toLowerCase()}`)}</span>
         {!pinned && <span className="text-fg-3">Click to pin</span>}
       </div>
       {summary}
@@ -71,7 +72,7 @@ export function ConfigurationDetails({
       <PricingDetails model={model} />
       {pinned && model.speedSource && (
         <p className="mt-3 mb-2 text-[11px] text-fg-2">
-          Speed snapshot: {model.speedSource.fetchedAt.slice(0, 10)}
+          Speed measured {formatUtcDate(model.speedSource.fetchedAt, 'short')}.
         </p>
       )}
       {pinned && model.timeEstimate && (
@@ -79,7 +80,7 @@ export function ConfigurationDetails({
           Local time estimate. Uses standard Sol High task tokens at Max-measured throughput.
           <br />
           {model.timeEstimate.baselineTokens.toFixed(1)} tokens ÷ {format(model.speed, 'speed')} tokens/s.
-          Baseline: {model.timeEstimate.baselineFetchedAt.slice(0, 10)}
+          Baseline from {formatUtcDate(model.timeEstimate.baselineFetchedAt, 'short')}.
         </p>
       )}
       <a

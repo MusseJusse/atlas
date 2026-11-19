@@ -19,7 +19,7 @@ const segments = 'flex gap-0.5 rounded-lg bg-track p-0.5';
 const segment =
   'min-h-8 flex-1 rounded-md px-2.5 text-[12px] font-[500] whitespace-nowrap text-fg-2 hover:text-fg aria-pressed:bg-thumb aria-pressed:text-accent aria-pressed:shadow-[var(--shadow-raised)]';
 const menuItem = 'inline-flex min-h-10 w-full items-center gap-2.5 rounded-md px-2 text-[13px] text-fg hover:bg-hover';
-const menuLabel = 'px-2 pt-2 pb-1 text-[13px] font-[600] text-fg';
+const menuLabel = 'px-2 pb-1 text-[13px] font-[600] text-fg';
 
 const loadChangelog = () => import('./Changelog');
 const loadEfficiency = () => import('./Efficiency');
@@ -241,6 +241,7 @@ function Benchmarks() {
                       descending={chartDescending(view.metric, phone, settings.descending)}
                       pricing={view.id === 'cost-intelligence' || view.id === 'cost-task'}
                       scatter={scatter}
+                      ranking={phone && !scatter}
                     />
                   </div>
                   {scatter || view.mode === 'optional-scatter' ? (
@@ -366,6 +367,7 @@ function ChartOptions({
   descending,
   pricing,
   scatter,
+  ranking,
 }: {
   settings: Settings;
   update: (patch: Partial<Settings>) => void;
@@ -373,15 +375,22 @@ function ChartOptions({
   pricing: boolean;
   /** Only the options for the visible chart type are shown. */
   scatter: boolean;
+  /** Phones show bar charts as rankings, which cannot combine reasoning bars. */
+  ranking: boolean;
 }) {
   const menu = useRef<HTMLDetailsElement>(null);
   const [open, setOpen] = useState(false);
+  const [side, setSide] = useState<'below' | 'above'>('below');
   function fitMenu() {
     const element = menu.current;
     if (!element) return;
-    const feedBottom = element.closest('section')?.parentElement?.getBoundingClientRect().bottom ?? window.innerHeight;
-    const available = Math.min(window.innerHeight, feedBottom) - element.getBoundingClientRect().bottom - 18;
-    element.style.setProperty('--chart-menu-height', `${Math.max(0, available)}px`);
+    // Open toward whichever side of the trigger has more of the visible chart area.
+    const feed = element.closest('section')?.parentElement?.getBoundingClientRect();
+    const trigger = element.getBoundingClientRect();
+    const below = Math.min(window.innerHeight, feed?.bottom ?? window.innerHeight) - trigger.bottom - 18;
+    const above = trigger.top - Math.max(0, feed?.top ?? 0) - 18;
+    setSide(below >= 240 || below >= above ? 'below' : 'above');
+    element.style.setProperty('--chart-menu-height', `${Math.max(0, Math.max(below, above))}px`);
   }
   useEffect(() => {
     if (!open) return;
@@ -415,14 +424,14 @@ function ChartOptions({
         <Settings2 size={17} aria-hidden="true" />
       </summary>
       <div
-        className={`absolute top-[calc(100%+6px)] right-0 z-20 flex ${pricing ? 'w-[344px]' : 'w-[240px]'} max-w-[calc(100vw-64px)] scroll-fade flex-col items-start gap-0.5 overflow-y-auto overscroll-contain rounded-xl p-2 shadow-[var(--shadow-pop)]`}
+        className={`absolute ${side === 'below' ? 'top-[calc(100%+6px)]' : 'bottom-[calc(100%+6px)]'} right-0 z-20 flex ${pricing ? 'w-[344px]' : 'w-[240px]'} max-w-[calc(100vw-64px)] scroll-fade flex-col items-start gap-0.5 overflow-y-auto overscroll-contain rounded-xl p-2 shadow-[var(--shadow-pop)]`}
         style={{ maxHeight: 'var(--chart-menu-height, 60dvh)' }}
         aria-label="Chart settings"
       >
         {pricing && <PricingControls settings={settings} update={update} />}
         {scatter ? (
           <>
-            <span className={menuLabel}>Scatter chart</span>
+            <span className={`${menuLabel} ${pricing ? 'pt-3' : 'pt-2'}`}>Scatter chart</span>
             <button
               className={menuItem}
               aria-pressed={settings.labels}
@@ -434,7 +443,7 @@ function ChartOptions({
           </>
         ) : (
           <>
-            <span className={menuLabel}>Bar chart</span>
+            <span className={`${menuLabel} ${pricing ? 'pt-3' : 'pt-2'}`}>{ranking ? 'Ranking' : 'Bar chart'}</span>
             <button
               className={menuItem}
               aria-pressed={settings.grouped}
@@ -443,7 +452,7 @@ function ChartOptions({
               <Selection checked={settings.grouped} />
               Group by model
             </button>
-            <button
+            {!ranking && <button
               className={`${menuItem} disabled:opacity-50 disabled:hover:bg-transparent`}
               aria-pressed={settings.combined}
               disabled={!settings.grouped}
@@ -452,12 +461,13 @@ function ChartOptions({
             >
               <Selection checked={settings.combined} />
               Combine reasoning bars
-            </button>
-            <div className={`${segments} mx-2 mt-2 mb-1 w-[calc(100%-16px)]`} role="group" aria-label="Bar order">
-              <button className={segment} aria-pressed={descending} onClick={() => update({ descending: true })}>
+            </button>}
+            <div className={`${segments} mx-2 mt-2 mb-1 w-[calc(100%-16px)]`} role="group" aria-label={ranking ? 'Ranking order' : 'Bar order'}>
+              {/* Re-selecting the current order must not pin it, or lower-is-better charts lose their default. */}
+              <button className={segment} aria-pressed={descending} onClick={() => { if (!descending) update({ descending: true }); }}>
                 Highest first
               </button>
-              <button className={segment} aria-pressed={!descending} onClick={() => update({ descending: false })}>
+              <button className={segment} aria-pressed={!descending} onClick={() => { if (descending) update({ descending: false }); }}>
                 Highest last
               </button>
             </div>

@@ -50,7 +50,7 @@ export const DotPlot = memo(function DotPlot({
               <span className="flex min-w-0 items-center gap-[7px] text-[14px] font-[550]">
                 <Logo model={model} />
                 <span className="overflow-hidden text-ellipsis whitespace-nowrap">
-                  {shortName(model)}{metric === 'cost' && model.taskPricing?.basis === 'api-fallback' && ' · API'}
+                  {shortName(model)}{metric === 'cost' && model.taskPricing?.basis === 'api-fallback' && ' (API)'}
                 </span>
               </span>
               <span className="text-[13px] text-fg-2 tabular-nums">

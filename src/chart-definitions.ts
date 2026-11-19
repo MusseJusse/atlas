@@ -7,7 +7,7 @@ type Measurement = {
 export const metrics = {
   cost: { label: 'Cost per task', unit: 'USD', higherIsBetter: false },
   intelligence: { label: 'Intelligence index', unit: 'Intelligence index', higherIsBetter: true },
-  omniscience: { label: 'AA-Omniscience Index', unit: 'AA-Omniscience Index', higherIsBetter: true },
+  omniscience: { label: 'AA-Omniscience index', unit: 'AA-Omniscience index', higherIsBetter: true },
   time: { label: 'Time per task', unit: 'decode time per task', higherIsBetter: false },
   tokens: { label: 'Tokens per task', unit: 'output tokens', higherIsBetter: false },
   tokensTotal: { label: 'Total tokens', unit: 'output tokens, full benchmark run', higherIsBetter: false },

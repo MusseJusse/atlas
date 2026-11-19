@@ -204,7 +204,7 @@ export function Scatter({
                 // Mix toward the text colour so light series still pass 4.5:1 as label text.
                 style={{ fill: `color-mix(in srgb, ${modelColor(series.end)} 78%, var(--fg))` }}
               >
-                {labelName}{metric === 'cost' && series.end.taskPricing?.basis === 'api-fallback' && <tspan fontSize={10}> · API</tspan>}
+                {labelName}{metric === 'cost' && series.end.taskPricing?.basis === 'api-fallback' && <tspan fontSize={11}> (API)</tspan>}
               </text>
               {series.end.codingAgent && (
                 <text x={right + 53} y={series.y + 18} fontSize="10" fill="var(--fg-2)">
