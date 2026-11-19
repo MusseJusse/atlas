@@ -43,8 +43,9 @@ export function ConfigurationDetails({
           </button>
         )}
       </div>
-      <div className="mt-1 text-[12px] text-fg-2">
-        {model.codingAgent?.configuration ?? model.cyber?.configuration ?? (model.effort === 'none' ? 'No reasoning' : model.effortLabel)} · {pinned ? 'Pinned' : 'Preview'}
+      <div className="mt-1 flex items-baseline justify-between gap-3 text-[12px] text-fg-2">
+        <span>{model.codingAgent?.configuration ?? model.cyber?.configuration ?? (model.effort === 'none' ? 'No reasoning' : model.effortLabel)}</span>
+        {!pinned && <span className="text-fg-3">Click to pin</span>}
       </div>
       {model.taskPricing?.basis === 'subscription' && (
         <p className="mt-2 mb-0 text-[10px] leading-4 text-fg-2">Full allowance for one model. External token mix, not measured subscription spend.</p>

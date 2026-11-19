@@ -46,11 +46,10 @@ export function Changelog({ history = bundledHistory }: { history?: ChangeHistor
   return (
     <div className="min-h-dvh select-text">
       <SiteHeader current="changelog" />
-      <main className="mx-4 my-6 max-w-[1000px] rounded-xl bg-panel px-8 pt-8 pb-10 shadow-[var(--shadow-card)] min-[1032px]:mx-auto phone:px-4 phone:pt-6">
+      <main className="mx-4 my-6 max-w-[1000px] rounded-[14px] bg-panel px-8 pt-8 pb-10 min-[1032px]:mx-auto phone:px-4 phone:pt-6">
         <div className="flex flex-wrap items-baseline justify-between gap-x-5 gap-y-2">
-          <h1 className="m-0 text-[25px] font-[600] tracking-[-0.8px] phone:text-[23px]">Model changes</h1>
-          <span className="inline-flex items-center gap-2 text-[12px] text-fg-2">
-            <span aria-hidden="true" className="size-1.5 rounded-full bg-positive" />
+          <h1 className="display m-0 text-[30px] leading-[1.1] phone:text-[24px]">Model changes</h1>
+          <span className="text-[12px] text-fg-2">
             {latest
               ? `Data checked ${formatUtcDateTime(latest.checkedAt)}`
               : `Baseline snapshot ${formatUtcDate(history.baselineFetchedAt)}`}

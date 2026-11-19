@@ -43,9 +43,8 @@
     --positive-soft: var(--lightningcss-light, #ddf2e7) var(--lightningcss-dark, #1d3b34);
     --negative: var(--lightningcss-light, #b4372f) var(--lightningcss-dark, #ffa296);
     --negative-soft: var(--lightningcss-light, #fbe3e0) var(--lightningcss-dark, #43282c);
-    /* Light surfaces lift with soft shadows; dark surfaces rely on a hairline instead. */
+    /* Only floating layers cast shadows. Dark surfaces add a hairline so the edge stays visible. */
     --shadow-raised: var(--lightningcss-light, 0 1px 2px rgb(23 33 58 / 0.1), 0 0 0 1px rgb(23 33 58 / 0.04)) var(--lightningcss-dark, 0 0 0 1px #3a4964, 0 1px 2px rgb(0 0 0 / 0.3));
-    --shadow-card: var(--lightningcss-light, 0 0 0 1px rgb(23 33 58 / 0.05), 0 1px 2px rgb(23 33 58 / 0.04), 0 12px 32px -16px rgb(23 33 58 / 0.14)) var(--lightningcss-dark, 0 0 0 1px #26334a, 0 12px 32px -16px rgb(0 0 0 / 0.5));
     --shadow-pop: var(--lightningcss-light, 0 0 0 1px rgb(23 33 58 / 0.06), 0 4px 8px -2px rgb(23 33 58 / 0.06), 0 18px 40px -12px rgb(23 33 58 / 0.22)) var(--lightningcss-dark, 0 0 0 1px #3a4964, 0 18px 40px -12px rgb(0 0 0 / 0.6));
     --sidebar-width: 216px;
     --header-height: 72px;
@@ -153,6 +152,14 @@
   --font-sans: 'DM Sans UI', 'DM Sans', sans-serif;
 }
 
+/* Display cut: the full DM Sans at its largest optical size, for the wordmark and titles only. */
+@utility display {
+  font-family: 'DM Sans', 'DM Sans UI', sans-serif;
+  font-variation-settings: 'opsz' 40;
+  font-weight: 720;
+  letter-spacing: -0.028em;
+}
+
 /* Workspace breakpoints, including short desktop windows. */
 @custom-variant wide (@media (width >= 1600px));
 @custom-variant short (@media (width > 900px) and (height <= 740px));
@@ -208,7 +215,8 @@
   width: 100%;
   max-width: none;
   max-height: none;
-  box-shadow: var(--shadow-card);
+  border: 1px solid var(--line);
+  box-shadow: none;
 }
 @media (width <= 900px) {
   /* Keyboard focus must clear the sticky header, including links inside the card. */

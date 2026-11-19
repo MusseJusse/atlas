@@ -53,7 +53,7 @@ export function Efficiency() {
   return (
     <div className="grid h-dvh grid-rows-[var(--header-height)_minmax(0,1fr)] mobile:block mobile:h-auto">
       <a href="#efficiency-workspace" className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-30 focus:rounded-md focus:bg-panel focus:p-3">Skip to efficiency</a>
-      <SiteHeader current="efficiency" fetchedAt={snapshot.fetchedAt} />
+      <SiteHeader current="efficiency" />
       <main
         id="efficiency-workspace"
         tabIndex={-1}
@@ -65,7 +65,7 @@ export function Efficiency() {
       >
         <aside aria-label="Efficiency controls" className="min-h-0 min-w-0 overflow-y-auto pt-2 mobile:contents">
           <fieldset className="efficiency-filters m-0 min-w-0 border-0 p-0">
-            <legend className="mb-1 text-[11px] font-[600] tracking-[0.06em] text-fg-3 uppercase">Intelligence Index</legend>
+            <legend className="mb-1 text-[13px] font-[600]">Intelligence Index</legend>
             <p className="mt-0 mb-3 text-[12px] leading-5 text-fg-2 mobile:hidden">Show the cheapest model at or above each score.</p>
             <div className="flex flex-col gap-0.5 mobile:flex-row mobile:flex-wrap mobile:gap-x-2 mobile:gap-y-0">
               {lines.map((line) => (
@@ -135,17 +135,13 @@ export function Efficiency() {
             )}
           </div>
         </aside>
-        <section aria-labelledby="efficiency-title" className="flex min-h-0 min-w-0 flex-col overflow-y-auto rounded-xl bg-panel px-6 pt-5 pb-4 shadow-[var(--shadow-card)] mobile:contents">
+        <section aria-labelledby="efficiency-title" className="flex min-h-0 min-w-0 flex-col overflow-y-auto rounded-[14px] bg-panel px-6 pt-5 pb-4 mobile:contents">
           <div className="efficiency-heading">
-            <h1 id="efficiency-title" className="m-0 text-[25px] leading-tight font-[600] tracking-[-0.8px] phone:text-[22px]">
+            <h1 id="efficiency-title" className="display m-0 text-[30px] leading-[1.1] phone:text-[24px]">
               Cost at each intelligence threshold
             </h1>
-            <p className="mt-1 mb-0 max-w-[70ch] text-[13px] leading-5 text-fg-2">
-              Each step is a new record low: a model released that day reaches the threshold for less. Uses current prices, not historical ones.
-            </p>
-            <p className="mt-2 mb-0 flex flex-wrap gap-1.5 text-[11px] font-[550] text-fg-2">
-              <span className="rounded-[4px] bg-surface px-1.5 py-px">Cost per Intelligence Index task, USD</span>
-              <span className="rounded-[4px] bg-surface px-1.5 py-px">Log scale</span>
+            <p className="mt-1 mb-0 max-w-[72ch] text-[13px] leading-5 text-pretty text-fg-2">
+              Each step down is a new record: a model released that day reaches the threshold for less. Costs are per Intelligence Index task in USD, on a log scale, at today’s prices.
             </p>
           </div>
           <div

@@ -122,9 +122,9 @@ export const Sidebar = memo(function Sidebar({
       aria-modal={open ? true : undefined}
     >
       <div className="flex min-h-8 items-center gap-2 mobile:sticky mobile:top-0 mobile:z-[1] mobile:-mx-4 mobile:h-14 mobile:border-b mobile:border-line mobile:bg-bg mobile:px-4">
-        <h2 className="flex-1 text-[15px] font-[600] mobile:text-[17px]">
+        <h2 className="flex-1 text-[18px] font-[650] tracking-[-0.3px] mobile:text-[18px]">
           Models{' '}
-          <span className="ml-1.5 rounded-full bg-accent-soft px-2 py-0.5 text-[11px] font-[550] text-accent tabular-nums">
+          <span className="ml-1 text-[12px] font-normal tracking-normal text-fg-3 tabular-nums">
             {settings.selected.length} selected
           </span>
         </h2>
@@ -146,7 +146,7 @@ export const Sidebar = memo(function Sidebar({
           Done
         </button>
       </div>
-      <label className="flex h-10 items-center gap-2 rounded-lg bg-panel px-3 text-fg-2 shadow-[var(--shadow-raised)] focus-within:ring-2 focus-within:ring-accent mobile:h-11">
+      <label className="flex h-10 items-center gap-2 rounded-lg border border-line-2 bg-panel px-3 text-fg-2 hover:border-fg-3 focus-within:border-accent focus-within:ring-1 focus-within:ring-inset focus-within:ring-accent mobile:h-11">
         <Search size={14} aria-hidden="true" />
         <input
           className="min-w-0 flex-1 border-0 bg-transparent text-[13px] text-fg focus-visible:outline-none placeholder:text-fg-2 mobile:text-[16px]"
@@ -192,7 +192,7 @@ export const Sidebar = memo(function Sidebar({
         {sections.map((section) => (
           <div className="mb-4 last:mb-0" key={section.name}>
             <div className="mb-1 flex items-baseline gap-2.5">
-              <h3 className="flex-1 text-[11px] font-[600] tracking-[0.06em] text-fg-3 uppercase mobile:text-[12px]">{section.name}</h3>
+              <h3 className="flex-1 text-[13px] font-[600] mobile:text-[15px]">{section.name}</h3>
               {section.name !== 'Frontier' && section.items.length > 0 && (
                 <button
                   className="-my-1 min-h-6 min-w-6 text-right text-[12px] text-fg-3 hover:text-accent mobile:my-0 mobile:min-h-8 mobile:text-[14px]"
@@ -233,7 +233,7 @@ export const Sidebar = memo(function Sidebar({
         ))}
       </div>
       <div>
-        <h3 className="text-[11px] font-[600] tracking-[0.06em] text-fg-3 uppercase mobile:text-[12px]">Reasoning</h3>
+        <h3 className="text-[13px] font-[600] mobile:text-[15px]">Reasoning</h3>
         <div className="mt-2 grid grid-cols-3 gap-1 mobile:flex mobile:flex-wrap">
           {efforts.map((effort) => (
             <button

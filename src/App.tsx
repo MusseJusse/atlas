@@ -19,7 +19,7 @@ const segments = 'flex gap-0.5 rounded-md bg-surface p-0.5';
 const segment =
   'min-h-8 rounded-[5px] px-2.5 text-[12px] text-fg-2 hover:text-fg aria-pressed:bg-panel aria-pressed:font-[550] aria-pressed:text-accent aria-pressed:shadow-[var(--shadow-raised)]';
 const menuItem = 'inline-flex min-h-10 w-full items-center gap-2.5 rounded-md px-2 text-[13px] text-fg hover:bg-hover';
-const menuLabel = 'px-2 pt-2 pb-1 text-[11px] font-[550] tracking-[0.06em] text-fg-3 uppercase';
+const menuLabel = 'px-2 pt-2 pb-1 text-[12px] font-[600] text-fg-2';
 
 const loadChangelog = () => import('./Changelog');
 const loadEfficiency = () => import('./Efficiency');
@@ -145,7 +145,7 @@ function Benchmarks() {
       >
         Skip to benchmarks
       </a>
-      <SiteHeader current="benchmarks" fetchedAt={fetchedAt} onCurrent={() => navigate(views[0].id)} />
+      <SiteHeader current="benchmarks" onCurrent={() => navigate(views[0].id)} />
       <div className="grid min-h-0 grid-cols-[var(--sidebar-width)_minmax(0,1fr)] gap-6 px-7 pt-6 pb-2 short:pt-4 compact:gap-5 compact:px-5 mobile:block mobile:px-4 mobile:pt-4 mobile:pb-0">
         <Sidebar
           settings={settings}
@@ -158,7 +158,7 @@ function Benchmarks() {
         <main
           id="benchmark-workspace"
           tabIndex={-1}
-          className="grid min-h-0 min-w-0 grid-rows-[auto_minmax(0,1fr)] rounded-xl bg-panel shadow-[var(--shadow-card)] [outline:none] mobile:block"
+          className="grid min-h-0 min-w-0 grid-rows-[auto_minmax(0,1fr)] rounded-[14px] bg-panel [outline:none] mobile:block"
         >
           <h1 className="sr-only">Model benchmarks</h1>
           <div className="min-w-0 px-6 mobile:sticky mobile:top-[var(--header-height)] mobile:z-[6] mobile:rounded-t-xl mobile:bg-panel mobile:px-4">
@@ -212,13 +212,14 @@ function Benchmarks() {
                 >
                   <div className="flex shrink-0 items-start justify-between gap-3">
                     <div className="min-w-0">
-                      <h2 className="m-0 text-[25px] leading-tight font-[600] tracking-[-0.8px] phone:text-[22px]">
+                      <h2 className="display m-0 text-[30px] leading-[1.1] short:text-[24px] phone:text-[24px]">
                         {view.label}
                       </h2>
-                      <p className="mt-1 mb-0 max-w-[68ch] text-[13px] leading-5 text-fg-2 short:hidden">
+                      <p className="mt-1 mb-0 max-w-[72ch] text-[13px] leading-5 text-pretty text-fg-2 short:hidden">
                         {view.id === 'tokens-task' && scatter
                           ? 'Each point is a reasoning level. Up and to the left uses fewer tokens for more intelligence.'
                           : viewDescriptions[view.id]}
+                        {!subscription && view.metric === 'cost' && ' Costs use API prices.'}
                       </p>
                     </div>
                     <ChartOptions
@@ -301,15 +302,14 @@ function Benchmarks() {
                     </div>
                   </div>
                   {subscription && (
-                    <p className="mt-0 mb-2 shrink-0 text-[12px] leading-5 text-fg-2">
-                      <PricingTag>Estimated subscription</PricingTag>One model uses full allowance · {settings.countResets ? 'Bonus resets on where supported' : 'Bonus resets off'}
-                      {hasFallback && ' · Includes API fallback'}
-                      {scatter && settings.frontier && ' · Frontier compares subscription estimates only'}
-                      {scatter && !linear && chartRows.some((row) => row.cost === 0) && ' · Zero costs omitted on log scale'}
+                    <p className="mt-0 mb-2 max-w-[80ch] shrink-0 text-[12px] leading-5 text-fg-2">
+                      <strong className="font-[600] text-fg">Estimated subscription pricing.</strong>{' '}
+                      Assumes one model uses the whole allowance.{' '}
+                      {settings.countResets ? 'Counts bonus resets where the plan has them.' : 'Bonus resets are not counted.'}
+                      {hasFallback && ' Models without a plan use API prices.'}
+                      {scatter && settings.frontier && ' The frontier compares subscription estimates only.'}
+                      {scatter && !linear && chartRows.some((row) => row.cost === 0) && ' Configurations estimated at $0 are hidden on the log scale.'}
                     </p>
-                  )}
-                  {!subscription && view.metric === 'cost' && (
-                    <p className="mt-0 mb-2 shrink-0 text-[12px] leading-5"><PricingTag>API pricing</PricingTag></p>
                   )}
                   <Chart
                     active={mobile || active === view.id}
@@ -449,13 +449,5 @@ function ChartOptions({
         </button>
       </div>
     </details>
-  );
-}
-
-function PricingTag({ children }: { children: string }) {
-  return (
-    <span className="mr-2 inline-flex items-center rounded-[4px] bg-surface px-1.5 py-px text-[11px] font-[550] text-fg-2">
-      {children}
-    </span>
   );
 }
