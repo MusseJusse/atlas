@@ -2,6 +2,7 @@ import { useEffect, useLayoutEffect, useMemo, useRef, useState, type CSSProperti
 import { Code2, Coins, Monitor, PenLine, SearchCode } from 'lucide-react';
 import snapshot from 'virtual:benchmarks';
 import { ConfigurationDetails } from './charts/ConfigurationDetails';
+import { ChoiceMenu } from './ChoiceMenu';
 import { placeCard } from './charts/card-placement';
 import { formatUtcDate } from './formatDate';
 import { Selection } from './Selection';
@@ -10,6 +11,7 @@ import { useMediaQuery } from './useMediaQuery';
 import { VibesChart } from './VibesChart';
 import { reasoningGuidance, resolveVibes, type UseCaseIcon } from './data/vibes';
 import { modelColor, shortName } from './model-presentation';
+import type { Model } from './models';
 
 type VibeSelection = {
   family: string;
@@ -38,6 +40,7 @@ export function Vibes() {
   const [plotSize, setPlotSize] = useState({ width: 960, height: 520 });
   const chartRef = useRef<HTMLDivElement>(null);
   const picksRef = useRef<HTMLDivElement>(null);
+  const pickMenuRef = useRef<HTMLDivElement>(null);
   const overlayRef = useRef<HTMLElement>(null);
   const belowCardRef = useRef<HTMLElement>(null);
 
@@ -69,6 +72,7 @@ export function Vibes() {
     ? vibes.recommendations.find((item) => item.id === active.useCaseId) ?? null
     : null;
   const isPinned = pinned !== null;
+  const pinnedPick = pinned?.useCaseId ? vibes.recommendations.find((item) => item.id === pinned.useCaseId) ?? null : null;
   const detailsBelow = phone;
 
   const compactCard = plotSize.width < 760 ? { width: 200, padding: 12 } : {};
@@ -144,9 +148,9 @@ export function Vibes() {
     // Restore focus before clearing state so synchronous onFocus on the SVG point doesn't re-open a preview.
     if (previous && (restoreFocus || focusInDetails)) {
       if (previous.useCaseId) {
-        picksRef.current
-          ?.querySelector<HTMLButtonElement>(`button[data-use-case="${previous.useCaseId}"]`)
-          ?.focus({ preventScroll: true });
+        // Phones pick use cases from a menu instead of the row, so focus returns to its button.
+        const pick = picksRef.current?.querySelector<HTMLButtonElement>(`button[data-use-case="${previous.useCaseId}"]`);
+        (pick?.checkVisibility() ? pick : pickMenuRef.current?.querySelector('summary'))?.focus({ preventScroll: true });
       } else {
         const trigger = chartRef.current?.querySelector<SVGGElement>(`g[data-vibe-family="${previous.family}"]`);
         trigger?.focus({ preventScroll: true });
@@ -227,7 +231,7 @@ export function Vibes() {
               ref={picksRef}
               role="group"
               aria-label="Best for"
-              className="flex min-w-0 items-center gap-1.5 mobile:max-w-full mobile:overflow-x-auto mobile:[scrollbar-width:none] phone:flex-wrap phone:overflow-visible"
+              className="flex min-w-0 items-center gap-1.5 mobile:max-w-full mobile:overflow-x-auto mobile:[scrollbar-width:none] phone:hidden"
             >
               {vibes.recommendations.map((item) => {
                 const Icon = iconMap[item.icon];
@@ -281,6 +285,43 @@ export function Vibes() {
                   </button>
                 );
               })}
+            </div>
+
+            {/* Five cards would push the plot down by about 170px on phones, so they collapse into one menu. */}
+            <div ref={pickMenuRef} className="hidden w-full phone:block">
+              <ChoiceMenu
+                name="Best for"
+                label={pinnedPick ? `${pinnedPick.label}, ${shortName(pinnedPick.entry.model)}` : 'Pick a use case'}
+                options={vibes.recommendations.map((item) => {
+                  const Icon = iconMap[item.icon];
+                  return {
+                    id: item.id,
+                    label: item.label,
+                    icon: <Icon size={14} aria-hidden="true" className="shrink-0 text-fg-3" />,
+                    detail: <ModelName model={item.entry.model} />,
+                  };
+                })}
+                current={pinnedPick?.id ?? null}
+                choose={(id) => {
+                  const item = vibes.recommendations.find((pick) => pick.id === id);
+                  if (!item) return;
+                  setHovered(null);
+                  setPinned({ family: item.family, useCaseId: id });
+                }}
+                side="below"
+                align="start"
+                full
+              >
+                <span className="text-[11px] font-[450] text-fg-2">Best for</span>
+                {pinnedPick ? (
+                  <>
+                    <span className="min-w-0 truncate text-accent">{pinnedPick.label}</span>
+                    <span className="ml-auto shrink-0"><ModelName model={pinnedPick.entry.model} /></span>
+                  </>
+                ) : (
+                  <span className="text-fg-2">Pick a use case</span>
+                )}
+              </ChoiceMenu>
             </div>
 
             <div className="ml-auto flex shrink-0 items-center gap-4 phone:ml-0 phone:w-full phone:justify-between phone:gap-3">
@@ -393,5 +434,15 @@ export function Vibes() {
         </span>
       </footer>
     </div>
+  );
+}
+
+/** A model's colour dot and short name, as the picks show it. */
+function ModelName({ model }: { model: Model }) {
+  return (
+    <span className="inline-flex items-center gap-1.5 text-[12.5px] font-[560] whitespace-nowrap text-fg">
+      <span aria-hidden="true" className="size-[7px] shrink-0 rounded-full" style={{ background: modelColor(model) }} />
+      {shortName(model)}
+    </span>
   );
 }

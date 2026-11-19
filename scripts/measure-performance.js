@@ -2,7 +2,7 @@
 // Measures discrete updates through React's microtask flush and synchronous layout, excluding paint.
 (async () => {
   const initialUrl = location.href;
-  const buttons = [...document.querySelectorAll('[data-axis-menu] button')];
+  const buttons = [...document.querySelectorAll('[data-choice-menu] button')];
   const model = document.querySelector('aside button[aria-pressed][title]');
   if (!buttons.length || !model) throw new Error('Open the benchmark app before measuring.');
   const initial = {

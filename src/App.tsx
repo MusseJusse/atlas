@@ -6,7 +6,7 @@ import { Chart } from './Charts';
 import { visibleChartRows } from './chart-rows';
 import { Sidebar } from './Sidebar';
 import { Selection } from './Selection';
-import { AxisMenu, type AxisOption } from './AxisMenu';
+import { ChoiceMenu, type ChoiceOption } from './ChoiceMenu';
 import { useMediaQuery } from './useMediaQuery';
 import { fetchedAt, paretoFrontier, visibleModels } from './models';
 import { metrics, resolveView, scoreLabels, viewDescriptions, views, type ViewId } from './chart-definitions';
@@ -100,7 +100,7 @@ const verticalOptions = barViews.map((view) => ({ id: view.id, label: metrics[vi
 const horizontalOptions = [
   ...scatterViews.map((view) => ({ id: view.id, label: metrics[view.metric].label })),
   { id: 'models', label: 'Models, ranked', divider: true },
-] as const satisfies readonly AxisOption<ViewId | 'models'>[];
+] as const satisfies readonly ChoiceOption<ViewId | 'models'>[];
 
 function Benchmarks() {
   useEffect(() => { document.title = 'Atlas · AI model benchmarks'; }, []);
@@ -134,8 +134,8 @@ function Benchmarks() {
     [chartRows, view.metric, score, subscription],
   );
   const horizontalMenu = (side: 'above' | 'below', align: 'start' | 'end') => (
-    <AxisMenu
-      axis="Horizontal axis"
+    <ChoiceMenu
+      name="Horizontal axis"
       label={scatter ? `${metrics[view.metric].label}, ${linear ? 'linear' : 'log'}` : 'Models, ranked'}
       options={horizontalOptions}
       current={scatter ? view.id : 'models'}
@@ -190,8 +190,8 @@ function Benchmarks() {
           <div className="flex shrink-0 flex-wrap items-center gap-x-4 gap-y-2">
             {/* Phones put both axis menus first, so switching charts never waits below a long ranking. */}
             <div className="flex flex-wrap gap-2 phone:w-full">
-              <AxisMenu
-                axis="Vertical axis"
+              <ChoiceMenu
+                name="Vertical axis"
                 label={scatter ? scoreLabels[score] : metrics[view.metric].label}
                 options={verticalOptions}
                 current={scatter ? 'intelligence' : view.id}

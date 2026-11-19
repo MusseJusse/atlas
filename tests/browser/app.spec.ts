@@ -348,20 +348,20 @@ test('vibes page supports label clicks, pin precedence, 3D cost axis, and mobile
   await expect.poll(() => page.locator('.vibes-plot').evaluate((el) => el.getBoundingClientRect().height)).toBeGreaterThan(280);
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
 
-  // Phone width skips hover previews to prevent layout shifts and mounts pinned details below the plot.
+  // Phones collapse the picks into one menu. Picking a use case pins it below the plot.
   await page.setViewportSize({ width: 390, height: 844 });
   await page.mouse.move(1, 1);
   await expect(details).not.toBeVisible();
-  const phoneBeforeTop = await codingBtn.evaluate((el) => el.getBoundingClientRect().top);
-  await codingBtn.hover();
-  await page.evaluate(() => new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve))));
-  await expect(details).not.toBeVisible();
-  expect(await codingBtn.evaluate((el) => el.getBoundingClientRect().top)).toBe(phoneBeforeTop);
-  await codingBtn.click();
+  await expect(codingBtn).toBeHidden();
+  const pickMenu = page.locator('summary[aria-label^="Best for"]');
+  await pickMenu.click();
+  await page.getByRole('group', { name: 'Best for' }).getByRole('button', { name: /Coding/ }).click();
   await expect(details).toBeVisible();
   await expect(details).toHaveAttribute('data-placement', 'below');
-  await codingBtn.click();
+  await expect(pickMenu).toHaveAttribute('aria-label', 'Best for: Coding, Opus 5.5');
+  await page.keyboard.press('Escape');
   await expect(details).not.toBeVisible();
+  await expect(pickMenu).toHaveAttribute('aria-label', 'Best for: Pick a use case');
 
   await page.setViewportSize({ width: 320, height: 740 });
   await expect.poll(() =>
