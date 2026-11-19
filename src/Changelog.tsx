@@ -65,7 +65,7 @@ function FieldRow({ fieldChange, compact }: { fieldChange: FieldChange; compact:
     <>
       {/* The whole row is a tap target on phones; the field button gives keyboard and screen reader access. */}
       <tr className={`border-t border-line align-top${expandable ? ' cursor-pointer' : ''}`} onClick={expandable ? () => setOpen(!open) : undefined}>
-        <th scope="row" className="px-3 py-1.5 font-normal text-fg-2 [overflow-wrap:anywhere]">
+        <th scope="row" className="px-3 py-1.5 font-normal text-fg-2 max-[360px]:px-2">
           {expandable ? (
             <button
               aria-expanded={open}
@@ -73,15 +73,18 @@ function FieldRow({ fieldChange, compact }: { fieldChange: FieldChange; compact:
               onClick={(event) => { event.stopPropagation(); setOpen(!open); }}
               className="text-left hover:text-fg"
             >
-              {label}
+              {/* The chevron rides on the last word, so it never takes width from the value columns. */}
+              {label.slice(0, label.lastIndexOf(' ') + 1)}
+              <span className="whitespace-nowrap">
+                {label.slice(label.lastIndexOf(' ') + 1)}
+                <ChevronDown size={12} aria-hidden="true" className={`ml-0.5 inline align-[-1px]${open ? ' rotate-180' : ''}`} />
+              </span>
             </button>
           ) : label}
         </th>
-        <td className="py-1.5 pr-3 text-right text-fg-2 tabular-nums [overflow-wrap:break-word]">{value(shown[0])}</td>
-        <td className="py-1.5 pr-3 text-right font-[550] tabular-nums [overflow-wrap:break-word]">
+        <td className="py-1.5 pr-3 text-right text-fg-2 tabular-nums [overflow-wrap:break-word] phone:whitespace-nowrap max-[360px]:pr-2">{value(shown[0])}</td>
+        <td className="py-1.5 pr-3 text-right font-[550] tabular-nums [overflow-wrap:break-word] phone:whitespace-nowrap max-[360px]:pr-2">
           {value(shown[1])}
-          {/* The chevron ends the row so the field name keeps the full first column. */}
-          {expandable && <ChevronDown size={12} aria-hidden="true" className={`ml-1 inline align-[-1px] text-fg-2${open ? ' rotate-180' : ''}`} />}
         </td>
       </tr>
       {expandable && (
@@ -192,16 +195,16 @@ export function Changelog({ history = bundledHistory }: { history?: ChangeHistor
                     <p className="mt-0.5 mb-0 text-[12px] text-fg-2">No longer listed on Artificial Analysis</p>
                   )}
                   {change.fields.length > 0 && (
-                    <table className="mt-3 w-full table-fixed border-collapse overflow-hidden rounded-md bg-surface text-left text-[12px] leading-5">
+                    <table className="mt-3 w-full table-fixed border-collapse overflow-hidden rounded-md bg-surface text-left text-[12px] leading-5 max-[360px]:text-[11px]">
                       <caption className="sr-only">
                         Changed values for {change.name}, {change.effortLabel}
                       </caption>
                       <thead className="text-fg-2">
                         <tr>
-                          <th scope="col" className="w-[30%] px-3 pt-2 pb-1.5 font-normal phone:w-[38%]">
+                          <th scope="col" className="w-[30%] px-3 pt-2 pb-1.5 font-normal phone:w-[38%] max-[360px]:w-[28%]">
                             Field
                           </th>
-                          <th scope="col" className="w-[35%] pt-2 pr-3 pb-1.5 text-right font-normal phone:w-[31%]">
+                          <th scope="col" className="w-[35%] pt-2 pr-3 pb-1.5 text-right font-normal phone:w-[31%] max-[360px]:w-[37%] max-[360px]:pr-2">
                             Before
                           </th>
                           <th scope="col" className="pt-2 pr-3 pb-1.5 text-right font-normal">

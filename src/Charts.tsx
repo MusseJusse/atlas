@@ -19,6 +19,7 @@ import { ConfigurationDetails } from './charts/ConfigurationDetails';
 import { Scatter } from './charts/Scatter';
 import { Bars, FixedBarAxis } from './charts/Bars';
 import { Ranking } from './charts/Ranking';
+import { useScrollEdges } from './useScrollEdges';
 import { barLayout, combinedBarWidth, measureRows, measureScatterRows, separateBarWidth } from './charts/geometry';
 import type { Interactions } from './charts/interactions';
 
@@ -120,12 +121,7 @@ export const Chart = memo(function Chart({
     togglePin: (model) => setPinnedId((previous) => previous === model.id ? null : model.id),
     highlight: (id) => flushSync(() => onHighlight(id)),
   };
-  const [overflow, setOverflow] = useState({ start: false, end: false });
-  function updateOverflow(element: HTMLDivElement | null) {
-    if (!element) return;
-    const next = { start: element.scrollLeft > 1, end: element.scrollLeft + element.clientWidth < element.scrollWidth - 1 };
-    setOverflow((current) => current.start === next.start && current.end === next.end ? current : next);
-  }
+  const [overflow, updateOverflow, overflowRef] = useScrollEdges();
   const legend = [...new Map(validRows.map((row) => [row.codingAgent ? row.id : row.family, row])).values()];
 
   function closeOnBackground(event: MouseEvent<SVGSVGElement>) {
@@ -167,7 +163,7 @@ export const Chart = memo(function Chart({
             <div
               className="absolute inset-0 overflow-x-auto overflow-y-hidden [scrollbar-width:thin] focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-accent"
               onScroll={(event) => updateOverflow(event.currentTarget)}
-              ref={updateOverflow}
+              ref={overflowRef}
               // Wide plots scroll; the region is a tab stop so arrow keys can pan it.
               {...(plotWidth > width ? { tabIndex: 0, role: 'region', 'aria-label': `${view.label}, scrolls sideways to show all ${legend.length} models` } : {})}
             >

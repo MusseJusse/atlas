@@ -8,6 +8,7 @@ import { visibleChartRows } from './chart-rows';
 import { Sidebar } from './Sidebar';
 import { Selection } from './Selection';
 import { useMediaQuery } from './useMediaQuery';
+import { useScrollEdges } from './useScrollEdges';
 import { useChartNavigation } from './useChartNavigation';
 import { fetchedAt, paretoFrontier, visibleModels } from './models';
 import { resolveView, viewDescriptions, views } from './chart-definitions';
@@ -98,6 +99,7 @@ function Benchmarks() {
   const mobile = useMediaQuery('(max-width: 900px)');
   const phone = useMediaQuery('(max-width: 600px)');
   const { active, navigate, feed, chartNavigation } = useChartNavigation(mobile);
+  const [tabEdges, updateTabEdges, tabEdgesRef] = useScrollEdges();
   const stickyBar = useRef<HTMLDivElement>(null);
   // Phone sections scroll to just below the sticky bar, whose height changes with the open category.
   // The section's top rule tucks under the bar's own border so the two never double up.
@@ -190,7 +192,10 @@ function Benchmarks() {
               <span className="ml-auto rounded-md bg-accent-soft px-2.5 py-1 text-[12px] font-[550] text-accent">Edit selection</span>
             </button>
             <div ref={chartNavigation}><nav
-
+              ref={tabEdgesRef}
+              onScroll={(event) => updateTabEdges(event.currentTarget)}
+              // Fade whichever edge hides more tabs, since overlay scrollbars give no other cue.
+              style={tabEdges.start || tabEdges.end ? { maskImage: `linear-gradient(to right, ${tabEdges.start ? 'transparent, #000 32px' : '#000'}, ${tabEdges.end ? '#000 calc(100% - 32px), transparent' : '#000'})` } : undefined}
               className="flex mobile:hidden min-w-0 gap-6 overflow-x-auto border-b border-line [scrollbar-width:thin] [scrollbar-color:var(--line-2)_transparent] compact:gap-5"
               aria-label="Chart views"
             >

@@ -47,7 +47,7 @@
     --thumb: var(--lightningcss-light, #fff) var(--lightningcss-dark, #2b3a56);
     /* Empty checkbox outlines meet 3:1 against the sheet. */
     --control-border: var(--lightningcss-light, #8592a8) var(--lightningcss-dark, #73829c);
-    --scroll-shadow: var(--lightningcss-light, rgb(23 33 58 / 0.08)) var(--lightningcss-dark, rgb(0 0 0 / 0.45));
+    --scroll-shadow: var(--lightningcss-light, rgb(23 33 58 / 0.14)) var(--lightningcss-dark, rgb(0 0 0 / 0.45));
     --positive: var(--lightningcss-light, #17734c) var(--lightningcss-dark, #74d3a8);
     --positive-soft: var(--lightningcss-light, #ddf2e7) var(--lightningcss-dark, #1d3b34);
     --negative: var(--lightningcss-light, #b4372f) var(--lightningcss-dark, #ffa296);

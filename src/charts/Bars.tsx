@@ -6,7 +6,7 @@ import { format, formatModelValue } from '../formatModel';
 import { metrics, type Metric } from '../chart-definitions';
 import type { Settings } from '../state';
 import { pinHandlers, type Interactions } from './interactions';
-import { barGeometry, type MeasuredRow } from './geometry';
+import { barGeometry, captionLines, type MeasuredRow } from './geometry';
 
 export function Bars({
   rows,
@@ -211,28 +211,6 @@ export function Bars({
       )}
     </>
   );
-}
-
-// Rough 13px DM Sans advances: narrow punctuation and digits, wide capitals, and an average for the rest.
-const captionGlyph = (char: string) => '.,-1 ilIjt()'.includes(char) ? 4 : 'MWmw'.includes(char) ? 11 : /[A-Z0-9]/.test(char) ? 8.4 : 7;
-const captionWidth = (text: string) => [...text].reduce((sum, char) => sum + captionGlyph(char), 0);
-
-/**
- * Fit a 13px model name under its group: one line when it fits, otherwise two lines split at the
- * space nearest the middle, with any line still too wide cut short with an ellipsis.
- */
-function captionLines(name: string, width: number) {
-  const fit = (line: string) => {
-    if (captionWidth(line) <= width) return line;
-    let cut = line;
-    while (cut.length > 1 && captionWidth(`${cut}…`) > width) cut = cut.slice(0, -1);
-    return `${cut.trimEnd()}…`;
-  };
-  if (captionWidth(name) <= width) return [name];
-  const spaces = [...name.matchAll(/ /g)].map((match) => match.index);
-  if (!spaces.length) return [fit(name)];
-  const split = spaces.reduce((best, index) => Math.abs(index - name.length / 2) < Math.abs(best - name.length / 2) ? index : best);
-  return [fit(name.slice(0, split)), fit(name.slice(split + 1))];
 }
 
 /** Keep the value reference visible while dense columns scroll underneath. */

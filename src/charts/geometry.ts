@@ -2,6 +2,7 @@ import { barDomain, linearScale, logScale } from '../scales';
 import { scatterDomain, scatterRows } from '../scatter-data';
 import { barGroups, paretoFrontier, type Model } from '../models';
 import { format, formatModelValue } from '../formatModel';
+import { shortName } from '../model-presentation';
 import type { Metric, ScoreMetric } from '../chart-definitions';
 
 export type MeasuredRow = Model & { value: number };
@@ -109,20 +110,53 @@ export function scatterGeometry(
 
 export const barLayout = { left: 64, narrowLeft: 46, right: 18, padding: 16, gap: 4, gapRatio: 0.025, markerWidth: 12 };
 
+// Rough 13px DM Sans advances: narrow punctuation and digits, wide capitals, and an average for the rest.
+const captionGlyph = (char: string) => '.,-1 ilIjt()'.includes(char) ? 4 : 'MWmw'.includes(char) ? 11 : /[A-Z0-9]/.test(char) ? 8.4 : 7;
+export const captionWidth = (text: string) => [...text].reduce((sum, char) => sum + captionGlyph(char), 0);
+
+/**
+ * Fit a 13px model name under its group: one line when it fits, otherwise two lines split at the
+ * space nearest the middle, with any line still too wide cut short with an ellipsis.
+ */
+export function captionLines(name: string, width: number) {
+  const fit = (line: string) => {
+    if (captionWidth(line) <= width) return line;
+    let cut = line;
+    while (cut.length > 1 && captionWidth(`${cut}…`) > width) cut = cut.slice(0, -1);
+    return `${cut.trimEnd()}…`;
+  };
+  if (captionWidth(name) <= width) return [name];
+  const spaces = [...name.matchAll(/ /g)].map((match) => match.index);
+  if (!spaces.length) return [fit(name)];
+  const split = spaces.reduce((best, index) => Math.abs(index - name.length / 2) < Math.abs(best - name.length / 2) ? index : best);
+  return [fit(name.slice(0, split)), fit(name.slice(split + 1))];
+}
+
+/** The wider line of a name's two-line caption, before any truncation. */
+function captionSpan(name: string) {
+  if (!name.includes(' ')) return captionWidth(name);
+  const spaces = [...name.matchAll(/ /g)].map((match) => match.index);
+  const split = spaces.reduce((best, index) => Math.abs(index - name.length / 2) < Math.abs(best - name.length / 2) ? index : best);
+  return Math.min(captionWidth(name), Math.max(captionWidth(name.slice(0, split)), captionWidth(name.slice(split + 1))));
+}
+
 /**
  * Separate bars scroll once a group could no longer fit 5px bars and a 52px caption, as with the All preset.
+ * Once scrolling, width is free, so groups also widen until both caption lines fit untruncated.
  * Weights match barGeometry, where a group spans max(3, bars) shares of the plot.
  */
 export function separateBarWidth(rows: Model[], width: number, grouped: boolean) {
-  const counts = new Map<string, number>();
+  const groups = new Map<string, Model[]>();
   for (const row of rows) {
     const key = grouped ? row.family : row.id;
-    counts.set(key, (counts.get(key) ?? 0) + 1);
+    groups.set(key, [...(groups.get(key) ?? []), row]);
   }
-  const weights = [...counts.values()].map((count) => Math.max(3, count));
-  const share = Math.max(0, ...[...counts.values()].map((count) => Math.max(52, count * (5 + barLayout.gap) + barLayout.padding) / Math.max(3, count)));
-  const total = weights.reduce((sum, weight) => sum + weight, 0);
-  return Math.max(width, Math.ceil(total * share + barLayout.left + barLayout.right));
+  const total = [...groups.values()].reduce((sum, group) => sum + Math.max(3, group.length), 0);
+  const plot = (minimum: (group: Model[]) => number) =>
+    Math.ceil(total * Math.max(0, ...[...groups.values()].map((group) => minimum(group) / Math.max(3, group.length))) + barLayout.left + barLayout.right);
+  const bars = (group: Model[]) => Math.max(52, group.length * (5 + barLayout.gap) + barLayout.padding);
+  if (plot(bars) <= width) return width;
+  return Math.max(width, plot((group) => Math.max(bars(group), captionSpan(shortName(group[0]!)) + 8)));
 }
 
 /** Dense grouped bar plots scroll only when configuration targets cannot fit. */
@@ -177,7 +211,7 @@ export function barGeometry(
       else positive = row.value;
       const x = start + (combined ? 0 : index * (barWidth + gap));
       const endpoint = !combined || row.value === (row.value < 0 ? group.minimum : group.maximum);
-      const text = barWidth > 8 && endpoint && (!combined || ordered.findLast((item) => item.value === row.value)?.id === row.id) ? formatModelValue(row, metric, true) : '';
+      const text = barWidth > 8 && endpoint && (!combined || ordered.findLast((item) => item.value === row.value)?.id === row.id) ? valueLabel(row, metric) : '';
       return { row, x, baseline, labelX: x + barWidth / 2, labelY: 0, text };
     });
     // Keep DOM and keyboard order aligned with the effort markers, independently
@@ -193,6 +227,11 @@ export function barGeometry(
 type LaidOutGroup = { barWidth: number; bars: { row: MeasuredRow; x: number; labelX: number; labelY: number; text: string }[] };
 
 // Glyph side bearings already leave air between labels, so 1px of extra gap reads as separate.
+/** Bar prices keep cents ("$3.10", not "$3.1") so neighbours share precision; sub-cent prices need the compact form. */
+function valueLabel(row: MeasuredRow, metric: Metric) {
+  return formatModelValue(row, metric, metric !== 'cost' || row.value < 0.001);
+}
+
 const valueLabelMetrics = { lineHeight: 17, gap: 1 };
 // Advance widths of 11px DM Sans UI, measured in the browser. Other characters use the widest digit.
 const glyphWidths: Record<string, number> = { '1': 3.7, '.': 2.3, ',': 2.3, '-': 6, '$': 6.5, M: 9.2, k: 5.6, s: 5.6, ' ': 2.6 };

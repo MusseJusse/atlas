@@ -68,9 +68,9 @@ export function Efficiency() {
           <fieldset className="efficiency-filters m-0 min-w-0 border-0 p-0">
             <legend className="mb-1 text-[18px] font-[650] tracking-[-0.3px]">Intelligence index</legend>
             <p className="mt-0 mb-3 text-[12px] leading-5 text-fg-2 mobile:hidden">Track record-low cost at or above each score.</p>
-            <div className="flex flex-col gap-0.5 mobile:grid mobile:grid-cols-6 mobile:gap-x-3 phone:grid-cols-3">
+            <div className="flex flex-col gap-0.5 mobile:grid mobile:grid-cols-6 mobile:gap-x-3 phone:grid-cols-[repeat(3,auto)] phone:justify-between phone:gap-x-1">
               {lines.map((line) => (
-                <label key={line.threshold} className="flex min-h-8 cursor-pointer items-center gap-2.5 rounded-md px-1.5 text-[13px] text-fg-2 hover:bg-hover hover:text-fg has-[:checked]:font-[550] has-[:checked]:text-fg mobile:min-h-11 mobile:text-[15px]" style={{ '--line-color': efficiencyColors[line.threshold] } as CSSProperties}>
+                <label key={line.threshold} className="flex min-h-8 cursor-pointer items-center gap-2.5 rounded-md px-1.5 text-[13px] phone:gap-1.5 phone:px-1 text-fg-2 hover:bg-hover hover:text-fg has-[:checked]:font-[550] has-[:checked]:text-fg mobile:min-h-11 mobile:text-[15px]" style={{ '--line-color': efficiencyColors[line.threshold] } as CSSProperties}>
                   <input
                     type="checkbox"
                     checked={settings.thresholds.includes(line.threshold)}
@@ -85,7 +85,7 @@ export function Efficiency() {
                   />
                   {/* A line swatch sits where Benchmarks shows a lab logo, and the check stays on the right.
                       In the phone grid the check stays beside its own label instead of near the next column. */}
-                  <span aria-hidden="true" className="h-0.5 w-3.5 shrink-0 rounded-full bg-[var(--line-color)]" />
+                  <span aria-hidden="true" className="h-0.5 w-3.5 shrink-0 rounded-full bg-[var(--line-color)] phone:w-3" />
                   <span className="flex-1 tabular-nums whitespace-nowrap mobile:flex-none">≥ {line.threshold}</span>
                   {!line.points.length && <span className="text-[11px] font-normal text-fg-2">No data</span>}
                   <span
