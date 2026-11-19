@@ -129,6 +129,17 @@ function Benchmarks() {
     () => new Set(paretoFrontier(subscription ? chartRows.filter((row) => row.taskPricing?.basis === 'subscription') : chartRows, view.metric, (model) => model[score]).map((model) => model.family)),
     [chartRows, view.metric, score, subscription],
   );
+  const horizontalMenu = (side: 'above' | 'below', align: 'start' | 'end') => (
+    <AxisMenu
+      axis="Horizontal axis"
+      label={scatter ? `${metrics[view.metric].label}, ${linear ? 'linear' : 'log'}` : 'Models, ranked'}
+      options={horizontalOptions}
+      current={scatter ? view.id : 'models'}
+      choose={(id) => { if (id !== 'models') setActive(id); else if (scatter) setActive('intelligence'); }}
+      side={side}
+      align={align}
+    />
+  );
   const hasFallback = !(scatter && settings.frontier) && chartRows.some((row) => row.cost !== null && row.taskPricing?.basis === 'api-fallback');
 
   useEffect(() => {
@@ -144,10 +155,10 @@ function Benchmarks() {
   }, []);
 
   return (
-    <div className="grid h-dvh grid-rows-[var(--header-height)_minmax(0,1fr)_auto] mobile:block mobile:h-auto">
+    <div className="grid h-dvh grid-rows-[var(--header-height)_minmax(0,1fr)_auto] phone:block phone:h-auto">
       <a
         href="#benchmark-workspace"
-        className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-30 focus:rounded-md focus:bg-panel focus:p-3"
+        className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-40 focus:rounded-md focus:bg-panel focus:p-3"
       >
         Skip to benchmarks
       </a>
@@ -167,7 +178,7 @@ function Benchmarks() {
       >
         <h1 className="sr-only">Model benchmarks</h1>
         <section
-          className="chart-section flex h-full flex-col px-6 pt-4 pb-3 mobile:h-auto mobile:px-4 mobile:pb-5"
+          className="chart-section flex h-full flex-col px-6 pt-4 pb-3 phone:h-auto mobile:px-4 mobile:pb-5"
           id={view.id}
           aria-label={view.label}
         >
@@ -182,9 +193,11 @@ function Benchmarks() {
               side="below"
               align="start"
             />
-            {/* Phones keep the model and settings buttons beside the vertical axis, with scatter controls on their own row. */}
+            {/* Phones put both axis menus first, so switching charts never waits below a long ranking. */}
+            <div className="hidden phone:block">{horizontalMenu('below', 'start')}</div>
+            <span aria-hidden="true" className="hidden phone:block phone:basis-full" />
             {scatter && (
-              <div className="ml-auto flex items-center gap-4 phone:order-last phone:ml-0 phone:w-full phone:justify-between">
+              <div className="ml-auto flex items-center gap-4 phone:ml-0 phone:gap-3">
                 <button
                   className="inline-flex min-h-9 items-center gap-2 rounded-md px-1 text-[13px] text-fg hover:text-accent aria-pressed:text-accent"
                   aria-pressed={settings.frontier}
@@ -212,17 +225,18 @@ function Benchmarks() {
                 </div>
               </div>
             )}
-            <div className={`flex items-center gap-3 ${scatter ? '' : 'ml-auto'} phone:ml-auto`}>
+            <div className="ml-auto flex items-center gap-3 phone:gap-2">
               <button
                 className="inline-flex min-h-10 items-center gap-2 rounded-lg border border-line pr-2 pl-3 text-[13px] text-fg-2 hover:border-line-2 hover:bg-hover hover:text-fg aria-expanded:border-accent aria-expanded:text-accent"
                 onClick={() => setPickerOpen(true)}
                 aria-haspopup="dialog"
                 aria-controls="model-filters"
                 aria-expanded={pickerOpen}
+                aria-keyshortcuts="/"
               >
                 <Search size={14} aria-hidden="true" />
-                <span><span className="font-[600] text-fg tabular-nums">{settings.selected.length}</span> {settings.selected.length === 1 ? 'model' : 'models'}</span>
-                <kbd className="flex size-5 items-center justify-center rounded-[4px] border border-line font-sans text-[11px] text-fg-3 mobile:hidden">/</kbd>
+                <span><span className="font-[600] text-fg tabular-nums">{settings.selected.length}</span><span className="phone:sr-only"> {settings.selected.length === 1 ? 'model' : 'models'}</span></span>
+                <kbd aria-hidden="true" className="flex size-5 items-center justify-center rounded-[4px] border border-line font-sans text-[11px] text-fg-3 mobile:hidden">/</kbd>
               </button>
               <ChartOptions
                 settings={settings}
@@ -246,7 +260,6 @@ function Benchmarks() {
           )}
           <Chart
             key={view.id}
-            active
             phone={phone}
             view={view}
             rows={plotted}
@@ -260,15 +273,7 @@ function Benchmarks() {
               {viewDescriptions[view.id]}
               {!subscription && view.metric === 'cost' && ' Costs use API prices.'}
             </p>
-            <AxisMenu
-              axis="Horizontal axis"
-              label={scatter ? `${metrics[view.metric].label}, ${linear ? 'linear' : 'log'}` : 'Models, ranked'}
-              options={horizontalOptions}
-              current={scatter ? view.id : 'models'}
-              choose={(id) => { if (id !== 'models') setActive(id); else if (scatter) setActive('intelligence'); }}
-              side="above"
-              align="end"
-            />
+            <div className="ml-auto phone:hidden">{horizontalMenu('above', 'end')}</div>
           </div>
         </section>
       </main>
@@ -319,9 +324,9 @@ function ChartOptions({
     const element = menu.current;
     if (!element) return;
     // Open toward whichever side of the trigger has more of the visible chart area.
-    // On phones the sticky header and chart bar cover the top of the feed, so space above starts below them.
+    // On phones the sticky header covers the top of the page, so space above starts below it.
     const feed = element.closest('section')?.parentElement?.getBoundingClientRect();
-    const stickyBottom = document.querySelector('[data-sticky-bar]')?.getBoundingClientRect().bottom ?? 0;
+    const stickyBottom = document.querySelector('header')?.getBoundingClientRect().bottom ?? 0;
     const trigger = element.getBoundingClientRect();
     const below = Math.min(window.innerHeight, feed?.bottom ?? window.innerHeight) - trigger.bottom - 18;
     const above = trigger.top - Math.max(0, feed?.top ?? 0, stickyBottom) - 18;

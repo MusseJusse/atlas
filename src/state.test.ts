@@ -73,7 +73,7 @@ describe('URL settings', () => {
       const settings = readSettings(search);
       const url = writeSettings(settings, readView(search));
       expect(readSettings(url)).toEqual(settings);
-      expect(readView(url)).toBe('tokens-task');
+      expect(readView(url)).toBe('tokens-ranking');
       expect(url).not.toContain('unknown');
       expect(settings.descending).toBe(sort === '&sort=asc' ? false : sort === '&sort=desc' ? true : null);
     },

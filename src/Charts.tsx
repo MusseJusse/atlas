@@ -56,7 +56,6 @@ function useSize(enabled: boolean) {
 }
 
 export const Chart = memo(function Chart({
-  active,
   phone,
   view,
   rows,
@@ -65,7 +64,6 @@ export const Chart = memo(function Chart({
   pricingContext,
   onHighlight,
 }: {
-  active: boolean;
   phone: boolean;
   view: View;
   rows: Model[];
@@ -74,34 +72,9 @@ export const Chart = memo(function Chart({
   pricingContext?: string[];
   onHighlight: (id: string | null) => void;
 }) {
-  const [visited, setVisited] = useState(active);
-  const hydrated = useHydrated();
-  const ready = hydrated && (active || visited);
+  const ready = useHydrated();
   const { scatter, linear, score } = resolveView(view, settings);
   const { ref, width, height } = useSize(ready && (scatter || !phone));
-
-  // Desktop sections have a fixed height, so charts can mount just before scrolling into view.
-  // Keep visited charts mounted to preserve pinned details and avoid navigation fetches.
-  useEffect(() => {
-    if (visited) return;
-    if (active) {
-      setVisited(true);
-      return;
-    }
-    const section = ref.current?.closest('section');
-    if (!section) return;
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries.some((entry) => entry.isIntersecting)) {
-          setVisited(true);
-          observer.disconnect();
-        }
-      },
-      { rootMargin: '100px' },
-    );
-    observer.observe(section);
-    return () => observer.disconnect();
-  }, [active, visited]);
   const [hoveredId, setHoveredId] = useState<string | null>(null);
   const [pinnedId, setPinnedId] = useState<string | null>(null);
   const prepared = useMemo(
@@ -220,7 +193,7 @@ export const Chart = memo(function Chart({
       }}
     >
       <div
-        className={`relative min-h-0 flex-1 mobile:aspect-[1/1.2] mobile:flex-none ${!scatter && (!ready || validRows.length > 0) ? 'phone:pointer-events-none phone:invisible phone:absolute phone:h-px phone:w-full phone:aspect-auto' : ''}`}
+        className={`relative min-h-0 flex-1 phone:aspect-[1/1.2] phone:flex-none ${!scatter && (!ready || validRows.length > 0) ? 'phone:pointer-events-none phone:invisible phone:absolute phone:h-px phone:w-full phone:aspect-auto' : ''}`}
         ref={ref}
       >
         {ready &&

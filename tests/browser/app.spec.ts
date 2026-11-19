@@ -81,15 +81,17 @@ test('saved dark views and back/forward restore chart and filter state', async (
 test('axis menus switch between scatter plots and rankings', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto('/');
-  await page.locator('summary[aria-label^="Horizontal axis"]').click();
-  await page.getByRole('button', { name: 'Time per task', exact: true }).click();
+  await page.locator('summary[aria-label^="Horizontal axis"]:visible').click();
+  const menu = page.getByRole('group', { name: 'Horizontal axis' }).filter({ visible: true });
+  expect((await menu.boundingBox())!.x).toBeGreaterThanOrEqual(0);
+  await menu.getByRole('button', { name: 'Time per task', exact: true }).click();
   await expect(page).toHaveURL(/chart=time-intelligence/);
   await expect(page.locator('#time-intelligence svg[role=group]')).toBeVisible();
   await page.locator('summary[aria-label^="Vertical axis"]').click();
   await page.getByRole('button', { name: 'Time per task', exact: true }).click();
   await expect(page).toHaveURL(/chart=time-task/);
   await expect(page.locator('#time-task .ranking-row').first()).toBeVisible();
-  await expect(page.locator('summary[aria-label="Horizontal axis: Models, ranked"]')).toBeVisible();
+  await expect(page.locator('summary[aria-label="Horizontal axis: Models, ranked"]:visible')).toBeVisible();
 });
 
 test('the model picker opens from its button or the slash key and closes outside it', async ({ page }) => {
@@ -102,8 +104,12 @@ test('the model picker opens from its button or the slash key and closes outside
   await expect(picker.getByRole('textbox', { name: 'Find models' })).toBeFocused();
   await picker.getByRole('button', { name: /Gemini 4 Neon/ }).click();
   await expect(page.locator('button[aria-controls="model-filters"]')).toContainText('8 models');
-  await page.mouse.click(200, 400);
+  // The click that closes the picker must not also flip the control under it.
+  const frontier = page.getByRole('button', { name: 'Frontier', exact: true });
+  const box = (await frontier.boundingBox())!;
+  await page.mouse.click(box.x + box.width / 2, box.y + box.height / 2);
   await expect(picker).toHaveCount(0);
+  await expect(frontier).toHaveAttribute('aria-pressed', 'false');
   await page.setViewportSize({ width: 390, height: 844 });
   await page.locator('button[aria-controls="model-filters"]').click();
   await expect(picker).toBeVisible();
@@ -189,7 +195,7 @@ test('combined bars are opt-in from chart settings and survive a reload', async 
   await expect.poll(positions).toEqual(separate);
 });
 
-for (const view of ['cost-task', 'time-task', 'tokens-task', 'tokens-total']) {
+for (const view of ['cost-task', 'time-task', 'tokens-ranking', 'tokens-total']) {
   test(`combined bars apply to ${view} and can be switched off`, async ({ page }) => {
     await page.goto(`/?chart=${view}&selected=gpt-6-1-terra&combined=true`);
     const section = page.locator(`#${view}`);

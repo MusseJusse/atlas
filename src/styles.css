@@ -356,10 +356,5 @@
 @media (width <= 900px) { .ranking-row, .ranking-configurations button, .ranking-expanded { scroll-margin-top: calc(var(--header-height) + 12px); } }
 
 .ranking-toolbar { min-height: 44px; padding-block: 4px; }
-.benchmark-feed { scrollbar-width: auto; scrollbar-gutter: stable; }
-.benchmark-feed::-webkit-scrollbar { width: 8px; }
-.benchmark-feed::-webkit-scrollbar-track { background: var(--panel); }
-.benchmark-feed::-webkit-scrollbar-thumb { background: var(--line-2); border: 2px solid var(--panel); border-radius: 8px; }
-@media (width <= 900px) { .benchmark-feed { scrollbar-gutter: auto; } }
 
 }

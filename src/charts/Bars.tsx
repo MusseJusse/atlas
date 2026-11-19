@@ -22,7 +22,6 @@ export function Bars({
   width: number;
   height: number;
   interactions: Interactions;
-  /** A scrolling plot draws its unit and ticks in FixedBarAxis instead, so they aren't doubled underneath. */
 }) {
   const clipId = useId();
   const combined = settings.grouped && settings.combined;

@@ -9,8 +9,13 @@ it.each(views)('preserves the $id URL and chart mode', (view) => {
 });
 
 it('resolves the scale by view even when a scatter and a bar chart share a metric', () => {
-  const settings = readSettings('?linear=tokens-intelligence,cost-task');
+  const settings = readSettings('?linear=tokens-task,cost-task');
   const linear = views.filter((view) => resolveView(view, settings).linear).map((view) => view.id);
-  expect(linear).toEqual(['tokens-intelligence', 'cost-task']);
-  expect(readSettings(writeSettings(settings, 'tokens-task'))).toEqual(settings);
+  expect(linear).toEqual(['tokens-task', 'cost-task']);
+  expect(readSettings(writeSettings(settings, 'tokens-ranking'))).toEqual(settings);
+});
+
+it('opens saved tokens links as the chart they showed before axis menus', () => {
+  expect(readView('?chart=tokens-task')).toBe('tokens-task');
+  expect(readView('?chart=tokens-task&scatter=false')).toBe('tokens-ranking');
 });

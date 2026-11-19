@@ -24,6 +24,14 @@ export function AxisMenu<Id extends string>({
 }) {
   const menu = useRef<HTMLDetailsElement>(null);
   const [open, setOpen] = useState(false);
+  // A wrapped trigger can sit at either edge, so flip the menu when the preferred side would leave the viewport.
+  const [edge, setEdge] = useState(align);
+  function fit() {
+    const trigger = menu.current?.getBoundingClientRect();
+    if (!trigger) return;
+    const width = 220 + 8;
+    setEdge(align === 'end' ? (trigger.right - width < 0 ? 'start' : 'end') : (trigger.left + width > innerWidth ? 'end' : 'start'));
+  }
   useEffect(() => {
     if (!open) return;
     const outside = (event: PointerEvent) => {
@@ -43,6 +51,16 @@ export function AxisMenu<Id extends string>({
       data-axis-menu
       className="group relative shrink-0"
       onToggle={(event) => setOpen(event.currentTarget.open)}
+      onClickCapture={(event) => {
+        // Summary clicks run before the menu opens, so its first frame already sits on the fitting side.
+        if (!menu.current?.open && event.target instanceof Element && event.target.closest('summary')) fit();
+      }}
+      onBlur={(event) => {
+        // Close when keyboard focus moves elsewhere. A null target is a pointer press, which the outside listener handles,
+        // and Safari doesn't focus buttons on click, so closing then would swallow the option click.
+        const next = event.relatedTarget;
+        if (menu.current?.open && next instanceof Node && !menu.current.contains(next)) menu.current.open = false;
+      }}
       onKeyDown={(event) => {
         if (event.key === 'Escape' && menu.current?.open) {
           close();
@@ -58,7 +76,7 @@ export function AxisMenu<Id extends string>({
         <ChevronDown size={14} aria-hidden="true" className="text-fg-2 group-open:rotate-180 group-open:text-accent" />
       </summary>
       <div
-        className={`absolute ${side === 'below' ? 'top-[calc(100%+6px)]' : 'bottom-[calc(100%+6px)]'} ${align === 'start' ? 'left-0' : 'right-0'} z-20 flex w-[220px] flex-col gap-0.5 rounded-xl bg-panel p-1.5 shadow-[var(--shadow-pop)]`}
+        className={`absolute ${side === 'below' ? 'top-[calc(100%+6px)]' : 'bottom-[calc(100%+6px)]'} ${edge === 'start' ? 'left-0' : 'right-0'} z-20 flex w-[220px] flex-col gap-0.5 rounded-xl bg-panel p-1.5 shadow-[var(--shadow-pop)]`}
         role="group"
         aria-label={axis}
       >

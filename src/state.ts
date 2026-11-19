@@ -59,7 +59,10 @@ export function readSettings(search: string): Settings {
 }
 
 export function readView(search: string): ViewId {
-  const id = new URLSearchParams(search).get('chart');
+  const params = new URLSearchParams(search);
+  const id = params.get('chart');
+  // Before axis menus, tokens bars were the tokens-task view with scatter turned off.
+  if (id === 'tokens-task' && params.get('scatter') === 'false') return 'tokens-ranking';
   return views.find((view) => view.id === id)?.id ?? views[0].id;
 }
 
