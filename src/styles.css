@@ -38,6 +38,15 @@
     --surface: var(--lightningcss-light, #f1f4fa) var(--lightningcss-dark, #243149);
     --accent: var(--lightningcss-light, #3456d8) var(--lightningcss-dark, #a4b8ff);
     --accent-soft: var(--lightningcss-light, #e0e7fd) var(--lightningcss-dark, #304374);
+    --surface-2: var(--lightningcss-light, #e3e9f3) var(--lightningcss-dark, #0e1522);
+    --positive: var(--lightningcss-light, #1d7f55) var(--lightningcss-dark, #74d3a8);
+    --positive-soft: var(--lightningcss-light, #ddf2e7) var(--lightningcss-dark, #1d3b34);
+    --negative: var(--lightningcss-light, #b4372f) var(--lightningcss-dark, #ffa296);
+    --negative-soft: var(--lightningcss-light, #fbe3e0) var(--lightningcss-dark, #43282c);
+    /* Light surfaces lift with soft shadows; dark surfaces rely on a hairline instead. */
+    --shadow-raised: var(--lightningcss-light, 0 1px 2px rgb(23 33 58 / 0.1), 0 0 0 1px rgb(23 33 58 / 0.04)) var(--lightningcss-dark, 0 0 0 1px #3a4964, 0 1px 2px rgb(0 0 0 / 0.3));
+    --shadow-card: var(--lightningcss-light, 0 0 0 1px rgb(23 33 58 / 0.05), 0 1px 2px rgb(23 33 58 / 0.04), 0 12px 32px -16px rgb(23 33 58 / 0.14)) var(--lightningcss-dark, 0 0 0 1px #26334a, 0 12px 32px -16px rgb(0 0 0 / 0.5));
+    --shadow-pop: var(--lightningcss-light, 0 0 0 1px rgb(23 33 58 / 0.06), 0 4px 8px -2px rgb(23 33 58 / 0.06), 0 18px 40px -12px rgb(23 33 58 / 0.22)) var(--lightningcss-dark, 0 0 0 1px #3a4964, 0 18px 40px -12px rgb(0 0 0 / 0.6));
     --sidebar-width: 216px;
     --header-height: 72px;
     font-family: 'DM Sans UI', 'DM Sans', sans-serif;
@@ -136,6 +145,11 @@
   --color-line-2: var(--line-2);
   --color-surface: var(--surface);
   --color-accent: var(--accent);
+  --color-surface-2: var(--surface-2);
+  --color-positive: var(--positive);
+  --color-positive-soft: var(--positive-soft);
+  --color-negative: var(--negative);
+  --color-negative-soft: var(--negative-soft);
   --font-sans: 'DM Sans UI', 'DM Sans', sans-serif;
 }
 
@@ -155,9 +169,10 @@
   max-width: calc(100% - 70px);
   max-height: calc(100% - 104px);
   overflow-y: auto;
-  border: 1px solid var(--line);
-  border-radius: 8px;
+  border: 0;
+  border-radius: 10px;
   background: var(--panel);
+  box-shadow: var(--shadow-pop);
   padding: 16px;
   scrollbar-width: thin;
   scrollbar-color: var(--line-2) var(--panel);
@@ -180,6 +195,10 @@
   }
 }
 
+/* A floated legend lays out as ordinary content, so the fieldset background stays continuous. */
+.efficiency-filters > legend { float: left; width: 100%; padding: 0; }
+.efficiency-filters > legend ~ * { clear: both; }
+
 /* Efficiency keeps the shared card beside the plot, never over its records. */
 .efficiency-details-slot {
   margin-top: 20px;
@@ -189,6 +208,7 @@
   width: 100%;
   max-width: none;
   max-height: none;
+  box-shadow: var(--shadow-card);
 }
 @media (width <= 900px) {
   /* Keyboard focus must clear the sticky header, including links inside the card. */
@@ -233,11 +253,17 @@
 }
 
 .chart-navigation-desktop { display: none; }
-.chart-navigation { border-bottom: 1px solid var(--line); }
-.chart-categories, .chart-subnavigation { display: flex; justify-content: space-between; gap: 8px; }
-.chart-subnavigation { flex-wrap: wrap; border-top: 1px solid var(--line); }
-.chart-navigation button { position: relative; flex: 1 1 auto; min-height: 44px; font-size: 12px; color: var(--fg-2); }
-.chart-navigation button[aria-current] { color: var(--accent); font-weight: 600; border-bottom: 2px solid var(--accent); }
+.chart-navigation { border-bottom: 1px solid var(--line); padding-top: 4px; }
+.chart-categories, .chart-subnavigation { display: flex; justify-content: space-between; gap: 2px; }
+/* Categories read as a segmented control; the charts inside one read as tabs. */
+.chart-categories { padding: 2px; border-radius: 8px; background: var(--surface); }
+.chart-subnavigation { flex-wrap: wrap; gap: 8px; }
+.chart-navigation button { position: relative; flex: 1 1 auto; min-height: 44px; font-size: 13px; color: var(--fg-2); }
+.chart-categories button { min-height: 38px; border-radius: 6px; }
+.chart-categories button[aria-current] { color: var(--accent); font-weight: 600; background: var(--panel); box-shadow: var(--shadow-raised); }
+.chart-subnavigation button { margin-bottom: -1px; border-bottom: 2px solid transparent; }
+.chart-subnavigation button[aria-current] { color: var(--accent); font-weight: 600; border-bottom-color: var(--accent); }
+.chart-navigation-phone:not(:has(.chart-subnavigation)) { padding-bottom: 6px; }
 @media (width < 380px) { .chart-subnavigation:has(button:nth-child(4)) { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 
 @media (width <= 600px) {

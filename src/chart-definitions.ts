@@ -42,6 +42,17 @@ export const views = [
   mode: 'bars' | 'scatter' | 'optional-scatter';
 }[];
 export type ViewId = (typeof views)[number]['id'];
+
+/** One plain sentence on how to read each chart, shown under its title. */
+export const viewDescriptions = {
+  'cost-intelligence': 'Each point is a reasoning level. Lines join a model’s levels. Up and to the left is better.',
+  intelligence: 'Artificial Analysis Intelligence Index at each reasoning level. Higher is better.',
+  omniscience: 'Rewards correct answers and penalises wrong ones. Declining to answer scores zero. Higher is better.',
+  'tokens-task': 'Output tokens used per Intelligence Index task. Lower is better.',
+  'tokens-total': 'Output tokens used across the full Intelligence Index run. Lower is better.',
+  'cost-task': 'Cost of one Intelligence Index task. Lower is better.',
+  'time-task': 'Time spent generating output for one Intelligence Index task. Lower is better.',
+} satisfies Record<ViewId, string>;
 export type View = Omit<(typeof views)[number], 'metric' | 'label'> & { metric: Metric; label: string };
 
 /** Resolve controls and rendering from the same view, including per-view axis choices. */

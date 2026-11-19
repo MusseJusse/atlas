@@ -1,5 +1,5 @@
-import { memo, useEffect, useRef, useState } from 'react';
-import { RotateCcw, Search } from 'lucide-react';
+import { memo, useEffect, useRef, useState, type CSSProperties } from 'react';
+import { Check, ChevronDown, RotateCcw, Search } from 'lucide-react';
 import { defaults, type Settings } from './state';
 import { efforts, families } from './models';
 import { modelColor, shortName } from './model-presentation';
@@ -122,9 +122,9 @@ export const Sidebar = memo(function Sidebar({
       aria-modal={open ? true : undefined}
     >
       <div className="flex min-h-8 items-center gap-2 mobile:sticky mobile:top-0 mobile:z-[1] mobile:-mx-4 mobile:h-14 mobile:border-b mobile:border-line mobile:bg-bg mobile:px-4">
-        <h2 className="flex-1 text-[15px] font-medium mobile:text-[17px]">
+        <h2 className="flex-1 text-[15px] font-[600] mobile:text-[17px]">
           Models{' '}
-          <span className="ml-1.5 text-[11px] font-normal text-fg-3 tabular-nums">
+          <span className="ml-1.5 rounded-full bg-accent-soft px-2 py-0.5 text-[11px] font-[550] text-accent tabular-nums">
             {settings.selected.length} selected
           </span>
         </h2>
@@ -146,25 +146,25 @@ export const Sidebar = memo(function Sidebar({
           Done
         </button>
       </div>
-      <label className="flex h-10 items-center gap-2 rounded-md border border-line-2 bg-panel px-3 text-fg-2 focus-within:border-accent focus-within:ring-1 focus-within:ring-inset focus-within:ring-accent mobile:h-11">
+      <label className="flex h-10 items-center gap-2 rounded-lg bg-panel px-3 text-fg-2 shadow-[var(--shadow-raised)] focus-within:ring-2 focus-within:ring-accent mobile:h-11">
         <Search size={14} aria-hidden="true" />
         <input
-          className="min-w-0 flex-1 border-0 bg-transparent text-[12.5px] text-fg focus-visible:outline-none placeholder:text-fg-2 mobile:text-[16px]"
+          className="min-w-0 flex-1 border-0 bg-transparent text-[13px] text-fg focus-visible:outline-none placeholder:text-fg-2 mobile:text-[16px]"
           ref={input}
           value={search}
           onChange={(event) => setSearch(event.target.value)}
           placeholder="Find models"
           aria-label="Find models"
         />
-        <kbd className="font-sans text-[11px] mobile:hidden">/</kbd>
+        <kbd className="flex size-5 items-center justify-center rounded-[4px] border border-line font-sans text-[11px] text-fg-3 mobile:hidden">/</kbd>
       </label>
       <div
         role="group"
         aria-label="Model selection"
-        className="flex gap-1 rounded-md bg-surface p-1"
+        className="flex gap-0.5 rounded-lg bg-surface-2 p-0.5"
       >
         <button
-          className="min-h-8 flex-1 rounded-sm text-[11px] text-fg-2 aria-pressed:bg-panel aria-pressed:font-medium aria-pressed:text-accent mobile:min-h-11 mobile:text-[13px]"
+          className="min-h-8 flex-1 rounded-md text-[12px] text-fg-2 hover:text-fg aria-pressed:bg-panel aria-pressed:font-[550] aria-pressed:text-accent aria-pressed:shadow-[var(--shadow-raised)] mobile:min-h-11 mobile:text-[13px]"
           aria-pressed={
             settings.selected.length === defaults.selected.length &&
             defaults.selected.every((id) => settings.selected.includes(id))
@@ -174,14 +174,14 @@ export const Sidebar = memo(function Sidebar({
           Default
         </button>
         <button
-          className="min-h-8 flex-1 rounded-sm text-[11px] text-fg-2 aria-pressed:bg-panel aria-pressed:font-medium aria-pressed:text-accent mobile:min-h-11 mobile:text-[13px]"
+          className="min-h-8 flex-1 rounded-md text-[12px] text-fg-2 hover:text-fg aria-pressed:bg-panel aria-pressed:font-[550] aria-pressed:text-accent aria-pressed:shadow-[var(--shadow-raised)] mobile:min-h-11 mobile:text-[13px]"
           aria-pressed={settings.selected.length === families.length}
           onClick={() => update({ selected: families.map((family) => family.family) })}
         >
           All
         </button>
         <button
-          className="min-h-8 flex-1 rounded-sm text-[11px] text-fg-2 aria-pressed:bg-panel aria-pressed:font-medium aria-pressed:text-accent mobile:min-h-11 mobile:text-[13px]"
+          className="min-h-8 flex-1 rounded-md text-[12px] text-fg-2 hover:text-fg aria-pressed:bg-panel aria-pressed:font-[550] aria-pressed:text-accent aria-pressed:shadow-[var(--shadow-raised)] mobile:min-h-11 mobile:text-[13px]"
           aria-pressed={settings.selected.length === 0}
           onClick={() => update({ selected: [] })}
         >
@@ -192,10 +192,10 @@ export const Sidebar = memo(function Sidebar({
         {sections.map((section) => (
           <div className="mb-4 last:mb-0" key={section.name}>
             <div className="mb-1 flex items-baseline gap-2.5">
-              <h3 className="flex-1 text-[12px] font-[550] mobile:text-[14px]">{section.name}</h3>
+              <h3 className="flex-1 text-[11px] font-[600] tracking-[0.06em] text-fg-3 uppercase mobile:text-[12px]">{section.name}</h3>
               {section.name !== 'Frontier' && section.items.length > 0 && (
                 <button
-                  className="-my-1 min-h-6 min-w-6 text-right text-[11.5px] text-fg-3 aria-pressed:text-accent mobile:my-0 mobile:min-h-8 mobile:text-[14px]"
+                  className="-my-1 min-h-6 min-w-6 text-right text-[12px] text-fg-3 hover:text-accent mobile:my-0 mobile:min-h-8 mobile:text-[14px]"
                   onClick={() => toggleGroup(section.items.map((family) => family.family))}
                 >
                   All
@@ -205,7 +205,7 @@ export const Sidebar = memo(function Sidebar({
             {section.items.map((family) => (
               <button
                 key={family.family}
-                className={`group flex min-h-8 w-full items-center gap-2 rounded-md px-1 text-left text-[12px] text-fg-2 hover:bg-hover hover:text-fg aria-pressed:text-fg mobile:min-h-11 mobile:text-[15px] ${settings.frontier && settings.selected.includes(family.family) ? (frontier.has(family.family) ? 'font-[550]' : 'opacity-50 hover:opacity-100 focus-visible:opacity-100') : ''}`}
+                className={`group flex min-h-8 w-full items-center gap-2.5 rounded-md px-1.5 text-left text-[13px] text-fg-2 hover:bg-hover hover:text-fg aria-pressed:font-[550] aria-pressed:text-fg mobile:min-h-11 mobile:text-[15px] ${settings.frontier && settings.selected.includes(family.family) ? (frontier.has(family.family) ? 'font-[550]' : 'opacity-50 hover:opacity-100 focus-visible:opacity-100') : ''}`}
                 aria-pressed={settings.selected.includes(family.family)}
                 onClick={() => toggle(family.family)}
                 onMouseEnter={() => onHighlight(family.family)}
@@ -216,10 +216,14 @@ export const Sidebar = memo(function Sidebar({
                 <span className="flex-1 overflow-hidden text-ellipsis whitespace-nowrap">
                   {shortName(family.model)}
                 </span>
+                {/* A filled model-colour check makes selection readable without relying on weight alone. */}
                 <span
-                  className="size-[7px] shrink-0 rounded-[50%] opacity-50 [box-shadow:inset_0_0_0_1px] group-aria-pressed:bg-current group-aria-pressed:opacity-100"
-                  style={{ color: modelColor(family.model) }}
-                />
+                  aria-hidden="true"
+                  className="flex size-4 shrink-0 items-center justify-center rounded-[4px] border border-line-2 text-on-accent group-aria-pressed:border-transparent group-aria-pressed:bg-[var(--model-color)]"
+                  style={{ '--model-color': modelColor(family.model) } as CSSProperties}
+                >
+                  <Check size={11} strokeWidth={3.25} className="hidden group-aria-pressed:block" />
+                </span>
               </button>
             ))}
             {section.items.length === 0 && (
@@ -229,11 +233,11 @@ export const Sidebar = memo(function Sidebar({
         ))}
       </div>
       <div>
-        <h3 className="text-[12px] font-[550] mobile:text-[14px]">Reasoning</h3>
+        <h3 className="text-[11px] font-[600] tracking-[0.06em] text-fg-3 uppercase mobile:text-[12px]">Reasoning</h3>
         <div className="mt-2 grid grid-cols-3 gap-1 mobile:flex mobile:flex-wrap">
           {efforts.map((effort) => (
             <button
-              className="min-h-8 rounded-md px-2 text-[11.5px] text-fg-2 aria-pressed:bg-accent-soft aria-pressed:font-medium aria-pressed:text-accent hover:bg-hover mobile:min-h-11 mobile:px-3 mobile:text-[14px]"
+              className="min-h-8 rounded-md border border-dashed border-line-2 px-2 text-[12px] text-fg-3 hover:bg-hover hover:text-fg aria-pressed:border-solid aria-pressed:border-transparent aria-pressed:bg-accent-soft aria-pressed:font-[550] aria-pressed:text-accent mobile:min-h-11 mobile:px-3 mobile:text-[14px]"
               key={effort}
               aria-pressed={!settings.excluded.includes(effort)}
               onClick={() =>
@@ -251,23 +255,24 @@ export const Sidebar = memo(function Sidebar({
       </div>
       <div className="flex flex-col gap-2.5 border-t border-line pt-3.5">
         <button
-          className="min-h-10 text-left text-[12px] font-medium text-accent hover:underline mobile:min-h-11 mobile:text-[14px]"
+          className="inline-flex min-h-10 items-center gap-1.5 self-start text-left text-[13px] font-[550] text-accent hover:underline mobile:min-h-11 mobile:text-[14px]"
           aria-expanded={browse}
           onClick={() => setBrowse(!browse)}
         >
           {browse ? 'Show fewer models' : 'Show all models'}
+          <ChevronDown size={14} aria-hidden="true" className={browse ? 'rotate-180' : undefined} />
         </button>
         {browse && (
-          <div className="flex gap-3.5">
+          <div className="flex gap-2">
             <button
-              className="text-[11.5px] text-fg-3 aria-pressed:text-accent mobile:min-h-8 mobile:text-[14px]"
+              className="min-h-7 rounded-full border border-line-2 px-2.5 text-[12px] text-fg-2 hover:text-fg aria-pressed:border-accent aria-pressed:bg-accent-soft aria-pressed:text-accent mobile:min-h-9 mobile:text-[14px]"
               aria-pressed={showOpen}
               onClick={() => setShowOpen(!showOpen)}
             >
               Open weights
             </button>
             <button
-              className="text-[11.5px] text-fg-3 aria-pressed:text-accent mobile:min-h-8 mobile:text-[14px]"
+              className="min-h-7 rounded-full border border-line-2 px-2.5 text-[12px] text-fg-2 hover:text-fg aria-pressed:border-accent aria-pressed:bg-accent-soft aria-pressed:text-accent mobile:min-h-9 mobile:text-[14px]"
               aria-pressed={showOlder}
               onClick={() => setShowOlder(!showOlder)}
             >

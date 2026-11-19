@@ -29,7 +29,7 @@ export function ConfigurationDetails({
   return (
     <div className="configuration-inspector">
       <div className="flex items-start justify-between gap-2">
-        <strong className="flex min-w-0 items-center gap-2 text-[13px] font-[550]" style={{ color: `color-mix(in srgb, ${modelColor(model)} 80%, var(--fg))` }}>
+        <strong className="flex min-w-0 items-center gap-2 text-[14px] font-[600] tracking-[-0.1px]" style={{ color: `color-mix(in srgb, ${modelColor(model)} 80%, var(--fg))` }}>
           <Logo model={model} size={19} />
           {model.name}
         </strong>
@@ -43,17 +43,17 @@ export function ConfigurationDetails({
           </button>
         )}
       </div>
-      <div className="mt-1 text-[11px] text-fg-2">
+      <div className="mt-1 text-[12px] text-fg-2">
         {model.codingAgent?.configuration ?? model.cyber?.configuration ?? (model.effort === 'none' ? 'No reasoning' : model.effortLabel)} · {pinned ? 'Pinned' : 'Preview'}
       </div>
       {model.taskPricing?.basis === 'subscription' && (
         <p className="mt-2 mb-0 text-[10px] leading-4 text-fg-2">Full allowance for one model. External token mix, not measured subscription spend.</p>
       )}
-      <dl className="mt-4 mb-3 space-y-2.5 text-[11px]">
+      <dl className="mt-3 mb-3 divide-y divide-line border-y border-line text-[12px]">
         {measurements.map(([label, value]) => (
-          <div key={label} className="flex items-baseline justify-between gap-3">
+          <div key={label} className="flex items-baseline justify-between gap-3 py-2">
             <dt className="text-fg-2">{label}</dt>
-            <dd className="m-0 whitespace-nowrap font-semibold">{value}</dd>
+            <dd className="m-0 whitespace-nowrap font-[600] tabular-nums">{value}</dd>
           </div>
         ))}
       </dl>
@@ -77,7 +77,7 @@ export function ConfigurationDetails({
         </p>
       )}
       <a
-        className="inline-block py-1 text-[11px] text-fg-2 underline underline-offset-4 hover:text-accent"
+        className="inline-block py-1 text-[12px] text-fg-2 underline underline-offset-4 hover:text-accent"
         href={model.codingAgent?.source ?? model.cyber?.source ?? model.speedSource?.url ?? `https://artificialanalysis.ai/models/${model.family}`}
         target="_blank"
         rel="noreferrer"

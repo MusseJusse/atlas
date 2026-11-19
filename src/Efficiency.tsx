@@ -1,7 +1,7 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState, type CSSProperties } from 'react';
 import snapshot from 'virtual:benchmarks';
-import { Brand } from './Brand';
-import { ThemeToggle } from './ThemeToggle';
+import { Check } from 'lucide-react';
+import { SiteHeader } from './SiteHeader';
 import { costMultiplier, efficiencySeries, elapsedTimeSinceFirstRecord } from './efficiency-data';
 import { readEfficiencySettings, writeEfficiencySettings } from './efficiency-state';
 import { EfficiencyChart, efficiencyColors, recordKey } from './EfficiencyChart';
@@ -53,15 +53,7 @@ export function Efficiency() {
   return (
     <div className="grid h-dvh grid-rows-[var(--header-height)_minmax(0,1fr)] mobile:block mobile:h-auto">
       <a href="#efficiency-workspace" className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-30 focus:rounded-md focus:bg-panel focus:p-3">Skip to efficiency</a>
-      <header className="flex items-center gap-8 border-b border-line px-7 mobile:sticky mobile:top-0 mobile:z-[8] mobile:h-[var(--header-height)] mobile:gap-4 mobile:bg-bg mobile:px-4">
-        <Brand />
-        <nav aria-label="Sections" className="flex items-center gap-6 text-[12px] phone:gap-3 phone:text-[11px]">
-          <a href="/" className="flex min-h-11 items-center text-fg-2 phone:hidden">Benchmarks</a>
-          <a href="?page=efficiency" aria-current="page" className="flex min-h-11 items-center font-semibold text-fg">Efficiency</a>
-          <a href="?page=changelog" className="flex min-h-11 items-center text-fg-2 hover:text-accent">Changelog</a>
-        </nav>
-        <ThemeToggle className="ml-auto flex size-10 shrink-0 items-center justify-center rounded-md text-fg-2 hover:bg-hover hover:text-accent" showTitle />
-      </header>
+      <SiteHeader current="efficiency" fetchedAt={snapshot.fetchedAt} />
       <main
         id="efficiency-workspace"
         tabIndex={-1}
@@ -73,10 +65,11 @@ export function Efficiency() {
       >
         <aside aria-label="Efficiency controls" className="min-h-0 min-w-0 overflow-y-auto pt-2 mobile:contents">
           <fieldset className="efficiency-filters m-0 min-w-0 border-0 p-0">
-            <legend className="mb-3 text-[13px] font-semibold">Intelligence Index</legend>
-            <div className="flex flex-col gap-1 mobile:flex-row mobile:flex-wrap mobile:gap-x-5 mobile:gap-y-0">
+            <legend className="mb-1 text-[11px] font-[600] tracking-[0.06em] text-fg-3 uppercase">Intelligence Index</legend>
+            <p className="mt-0 mb-3 text-[12px] leading-5 text-fg-2 mobile:hidden">Show the cheapest model at or above each score.</p>
+            <div className="flex flex-col gap-0.5 mobile:flex-row mobile:flex-wrap mobile:gap-x-2 mobile:gap-y-0">
               {lines.map((line) => (
-                <label key={line.threshold} className="flex min-h-11 cursor-pointer items-center gap-3 text-[13px]">
+                <label key={line.threshold} className="flex min-h-10 cursor-pointer items-center gap-2.5 rounded-md px-1.5 text-[13px] hover:bg-hover has-[:checked]:font-[550] mobile:min-h-11">
                   <input
                     type="checkbox"
                     checked={settings.thresholds.includes(line.threshold)}
@@ -87,10 +80,16 @@ export function Efficiency() {
                       ) }));
                     }}
                     aria-label={`Intelligence Index at least ${line.threshold}`}
-                    className="m-0 size-3.5 shrink-0"
-                    style={{ accentColor: efficiencyColors[line.threshold] }}
+                    className="peer sr-only"
                   />
-                  <span className="inline-flex items-center gap-2"><span aria-hidden="true" className="size-2" style={{ background: efficiencyColors[line.threshold] }} />≥ {line.threshold}</span>
+                  <span
+                    aria-hidden="true"
+                    className="flex size-4 shrink-0 items-center justify-center rounded-[4px] border border-line-2 text-white peer-checked:border-transparent peer-checked:bg-[var(--line-color)] peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-accent [&>svg]:invisible peer-checked:[&>svg]:visible"
+                    style={{ '--line-color': efficiencyColors[line.threshold] } as CSSProperties}
+                  >
+                    <Check size={11} strokeWidth={3.25} />
+                  </span>
+                  <span className="tabular-nums">≥ {line.threshold}</span>
                   {!line.points.length && <span className="text-[11px] text-fg-2">No data</span>}
                 </label>
               ))}
@@ -124,11 +123,11 @@ export function Efficiency() {
                 </div>
                 {activeLine && (
                   <div className="mt-2 text-[11px] text-fg-2">
-                    <div className="text-[18px] font-semibold text-fg">
+                    <div className="text-[18px] font-semibold tracking-[-0.3px] text-fg">
                       {activeLine.points[0] === active.point ? 'First record' : `${new Intl.NumberFormat('en', { maximumFractionDigits: 1 }).format(costMultiplier(activeLine, active.point))}× cheaper`}
                     </div>
                     {activeLine.points[0] !== active.point && (
-                      <div className="text-[18px] font-semibold text-fg">after {elapsedTimeSinceFirstRecord(activeLine, active.point)}</div>
+                      <div className="text-[18px] font-semibold tracking-[-0.3px] text-fg">after {elapsedTimeSinceFirstRecord(activeLine, active.point)}</div>
                     )}
                   </div>
                 )}
@@ -136,12 +135,18 @@ export function Efficiency() {
             )}
           </div>
         </aside>
-        <section aria-labelledby="efficiency-title" className="flex min-h-0 min-w-0 flex-col overflow-y-auto rounded-xl bg-panel px-6 pt-5 pb-4 mobile:contents">
+        <section aria-labelledby="efficiency-title" className="flex min-h-0 min-w-0 flex-col overflow-y-auto rounded-xl bg-panel px-6 pt-5 pb-4 shadow-[var(--shadow-card)] mobile:contents">
           <div className="efficiency-heading">
-            <h1 id="efficiency-title" className="m-0 text-[25px] leading-tight font-[550] tracking-[-0.8px] phone:text-[22px]">
+            <h1 id="efficiency-title" className="m-0 text-[25px] leading-tight font-[600] tracking-[-0.8px] phone:text-[22px]">
               Cost at each intelligence threshold
             </h1>
-            <p className="mt-2 mb-0 text-[11px] text-fg-2">Cost per Intelligence Index task, USD · Log scale</p>
+            <p className="mt-1 mb-0 max-w-[70ch] text-[13px] leading-5 text-fg-2">
+              Each step is a new record low: a model released that day reaches the threshold for less. Uses current prices, not historical ones.
+            </p>
+            <p className="mt-2 mb-0 flex flex-wrap gap-1.5 text-[11px] font-[550] text-fg-2">
+              <span className="rounded-[4px] bg-surface px-1.5 py-px">Cost per Intelligence Index task, USD</span>
+              <span className="rounded-[4px] bg-surface px-1.5 py-px">Log scale</span>
+            </p>
           </div>
           <div
             ref={chart}
@@ -158,8 +163,8 @@ export function Efficiency() {
             />
           </div>
           <div className="efficiency-footer">
-            <footer className="mt-1 flex shrink-0 flex-wrap justify-between gap-x-4 text-[11px] leading-5 text-fg-2">
-              <a href={source} className="underline underline-offset-4">Source: Artificial Analysis</a>
+            <footer className="mt-1 flex shrink-0 flex-wrap justify-between gap-x-4 text-[12px] leading-5 text-fg-3">
+              <a href={source} className="underline underline-offset-4 hover:text-accent">Source: Artificial Analysis</a>
               <span>Snapshot <time dateTime={snapshot.fetchedAt}>{formatUtcDate(snapshot.fetchedAt, 'short')}</time></span>
             </footer>
           </div>

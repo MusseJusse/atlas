@@ -10,11 +10,16 @@ import { Selection } from './Selection';
 import { useMediaQuery } from './useMediaQuery';
 import { useChartNavigation } from './useChartNavigation';
 import { fetchedAt, paretoFrontier, visibleModels } from './models';
-import { resolveView, views } from './chart-definitions';
+import { resolveView, viewDescriptions, views } from './chart-definitions';
 import { chartDescending, readSettings, readView, writeSettings, type Settings } from './state';
-import { ThemeToggle } from './ThemeToggle';
 import { formatUtcDate } from './formatDate';
-import { Brand } from './Brand';
+import { SiteHeader } from './SiteHeader';
+
+const segments = 'flex gap-0.5 rounded-md bg-surface p-0.5';
+const segment =
+  'min-h-8 rounded-[5px] px-2.5 text-[12px] text-fg-2 hover:text-fg aria-pressed:bg-panel aria-pressed:font-[550] aria-pressed:text-accent aria-pressed:shadow-[var(--shadow-raised)]';
+const menuItem = 'inline-flex min-h-10 w-full items-center gap-2.5 rounded-md px-2 text-[13px] text-fg hover:bg-hover';
+const menuLabel = 'px-2 pt-2 pb-1 text-[11px] font-[550] tracking-[0.06em] text-fg-3 uppercase';
 
 const loadChangelog = () => import('./Changelog');
 const loadEfficiency = () => import('./Efficiency');
@@ -140,36 +145,7 @@ function Benchmarks() {
       >
         Skip to benchmarks
       </a>
-      <header className="flex items-center gap-8 border-b border-line px-7 compact:gap-6 mobile:sticky mobile:top-0 mobile:z-[8] mobile:h-[var(--header-height)] mobile:gap-4 mobile:bg-bg mobile:px-4">
-        <Brand />
-        <nav className="flex items-center gap-6 phone:gap-3" aria-label="Sections">
-          <button
-            className="min-h-11 text-[12px] font-semibold text-fg phone:hidden"
-            aria-current="page"
-            onClick={() => navigate(views[0].id)}
-          >
-            Benchmarks
-          </button>
-          <a
-            href="?page=efficiency"
-            className="flex min-h-11 items-center text-[12px] text-fg-2 hover:text-accent"
-          >
-            Efficiency
-          </a>
-          <a
-            href="?page=changelog"
-            className="flex min-h-11 items-center text-[12px] text-fg-2 hover:text-accent"
-          >
-            Changelog
-          </a>
-        </nav>
-        <div className="ml-auto flex items-center gap-3 phone:gap-0">
-          <ThemeToggle
-            className="flex size-10 items-center justify-center rounded-md text-fg-2 hover:bg-hover hover:text-accent"
-            showTitle
-          />
-        </div>
-      </header>
+      <SiteHeader current="benchmarks" fetchedAt={fetchedAt} onCurrent={() => navigate(views[0].id)} />
       <div className="grid min-h-0 grid-cols-[var(--sidebar-width)_minmax(0,1fr)] gap-6 px-7 pt-6 pb-2 short:pt-4 compact:gap-5 compact:px-5 mobile:block mobile:px-4 mobile:pt-4 mobile:pb-0">
         <Sidebar
           settings={settings}
@@ -182,21 +158,23 @@ function Benchmarks() {
         <main
           id="benchmark-workspace"
           tabIndex={-1}
-          className="grid min-h-0 min-w-0 grid-rows-[auto_minmax(0,1fr)] rounded-xl bg-panel [outline:none] mobile:block"
+          className="grid min-h-0 min-w-0 grid-rows-[auto_minmax(0,1fr)] rounded-xl bg-panel shadow-[var(--shadow-card)] [outline:none] mobile:block"
         >
           <h1 className="sr-only">Model benchmarks</h1>
           <div className="min-w-0 px-6 mobile:sticky mobile:top-[var(--header-height)] mobile:z-[6] mobile:rounded-t-xl mobile:bg-panel mobile:px-4">
             <button
-              className="hidden w-full items-center gap-2 border-b border-line py-3 text-left text-[12px] text-fg-2 mobile:flex!"
+              className="hidden w-full items-center gap-2.5 border-b border-line py-2 text-left text-[13px] text-fg-2 mobile:flex!"
               onClick={() => setMobileOpen(true)}
               aria-haspopup="dialog"
               aria-controls="model-filters"
               aria-expanded={mobileOpen}
             >
-              <SlidersHorizontal size={15} aria-hidden="true" />
-              <span className="font-medium text-fg">Models</span>
-              <span>{settings.selected.length} selected</span>
-              <span className="ml-auto text-accent">Edit selection</span>
+              <span className="flex size-7 items-center justify-center rounded-md bg-surface text-fg">
+                <SlidersHorizontal size={15} aria-hidden="true" />
+              </span>
+              <span className="font-[550] text-fg">Models</span>
+              <span className="tabular-nums">{settings.selected.length} selected</span>
+              <span className="ml-auto rounded-md bg-accent-soft px-2.5 py-1 text-[12px] font-[550] text-accent">Edit selection</span>
             </button>
             <div ref={chartNavigation}><nav
 
@@ -206,7 +184,7 @@ function Benchmarks() {
               {views.map((view) => (
                 <button
                   key={view.id}
-                  className="min-h-[50px] shrink-0 short:min-h-11 border-b-2 border-transparent text-[12px] text-fg-2 aria-[current=page]:border-accent aria-[current=page]:font-semibold aria-[current=page]:text-accent hover:text-accent"
+                  className="-mb-px min-h-[52px] shrink-0 border-b-2 border-transparent text-[13px] text-fg-2 short:min-h-11 hover:text-fg aria-[current=page]:border-accent aria-[current=page]:font-[550] aria-[current=page]:text-accent"
                   aria-current={active === view.id ? 'page' : undefined}
                   onClick={() => navigate(view.id)}
                 >
@@ -227,15 +205,22 @@ function Benchmarks() {
               const hasFallback = !(scatter && settings.frontier) && chartRows.some((row) => row.cost !== null && row.taskPricing?.basis === 'api-fallback');
               return (
                 <section
-                  className="chart-section flex h-full snap-start flex-col px-6 pt-5 pb-4 short:pt-4 short:pb-3 [&+section]:border-t [&+section]:border-line mobile:h-auto mobile:scroll-mt-[180px] mobile:px-4 mobile:pb-6"
+                  className="chart-section flex h-full snap-start flex-col px-6 pt-5 pb-4 short:pt-4 short:pb-3 [&+section]:border-t [&+section]:border-line mobile:h-auto mobile:scroll-mt-[190px] mobile:px-4 mobile:pb-6"
                   id={view.id}
                   key={view.id}
                   aria-label={view.label}
                 >
                   <div className="flex shrink-0 items-start justify-between gap-3">
-                    <h2 className="m-0 text-[25px] leading-tight font-[550] tracking-[-0.8px] phone:text-[22px]">
-                      {view.label}
-                    </h2>
+                    <div className="min-w-0">
+                      <h2 className="m-0 text-[25px] leading-tight font-[600] tracking-[-0.8px] phone:text-[22px]">
+                        {view.label}
+                      </h2>
+                      <p className="mt-1 mb-0 max-w-[68ch] text-[13px] leading-5 text-fg-2 short:hidden">
+                        {view.id === 'tokens-task' && scatter
+                          ? 'Each point is a reasoning level. Up and to the left uses fewer tokens for more intelligence.'
+                          : viewDescriptions[view.id]}
+                      </p>
+                    </div>
                     <ChartOptions
                       settings={settings}
                       update={update}
@@ -248,7 +233,7 @@ function Benchmarks() {
                   >
                     {scatter ? (
                       <button
-                        className="inline-flex min-h-10 items-center gap-2 text-fg aria-pressed:text-accent hover:text-accent"
+                        className="inline-flex min-h-8 items-center gap-2 rounded-md border border-line-2 px-2.5 text-[12px] text-fg hover:border-accent hover:text-accent aria-pressed:border-accent aria-pressed:bg-accent-soft aria-pressed:font-[550] aria-pressed:text-accent"
                         aria-pressed={settings.frontier}
                         title="Show configurations with no better and cheaper alternative."
                         onClick={() => update({ frontier: !settings.frontier })}
@@ -257,26 +242,26 @@ function Benchmarks() {
                         Pareto frontier
                       </button>
                     ) : (
-                      <span className="text-fg-2 mobile:hidden">
+                      <span className="text-[12px] text-fg-3 mobile:hidden">
                         {settings.grouped ? 'Grouped by model' : 'All configurations'}
                       </span>
                     )}
                     <div className="ml-auto flex items-center gap-5 phone:gap-3">
                       {view.mode === 'optional-scatter' && (
                         <div
-                          className="flex gap-1 rounded-md bg-surface p-1"
+                          className={segments}
                           role="group"
                           aria-label="Tokens per task chart type"
                         >
                           <button
-                            className="min-h-8 rounded-sm px-2.5 text-[12px] text-fg-2 aria-pressed:bg-panel aria-pressed:font-medium aria-pressed:text-accent"
+                            className={segment}
                             aria-pressed={!settings.scatter}
                             onClick={() => update({ scatter: false })}
                           >
                             Bars
                           </button>
                           <button
-                            className="min-h-8 rounded-sm px-2.5 text-[12px] text-fg-2 aria-pressed:bg-panel aria-pressed:font-medium aria-pressed:text-accent"
+                            className={segment}
                             aria-pressed={settings.scatter}
                             onClick={() => update({ scatter: true })}
                           >
@@ -290,10 +275,10 @@ function Benchmarks() {
                           role="group"
                           aria-label={`${view.label} axis scale`}
                         >
-                          <span className="text-[11px] text-fg-2 phone:hidden">Scale</span>
-                          <div className="flex gap-1 rounded-md bg-surface p-1">
+                          <span className="text-[12px] text-fg-3 phone:hidden">Scale</span>
+                          <div className={segments}>
                             <button
-                              className="min-h-8 rounded-sm px-2.5 text-[12px] text-fg-2 aria-pressed:bg-panel aria-pressed:font-medium aria-pressed:text-accent"
+                              className={segment}
                               aria-pressed={linear}
                               onClick={() =>
                                 update({ linear: [...new Set([...settings.linear, view.id])] })
@@ -302,7 +287,7 @@ function Benchmarks() {
                               Linear
                             </button>
                             <button
-                              className="min-h-8 rounded-sm px-2.5 text-[12px] text-fg-2 aria-pressed:bg-panel aria-pressed:font-medium aria-pressed:text-accent"
+                              className={segment}
                               aria-pressed={!linear}
                               onClick={() =>
                                 update({ linear: settings.linear.filter((id) => id !== view.id) })
@@ -316,15 +301,15 @@ function Benchmarks() {
                     </div>
                   </div>
                   {subscription && (
-                    <p className="mt-0 mb-2 shrink-0 text-[11px] leading-5 text-fg-2">
-                      Estimated subscription · One model uses full allowance · {settings.countResets ? 'Bonus resets on where supported' : 'Bonus resets off'}
+                    <p className="mt-0 mb-2 shrink-0 text-[12px] leading-5 text-fg-2">
+                      <PricingTag>Estimated subscription</PricingTag>One model uses full allowance · {settings.countResets ? 'Bonus resets on where supported' : 'Bonus resets off'}
                       {hasFallback && ' · Includes API fallback'}
                       {scatter && settings.frontier && ' · Frontier compares subscription estimates only'}
                       {scatter && !linear && chartRows.some((row) => row.cost === 0) && ' · Zero costs omitted on log scale'}
                     </p>
                   )}
                   {!subscription && view.metric === 'cost' && (
-                    <p className="mt-0 mb-2 shrink-0 text-[11px] leading-5 text-fg-2">API pricing</p>
+                    <p className="mt-0 mb-2 shrink-0 text-[12px] leading-5"><PricingTag>API pricing</PricingTag></p>
                   )}
                   <Chart
                     active={mobile || active === view.id}
@@ -342,7 +327,7 @@ function Benchmarks() {
           </div>
         </main>
       </div>
-      <footer className="flex flex-wrap items-center justify-between gap-x-5 gap-y-1 px-7 py-3 short:py-2 text-[11px] leading-5 text-fg-2 compact:px-5 mobile:px-4 mobile:pt-5 mobile:pb-[calc(20px+env(safe-area-inset-bottom))]">
+      <footer className="flex flex-wrap items-center justify-between gap-x-5 gap-y-1 px-7 py-3 short:py-2 text-[12px] leading-5 text-fg-3 compact:px-5 mobile:px-4 mobile:pt-5 mobile:pb-[calc(20px+env(safe-area-inset-bottom))]">
         <span>
           Data from{' '}
           <a
@@ -410,30 +395,30 @@ function ChartOptions({
       }
     }}>
       <summary
-        className="flex size-10 cursor-pointer list-none items-center justify-center rounded-md text-fg-2 group-open:bg-surface group-open:text-accent hover:bg-surface hover:text-accent focus-visible:outline-2 focus-visible:outline-accent focus-visible:outline-offset-2 [&::-webkit-details-marker]:hidden"
+        className="flex size-10 cursor-pointer list-none items-center justify-center rounded-md border border-transparent text-fg-2 group-open:border-line group-open:bg-surface group-open:text-accent hover:bg-surface hover:text-accent focus-visible:outline-2 focus-visible:outline-accent focus-visible:outline-offset-2 [&::-webkit-details-marker]:hidden"
         aria-label="Chart settings"
         title="Chart settings"
       >
         <Ellipsis size={19} aria-hidden="true" />
       </summary>
       <div
-        className={`absolute top-[calc(100%+6px)] right-0 z-20 flex ${pricing ? 'w-[310px]' : 'w-[220px]'} max-w-[calc(100vw-48px)] flex-col items-start gap-1 overflow-y-auto overscroll-contain rounded-lg border border-line bg-panel p-3 shadow-lg`}
+        className={`absolute top-[calc(100%+6px)] right-0 z-20 flex ${pricing ? 'w-[310px]' : 'w-[220px]'} max-w-[calc(100vw-48px)] flex-col items-start gap-0.5 overflow-y-auto overscroll-contain rounded-xl bg-panel p-2 shadow-[var(--shadow-pop)]`}
         style={{ maxHeight: 'var(--chart-menu-height, 60dvh)' }}
         aria-label="Chart settings"
       >
         {pricing && <PricingControls settings={settings} update={update} />}
-        <span className="px-1 pt-1 text-[11px] text-fg-2">Scatter charts</span>
+        <span className={menuLabel}>Scatter charts</span>
         <button
-          className="inline-flex min-h-10 items-center gap-2 px-1 text-[12px] text-fg hover:text-accent"
+          className={menuItem}
           aria-pressed={settings.labels}
           onClick={() => update({ labels: !settings.labels })}
         >
           <Selection checked={settings.labels} />
           Labels
         </button>
-        <span className="mt-2 px-1 text-[11px] text-fg-2">Bar charts</span>
+        <span className={`${menuLabel} mt-1 w-full border-t border-line pt-3`}>Bar charts</span>
         <button
-          className="inline-flex min-h-10 items-center gap-2 px-1 text-[12px] text-fg hover:text-accent"
+          className={menuItem}
           aria-pressed={settings.grouped}
           onClick={() => update({ grouped: !settings.grouped })}
         >
@@ -441,7 +426,7 @@ function ChartOptions({
           Group by model
         </button>
         <button
-          className="inline-flex min-h-10 items-center gap-2 px-1 text-[12px] text-fg hover:text-accent disabled:opacity-50 disabled:hover:text-fg"
+          className={`${menuItem} disabled:opacity-50 disabled:hover:bg-transparent`}
           aria-pressed={settings.combined}
           disabled={!settings.grouped}
           title={settings.grouped ? 'Combine reasoning configurations into one bar per model.' : 'Group by model to combine reasoning bars.'}
@@ -451,10 +436,11 @@ function ChartOptions({
           Combine reasoning bars
         </button>
         <button
-          className="inline-flex min-h-10 items-center gap-2 px-1 text-[12px] text-fg hover:text-accent"
+          className={menuItem}
           onClick={() => update({ descending: !descending })}
         >
           <ArrowDown
+            className="text-fg-2"
             size={14}
             style={{ transform: descending ? 'rotate(180deg)' : undefined }}
             aria-hidden="true"
@@ -463,5 +449,13 @@ function ChartOptions({
         </button>
       </div>
     </details>
+  );
+}
+
+function PricingTag({ children }: { children: string }) {
+  return (
+    <span className="mr-2 inline-flex items-center rounded-[4px] bg-surface px-1.5 py-px text-[11px] font-[550] text-fg-2">
+      {children}
+    </span>
   );
 }

@@ -1,9 +1,8 @@
 import { useEffect, useState } from 'react';
 import bundledHistory from 'virtual:changelog';
 import { fieldLabels, type ChangeHistory, type ChangeKind, type FieldChange } from './data/changelog';
-import { ThemeToggle } from './ThemeToggle';
 import { formatUtcDate, formatUtcDateTime } from './formatDate';
-import { Brand } from './Brand';
+import { SiteHeader } from './SiteHeader';
 
 const filters = [
   { id: 'all', label: 'All changes' },
@@ -12,6 +11,11 @@ const filters = [
   { id: 'removed', label: 'Removed' },
 ] as const;
 const kindLabels: Record<ChangeKind, string> = { added: 'Added', updated: 'Updated', removed: 'Removed' };
+const kindStyles: Record<ChangeKind, string> = {
+  added: 'bg-positive-soft text-positive',
+  updated: 'bg-accent-soft text-accent',
+  removed: 'bg-negative-soft text-negative',
+};
 
 function formatValue(value: FieldChange['before'], field: FieldChange['field']) {
   if (value === null) return 'Not available';
@@ -41,34 +45,12 @@ export function Changelog({ history = bundledHistory }: { history?: ChangeHistor
 
   return (
     <div className="min-h-dvh select-text">
-      <header className="flex min-h-[var(--header-height)] items-center gap-8 border-b border-line px-7 phone:gap-4 phone:px-4">
-        <Brand />
-        <nav
-          aria-label="Sections"
-          className="flex items-center gap-5 text-[12px] phone:gap-3 phone:text-[11px]"
-        >
-          <a href="/" className="flex min-h-11 items-center text-fg-2 phone:hidden">
-            Benchmarks
-          </a>
-          <a href="?page=efficiency" className="flex min-h-11 items-center text-fg-2">
-            Efficiency
-          </a>
-          <a
-            href="?page=changelog"
-            aria-current="page"
-            className="flex min-h-11 items-center text-fg underline decoration-accent underline-offset-8"
-          >
-            Changelog
-          </a>
-        </nav>
-        <ThemeToggle
-          className="ml-auto flex size-11 shrink-0 items-center justify-center text-fg-2 [&:hover]:text-fg"
-        />
-      </header>
-      <main className="mx-auto my-6 max-w-[1000px] rounded-xl bg-panel px-8 pt-8 pb-10 phone:mx-4 phone:px-4 phone:pt-6">
+      <SiteHeader current="changelog" />
+      <main className="mx-4 my-6 max-w-[1000px] rounded-xl bg-panel px-8 pt-8 pb-10 shadow-[var(--shadow-card)] min-[1032px]:mx-auto phone:px-4 phone:pt-6">
         <div className="flex flex-wrap items-baseline justify-between gap-x-5 gap-y-2">
-          <h1 className="m-0 text-[25px] font-medium tracking-[-0.7px] phone:text-[23px]">Model changes</h1>
-          <span className="text-[12px] text-fg-2">
+          <h1 className="m-0 text-[25px] font-[600] tracking-[-0.8px] phone:text-[23px]">Model changes</h1>
+          <span className="inline-flex items-center gap-2 text-[12px] text-fg-2">
+            <span aria-hidden="true" className="size-1.5 rounded-full bg-positive" />
             {latest
               ? `Data checked ${formatUtcDateTime(latest.checkedAt)}`
               : `Baseline snapshot ${formatUtcDate(history.baselineFetchedAt)}`}
@@ -77,14 +59,14 @@ export function Changelog({ history = bundledHistory }: { history?: ChangeHistor
         <div
           role="group"
           aria-label="Filter model changes"
-          className="mt-5 flex flex-wrap gap-x-6 gap-y-1 border-b border-line"
+          className="mt-5 inline-flex flex-wrap gap-0.5 rounded-lg bg-surface p-0.5"
         >
           {filters.map(({ id, label }) => (
             <button
               key={id}
               onClick={() => setFilter(id)}
               aria-pressed={filter === id}
-              className="min-h-11 border-b-2 border-transparent text-[13px] text-fg-2 aria-pressed:border-accent aria-pressed:text-fg [&:hover]:text-fg"
+              className="min-h-9 rounded-md px-3.5 text-[13px] text-fg-2 aria-pressed:bg-panel aria-pressed:font-[550] aria-pressed:text-accent aria-pressed:shadow-[var(--shadow-raised)] [&:hover]:text-fg phone:px-2.5"
             >
               {label}
             </button>
@@ -103,12 +85,12 @@ export function Changelog({ history = bundledHistory }: { history?: ChangeHistor
         {updates.map((batch) => (
           <section
             key={batch.checkedAt}
-            className="mt-8"
+            className="mt-9"
             aria-label={`Changes checked ${formatUtcDateTime(batch.checkedAt)}`}
           >
-            <h2 className="mb-3 text-[14px] font-medium">
+            <h2 className="mb-3 flex flex-wrap items-baseline gap-x-3 text-[15px] font-[600] tracking-[-0.2px]">
               <time dateTime={batch.checkedAt}>{formatUtcDateTime(batch.checkedAt)}</time>{' '}
-              <span className="ml-3 font-normal text-fg-2">
+              <span className="text-[13px] font-normal tracking-normal text-fg-2">
                 {(['added', 'updated', 'removed'] as const)
                   .flatMap((kind) => {
                     const count = batch.changes.filter((change) => change.kind === kind).length;
@@ -120,48 +102,54 @@ export function Changelog({ history = bundledHistory }: { history?: ChangeHistor
             {batch.changes.map((change) => (
               <article
                 key={change.id}
-                className="grid grid-cols-[80px_minmax(0,1fr)] gap-5 border-t border-line py-5 phone:grid-cols-[58px_minmax(0,1fr)] phone:gap-3"
+                className="grid grid-cols-[80px_minmax(0,1fr)] gap-5 border-t border-line py-4 phone:grid-cols-[72px_minmax(0,1fr)] phone:gap-3"
               >
-                <span className="text-[12px] leading-6 text-fg-2">{kindLabels[change.kind]}</span>
+                <span className="mt-0.5">
+                  <span className={`inline-flex rounded-full px-2 py-0.5 text-[11px] font-[600] ${kindStyles[change.kind]}`}>
+                    {kindLabels[change.kind]}
+                  </span>
+                </span>
                 <div className="min-w-0">
-                  <h3 className="text-[14px] font-medium leading-6">{change.name}</h3>
-                  <p className="mt-0.5 mb-0 text-[12px] leading-5 text-fg-2">{change.effortLabel}</p>
+                  <h3 className="text-[14px] font-[550] leading-6">
+                    {change.name}
+                    <span className="ml-2 text-[12px] font-normal text-fg-2">{change.effortLabel}</span>
+                  </h3>
                   {change.kind !== 'updated' && (
-                    <p className="mt-2 mb-0 text-[12px] text-fg-2">
+                    <p className="mt-0.5 mb-0 text-[12px] text-fg-2">
                       {change.kind === 'added' ? 'New benchmark entry' : 'No longer present in the source'}
                     </p>
                   )}
                   {change.fields.length > 0 && (
-                    <table className="mt-3 w-full table-fixed border-collapse text-left text-[12px] leading-5">
+                    <table className="mt-3 w-full table-fixed border-collapse overflow-hidden rounded-md bg-surface text-left text-[12px] leading-5">
                       <caption className="sr-only">
                         Changed values for {change.name}, {change.effortLabel}
                       </caption>
                       <thead className="text-fg-2">
                         <tr>
-                          <th scope="col" className="w-[30%] pb-2 pr-3 font-normal">
+                          <th scope="col" className="w-[30%] px-3 pt-2 pb-1.5 font-normal">
                             Field
                           </th>
-                          <th scope="col" className="w-[35%] pb-2 pr-3 font-normal">
+                          <th scope="col" className="w-[35%] pt-2 pr-3 pb-1.5 font-normal">
                             Before
                           </th>
-                          <th scope="col" className="pb-2 font-normal">
+                          <th scope="col" className="pt-2 pr-3 pb-1.5 font-normal">
                             After
                           </th>
                         </tr>
                       </thead>
                       <tbody>
                         {change.fields.map(({ field, before, after }) => (
-                          <tr key={field} className="align-top">
+                          <tr key={field} className="border-t border-line align-top">
                             <th
                               scope="row"
-                              className="py-1 pr-3 font-normal text-fg-2 [overflow-wrap:anywhere]"
+                              className="px-3 py-1.5 font-normal text-fg-2 [overflow-wrap:anywhere]"
                             >
                               {fieldLabels[field]}
                             </th>
-                            <td className="py-1 pr-3 text-fg-2 [overflow-wrap:anywhere]">
+                            <td className="py-1.5 pr-3 text-fg-2 [overflow-wrap:anywhere]">
                               {formatValue(before, field)}
                             </td>
-                            <td className="py-1 [overflow-wrap:anywhere]">{formatValue(after, field)}</td>
+                            <td className="py-1.5 pr-3 font-[550] [overflow-wrap:anywhere]">{formatValue(after, field)}</td>
                           </tr>
                         ))}
                       </tbody>
