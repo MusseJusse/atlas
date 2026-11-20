@@ -9,7 +9,7 @@ import { Selection } from './Selection';
 import { SiteHeader } from './SiteHeader';
 import { useMediaQuery } from './useMediaQuery';
 import { VibesChart } from './VibesChart';
-import { reasoningGuidance, resolveVibes, type UseCaseIcon } from './data/vibes';
+import { axisDefinitions, reasoningGuidance, resolveVibes, type UseCaseIcon } from './data/vibes';
 import { modelColor, shortName } from './model-presentation';
 import type { Model } from './models';
 
@@ -214,7 +214,7 @@ export function Vibes() {
       <main
         id="vibes-workspace"
         tabIndex={-1}
-        className="vibes-workspace mx-7 mt-6 mb-2 min-h-0 min-w-0 rounded-[14px] bg-panel [outline:none] short:mt-4 compact:mx-5 mobile:mx-4 mobile:mt-4 mobile:mb-0"
+        className="vibes-workspace mx-7 mt-6 mb-2 min-h-0 min-w-0 rounded-[14px] bg-panel [outline:none] short:mt-3 compact:mx-5 mobile:mx-4 mobile:mt-3 mobile:mb-0"
         onKeyDown={(event) => {
           if (event.key === 'Escape' && pinned !== null) clearSelection(false);
         }}
@@ -224,7 +224,7 @@ export function Vibes() {
         </h1>
         <section
           aria-labelledby="vibes-title"
-          className="flex h-full flex-col px-6 pt-4 pb-3 phone:h-auto mobile:px-4 phone:pb-5"
+          className="flex h-full flex-col px-6 pt-4 pb-3 short:pt-3 short:pb-2 phone:h-auto mobile:px-4 mobile:pt-3 mobile:pb-2.5 phone:pt-4 phone:pb-5"
         >
           <div className="vibes-toolbar flex shrink-0 flex-wrap items-center gap-x-4 gap-y-2">
             <div
@@ -356,7 +356,7 @@ export function Vibes() {
             </div>
           </div>
 
-          <div ref={chartRef} className="vibes-plot relative mt-2 flex min-h-0 flex-1 flex-col">
+          <div ref={chartRef} className="vibes-plot relative mt-2 short:mt-1 mobile:mt-1 flex min-h-0 flex-1 flex-col">
             <VibesChart
               models={vibes.models}
               activeFamily={active?.family ?? null}
@@ -388,7 +388,26 @@ export function Vibes() {
             )}
           </div>
 
-          {/* Narrow phone plots have no free corner, so a pinned card sits below the plot instead of covering points. */}
+          <div className="flex shrink-0 flex-col pt-0.5 phone:gap-1.5 phone:pt-3">
+            <p className="m-0 text-[12px] leading-[18px] text-fg-2">
+              <strong className="font-[600] text-fg">Capability:</strong> {axisDefinitions.capability}
+            </p>
+            <p className="m-0 text-[12px] leading-[18px] text-fg-2">
+              <strong className="font-[600] text-fg">Coherency:</strong> {axisDefinitions.coherency}
+            </p>
+            {showCost && (
+              <p className="m-0 text-[12px] leading-[18px] text-fg-2">
+                <strong className="font-[600] text-fg">Cost:</strong> high-effort API cost per task, log scale
+              </p>
+            )}
+            <p className="m-0 text-[12px] leading-[18px] text-fg-2">
+              <strong className="font-[600] text-fg">{reasoningGuidance.title}:</strong> default to{' '}
+              <strong className="font-[550] text-fg">high</strong>. Never use{' '}
+              <strong className="font-[550] text-fg">max</strong>: {reasoningGuidance.quote.toLowerCase()}
+            </p>
+          </div>
+
+          {/* Narrow phone plots have no free corner, so a pinned card sits below the plot and axis definitions instead of covering points. */}
           {detailsBelow && isPinned && activeEntry && (
             <aside
               ref={belowCardRef}
@@ -400,25 +419,12 @@ export function Vibes() {
               {detailsContent}
             </aside>
           )}
-
-          <div className="flex shrink-0 flex-wrap items-baseline justify-between gap-x-6 gap-y-1 pt-2 phone:pt-3">
-            <p className="m-0 text-[12px] leading-5 text-pretty text-fg-2">
-              <strong className="font-[600] text-fg">{reasoningGuidance.title}:</strong> Default to{' '}
-              <strong className="font-[550] text-fg">high</strong>. Never use{' '}
-              <strong className="font-[550] text-fg">max</strong>: {reasoningGuidance.quote.toLowerCase()}
-            </p>
-            {showCost && (
-              <p className="m-0 text-[12px] leading-5 text-fg-3">
-                Depth: high-effort API cost per task (log). Drag to rotate.
-              </p>
-            )}
-          </div>
         </section>
       </main>
 
-      <footer className="flex flex-wrap items-center justify-between gap-x-5 gap-y-1 px-7 py-3 short:py-2 text-[12px] leading-5 text-fg-3 compact:px-5 mobile:px-4 phone:pt-5 phone:pb-[calc(20px+env(safe-area-inset-bottom))]">
+      <footer className="flex flex-wrap items-center justify-between gap-x-5 gap-y-1 px-7 py-3 short:py-2 text-[12px] leading-5 text-fg-3 compact:px-5 mobile:px-4 mobile:py-2 phone:pt-5 phone:pb-[calc(20px+env(safe-area-inset-bottom))]">
         <span>
-          Data from{' '}
+          Benchmarks &amp; cost from{' '}
           <a
             className="underline-offset-4 hover:text-accent hover:underline"
             href="https://artificialanalysis.ai/"

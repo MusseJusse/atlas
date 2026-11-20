@@ -242,6 +242,10 @@ test('vibes page supports label clicks, pin precedence, 3D cost axis, and mobile
   await expect(page).toHaveURL(/\?page=vibes/);
   await expect(page.getByRole('heading', { name: 'Vibes', exact: true })).toHaveCount(1);
   await expect(page.locator('.vibes-plot svg [data-vibe-family]')).toHaveCount(7);
+  const capabilityDefinition = page.locator('p', { hasText: 'at its best, what can it do' });
+  const coherencyDefinition = page.locator('p', { hasText: "does it understand what it's doing" });
+  await expect(capabilityDefinition).toBeVisible();
+  await expect(coherencyDefinition).toBeVisible();
 
   const toolbarBottom = await page.locator('.vibes-toolbar').evaluate((el) => el.getBoundingClientRect().bottom);
   const capTop = await page.locator('[data-axis-label="capability"]').evaluate((el) => el.getBoundingClientRect().top);
@@ -289,9 +293,12 @@ test('vibes page supports label clicks, pin precedence, 3D cost axis, and mobile
 
   // 3D Cost axis: all 3 axis labels stay in bounds, labels don't collide, rotate/reset preserves focus, and background click clears a pin.
   const costToggle = page.getByRole('button', { name: 'Cost axis', exact: true });
+  const costDefinition = page.locator('p', { hasText: 'high-effort API cost per task, log scale' });
+  await expect(costDefinition).toHaveCount(0);
   await costToggle.click();
   await expect(costToggle).toHaveAttribute('aria-pressed', 'true');
   await expect(page.locator('.vibes-plot svg[role="group"] [data-cost-axis="true"]')).toBeVisible();
+  await expect(costDefinition).toBeVisible();
 
   const hasLabelCollision = () =>
     page.evaluate(() => {
@@ -364,7 +371,18 @@ test('vibes page supports label clicks, pin precedence, 3D cost axis, and mobile
   await expect(details).not.toBeVisible();
   await expect(pickMenu).toHaveAttribute('aria-label', 'Best for: Pick a use case');
 
+  // Pinning on a phone keeps the axis definitions on screen, between the plot and the card.
   await page.setViewportSize({ width: 320, height: 740 });
+  await pickMenu.click();
+  await page.getByRole('group', { name: 'Best for' }).getByRole('button', { name: /Coding/ }).click();
+  await expect(details).toBeVisible();
+  await expect(capabilityDefinition).toBeInViewport({ ratio: 1 });
+  await expect(coherencyDefinition).toBeInViewport({ ratio: 1 });
+  await expect(costDefinition).toBeInViewport({ ratio: 1 });
+  const definitionsBottom = await costDefinition.evaluate((el) => el.getBoundingClientRect().bottom);
+  expect(await details.evaluate((el) => el.getBoundingClientRect().top)).toBeGreaterThanOrEqual(definitionsBottom);
+  await page.keyboard.press('Escape');
+  await expect(details).not.toBeVisible();
   await expect.poll(() =>
     page.locator('.vibes-plot svg[role="group"]').evaluate((svg) => Number(svg.getAttribute('viewBox')!.split(' ')[2])),
   ).toBeLessThan(320);

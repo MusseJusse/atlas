@@ -467,8 +467,8 @@ export function VibesChart({
       >
         <desc id={`${id}-description`}>
           {showCost
-            ? '3D view plotting Capability on the vertical axis, Coherency across the front axis, and log-scaled high-effort API cost per task into depth. Drag or use the angle controls to rotate, focus a point for details, press Enter or Space to pin it, and Escape to clear.'
-            : 'Subjective map plotting models by Capability on the vertical axis and Coherency on the horizontal axis. Focus a model to inspect notes, press Enter or Space to pin it, and Escape to clear the selection.'}
+            ? `3D view plotting Capability (${axisDefinitions.capability}) on the vertical axis, Coherency (${axisDefinitions.coherency}) across the front axis, and log-scaled high-effort API cost per task into depth. Drag or use the angle controls to rotate, focus a point for details, press Enter or Space to pin it, and Escape to clear.`
+            : `Subjective map plotting models by Capability (${axisDefinitions.capability}) on the vertical axis and Coherency (${axisDefinitions.coherency}) on the horizontal axis. Focus a model to inspect notes, press Enter or Space to pin it, and Escape to clear the selection.`}
         </desc>
 
         <rect className="chart-background" width={size.width} height={size.height} fill="var(--panel)" />
@@ -619,11 +619,6 @@ export function VibesChart({
             fontWeight={600}
           >
             {t > 0.3 ? 'Capability ↑' : 'Capability'}
-            {!compact && (
-              <tspan fill="var(--fg-2)" fontSize={11} fontWeight={400}>
-                {`: ${axisDefinitions.capability}`}
-              </tspan>
-            )}
           </text>
           <text
             data-axis-label="coherency"
@@ -635,11 +630,6 @@ export function VibesChart({
             fontWeight={600}
           >
             {t > 0.3 ? 'Coherency →' : 'Coherency'}
-            {!compact && (
-              <tspan fill="var(--fg-2)" fontSize={11} fontWeight={400}>
-                {`: ${axisDefinitions.coherency}`}
-              </tspan>
-            )}
           </text>
 
           {/* 3rd Cost axis along the left depth edge */}
