@@ -34,7 +34,7 @@ export const vibeModels: readonly VibeModelEntry[] = [
   {
     family: 'claude-fable-5-2',
     capability: 96,
-    coherency: 83,
+    coherency: 73,
     labelPlacement: 'above',
     labelPlacement3D: 'right',
     compactLabelPlacement3D: 'above',
@@ -51,7 +51,7 @@ export const vibeModels: readonly VibeModelEntry[] = [
   {
     family: 'claude-opus-5-5',
     capability: 87,
-    coherency: 83,
+    coherency: 73,
     labelPlacement: 'left',
     labelPlacement3D: 'left',
     compactLabelPlacement: 'above',
@@ -60,7 +60,7 @@ export const vibeModels: readonly VibeModelEntry[] = [
   },
   {
     family: 'gpt-6-2-sol',
-    capability: 61,
+    capability: 65,
     coherency: 48,
     labelPlacement: 'right',
     labelPlacement3D: 'right',
@@ -70,7 +70,7 @@ export const vibeModels: readonly VibeModelEntry[] = [
   {
     family: 'gemini-4-neon',
     capability: 91,
-    coherency: 93,
+    coherency: 83,
     labelPlacement: 'below',
     labelPlacement3D: 'below',
     summary: 'Most coherent feel on the map, with smooth prose, snappy iteration, and strong copywriting instincts.',
