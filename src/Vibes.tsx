@@ -214,7 +214,7 @@ export function Vibes() {
       <main
         id="vibes-workspace"
         tabIndex={-1}
-        className="vibes-workspace mx-7 mt-6 mb-2 min-h-0 min-w-0 rounded-[14px] bg-panel [outline:none] short:mt-4 compact:mx-5 mobile:mx-4 mobile:mt-3 mobile:mb-0"
+        className="vibes-workspace mx-7 mt-6 mb-2 min-h-0 min-w-0 rounded-[14px] bg-panel [outline:none] short:mt-3 compact:mx-5 mobile:mx-4 mobile:mt-3 mobile:mb-0"
         onKeyDown={(event) => {
           if (event.key === 'Escape' && pinned !== null) clearSelection(false);
         }}
@@ -224,7 +224,7 @@ export function Vibes() {
         </h1>
         <section
           aria-labelledby="vibes-title"
-          className="flex h-full flex-col px-6 pt-4 pb-3 phone:h-auto mobile:px-4 mobile:pt-3 mobile:pb-2.5 phone:pt-4 phone:pb-5"
+          className="flex h-full flex-col px-6 pt-4 pb-3 short:pt-3 short:pb-2 phone:h-auto mobile:px-4 mobile:pt-3 mobile:pb-2.5 phone:pt-4 phone:pb-5"
         >
           <div className="vibes-toolbar flex shrink-0 flex-wrap items-center gap-x-4 gap-y-2">
             <div
@@ -356,7 +356,7 @@ export function Vibes() {
             </div>
           </div>
 
-          <div ref={chartRef} className="vibes-plot relative mt-2 mobile:mt-1 flex min-h-0 flex-1 flex-col">
+          <div ref={chartRef} className="vibes-plot relative mt-2 short:mt-1 mobile:mt-1 flex min-h-0 flex-1 flex-col">
             <VibesChart
               models={vibes.models}
               activeFamily={active?.family ?? null}
