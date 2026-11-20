@@ -242,10 +242,10 @@ test('vibes page supports label clicks, pin precedence, 3D cost axis, and mobile
   await expect(page).toHaveURL(/\?page=vibes/);
   await expect(page.getByRole('heading', { name: 'Vibes', exact: true })).toHaveCount(1);
   await expect(page.locator('.vibes-plot svg [data-vibe-family]')).toHaveCount(7);
-  const explanation = page.locator('p', { hasText: 'Personal ratings, not benchmarks.' });
-  await expect(explanation).toBeVisible();
-  await expect(explanation).toContainText('at its best, what can it do');
-  await expect(explanation).toContainText("does it understand what it's doing");
+  const capabilityDefinition = page.locator('p', { hasText: 'at its best, what can it do' });
+  const coherencyDefinition = page.locator('p', { hasText: "does it understand what it's doing" });
+  await expect(capabilityDefinition).toBeVisible();
+  await expect(coherencyDefinition).toBeVisible();
 
   const toolbarBottom = await page.locator('.vibes-toolbar').evaluate((el) => el.getBoundingClientRect().bottom);
   const capTop = await page.locator('[data-axis-label="capability"]').evaluate((el) => el.getBoundingClientRect().top);
@@ -369,9 +369,8 @@ test('vibes page supports label clicks, pin precedence, 3D cost axis, and mobile
   await expect(pickMenu).toHaveAttribute('aria-label', 'Best for: Pick a use case');
 
   await page.setViewportSize({ width: 320, height: 740 });
-  await expect(explanation).toBeVisible();
-  await expect(explanation).toContainText('at its best, what can it do');
-  await expect(explanation).toContainText("does it understand what it's doing");
+  await expect(capabilityDefinition).toBeVisible();
+  await expect(coherencyDefinition).toBeVisible();
   await expect.poll(() =>
     page.locator('.vibes-plot svg[role="group"]').evaluate((svg) => Number(svg.getAttribute('viewBox')!.split(' ')[2])),
   ).toBeLessThan(320);

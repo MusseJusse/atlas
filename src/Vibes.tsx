@@ -401,24 +401,18 @@ export function Vibes() {
             </aside>
           )}
 
-          <div className="flex shrink-0 flex-col gap-0.5 pt-1 phone:gap-1.5 phone:pt-3">
+          <div className="flex shrink-0 flex-col pt-0.5 phone:gap-1.5 phone:pt-3">
             <p className="m-0 text-[12px] leading-[18px] text-fg-2">
-              <strong className="font-[600] text-fg">Personal ratings, not benchmarks.</strong>{' '}
-              <strong className="font-[550] text-fg">Capability:</strong> "{axisDefinitions.capability.toLowerCase()}"{' '}
-              <span aria-hidden="true" className="text-fg-3">
-                ·
-              </span>{' '}
-              <strong className="font-[550] text-fg">Coherency:</strong> "{axisDefinitions.coherency.toLowerCase()}"
-              {showCost && (
-                <>
-                  {' '}
-                  <span aria-hidden="true" className="text-fg-3">
-                    ·
-                  </span>{' '}
-                  <strong className="font-[550] text-fg">Cost:</strong> high-effort API cost/task (log, drag to rotate)
-                </>
-              )}
+              <strong className="font-[550] text-fg">Capability:</strong> {axisDefinitions.capability.toLowerCase()}
             </p>
+            <p className="m-0 text-[12px] leading-[18px] text-fg-2">
+              <strong className="font-[550] text-fg">Coherency:</strong> {axisDefinitions.coherency.toLowerCase()}
+            </p>
+            {showCost && (
+              <p className="m-0 text-[12px] leading-[18px] text-fg-2">
+                <strong className="font-[550] text-fg">Cost:</strong> high-effort API cost/task (log, drag to rotate)
+              </p>
+            )}
             <p className="m-0 text-[12px] leading-[18px] text-fg-2">
               <strong className="font-[600] text-fg">{reasoningGuidance.title}:</strong> Default to{' '}
               <strong className="font-[550] text-fg">high</strong>. Never use{' '}
