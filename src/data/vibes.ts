@@ -97,8 +97,8 @@ export const vibeModels: readonly VibeModelEntry[] = [
 ];
 
 export const axisDefinitions = {
-  capability: 'At its best, what can it do',
-  coherency: "Does it understand what it's doing",
+  capability: 'at its best, what can it do',
+  coherency: "does it understand what it's doing",
 } as const;
 
 export const reasoningGuidance = {

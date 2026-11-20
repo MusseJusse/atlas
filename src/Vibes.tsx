@@ -356,7 +356,7 @@ export function Vibes() {
             </div>
           </div>
 
-          <div ref={chartRef} className="vibes-plot relative mt-2 flex min-h-0 flex-1 flex-col">
+          <div ref={chartRef} className="vibes-plot relative mt-2 mobile:mt-1 flex min-h-0 flex-1 flex-col">
             <VibesChart
               models={vibes.models}
               activeFamily={active?.family ?? null}
@@ -388,7 +388,26 @@ export function Vibes() {
             )}
           </div>
 
-          {/* Narrow phone plots have no free corner, so a pinned card sits below the plot instead of covering points. */}
+          <div className="flex shrink-0 flex-col pt-0.5 phone:gap-1.5 phone:pt-3">
+            <p className="m-0 text-[12px] leading-[18px] text-fg-2">
+              <strong className="font-[600] text-fg">Capability:</strong> {axisDefinitions.capability}
+            </p>
+            <p className="m-0 text-[12px] leading-[18px] text-fg-2">
+              <strong className="font-[600] text-fg">Coherency:</strong> {axisDefinitions.coherency}
+            </p>
+            {showCost && (
+              <p className="m-0 text-[12px] leading-[18px] text-fg-2">
+                <strong className="font-[600] text-fg">Cost:</strong> high-effort API cost per task, log scale
+              </p>
+            )}
+            <p className="m-0 text-[12px] leading-[18px] text-fg-2">
+              <strong className="font-[600] text-fg">{reasoningGuidance.title}:</strong> default to{' '}
+              <strong className="font-[550] text-fg">high</strong>. Never use{' '}
+              <strong className="font-[550] text-fg">max</strong>: {reasoningGuidance.quote.toLowerCase()}
+            </p>
+          </div>
+
+          {/* Narrow phone plots have no free corner, so a pinned card sits below the plot and axis definitions instead of covering points. */}
           {detailsBelow && isPinned && activeEntry && (
             <aside
               ref={belowCardRef}
@@ -400,25 +419,6 @@ export function Vibes() {
               {detailsContent}
             </aside>
           )}
-
-          <div className="flex shrink-0 flex-col pt-0.5 phone:gap-1.5 phone:pt-3">
-            <p className="m-0 text-[12px] leading-[18px] text-fg-2">
-              <strong className="font-[550] text-fg">Capability:</strong> {axisDefinitions.capability.toLowerCase()}
-            </p>
-            <p className="m-0 text-[12px] leading-[18px] text-fg-2">
-              <strong className="font-[550] text-fg">Coherency:</strong> {axisDefinitions.coherency.toLowerCase()}
-            </p>
-            {showCost && (
-              <p className="m-0 text-[12px] leading-[18px] text-fg-2">
-                <strong className="font-[550] text-fg">Cost:</strong> high-effort API cost/task (log, drag to rotate)
-              </p>
-            )}
-            <p className="m-0 text-[12px] leading-[18px] text-fg-2">
-              <strong className="font-[600] text-fg">{reasoningGuidance.title}:</strong> Default to{' '}
-              <strong className="font-[550] text-fg">high</strong>. Never use{' '}
-              <strong className="font-[550] text-fg">max</strong>: {reasoningGuidance.quote.toLowerCase()}
-            </p>
-          </div>
         </section>
       </main>
 
