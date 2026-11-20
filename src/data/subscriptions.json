@@ -1,9 +1,9 @@
 {
-  "capturedAt": "2026-11-19T07:04:44.405Z",
-  "sourceGeneratedAt": "2026-11-19T06:57:18.881Z",
+  "capturedAt": "2026-11-19T23:46:21.775Z",
+  "sourceGeneratedAt": "2026-11-19T23:40:12.774Z",
   "source": "https://mypriors.com/api/snapshot?view=core",
-  "sourceHash": "e972332ab6ae956c8c0b9d2c50f5528756b861ccb75b5e53273ab771da338ebc",
-  "benchmarkSourceHash": "0cc6360633aac094eba3d52e2f7dafb0bb5d8e51b8a8e24726949943d18f8aee",
+  "sourceHash": "5e737af4d16e47515d6a9d3e530a13a89d77b970ead41680450a33d9811b6f51",
+  "benchmarkSourceHash": "2aded8fe9c1162b9796e1b9c50db5923e3c4b91ed8ed80c51bf845606e2667a7",
   "methodology": "https://github.com/Fei2411/real-api-pricing/blob/main/CONVENTIONS.md",
   "models": [
     {
@@ -11,7 +11,7 @@
       "sourceModel": "gpt-5.6-sol",
       "provider": "openai",
       "providerName": "OpenAI",
-      "defaultPlan": "ChatGPT Pro 20x",
+      "defaultPlan": "ChatGPT Pro 10x",
       "dataDate": "2026-06-10~2026-09-06",
       "mix": {
         "cache": 0.97,
@@ -311,7 +311,7 @@
       "sourceModel": "gemini-3.8-flash",
       "provider": "google",
       "providerName": "Google",
-      "defaultPlan": "Google AI Pro",
+      "defaultPlan": "Google AI Ultra 20x",
       "dataDate": "2026-09-12~2026-09-27",
       "mix": {
         "cache": 0.85,
@@ -455,7 +455,7 @@
       "sourceModel": "claude-fable-5.1",
       "provider": "anthropic",
       "providerName": "Anthropic",
-      "defaultPlan": "Claude Ultra",
+      "defaultPlan": "Claude Max 5x",
       "dataDate": "2026-09-04~2026-09-05",
       "mix": {
         "cache": 0.97,
@@ -541,12 +541,12 @@
       "sourceModel": "grok-4.6",
       "provider": "xai",
       "providerName": "SpaceXAI",
-      "defaultPlan": "SuperGrok Heavy",
-      "dataDate": "2026-08-23~2026-09-20",
+      "defaultPlan": "SuperGrok Plus",
+      "dataDate": "2026-09-29",
       "mix": {
         "cache": 0.97,
-        "input": 0.025,
-        "cacheWrite": 0,
+        "input": 0,
+        "cacheWrite": 0.025,
         "output": 0.005
       },
       "apiPrices": {
@@ -591,12 +591,12 @@
       "sourceModel": "grok-4.7",
       "provider": "xai",
       "providerName": "SpaceXAI",
-      "defaultPlan": "SuperGrok Heavy",
-      "dataDate": "2026-09-22",
+      "defaultPlan": "SuperGrok Plus",
+      "dataDate": "2026-09-29",
       "mix": {
         "cache": 0.97,
-        "input": 0.025,
-        "cacheWrite": 0,
+        "input": 0,
+        "cacheWrite": 0.025,
         "output": 0.005
       },
       "apiPrices": {
@@ -634,7 +634,7 @@
       "sourceModel": "gpt-5.6-terra",
       "provider": "openai",
       "providerName": "OpenAI",
-      "defaultPlan": "ChatGPT Pro 20x",
+      "defaultPlan": "ChatGPT Pro 10x",
       "dataDate": "2026-06-10~2026-09-06",
       "mix": {
         "cache": 0.97,
@@ -684,7 +684,7 @@
       "sourceModel": "gpt-5.5",
       "provider": "openai",
       "providerName": "OpenAI",
-      "defaultPlan": "ChatGPT Pro 20x",
+      "defaultPlan": "ChatGPT Pro 10x",
       "dataDate": "2026-06-10~2026-09-06",
       "mix": {
         "cache": 0.97,
@@ -1189,7 +1189,7 @@
           "feeUsd": 99.99,
           "confidence": "preliminary",
           "periodDays": 28,
-          "usdPerMtok": 0.01231229798889679
+          "usdPerMtok": 0.012302392268482818
         },
         {
           "id": "Google AI Pro",
