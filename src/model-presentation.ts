@@ -22,6 +22,7 @@ export const notableFamilies = [
   'qwen3-8-max-0902',
   'qwen4-max',
   'qwen3-8-27b',
+  'inkling-2-mini',
 ];
 // These Frontier models load unselected.
 const defaultOff = new Set([
