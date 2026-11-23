@@ -33,8 +33,9 @@ function useSize(enabled: boolean) {
     const element = ref.current;
     if (!element) return;
     const resize = (width: number, height: number) => {
-      width = Math.round(width);
-      height = Math.round(height);
+      // Round down: a plot even a subpixel wider than its box overflows, and Windows draws a scrollbar for it.
+      width = Math.floor(width);
+      height = Math.floor(height);
       setSize((previous) =>
         previous.width === width && previous.height === height ? previous : { width, height },
       );
@@ -185,7 +186,7 @@ export const Chart = memo(function Chart({
           ) : (scatter || !phone) && (
             <>
             <div
-              className="absolute inset-0 overflow-x-auto overflow-y-hidden [scrollbar-width:thin] focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-accent"
+              className={`absolute inset-0 ${scrollable ? 'overflow-x-auto overflow-y-hidden [scrollbar-width:thin]' : 'overflow-hidden'} focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-accent`}
               onScroll={(event) => updateOverflow(event.currentTarget)}
               ref={(element) => {
                 scroller.current = element;
@@ -193,7 +194,7 @@ export const Chart = memo(function Chart({
               }}
               // Wide plots scroll; the region is a tab stop so arrow keys can pan it.
               style={{ scrollPaddingInline: `${barLayout.left + 8}px 8px` }}
-              {...(plotWidth > width ? { tabIndex: 0, role: 'region', 'aria-label': `${view.label}, scrolls sideways to show all ${legend.length} models` } : {})}
+              {...(scrollable ? { tabIndex: 0, role: 'region', 'aria-label': `${view.label}, scrolls sideways to show all ${legend.length} models` } : {})}
             >
             <svg
               className="absolute inset-0 block size-full font-sans [&_g[role=button]:focus]:[outline:none]"
