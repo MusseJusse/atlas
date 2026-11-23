@@ -1,9 +1,9 @@
 {
-  "capturedAt": "2026-11-20T14:49:04.999Z",
-  "sourceGeneratedAt": "2026-11-20T14:42:18.148Z",
+  "capturedAt": "2026-11-23T10:30:12.844Z",
+  "sourceGeneratedAt": "2026-11-23T10:23:11.536Z",
   "source": "https://mypriors.com/api/snapshot?view=core",
-  "sourceHash": "284804f502d29b78b0ea5c146a43943459b84318e2ca21068e0e2d87909952f0",
-  "benchmarkSourceHash": "f0aca5a0a028514a201915b4337e08ba6de4d67c0a0235828fe2b246f4d8a8df",
+  "sourceHash": "25f22131902c50debe0a6cf121d2e461235954f5ca5bd17210606eeaab75a00b",
+  "benchmarkSourceHash": "e9b9962496cd9bfbc6990fe0ff0a634bb4d789f887fedbb71c1128a628654ced",
   "methodology": "https://github.com/Fei2411/real-api-pricing/blob/main/CONVENTIONS.md",
   "models": [
     {
@@ -1165,8 +1165,8 @@
       "defaultPlan": "Google AI Ultra 20x",
       "dataDate": "2026-11-18",
       "mix": {
-        "cache": 0.97,
-        "input": 0.025,
+        "cache": 0.85,
+        "input": 0.145,
         "cacheWrite": 0,
         "output": 0.005
       },
@@ -1182,21 +1182,21 @@
           "feeUsd": 199.99,
           "confidence": "preliminary",
           "periodDays": 28,
-          "usdPerMtok": 0.006151503724807179
+          "usdPerMtok": 0.013271010573822593
         },
         {
           "id": "Google AI Ultra 5x",
           "feeUsd": 99.99,
           "confidence": "preliminary",
           "periodDays": 28,
-          "usdPerMtok": 0.012302392268482818
+          "usdPerMtok": 0.02654069398022943
         },
         {
           "id": "Google AI Pro",
           "feeUsd": 19.99,
           "confidence": "preliminary",
           "periodDays": 28,
-          "usdPerMtok": 0.014223360783698753
+          "usdPerMtok": 0.030684915396304413
         }
       ]
     }

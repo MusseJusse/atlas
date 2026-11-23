@@ -3,6 +3,5970 @@
   "baselineFetchedAt": "2026-10-13T20:47:14.735Z",
   "updates": [
     {
+      "checkedAt": "2026-11-23T10:30:19.440Z",
+      "previousFetchedAt": "2026-11-21T08:48:37.331Z",
+      "fetchedAt": "2026-11-23T10:30:20.088Z",
+      "changes": [
+        {
+          "id": "agnes-2-5-pro-theta",
+          "name": "Agnes 2.5 Pro Theta",
+          "effortLabel": "Default",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 191.235441826247,
+              "after": 165.078038893706
+            },
+            {
+              "field": "time",
+              "before": 1453.0161325794907,
+              "after": 1683.25347185293
+            }
+          ]
+        },
+        {
+          "id": "celeris-1",
+          "name": "Celeris-1",
+          "effortLabel": "Non-reasoning",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 740.34938767812,
+              "after": 735.150491451871
+            }
+          ]
+        },
+        {
+          "id": "claude-4-5-haiku",
+          "name": "Claude 4.5 Haiku",
+          "effortLabel": "Non-reasoning",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 99.2931841548968,
+              "after": 95.2790967663382
+            }
+          ]
+        },
+        {
+          "id": "claude-4-5-haiku-reasoning",
+          "name": "Claude 4.5 Haiku",
+          "effortLabel": "Default",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 98.1118294122069,
+              "after": 89.9306697302728
+            },
+            {
+              "field": "time",
+              "before": 257.44344949391586,
+              "after": 280.86355718014465
+            }
+          ]
+        },
+        {
+          "id": "claude-4-5-sonnet",
+          "name": "Claude 4.5 Sonnet",
+          "effortLabel": "Non-reasoning",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 52.0799520704402,
+              "after": 52.8596774029846
+            }
+          ]
+        },
+        {
+          "id": "claude-4-5-sonnet-thinking",
+          "name": "Claude 4.5 Sonnet",
+          "effortLabel": "Default",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 54.2119240821242,
+              "after": 52.4612280282728
+            }
+          ]
+        },
+        {
+          "id": "claude-fable-5",
+          "name": "Claude Fable 5",
+          "effortLabel": "max",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 89.4013199848539,
+              "after": 86.775364587342
+            }
+          ]
+        },
+        {
+          "id": "claude-fable-5-1",
+          "name": "Claude Fable 5.1",
+          "effortLabel": "max",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 91.3762914315488,
+              "after": 89.2280481663302
+            },
+            {
+              "field": "time",
+              "before": 1290.7170571700692,
+              "after": 1321.7921987017953
+            }
+          ]
+        },
+        {
+          "id": "claude-fable-5-1-high",
+          "name": "Claude Fable 5.1",
+          "effortLabel": "high",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 85.6280109687575,
+              "after": 85.7174911854919
+            },
+            {
+              "field": "time",
+              "before": 771.1345004998184,
+              "after": 770.329515644548
+            }
+          ]
+        },
+        {
+          "id": "claude-fable-5-1-low",
+          "name": "Claude Fable 5.1",
+          "effortLabel": "low",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 83.8055216456055,
+              "after": 85.2078899374461
+            },
+            {
+              "field": "time",
+              "before": 451.4799499867117,
+              "after": 444.04940374588875
+            }
+          ]
+        },
+        {
+          "id": "claude-fable-5-1-medium",
+          "name": "Claude Fable 5.1",
+          "effortLabel": "medium",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 83.9943490738338,
+              "after": 84.3798265621924
+            },
+            {
+              "field": "time",
+              "before": 577.9614484509927,
+              "after": 575.3211120507658
+            }
+          ]
+        },
+        {
+          "id": "claude-fable-5-1-xhigh",
+          "name": "Claude Fable 5.1",
+          "effortLabel": "xhigh",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 88.3475518171964,
+              "after": 87.6590354938185
+            },
+            {
+              "field": "time",
+              "before": 1098.6018972631323,
+              "after": 1107.230846177508
+            }
+          ]
+        },
+        {
+          "id": "claude-fable-5-2",
+          "name": "Claude Fable 5.2",
+          "effortLabel": "max",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 108.051434397109,
+              "after": 110.24061706187
+            },
+            {
+              "field": "time",
+              "before": 2533.755908636202,
+              "after": 2483.440020901202
+            }
+          ]
+        },
+        {
+          "id": "claude-fable-5-2-high",
+          "name": "Claude Fable 5.2",
+          "effortLabel": "high",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 107.781570155806,
+              "after": 110.347222105077
+            },
+            {
+              "field": "time",
+              "before": 907.7711917953372,
+              "after": 886.6648614021356
+            }
+          ]
+        },
+        {
+          "id": "claude-fable-5-2-low",
+          "name": "Claude Fable 5.2",
+          "effortLabel": "low",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 107.848063389964,
+              "after": 107.818559423986
+            },
+            {
+              "field": "time",
+              "before": 332.5068715564772,
+              "after": 332.59786026452775
+            }
+          ]
+        },
+        {
+          "id": "claude-fable-5-2-medium",
+          "name": "Claude Fable 5.2",
+          "effortLabel": "medium",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 109.790892865141,
+              "after": 109.289828566399
+            },
+            {
+              "field": "time",
+              "before": 392.84290919481043,
+              "after": 394.6439876610638
+            }
+          ]
+        },
+        {
+          "id": "claude-fable-5-2-xhigh",
+          "name": "Claude Fable 5.2",
+          "effortLabel": "xhigh",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 109.203490343317,
+              "after": 110.563257974582
+            },
+            {
+              "field": "time",
+              "before": 1482.9573966539147,
+              "after": 1464.7191726412088
+            }
+          ]
+        },
+        {
+          "id": "claude-haiku-5-5",
+          "name": "Claude Haiku 5.5",
+          "effortLabel": "max",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 253.950376503878,
+              "after": 257.38103058086
+            },
+            {
+              "field": "time",
+              "before": 889.8036018958949,
+              "after": 877.9433325214651
+            }
+          ]
+        },
+        {
+          "id": "claude-haiku-5-5-high",
+          "name": "Claude Haiku 5.5",
+          "effortLabel": "high",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 229.3084850277,
+              "after": 227.574340008734
+            },
+            {
+              "field": "time",
+              "before": 384.04312772923646,
+              "after": 386.96958453888476
+            }
+          ]
+        },
+        {
+          "id": "claude-haiku-5-5-low",
+          "name": "Claude Haiku 5.5",
+          "effortLabel": "low",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 219.132565239511,
+              "after": 218.962597612634
+            },
+            {
+              "field": "time",
+              "before": 128.50919706256695,
+              "after": 128.6089511004471
+            }
+          ]
+        },
+        {
+          "id": "claude-haiku-5-5-medium",
+          "name": "Claude Haiku 5.5",
+          "effortLabel": "medium",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 224.266049506103,
+              "after": 219.577988811369
+            },
+            {
+              "field": "time",
+              "before": 237.82073406665927,
+              "after": 242.8982832409004
+            }
+          ]
+        },
+        {
+          "id": "claude-haiku-5-5-xhigh",
+          "name": "Claude Haiku 5.5",
+          "effortLabel": "xhigh",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 240.112123965199,
+              "after": 238.133885734541
+            },
+            {
+              "field": "time",
+              "before": 567.1391701503179,
+              "after": 571.850538232329
+            }
+          ]
+        },
+        {
+          "id": "claude-opus-4-5",
+          "name": "Claude Opus 4.5",
+          "effortLabel": "Non-reasoning",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 57.0313786107443,
+              "after": 59.1105116291719
+            }
+          ]
+        },
+        {
+          "id": "claude-opus-4-5-thinking",
+          "name": "Claude Opus 4.5",
+          "effortLabel": "Default",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 62.8754292059542,
+              "after": 62.1091893591145
+            }
+          ]
+        },
+        {
+          "id": "claude-opus-4-6",
+          "name": "Claude Opus 4.6",
+          "effortLabel": "high",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 46.7103836311109,
+              "after": 46.3453453412695
+            }
+          ]
+        },
+        {
+          "id": "claude-opus-4-6-adaptive",
+          "name": "Claude Opus 4.6",
+          "effortLabel": "max",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 51.4087573714166,
+              "after": 49.8547438310187
+            }
+          ]
+        },
+        {
+          "id": "claude-opus-4-7",
+          "name": "Claude Opus 4.7",
+          "effortLabel": "max",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 84.7728151675437,
+              "after": 84.0510780369422
+            }
+          ]
+        },
+        {
+          "id": "claude-opus-4-7-non-reasoning",
+          "name": "Claude Opus 4.7",
+          "effortLabel": "high",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 71.954706756596,
+              "after": 74.9015129322824
+            }
+          ]
+        },
+        {
+          "id": "claude-opus-4-8",
+          "name": "Claude Opus 4.8",
+          "effortLabel": "max",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 84.5961579686928,
+              "after": 82.9878359439096
+            }
+          ]
+        },
+        {
+          "id": "claude-opus-5",
+          "name": "Claude Opus 5",
+          "effortLabel": "max",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 80.7652604452741,
+              "after": 77.25732088288
+            },
+            {
+              "field": "time",
+              "before": 1461.868441099717,
+              "after": 1528.2459193884506
+            }
+          ]
+        },
+        {
+          "id": "claude-opus-5-5",
+          "name": "Claude Opus 5.5",
+          "effortLabel": "max",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 112.465361361904,
+              "after": 114.489436733312
+            },
+            {
+              "field": "time",
+              "before": 1541.031271831679,
+              "after": 1513.7871562793441
+            }
+          ]
+        },
+        {
+          "id": "claude-opus-5-5-high",
+          "name": "Claude Opus 5.5",
+          "effortLabel": "high",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 108.528028335344,
+              "after": 107.775539872592
+            },
+            {
+              "field": "time",
+              "before": 553.5064026947321,
+              "after": 557.3709825667469
+            }
+          ]
+        },
+        {
+          "id": "claude-opus-5-5-low",
+          "name": "Claude Opus 5.5",
+          "effortLabel": "low",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 104.581483184555,
+              "after": 104.265307110239
+            },
+            {
+              "field": "time",
+              "before": 182.24600460181387,
+              "after": 182.7986508068824
+            }
+          ]
+        },
+        {
+          "id": "claude-opus-5-5-medium",
+          "name": "Claude Opus 5.5",
+          "effortLabel": "medium",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 107.909781164034,
+              "after": 107.735347092824
+            },
+            {
+              "field": "time",
+              "before": 406.0479597506187,
+              "after": 406.7053911381539
+            }
+          ]
+        },
+        {
+          "id": "claude-opus-5-5-xhigh",
+          "name": "Claude Opus 5.5",
+          "effortLabel": "xhigh",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 108.533936852816,
+              "after": 110.544448380588
+            },
+            {
+              "field": "time",
+              "before": 952.6537965016952,
+              "after": 935.3275402500174
+            }
+          ]
+        },
+        {
+          "id": "claude-opus-5-high",
+          "name": "Claude Opus 5",
+          "effortLabel": "high",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 79.5908945803542,
+              "after": 75.7635229175744
+            }
+          ]
+        },
+        {
+          "id": "claude-opus-5-low",
+          "name": "Claude Opus 5",
+          "effortLabel": "low",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 73.6664586592602,
+              "after": 71.9539174374306
+            }
+          ]
+        },
+        {
+          "id": "claude-opus-5-medium",
+          "name": "Claude Opus 5",
+          "effortLabel": "medium",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 78.4156292478655,
+              "after": 76.5129795675826
+            }
+          ]
+        },
+        {
+          "id": "claude-opus-5-xhigh",
+          "name": "Claude Opus 5",
+          "effortLabel": "xhigh",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 81.5026356540375,
+              "after": 78.0715466563879
+            }
+          ]
+        },
+        {
+          "id": "claude-sonnet-4-6",
+          "name": "Claude Sonnet 4.6",
+          "effortLabel": "Non-reasoning",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 59.2028557583745,
+              "after": 57.6410365321502
+            }
+          ]
+        },
+        {
+          "id": "claude-sonnet-4-6-adaptive",
+          "name": "Claude Sonnet 4.6",
+          "effortLabel": "max",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 57.4726755743013,
+              "after": 58.2625789848393
+            }
+          ]
+        },
+        {
+          "id": "claude-sonnet-4-6-non-reasoning-low-effort",
+          "name": "Claude Sonnet 4.6",
+          "effortLabel": "low",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 55.0315499252128,
+              "after": 55.2724034071321
+            }
+          ]
+        },
+        {
+          "id": "claude-sonnet-5",
+          "name": "Claude Sonnet 5",
+          "effortLabel": "max",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 102.374390697359,
+              "after": 99.1289120386167
+            }
+          ]
+        },
+        {
+          "id": "claude-sonnet-5-5",
+          "name": "Claude Sonnet 5.5",
+          "effortLabel": "max",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 143.027508617194,
+              "after": 151.542013690042
+            },
+            {
+              "field": "time",
+              "before": 1995.3302417810676,
+              "after": 1883.221071182338
+            }
+          ]
+        },
+        {
+          "id": "claude-sonnet-5-5-high",
+          "name": "Claude Sonnet 5.5",
+          "effortLabel": "high",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 134.786271918117,
+              "after": 140.287188454249
+            },
+            {
+              "field": "time",
+              "before": 433.4359217910884,
+              "after": 416.44010873213756
+            }
+          ]
+        },
+        {
+          "id": "claude-sonnet-5-5-low",
+          "name": "Claude Sonnet 5.5",
+          "effortLabel": "low",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 135.351093311452,
+              "after": 134.227717457668
+            },
+            {
+              "field": "time",
+              "before": 154.0908999660512,
+              "after": 155.3805143585801
+            }
+          ]
+        },
+        {
+          "id": "claude-sonnet-5-5-medium",
+          "name": "Claude Sonnet 5.5",
+          "effortLabel": "medium",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 138.248431112161,
+              "after": 139.693323649884
+            },
+            {
+              "field": "time",
+              "before": 222.39597604696888,
+              "after": 220.09566363536604
+            }
+          ]
+        },
+        {
+          "id": "claude-sonnet-5-5-xhigh",
+          "name": "Claude Sonnet 5.5",
+          "effortLabel": "xhigh",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 140.565695460453,
+              "after": 145.376988521094
+            },
+            {
+              "field": "time",
+              "before": 869.3792497484151,
+              "after": 840.6068945501718
+            }
+          ]
+        },
+        {
+          "id": "claude-sonnet-5-high",
+          "name": "Claude Sonnet 5",
+          "effortLabel": "high",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 97.7980006332953,
+              "after": 96.8064773387476
+            }
+          ]
+        },
+        {
+          "id": "claude-sonnet-5-low",
+          "name": "Claude Sonnet 5",
+          "effortLabel": "low",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 96.2330670058031,
+              "after": 96.6142365506546
+            }
+          ]
+        },
+        {
+          "id": "claude-sonnet-5-medium",
+          "name": "Claude Sonnet 5",
+          "effortLabel": "medium",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 98.2712208342013,
+              "after": 101.088649931454
+            }
+          ]
+        },
+        {
+          "id": "claude-sonnet-5-non-reasoning",
+          "name": "Claude Sonnet 5",
+          "effortLabel": "Non-reasoning",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 103.36375605141,
+              "after": 101.735343522307
+            }
+          ]
+        },
+        {
+          "id": "claude-sonnet-5-xhigh",
+          "name": "Claude Sonnet 5",
+          "effortLabel": "xhigh",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 98.6357293474838,
+              "after": 95.13705246855
+            }
+          ]
+        },
+        {
+          "id": "command-a",
+          "name": "Command A",
+          "effortLabel": "Non-reasoning",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 49.8709515275508,
+              "after": 66.4187089805383
+            }
+          ]
+        },
+        {
+          "id": "command-a-plus",
+          "name": "Command A+",
+          "effortLabel": "Default",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 190.050018734376,
+              "after": 210.54355649516
+            },
+            {
+              "field": "time",
+              "before": 187.47862510951867,
+              "after": 169.2301431945183
+            }
+          ]
+        },
+        {
+          "id": "deepseek-r1",
+          "name": "DeepSeek R1 0528 (May '25)",
+          "effortLabel": "Default",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 27.2267688457313,
+              "after": 24.391792842195848
+            }
+          ]
+        },
+        {
+          "id": "deepseek-r1-0120",
+          "name": "DeepSeek R1 (Jan '25)",
+          "effortLabel": "Default",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 118.989427497611,
+              "after": 132.162208001206
+            }
+          ]
+        },
+        {
+          "id": "deepseek-v3",
+          "name": "DeepSeek V3 (Dec '24)",
+          "effortLabel": "Non-reasoning",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 69.36219033694461,
+              "after": 78.2234907560443
+            }
+          ]
+        },
+        {
+          "id": "deepseek-v3-1",
+          "name": "DeepSeek V3.1",
+          "effortLabel": "Non-reasoning",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 61.5908504426189,
+              "after": 70.7216206705814
+            }
+          ]
+        },
+        {
+          "id": "deepseek-v3-1-reasoning",
+          "name": "DeepSeek V3.1",
+          "effortLabel": "Default",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 104.990238894267,
+              "after": 103.34184274866
+            }
+          ]
+        },
+        {
+          "id": "deepseek-v3-2",
+          "name": "DeepSeek V3.2",
+          "effortLabel": "Non-reasoning",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 34.4968871209535,
+              "after": 38.7252013529795
+            }
+          ]
+        },
+        {
+          "id": "deepseek-v3-2-reasoning",
+          "name": "DeepSeek V3.2",
+          "effortLabel": "Default",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 33.166136032943854,
+              "after": 34.8849285397021
+            }
+          ]
+        },
+        {
+          "id": "deepseek-v4-1-flash",
+          "name": "DeepSeek V4.1 Flash",
+          "effortLabel": "max",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 213.363541455365,
+              "after": 223.936483790558
+            }
+          ]
+        },
+        {
+          "id": "deepseek-v4-1-flash-1017",
+          "name": "DeepSeek V4.1 Flash 1017",
+          "effortLabel": "max",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 162.39926331014,
+              "after": 167.460644650581
+            },
+            {
+              "field": "time",
+              "before": 855.6794104483233,
+              "after": 829.8170962880054
+            }
+          ]
+        },
+        {
+          "id": "deepseek-v4-1-flash-1017-high",
+          "name": "DeepSeek V4.1 Flash 1017",
+          "effortLabel": "high",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 167.756701912616,
+              "after": 173.829948358152
+            },
+            {
+              "field": "time",
+              "before": 658.2752863502783,
+              "after": 635.276556380147
+            }
+          ]
+        },
+        {
+          "id": "deepseek-v4-1-flash-1017-non-reasoning",
+          "name": "DeepSeek V4.1 Flash 1017",
+          "effortLabel": "Non-reasoning",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 159.358811803886,
+              "after": 167.850494680174
+            },
+            {
+              "field": "time",
+              "before": 410.1283700985175,
+              "after": 389.3796671287618
+            }
+          ]
+        },
+        {
+          "id": "deepseek-v4-1-flash-non-reasoning",
+          "name": "DeepSeek V4.1 Flash",
+          "effortLabel": "Non-reasoning",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 215.110588965724,
+              "after": 217.14083576431352
+            }
+          ]
+        },
+        {
+          "id": "deepseek-v4-flash",
+          "name": "DeepSeek V4 Flash 0731",
+          "effortLabel": "max",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 121.585935404508,
+              "after": 126.074680465412
+            }
+          ]
+        },
+        {
+          "id": "deepseek-v4-flash-0420",
+          "name": "DeepSeek V4 Flash 0420",
+          "effortLabel": "max",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 131.13280100772,
+              "after": 97.263863822666
+            }
+          ]
+        },
+        {
+          "id": "deepseek-v4-flash-vision",
+          "name": "DeepSeek V4 Flash Vision",
+          "effortLabel": "max",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 162.78053001979,
+              "after": 162.303825182319
+            }
+          ]
+        },
+        {
+          "id": "deepseek-v4-pro",
+          "name": "DeepSeek V4 Pro 0813",
+          "effortLabel": "max",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 82.6961724043052,
+              "after": 87.0204085627856
+            },
+            {
+              "field": "time",
+              "before": 1193.9209270803808,
+              "after": 1134.592361189743
+            }
+          ]
+        },
+        {
+          "id": "deepseek-v4-pro-0424",
+          "name": "DeepSeek V4 Pro 0424",
+          "effortLabel": "max",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 69.6747754112312,
+              "after": 69.3092700043962
+            }
+          ]
+        },
+        {
+          "id": "deepseek-v4-pro-0424-non-reasoning",
+          "name": "DeepSeek V4 Pro 0424",
+          "effortLabel": "Non-reasoning",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 124.797663234205,
+              "after": 151.7053364605555
+            }
+          ]
+        },
+        {
+          "id": "deepseek-v4-pro-high",
+          "name": "DeepSeek V4 Pro 0813",
+          "effortLabel": "high",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 81.4813813928715,
+              "after": 86.9839791912498
+            },
+            {
+              "field": "time",
+              "before": 862.9503831552945,
+              "after": 808.3602284784238
+            }
+          ]
+        },
+        {
+          "id": "deepseek-v4-pro-non-reasoning",
+          "name": "DeepSeek V4 Pro 0813",
+          "effortLabel": "Non-reasoning",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 81.0036973975781,
+              "after": 80.6210667453301
+            },
+            {
+              "field": "time",
+              "before": 883.7631597567869,
+              "after": 887.9575333603843
+            }
+          ]
+        },
+        {
+          "id": "gemini-2-5-flash",
+          "name": "Gemini 2.5 Flash",
+          "effortLabel": "Non-reasoning",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 176.085576734061,
+              "after": 171.496621236956
+            }
+          ]
+        },
+        {
+          "id": "gemini-2-5-flash-lite",
+          "name": "Gemini 2.5 Flash-Lite",
+          "effortLabel": "Non-reasoning",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 273.077808030896,
+              "after": 286.961127606585
+            }
+          ]
+        },
+        {
+          "id": "gemini-2-5-flash-lite-reasoning",
+          "name": "Gemini 2.5 Flash-Lite",
+          "effortLabel": "Default",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 333.387590194376,
+              "after": 366.006333153943
+            }
+          ]
+        },
+        {
+          "id": "gemini-2-5-flash-reasoning",
+          "name": "Gemini 2.5 Flash",
+          "effortLabel": "Default",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 202.979107782721,
+              "after": 205.861067234767
+            }
+          ]
+        },
+        {
+          "id": "gemini-2-5-pro",
+          "name": "Gemini 2.5 Pro",
+          "effortLabel": "Default",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 116.590846029405,
+              "after": 125.5432661755
+            }
+          ]
+        },
+        {
+          "id": "gemini-3-1-flash-lite-preview",
+          "name": "Gemini 3.1 Flash-Lite",
+          "effortLabel": "high",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 295.272025631196,
+              "after": 327.913701443893
+            },
+            {
+              "field": "time",
+              "before": 53.88491101640779,
+              "after": 48.521018660435104
+            }
+          ]
+        },
+        {
+          "id": "gemini-3-1-pro-preview",
+          "name": "Gemini 3.1 Pro Preview",
+          "effortLabel": "Default",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 108.572633966722,
+              "after": 112.034641827104
+            }
+          ]
+        },
+        {
+          "id": "gemini-3-5-flash",
+          "name": "Gemini 3.5 Flash",
+          "effortLabel": "high",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 153.457700030478,
+              "after": 169.869481294108
+            }
+          ]
+        },
+        {
+          "id": "gemini-3-5-flash-lite",
+          "name": "Gemini 3.5 Flash-Lite",
+          "effortLabel": "high",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 310.143786414928,
+              "after": 314.148438314479
+            },
+            {
+              "field": "time",
+              "before": 97.69884668554504,
+              "after": 96.45341674146383
+            }
+          ]
+        },
+        {
+          "id": "gemini-3-5-flash-medium",
+          "name": "Gemini 3.5 Flash",
+          "effortLabel": "medium",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 160.161156415881,
+              "after": 156.051617389569
+            }
+          ]
+        },
+        {
+          "id": "gemini-3-5-flash-minimal",
+          "name": "Gemini 3.5 Flash",
+          "effortLabel": "minimal",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 136.812658463636,
+              "after": 158.41843971998
+            }
+          ]
+        },
+        {
+          "id": "gemini-3-6-flash",
+          "name": "Gemini 3.6 Flash",
+          "effortLabel": "high",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 155.299858899292,
+              "after": 164.539032379476
+            }
+          ]
+        },
+        {
+          "id": "gemini-3-8-flash",
+          "name": "Gemini 3.8 Flash",
+          "effortLabel": "high",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 107.648439362632,
+              "after": 104.011132277774
+            },
+            {
+              "field": "time",
+              "before": 919.0984527502809,
+              "after": 951.239659567861
+            }
+          ]
+        },
+        {
+          "id": "gemini-3-8-flash-low",
+          "name": "Gemini 3.8 Flash",
+          "effortLabel": "low",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 103.395606194306,
+              "after": 98.789664710291
+            }
+          ]
+        },
+        {
+          "id": "gemini-3-8-flash-medium",
+          "name": "Gemini 3.8 Flash",
+          "effortLabel": "medium",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 110.689103142129,
+              "after": 106.296294648069
+            },
+            {
+              "field": "time",
+              "before": 741.4281350322302,
+              "after": 772.0684486959184
+            }
+          ]
+        },
+        {
+          "id": "gemini-3-flash",
+          "name": "Gemini 3 Flash Preview",
+          "effortLabel": "Non-reasoning",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 151.485341998206,
+              "after": 158.671215142939
+            }
+          ]
+        },
+        {
+          "id": "gemini-3-flash-reasoning",
+          "name": "Gemini 3 Flash Preview",
+          "effortLabel": "Default",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 196.342707989937,
+              "after": 197.24167106195
+            }
+          ]
+        },
+        {
+          "id": "gemini-4-argon",
+          "name": "Gemini 4 Argon",
+          "effortLabel": "high",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 71.8389843856664,
+              "after": 81.053685473068
+            },
+            {
+              "field": "time",
+              "before": 1619.8451309265993,
+              "after": 1435.6907818398918
+            }
+          ]
+        },
+        {
+          "id": "gemini-4-argon-medium",
+          "name": "Gemini 4 Argon",
+          "effortLabel": "medium",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 61.4593693930293,
+              "after": 70.5585787562992
+            },
+            {
+              "field": "time",
+              "before": 1633.717274504725,
+              "after": 1423.0336725510501
+            }
+          ]
+        },
+        {
+          "id": "gemini-4-carbon",
+          "name": "Gemini 4 Carbon",
+          "effortLabel": "high",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 55.3537058279444,
+              "after": 62.5663439139668
+            },
+            {
+              "field": "time",
+              "before": 2217.878532936975,
+              "after": 1962.2018515756768
+            }
+          ]
+        },
+        {
+          "id": "gemini-4-carbon-low",
+          "name": "Gemini 4 Carbon",
+          "effortLabel": "low",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 53.7620750745835,
+              "after": 54.7033140725253
+            },
+            {
+              "field": "time",
+              "before": 1602.7141431233485,
+              "after": 1575.1374399630868
+            }
+          ]
+        },
+        {
+          "id": "gemini-4-carbon-medium",
+          "name": "Gemini 4 Carbon",
+          "effortLabel": "medium",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 65.9807346087479,
+              "after": 71.3969486160878
+            },
+            {
+              "field": "time",
+              "before": 1561.2511144216091,
+              "after": 1442.8136977138602
+            }
+          ]
+        },
+        {
+          "id": "gemini-4-hydrogen",
+          "name": "Gemini 4 Hydrogen",
+          "effortLabel": "xhigh",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 165.500012349657,
+              "after": 158.332130245737
+            },
+            {
+              "field": "time",
+              "before": 932.9643359749552,
+              "after": 975.2007308055652
+            }
+          ]
+        },
+        {
+          "id": "gemini-4-hydrogen-high",
+          "name": "Gemini 4 Hydrogen",
+          "effortLabel": "high",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 154.652343307202,
+              "after": 167.519500177296
+            },
+            {
+              "field": "time",
+              "before": 549.4801853919552,
+              "after": 507.2746646319018
+            }
+          ]
+        },
+        {
+          "id": "gemini-4-hydrogen-low",
+          "name": "Gemini 4 Hydrogen",
+          "effortLabel": "low",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 153.994770039146,
+              "after": 167.84906674559
+            },
+            {
+              "field": "time",
+              "before": 91.39152869711604,
+              "after": 83.84805300448994
+            }
+          ]
+        },
+        {
+          "id": "gemini-4-hydrogen-medium",
+          "name": "Gemini 4 Hydrogen",
+          "effortLabel": "medium",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 161.025841401513,
+              "after": 173.199334079727
+            },
+            {
+              "field": "time",
+              "before": 244.38793926980935,
+              "after": 227.21088252676572
+            }
+          ]
+        },
+        {
+          "id": "gemini-4-neon",
+          "name": "Gemini 4 Neon",
+          "effortLabel": "xhigh",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 109.855965065801,
+              "after": 99.4626339616859
+            },
+            {
+              "field": "time",
+              "before": 1289.2411124095331,
+              "after": 1423.960144277034
+            }
+          ]
+        },
+        {
+          "id": "gemini-4-neon-high",
+          "name": "Gemini 4 Neon",
+          "effortLabel": "high",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 101.456919437211,
+              "after": 100.017443725716
+            },
+            {
+              "field": "time",
+              "before": 888.9267930429858,
+              "after": 901.7204466319699
+            }
+          ]
+        },
+        {
+          "id": "gemini-4-neon-low",
+          "name": "Gemini 4 Neon",
+          "effortLabel": "low",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 97.1096390202611,
+              "after": 96.3910736692989
+            },
+            {
+              "field": "time",
+              "before": 223.72476641150928,
+              "after": 225.3925646751427
+            }
+          ]
+        },
+        {
+          "id": "gemini-4-neon-medium",
+          "name": "Gemini 4 Neon",
+          "effortLabel": "medium",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 100.730169790646,
+              "after": 95.789735537754
+            },
+            {
+              "field": "time",
+              "before": 496.37917305729513,
+              "after": 521.9803364306706
+            }
+          ]
+        },
+        {
+          "id": "gemma-3-12b",
+          "name": "Gemma 3 12B Instruct",
+          "effortLabel": "Non-reasoning",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 44.016645032476,
+              "after": 39.01860442486675
+            }
+          ]
+        },
+        {
+          "id": "gemma-3-27b",
+          "name": "Gemma 3 27B Instruct",
+          "effortLabel": "Non-reasoning",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 37.6815753653152,
+              "after": 33.2301300249583
+            }
+          ]
+        },
+        {
+          "id": "gemma-3-4b",
+          "name": "Gemma 3 4B Instruct",
+          "effortLabel": "Non-reasoning",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 55.282077649329,
+              "after": 77.1036739655078
+            }
+          ]
+        },
+        {
+          "id": "gemma-4-26b-a4b",
+          "name": "Gemma 4 26B A4B",
+          "effortLabel": "Default",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 65.38809991265025,
+              "after": 87.27311950153279
+            }
+          ]
+        },
+        {
+          "id": "gemma-4-26b-a4b-non-reasoning",
+          "name": "Gemma 4 26B A4B",
+          "effortLabel": "Non-reasoning",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 77.0457243689186,
+              "after": 85.8288287445246
+            }
+          ]
+        },
+        {
+          "id": "gemma-4-31b",
+          "name": "Gemma 4 31B",
+          "effortLabel": "Default",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 35.7501310649002,
+              "after": 35.6611079625649
+            }
+          ]
+        },
+        {
+          "id": "gemma-4-31b-non-reasoning",
+          "name": "Gemma 4 31B",
+          "effortLabel": "Non-reasoning",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 42.046057521985,
+              "after": 39.9828081033466
+            }
+          ]
+        },
+        {
+          "id": "glm-4-5-air",
+          "name": "GLM-4.5-Air",
+          "effortLabel": "Default",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 65.8854784196184,
+              "after": 65.21309159472
+            }
+          ]
+        },
+        {
+          "id": "glm-4-5v",
+          "name": "GLM-4.5V",
+          "effortLabel": "Non-reasoning",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 36.0205828213866,
+              "after": 38.4576994658857
+            }
+          ]
+        },
+        {
+          "id": "glm-4-5v-reasoning",
+          "name": "GLM-4.5V",
+          "effortLabel": "Default",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 32.9608118340661,
+              "after": 37.8372159569275
+            }
+          ]
+        },
+        {
+          "id": "glm-4-6",
+          "name": "GLM-4.6",
+          "effortLabel": "Non-reasoning",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 37.9982722813299,
+              "after": 49.7066264035347
+            }
+          ]
+        },
+        {
+          "id": "glm-4-6-reasoning",
+          "name": "GLM-4.6",
+          "effortLabel": "Default",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 37.089991478406745,
+              "after": 44.4330756002895
+            }
+          ]
+        },
+        {
+          "id": "glm-4-6v",
+          "name": "GLM-4.6V",
+          "effortLabel": "Non-reasoning",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 36.848567533559,
+              "after": 45.8803010603991
+            }
+          ]
+        },
+        {
+          "id": "glm-4-6v-reasoning",
+          "name": "GLM-4.6V",
+          "effortLabel": "Default",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 46.5097264723564,
+              "after": 54.9796236944553
+            }
+          ]
+        },
+        {
+          "id": "glm-4-7",
+          "name": "GLM-4.7",
+          "effortLabel": "Default",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 48.8831516058821,
+              "after": 73.2581188043247
+            }
+          ]
+        },
+        {
+          "id": "glm-4-7-flash",
+          "name": "GLM-4.7-Flash",
+          "effortLabel": "Default",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 76.30120365964045,
+              "after": 86.57855601402055
+            }
+          ]
+        },
+        {
+          "id": "glm-4-7-flash-non-reasoning",
+          "name": "GLM-4.7-Flash",
+          "effortLabel": "Non-reasoning",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 57.471546040627544,
+              "after": 73.8965668610539
+            }
+          ]
+        },
+        {
+          "id": "glm-4-7-non-reasoning",
+          "name": "GLM-4.7",
+          "effortLabel": "Non-reasoning",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 50.867501499655,
+              "after": 71.605648159466
+            }
+          ]
+        },
+        {
+          "id": "glm-5",
+          "name": "GLM-5",
+          "effortLabel": "Default",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 65.5749609122118,
+              "after": 68.3330886022328
+            }
+          ]
+        },
+        {
+          "id": "glm-5-1",
+          "name": "GLM-5.1",
+          "effortLabel": "Default",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 79.1086677312118,
+              "after": 77.5021561157279
+            }
+          ]
+        },
+        {
+          "id": "glm-5-1-non-reasoning",
+          "name": "GLM-5.1",
+          "effortLabel": "Non-reasoning",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 63.4271450227358,
+              "after": 62.861823876255
+            }
+          ]
+        },
+        {
+          "id": "glm-5-2",
+          "name": "GLM-5.2",
+          "effortLabel": "max",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 59.3435252138835,
+              "after": 58.6630133915028
+            }
+          ]
+        },
+        {
+          "id": "glm-5-2-non-reasoning",
+          "name": "GLM-5.2",
+          "effortLabel": "Non-reasoning",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 106.98859409993,
+              "after": 133.2644841403145
+            }
+          ]
+        },
+        {
+          "id": "glm-5-3",
+          "name": "GLM-5.3",
+          "effortLabel": "max",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 73.3371439476293,
+              "after": 67.8963671173365
+            },
+            {
+              "field": "time",
+              "before": 1622.458940205864,
+              "after": 1752.4723324499319
+            }
+          ]
+        },
+        {
+          "id": "glm-5-3-flash",
+          "name": "GLM-5.3-Flash",
+          "effortLabel": "max",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 55.5284686024591,
+              "after": 61.1205772300968
+            },
+            {
+              "field": "time",
+              "before": 2416.8670370491636,
+              "after": 2195.74047669527
+            }
+          ]
+        },
+        {
+          "id": "glm-5-3-low",
+          "name": "GLM-5.3",
+          "effortLabel": "low",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 57.663116499973,
+              "after": 56.9407322324776
+            },
+            {
+              "field": "time",
+              "before": 901.5397294351732,
+              "after": 912.9772029542538
+            }
+          ]
+        },
+        {
+          "id": "glm-5-non-reasoning",
+          "name": "GLM-5",
+          "effortLabel": "Non-reasoning",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 55.4399554707832,
+              "after": 57.6634593929726
+            }
+          ]
+        },
+        {
+          "id": "gpt-4-1",
+          "name": "GPT-4.1",
+          "effortLabel": "Non-reasoning",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 104.857451349949,
+              "after": 107.893426635652
+            }
+          ]
+        },
+        {
+          "id": "gpt-4-1-mini",
+          "name": "GPT-4.1 mini",
+          "effortLabel": "Non-reasoning",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 77.6443848523773,
+              "after": 80.8649486991318
+            }
+          ]
+        },
+        {
+          "id": "gpt-4-1-nano",
+          "name": "GPT-4.1 nano",
+          "effortLabel": "Non-reasoning",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 144.965246846,
+              "after": 174.890743109813
+            }
+          ]
+        },
+        {
+          "id": "gpt-4-turbo",
+          "name": "GPT-4 Turbo",
+          "effortLabel": "Non-reasoning",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 76.9751636633707,
+              "after": 88.5284366588505
+            }
+          ]
+        },
+        {
+          "id": "gpt-4o",
+          "name": "GPT-4o (Nov '24)",
+          "effortLabel": "Non-reasoning",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 133.499330662457,
+              "after": 112.258042068783
+            }
+          ]
+        },
+        {
+          "id": "gpt-4o-2024-05-13",
+          "name": "GPT-4o (May '24)",
+          "effortLabel": "Non-reasoning",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 84.8463648129726,
+              "after": 93.6219208028211
+            }
+          ]
+        },
+        {
+          "id": "gpt-4o-2024-08-06",
+          "name": "GPT-4o (Aug '24)",
+          "effortLabel": "Non-reasoning",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 82.5555610461813,
+              "after": 102.71265621268
+            }
+          ]
+        },
+        {
+          "id": "gpt-4o-mini",
+          "name": "GPT-4o mini",
+          "effortLabel": "Non-reasoning",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 55.7992602929085,
+              "after": 62.7955267939775
+            }
+          ]
+        },
+        {
+          "id": "gpt-5",
+          "name": "GPT-5",
+          "effortLabel": "high",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 89.2207874591254,
+              "after": 83.673279904584
+            }
+          ]
+        },
+        {
+          "id": "gpt-5-1",
+          "name": "GPT-5.1",
+          "effortLabel": "high",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 88.0245650925198,
+              "after": 87.1112192411177
+            }
+          ]
+        },
+        {
+          "id": "gpt-5-1-codex",
+          "name": "GPT-5.1 Codex",
+          "effortLabel": "high",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 106.569533998102,
+              "after": 103.438359236864
+            }
+          ]
+        },
+        {
+          "id": "gpt-5-1-codex-mini",
+          "name": "GPT-5.1 Codex mini",
+          "effortLabel": "high",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 132.428668413536,
+              "after": 136.4967970803
+            }
+          ]
+        },
+        {
+          "id": "gpt-5-1-non-reasoning",
+          "name": "GPT-5.1",
+          "effortLabel": "Non-reasoning",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 64.2057022028201,
+              "after": 72.8531397006042
+            }
+          ]
+        },
+        {
+          "id": "gpt-5-2",
+          "name": "GPT-5.2",
+          "effortLabel": "xhigh",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 65.3919515213983,
+              "after": 70.2530548111085
+            }
+          ]
+        },
+        {
+          "id": "gpt-5-2-codex",
+          "name": "GPT-5.2 Codex",
+          "effortLabel": "xhigh",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 72.6747611445238,
+              "after": 73.994740935308
+            }
+          ]
+        },
+        {
+          "id": "gpt-5-2-medium",
+          "name": "GPT-5.2",
+          "effortLabel": "medium",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 71.0234800741923,
+              "after": 62.0777403555354
+            }
+          ]
+        },
+        {
+          "id": "gpt-5-2-non-reasoning",
+          "name": "GPT-5.2",
+          "effortLabel": "Non-reasoning",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 58.5424816066892,
+              "after": 59.0090832786512
+            }
+          ]
+        },
+        {
+          "id": "gpt-5-3-codex",
+          "name": "GPT-5.3 Codex",
+          "effortLabel": "xhigh",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 75.6094807021027,
+              "after": 101.060332055928
+            }
+          ]
+        },
+        {
+          "id": "gpt-5-4",
+          "name": "GPT-5.4",
+          "effortLabel": "xhigh",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 65.2720702428483,
+              "after": 76.5048861084318
+            }
+          ]
+        },
+        {
+          "id": "gpt-5-4-low",
+          "name": "GPT-5.4",
+          "effortLabel": "low",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 55.1208099718344,
+              "after": 64.9239796712794
+            }
+          ]
+        },
+        {
+          "id": "gpt-5-4-mini",
+          "name": "GPT-5.4 mini",
+          "effortLabel": "xhigh",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 167.050640230553,
+              "after": 179.612028890019
+            }
+          ]
+        },
+        {
+          "id": "gpt-5-4-mini-medium",
+          "name": "GPT-5.4 mini",
+          "effortLabel": "medium",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 129.948488816828,
+              "after": 141.56320264107
+            }
+          ]
+        },
+        {
+          "id": "gpt-5-4-mini-non-reasoning",
+          "name": "GPT-5.4 mini",
+          "effortLabel": "Non-reasoning",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 129.664630811912,
+              "after": 121.472199594433
+            }
+          ]
+        },
+        {
+          "id": "gpt-5-4-nano",
+          "name": "GPT-5.4 nano",
+          "effortLabel": "xhigh",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 151.805815574611,
+              "after": 155.71133708797
+            }
+          ]
+        },
+        {
+          "id": "gpt-5-4-nano-medium",
+          "name": "GPT-5.4 nano",
+          "effortLabel": "medium",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 129.676613398049,
+              "after": 136.43587785801
+            }
+          ]
+        },
+        {
+          "id": "gpt-5-4-nano-non-reasoning",
+          "name": "GPT-5.4 nano",
+          "effortLabel": "Non-reasoning",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 99.7991099709998,
+              "after": 113.496677758713
+            }
+          ]
+        },
+        {
+          "id": "gpt-5-4-non-reasoning",
+          "name": "GPT-5.4",
+          "effortLabel": "Non-reasoning",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 58.650317104482,
+              "after": 73.6076925237266
+            }
+          ]
+        },
+        {
+          "id": "gpt-5-5",
+          "name": "GPT-5.5",
+          "effortLabel": "xhigh",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 68.3972885287622,
+              "after": 61.5924693172779
+            }
+          ]
+        },
+        {
+          "id": "gpt-5-5-high",
+          "name": "GPT-5.5",
+          "effortLabel": "high",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 70.1573391390372,
+              "after": 61.6263222417391
+            }
+          ]
+        },
+        {
+          "id": "gpt-5-5-instant-06-26",
+          "name": "GPT-5.5 Instant (June 2026)",
+          "effortLabel": "Default",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 117.38245772754,
+              "after": 111.483077596582
+            }
+          ]
+        },
+        {
+          "id": "gpt-5-5-low",
+          "name": "GPT-5.5",
+          "effortLabel": "low",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 60.5500694427411,
+              "after": 52.8407834445494
+            }
+          ]
+        },
+        {
+          "id": "gpt-5-5-medium",
+          "name": "GPT-5.5",
+          "effortLabel": "medium",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 67.9408989917509,
+              "after": 56.4867372762953
+            }
+          ]
+        },
+        {
+          "id": "gpt-5-5-non-reasoning",
+          "name": "GPT-5.5",
+          "effortLabel": "Non-reasoning",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 62.2741547613396,
+              "after": 55.8870558154907
+            }
+          ]
+        },
+        {
+          "id": "gpt-5-6-luna",
+          "name": "GPT-5.6 Luna",
+          "effortLabel": "max",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 97.1542798051375,
+              "after": 102.809225417776
+            },
+            {
+              "field": "time",
+              "before": 607.3163908390036,
+              "after": 573.9114007138212
+            }
+          ]
+        },
+        {
+          "id": "gpt-5-6-luna-high",
+          "name": "GPT-5.6 Luna",
+          "effortLabel": "high",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 91.4443154661455,
+              "after": 104.506956070168
+            }
+          ]
+        },
+        {
+          "id": "gpt-5-6-luna-low",
+          "name": "GPT-5.6 Luna",
+          "effortLabel": "low",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 92.3195071615012,
+              "after": 97.0729488288549
+            }
+          ]
+        },
+        {
+          "id": "gpt-5-6-luna-medium",
+          "name": "GPT-5.6 Luna",
+          "effortLabel": "medium",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 93.6189913606392,
+              "after": 103.181636069304
+            }
+          ]
+        },
+        {
+          "id": "gpt-5-6-luna-non-reasoning",
+          "name": "GPT-5.6 Luna",
+          "effortLabel": "Non-reasoning",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 95.8064381770909,
+              "after": 96.0877772296971
+            }
+          ]
+        },
+        {
+          "id": "gpt-5-6-luna-xhigh",
+          "name": "GPT-5.6 Luna",
+          "effortLabel": "xhigh",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 102.552215786111,
+              "after": 107.820887759056
+            }
+          ]
+        },
+        {
+          "id": "gpt-5-6-sol",
+          "name": "GPT-5.6 Sol",
+          "effortLabel": "max",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 101.937053871315,
+              "after": 109.340767497378
+            }
+          ]
+        },
+        {
+          "id": "gpt-5-6-sol-high",
+          "name": "GPT-5.6 Sol",
+          "effortLabel": "high",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 94.1467290958877,
+              "after": 100.427565998857
+            }
+          ]
+        },
+        {
+          "id": "gpt-5-6-sol-low",
+          "name": "GPT-5.6 Sol",
+          "effortLabel": "low",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 87.4712754410874,
+              "after": 86.5155576504043
+            }
+          ]
+        },
+        {
+          "id": "gpt-5-6-sol-medium",
+          "name": "GPT-5.6 Sol",
+          "effortLabel": "medium",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 97.5712403619856,
+              "after": 102.059401320466
+            }
+          ]
+        },
+        {
+          "id": "gpt-5-6-sol-non-reasoning",
+          "name": "GPT-5.6 Sol",
+          "effortLabel": "Non-reasoning",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 90.1267761891234,
+              "after": 101.815765773501
+            }
+          ]
+        },
+        {
+          "id": "gpt-5-6-sol-xhigh",
+          "name": "GPT-5.6 Sol",
+          "effortLabel": "xhigh",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 98.4186065239898,
+              "after": 109.552737171439
+            }
+          ]
+        },
+        {
+          "id": "gpt-5-6-terra",
+          "name": "GPT-5.6 Terra",
+          "effortLabel": "max",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 78.7524082744005,
+              "after": 87.8273045703944
+            },
+            {
+              "field": "time",
+              "before": 841.2348431271712,
+              "after": 754.3129115103701
+            }
+          ]
+        },
+        {
+          "id": "gpt-5-6-terra-high",
+          "name": "GPT-5.6 Terra",
+          "effortLabel": "high",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 74.6567409069399,
+              "after": 79.7426925171912
+            }
+          ]
+        },
+        {
+          "id": "gpt-5-6-terra-low",
+          "name": "GPT-5.6 Terra",
+          "effortLabel": "low",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 75.7239087357501,
+              "after": 86.9785360771451
+            }
+          ]
+        },
+        {
+          "id": "gpt-5-6-terra-medium",
+          "name": "GPT-5.6 Terra",
+          "effortLabel": "medium",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 77.5350249241772,
+              "after": 82.4607177558869
+            }
+          ]
+        },
+        {
+          "id": "gpt-5-6-terra-non-reasoning",
+          "name": "GPT-5.6 Terra",
+          "effortLabel": "Non-reasoning",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 71.6859583357485,
+              "after": 79.2496948052026
+            }
+          ]
+        },
+        {
+          "id": "gpt-5-6-terra-xhigh",
+          "name": "GPT-5.6 Terra",
+          "effortLabel": "xhigh",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 78.6489437531809,
+              "after": 89.3356937493412
+            }
+          ]
+        },
+        {
+          "id": "gpt-5-codex",
+          "name": "GPT-5 Codex",
+          "effortLabel": "high",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 114.734769759976,
+              "after": 116.448966509902
+            }
+          ]
+        },
+        {
+          "id": "gpt-5-low",
+          "name": "GPT-5",
+          "effortLabel": "low",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 71.139009068181,
+              "after": 64.5432536808165
+            }
+          ]
+        },
+        {
+          "id": "gpt-5-medium",
+          "name": "GPT-5",
+          "effortLabel": "medium",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 74.8244016736237,
+              "after": 88.0135206459466
+            }
+          ]
+        },
+        {
+          "id": "gpt-5-mini",
+          "name": "GPT-5 mini",
+          "effortLabel": "high",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 89.0629091770228,
+              "after": 81.0346240974866
+            }
+          ]
+        },
+        {
+          "id": "gpt-5-mini-medium",
+          "name": "GPT-5 mini",
+          "effortLabel": "medium",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 86.4938723734106,
+              "after": 82.8723152084353
+            }
+          ]
+        },
+        {
+          "id": "gpt-5-mini-minimal",
+          "name": "GPT-5 mini",
+          "effortLabel": "minimal",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 74.2771542853319,
+              "after": 69.328958564312
+            }
+          ]
+        },
+        {
+          "id": "gpt-5-minimal",
+          "name": "GPT-5",
+          "effortLabel": "minimal",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 65.0484124221755,
+              "after": 70.981608971523
+            }
+          ]
+        },
+        {
+          "id": "gpt-5-nano",
+          "name": "GPT-5 nano",
+          "effortLabel": "high",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 148.065015679318,
+              "after": 184.819956715141
+            }
+          ]
+        },
+        {
+          "id": "gpt-5-nano-medium",
+          "name": "GPT-5 nano",
+          "effortLabel": "medium",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 149.588913135852,
+              "after": 191.847320602131
+            }
+          ]
+        },
+        {
+          "id": "gpt-5-nano-minimal",
+          "name": "GPT-5 nano",
+          "effortLabel": "minimal",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 118.92900534434,
+              "after": 126.61634184916
+            }
+          ]
+        },
+        {
+          "id": "gpt-6-1-sol",
+          "name": "GPT-6.1 Sol",
+          "effortLabel": "max",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 43.9337824592631,
+              "after": 50.7180300859488
+            },
+            {
+              "field": "time",
+              "before": 1543.7708283065917,
+              "after": 1337.2698352605862
+            }
+          ]
+        },
+        {
+          "id": "gpt-6-1-sol-high",
+          "name": "GPT-6.1 Sol",
+          "effortLabel": "high",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 51.2907900053126,
+              "after": 53.3200763193436
+            },
+            {
+              "field": "time",
+              "before": 440.74577656993876,
+              "after": 423.9716188023539
+            }
+          ]
+        },
+        {
+          "id": "gpt-6-1-sol-low",
+          "name": "GPT-6.1 Sol",
+          "effortLabel": "low",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 51.9768376554247,
+              "after": 51.9460264733966
+            },
+            {
+              "field": "time",
+              "before": 112.3191586791159,
+              "after": 112.38577948302046
+            }
+          ]
+        },
+        {
+          "id": "gpt-6-1-sol-medium",
+          "name": "GPT-6.1 Sol",
+          "effortLabel": "medium",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 52.5458030472979,
+              "after": 52.3735187856137
+            },
+            {
+              "field": "time",
+              "before": 257.2676627096317,
+              "after": 258.1139524062737
+            }
+          ]
+        },
+        {
+          "id": "gpt-6-1-sol-xhigh",
+          "name": "GPT-6.1 Sol",
+          "effortLabel": "xhigh",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 47.7843455714938,
+              "after": 50.4749162828423
+            },
+            {
+              "field": "time",
+              "before": 632.8680153676625,
+              "after": 599.1329193695676
+            }
+          ]
+        },
+        {
+          "id": "gpt-6-1-terra",
+          "name": "GPT-6.1 Terra",
+          "effortLabel": "max",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 61.069245039648,
+              "after": 69.9208115357043
+            },
+            {
+              "field": "time",
+              "before": 980.5781073439864,
+              "after": 856.44264422368
+            }
+          ]
+        },
+        {
+          "id": "gpt-6-1-terra-high",
+          "name": "GPT-6.1 Terra",
+          "effortLabel": "high",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 59.3860531908652,
+              "after": 67.5501656300642
+            },
+            {
+              "field": "time",
+              "before": 281.993438232657,
+              "after": 247.9117137043149
+            }
+          ]
+        },
+        {
+          "id": "gpt-6-1-terra-low",
+          "name": "GPT-6.1 Terra",
+          "effortLabel": "low",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 53.2724677471148,
+              "after": 64.4567071517462
+            },
+            {
+              "field": "time",
+              "before": 83.01046402618239,
+              "after": 68.60685975001802
+            }
+          ]
+        },
+        {
+          "id": "gpt-6-1-terra-medium",
+          "name": "GPT-6.1 Terra",
+          "effortLabel": "medium",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 57.3037603999934,
+              "after": 66.801220507194
+            },
+            {
+              "field": "time",
+              "before": 189.7861966627877,
+              "after": 162.80335386415888
+            }
+          ]
+        },
+        {
+          "id": "gpt-6-1-terra-non-reasoning",
+          "name": "GPT-6.1 Terra",
+          "effortLabel": "Non-reasoning",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 57.6339120639352,
+              "after": 65.0397323723424
+            },
+            {
+              "field": "time",
+              "before": 164.62582573426613,
+              "after": 145.8805259145888
+            }
+          ]
+        },
+        {
+          "id": "gpt-6-1-terra-xhigh",
+          "name": "GPT-6.1 Terra",
+          "effortLabel": "xhigh",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 58.580837935585,
+              "after": 68.9048885291994
+            },
+            {
+              "field": "time",
+              "before": 447.2394063733607,
+              "after": 380.2293239624446
+            }
+          ]
+        },
+        {
+          "id": "gpt-6-2-astra",
+          "name": "GPT-6.2 Astra",
+          "effortLabel": "max",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 48.1628164589078,
+              "after": 48.64986129213
+            },
+            {
+              "field": "time",
+              "before": 851.8912216475303,
+              "after": 843.3627447526146
+            }
+          ]
+        },
+        {
+          "id": "gpt-6-2-astra-high",
+          "name": "GPT-6.2 Astra",
+          "effortLabel": "high",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 46.6636409452811,
+              "after": 45.9553610485769
+            },
+            {
+              "field": "time",
+              "before": 382.0512325863347,
+              "after": 387.9395381371479
+            }
+          ]
+        },
+        {
+          "id": "gpt-6-2-astra-low",
+          "name": "GPT-6.2 Astra",
+          "effortLabel": "low",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 42.9800104518862,
+              "after": 41.1426220941389
+            },
+            {
+              "field": "time",
+              "before": 121.36741924311403,
+              "after": 126.78756681214566
+            }
+          ]
+        },
+        {
+          "id": "gpt-6-2-astra-medium",
+          "name": "GPT-6.2 Astra",
+          "effortLabel": "medium",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 45.1594297499845,
+              "after": 45.4316215154546
+            },
+            {
+              "field": "time",
+              "before": 291.51295771655373,
+              "after": 289.766433512233
+            }
+          ]
+        },
+        {
+          "id": "gpt-6-2-astra-xhigh",
+          "name": "GPT-6.2 Astra",
+          "effortLabel": "xhigh",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 47.8140178432031,
+              "after": 46.9724408349698
+            },
+            {
+              "field": "time",
+              "before": 465.0854680795607,
+              "after": 473.418125055474
+            }
+          ]
+        },
+        {
+          "id": "gpt-6-2-sol",
+          "name": "GPT-6.2 Sol",
+          "effortLabel": "max",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 68.5200982016623,
+              "after": 67.429886206902
+            },
+            {
+              "field": "time",
+              "before": 589.0304958328948,
+              "after": 598.5539897605902
+            }
+          ]
+        },
+        {
+          "id": "gpt-6-2-sol-high",
+          "name": "GPT-6.2 Sol",
+          "effortLabel": "high",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 64.9631231440114,
+              "after": 65.2001652320757
+            },
+            {
+              "field": "time",
+              "before": 310.33732678714284,
+              "after": 309.20906265339295
+            }
+          ]
+        },
+        {
+          "id": "gpt-6-2-sol-low",
+          "name": "GPT-6.2 Sol",
+          "effortLabel": "low",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 60.5274904745014,
+              "after": 61.7686139063679
+            },
+            {
+              "field": "time",
+              "before": 98.79347494784585,
+              "after": 96.80840698340758
+            }
+          ]
+        },
+        {
+          "id": "gpt-6-2-sol-medium",
+          "name": "GPT-6.2 Sol",
+          "effortLabel": "medium",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 63.3282253917498,
+              "after": 63.5597921525849
+            },
+            {
+              "field": "time",
+              "before": 215.5584803205838,
+              "after": 214.77313824554142
+            }
+          ]
+        },
+        {
+          "id": "gpt-6-2-sol-xhigh",
+          "name": "GPT-6.2 Sol",
+          "effortLabel": "xhigh",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 66.3773581376701,
+              "after": 65.5352354056683
+            },
+            {
+              "field": "time",
+              "before": 366.4285131301369,
+              "after": 371.13709132704713
+            }
+          ]
+        },
+        {
+          "id": "gpt-6-astra",
+          "name": "GPT-6 Astra",
+          "effortLabel": "max",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 40.3258838129532,
+              "after": 45.5101698189472
+            },
+            {
+              "field": "time",
+              "before": 1288.8297555363936,
+              "after": 1142.0128552190008
+            }
+          ]
+        },
+        {
+          "id": "gpt-6-astra-high",
+          "name": "GPT-6 Astra",
+          "effortLabel": "high",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 47.4252458330621,
+              "after": 48.2621645505367
+            },
+            {
+              "field": "time",
+              "before": 487.788080591471,
+              "after": 479.329301781819
+            }
+          ]
+        },
+        {
+          "id": "gpt-6-astra-low",
+          "name": "GPT-6 Astra",
+          "effortLabel": "low",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 45.9708387517012,
+              "after": 51.1047979390487
+            },
+            {
+              "field": "time",
+              "before": 198.51299753101165,
+              "after": 178.57049372348757
+            }
+          ]
+        },
+        {
+          "id": "gpt-6-astra-medium",
+          "name": "GPT-6 Astra",
+          "effortLabel": "medium",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 45.9451472007986,
+              "after": 48.0726218827225
+            },
+            {
+              "field": "time",
+              "before": 392.8951266221566,
+              "after": 375.50738279201744
+            }
+          ]
+        },
+        {
+          "id": "gpt-6-astra-xhigh",
+          "name": "GPT-6 Astra",
+          "effortLabel": "xhigh",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 44.6128127383904,
+              "after": 48.9246140118191
+            },
+            {
+              "field": "time",
+              "before": 599.0153266530724,
+              "after": 546.2231871455011
+            }
+          ]
+        },
+        {
+          "id": "gpt-6-luna",
+          "name": "GPT-6 Luna",
+          "effortLabel": "max",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 104.105200822165,
+              "after": 109.903387262566
+            },
+            {
+              "field": "time",
+              "before": 723.2688835043047,
+              "after": 685.1112985785577
+            }
+          ]
+        },
+        {
+          "id": "gpt-6-luna-high",
+          "name": "GPT-6 Luna",
+          "effortLabel": "high",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 94.5952846965956,
+              "after": 100.970326380492
+            },
+            {
+              "field": "time",
+              "before": 347.1541032358073,
+              "after": 325.23556579814357
+            }
+          ]
+        },
+        {
+          "id": "gpt-6-luna-low",
+          "name": "GPT-6 Luna",
+          "effortLabel": "low",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 87.2856165178701,
+              "after": 93.9649816114909
+            },
+            {
+              "field": "time",
+              "before": 37.759833370887414,
+              "after": 35.07573011632348
+            }
+          ]
+        },
+        {
+          "id": "gpt-6-luna-medium",
+          "name": "GPT-6 Luna",
+          "effortLabel": "medium",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 92.7052761016719,
+              "after": 98.307077106626
+            },
+            {
+              "field": "time",
+              "before": 213.83074419925023,
+              "after": 201.6460947009619
+            }
+          ]
+        },
+        {
+          "id": "gpt-6-luna-non-reasoning",
+          "name": "GPT-6 Luna",
+          "effortLabel": "Non-reasoning",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 85.1372003497483,
+              "after": 94.0794774772843
+            },
+            {
+              "field": "time",
+              "before": 118.14612821407911,
+              "after": 106.91631010320802
+            }
+          ]
+        },
+        {
+          "id": "gpt-6-luna-xhigh",
+          "name": "GPT-6 Luna",
+          "effortLabel": "xhigh",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 99.4735716782577,
+              "after": 105.758832060028
+            },
+            {
+              "field": "time",
+              "before": 441.25503249565594,
+              "after": 415.0311917063822
+            }
+          ]
+        },
+        {
+          "id": "gpt-6-sol",
+          "name": "GPT-6 Sol",
+          "effortLabel": "max",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 113.17378406351,
+              "after": 129.192539006976
+            },
+            {
+              "field": "time",
+              "before": 476.1675610587624,
+              "after": 417.1269111012881
+            }
+          ]
+        },
+        {
+          "id": "gpt-6-sol-high",
+          "name": "GPT-6 Sol",
+          "effortLabel": "high",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 100.168603678523,
+              "after": 115.15678501022
+            }
+          ]
+        },
+        {
+          "id": "gpt-6-sol-low",
+          "name": "GPT-6 Sol",
+          "effortLabel": "low",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 91.8251743739608,
+              "after": 103.795311143761
+            }
+          ]
+        },
+        {
+          "id": "gpt-6-sol-non-reasoning",
+          "name": "GPT-6 Sol",
+          "effortLabel": "Non-reasoning",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 105.800886676256,
+              "after": 111.853332711528
+            }
+          ]
+        },
+        {
+          "id": "gpt-6-sol-xhigh",
+          "name": "GPT-6 Sol",
+          "effortLabel": "xhigh",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 106.688459952347,
+              "after": 120.841831621378
+            }
+          ]
+        },
+        {
+          "id": "gpt-oss-120b",
+          "name": "gpt-oss-120b",
+          "effortLabel": "high",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 209.977221360823,
+              "after": 190.475044268325
+            },
+            {
+              "field": "time",
+              "before": 349.8459558492325,
+              "after": 385.6656497743571
+            }
+          ]
+        },
+        {
+          "id": "gpt-oss-120b-low",
+          "name": "gpt-oss-120b",
+          "effortLabel": "low",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 182.86867261482251,
+              "after": 186.5981742107395
+            }
+          ]
+        },
+        {
+          "id": "gpt-oss-20b",
+          "name": "gpt-oss-20b",
+          "effortLabel": "high",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 102.40668037012276,
+              "after": 135.461541606126
+            }
+          ]
+        },
+        {
+          "id": "gpt-oss-20b-low",
+          "name": "gpt-oss-20b",
+          "effortLabel": "low",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 70.4082761353101,
+              "after": 113.127910326067
+            }
+          ]
+        },
+        {
+          "id": "granite-4-2-8b",
+          "name": "Granite 4.2 8B",
+          "effortLabel": "Default",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 93.6903071504914,
+              "after": 103.374189538232
+            },
+            {
+              "field": "time",
+              "before": 549.844181292526,
+              "after": 498.33590435216763
+            }
+          ]
+        },
+        {
+          "id": "grok-4",
+          "name": "Grok 4",
+          "effortLabel": "Default",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 70.7473951381933,
+              "after": 69.0684520603599
+            }
+          ]
+        },
+        {
+          "id": "grok-4-20",
+          "name": "Grok 4.20 0309 v2",
+          "effortLabel": "Default",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 120.06573894524,
+              "after": 135.722144763936
+            }
+          ]
+        },
+        {
+          "id": "grok-4-20-non-reasoning",
+          "name": "Grok 4.20 0309 v2",
+          "effortLabel": "Non-reasoning",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 124.315852617716,
+              "after": 137.088515916904
+            }
+          ]
+        },
+        {
+          "id": "grok-4-3",
+          "name": "Grok 4.3",
+          "effortLabel": "high",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 82.0124223480234,
+              "after": 81.7151449074656
+            }
+          ]
+        },
+        {
+          "id": "grok-4-3-low",
+          "name": "Grok 4.3",
+          "effortLabel": "low",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 72.2823097682,
+              "after": 75.8125503882599
+            }
+          ]
+        },
+        {
+          "id": "grok-4-3-medium",
+          "name": "Grok 4.3",
+          "effortLabel": "medium",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 80.381884912566,
+              "after": 77.0957700404931
+            }
+          ]
+        },
+        {
+          "id": "grok-4-3-non-reasoning",
+          "name": "Grok 4.3",
+          "effortLabel": "Non-reasoning",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 79.8677107207999,
+              "after": 85.1502732333426
+            }
+          ]
+        },
+        {
+          "id": "grok-4-5",
+          "name": "Grok 4.5",
+          "effortLabel": "high",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 74.6423512188281,
+              "after": 75.8697435431552
+            }
+          ]
+        },
+        {
+          "id": "grok-4-6",
+          "name": "Grok 4.6",
+          "effortLabel": "high",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 75.1351301298852,
+              "after": 80.5438666193143
+            }
+          ]
+        },
+        {
+          "id": "grok-4-6-low",
+          "name": "Grok 4.6",
+          "effortLabel": "low",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 68.2872307424362,
+              "after": 75.4567659492511
+            }
+          ]
+        },
+        {
+          "id": "grok-4-6-medium",
+          "name": "Grok 4.6",
+          "effortLabel": "medium",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 73.3426926432243,
+              "after": 75.7151291782029
+            }
+          ]
+        },
+        {
+          "id": "grok-4-6-xhigh",
+          "name": "Grok 4.6",
+          "effortLabel": "xhigh",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 78.0018631913015,
+              "after": 76.2501642299593
+            },
+            {
+              "field": "time",
+              "before": 749.0924554610403,
+              "after": 766.3013951326066
+            }
+          ]
+        },
+        {
+          "id": "grok-4-7",
+          "name": "Grok 4.7",
+          "effortLabel": "xhigh",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 69.1698481931398,
+              "after": 75.147696719878
+            },
+            {
+              "field": "time",
+              "before": 1511.2211961029357,
+              "after": 1391.0065814837515
+            }
+          ]
+        },
+        {
+          "id": "grok-4-7-high",
+          "name": "Grok 4.7",
+          "effortLabel": "high",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 72.3131469962018,
+              "after": 78.1408032172288
+            },
+            {
+              "field": "time",
+              "before": 1232.5169001239033,
+              "after": 1140.5971285730484
+            }
+          ]
+        },
+        {
+          "id": "grok-4-7-low",
+          "name": "Grok 4.7",
+          "effortLabel": "low",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 68.4066248940717,
+              "after": 74.2685743502126
+            },
+            {
+              "field": "time",
+              "before": 623.7639259895817,
+              "after": 574.5308198110131
+            }
+          ]
+        },
+        {
+          "id": "grok-build-0-1-06-16",
+          "name": "Grok Build 0.1 0616",
+          "effortLabel": "Default",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 154.504550915298,
+              "after": 163.115483610271
+            }
+          ]
+        },
+        {
+          "id": "hermes-4-llama-3-1-405b",
+          "name": "Hermes 4 - Llama-3.1 405B",
+          "effortLabel": "Non-reasoning",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 32.2257114208928,
+              "after": 30.5964186217869
+            }
+          ]
+        },
+        {
+          "id": "hermes-4-llama-3-1-405b-reasoning",
+          "name": "Hermes 4 - Llama-3.1 405B",
+          "effortLabel": "Default",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 34.7035058323306,
+              "after": 35.0044714558064
+            }
+          ]
+        },
+        {
+          "id": "hy3",
+          "name": "Hy3",
+          "effortLabel": "Default",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 73.5532900734034,
+              "after": 73.8685264096255
+            }
+          ]
+        },
+        {
+          "id": "inkling",
+          "name": "Inkling",
+          "effortLabel": "xhigh",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 94.2794974435368,
+              "after": 94.1041346528876
+            },
+            {
+              "field": "time",
+              "before": 543.6566030421498,
+              "after": 544.6697055951461
+            }
+          ]
+        },
+        {
+          "id": "inkling-2-small",
+          "name": "Inkling 2 Small",
+          "effortLabel": "Default",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 113.924267406776,
+              "after": 105.352863263528
+            },
+            {
+              "field": "time",
+              "before": 1314.7156458858253,
+              "after": 1421.6796028705608
+            }
+          ]
+        },
+        {
+          "id": "inkling-high",
+          "name": "Inkling",
+          "effortLabel": "high",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 115.069188056576,
+              "after": 105.816200087855
+            },
+            {
+              "field": "time",
+              "before": 207.34447200997624,
+              "after": 225.475494512166
+            }
+          ]
+        },
+        {
+          "id": "inkling-small",
+          "name": "Inkling Small",
+          "effortLabel": "Default",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 40.5236258007942,
+              "after": 59.8024163470262
+            },
+            {
+              "field": "time",
+              "before": 906.0798823955713,
+              "after": 613.9825836929014
+            }
+          ]
+        },
+        {
+          "id": "inkling-small-high",
+          "name": "Inkling Small",
+          "effortLabel": "high",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 78.377698569168,
+              "after": 76.4785096662906
+            },
+            {
+              "field": "time",
+              "before": 179.25226271211707,
+              "after": 183.70362963393575
+            }
+          ]
+        },
+        {
+          "id": "k2-horizon-375b-a23b",
+          "name": "K2 Horizon 375B A23B",
+          "effortLabel": "high",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 289.436194566221,
+              "after": 266.374015270601
+            },
+            {
+              "field": "time",
+              "before": 219.96349588612034,
+              "after": 239.00753655751896
+            }
+          ]
+        },
+        {
+          "id": "kimi-k2",
+          "name": "Kimi K2",
+          "effortLabel": "Non-reasoning",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 41.8540118376556,
+              "after": 43.7600880604115
+            }
+          ]
+        },
+        {
+          "id": "kimi-k2-0905",
+          "name": "Kimi K2 0905",
+          "effortLabel": "Non-reasoning",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 38.862725391042,
+              "after": 41.2152870823594
+            }
+          ]
+        },
+        {
+          "id": "kimi-k2-5",
+          "name": "Kimi K2.5",
+          "effortLabel": "Default",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 41.6020204370319,
+              "after": 45.7890751646472
+            }
+          ]
+        },
+        {
+          "id": "kimi-k2-5-non-reasoning",
+          "name": "Kimi K2.5",
+          "effortLabel": "Non-reasoning",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 36.0406628622046,
+              "after": 39.9454887974688
+            }
+          ]
+        },
+        {
+          "id": "kimi-k2-6",
+          "name": "Kimi K2.6",
+          "effortLabel": "Default",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 35.5659724043384,
+              "after": 38.1961879102508
+            }
+          ]
+        },
+        {
+          "id": "kimi-k2-6-non-reasoning",
+          "name": "Kimi K2.6",
+          "effortLabel": "Non-reasoning",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 35.1421052416436,
+              "after": 34.2863945040224
+            }
+          ]
+        },
+        {
+          "id": "kimi-k2-7-code",
+          "name": "Kimi K2.7 Code",
+          "effortLabel": "Default",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 50.047550410613,
+              "after": 51.440471734989
+            }
+          ]
+        },
+        {
+          "id": "kimi-k2-thinking",
+          "name": "Kimi K2 Thinking",
+          "effortLabel": "Default",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 113.324755852109,
+              "after": 110.167456656049
+            }
+          ]
+        },
+        {
+          "id": "kimi-k3",
+          "name": "Kimi K3",
+          "effortLabel": "max",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 43.5596302941864,
+              "after": 42.9699359856885
+            }
+          ]
+        },
+        {
+          "id": "kimi-k3-1-pro",
+          "name": "Kimi K3.1 Pro",
+          "effortLabel": "max",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 30.6991499990662,
+              "after": 32.5019032531944
+            },
+            {
+              "field": "time",
+              "before": 2353.126071363939,
+              "after": 2222.607386058692
+            }
+          ]
+        },
+        {
+          "id": "kimi-k3-low",
+          "name": "Kimi K3",
+          "effortLabel": "low",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 39.5185036246944,
+              "after": 38.2594772081459
+            },
+            {
+              "field": "time",
+              "before": 1003.7391997514076,
+              "after": 1036.7698175232363
+            }
+          ]
+        },
+        {
+          "id": "lfm3-1-7b",
+          "name": "LFM3-1.7B",
+          "effortLabel": "Default",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 210.500569729083,
+              "after": 290.806269530637
+            },
+            {
+              "field": "time",
+              "before": 463.8163169264899,
+              "after": 335.7341611659619
+            }
+          ]
+        },
+        {
+          "id": "lfm3-vl-2b",
+          "name": "LFM3-VL-2B",
+          "effortLabel": "Default",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 331.804819152576,
+              "after": 340.271556017845
+            },
+            {
+              "field": "time",
+              "before": 123.18128348837396,
+              "after": 120.11625058868758
+            }
+          ]
+        },
+        {
+          "id": "ling-3-0-flash",
+          "name": "Ling 3.0 Flash",
+          "effortLabel": "Default",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 147.153614645295,
+              "after": 158.126853940956
+            }
+          ]
+        },
+        {
+          "id": "ling-3-0-tiny",
+          "name": "Ling 3.0 Tiny",
+          "effortLabel": "Default",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 163.758229439092,
+              "after": 164.992861420776
+            }
+          ]
+        },
+        {
+          "id": "ling-3-1-flash-1001",
+          "name": "Ling 3.1 Flash",
+          "effortLabel": "Default",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 65.9308571436322,
+              "after": 69.4696909126632
+            }
+          ]
+        },
+        {
+          "id": "ling-flash-2-0",
+          "name": "Ling-flash-2.0",
+          "effortLabel": "Non-reasoning",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 41.3706854145232,
+              "after": 39.0502999099895
+            }
+          ]
+        },
+        {
+          "id": "lingsante-3-1-flash",
+          "name": "LingSante-3.1-flash",
+          "effortLabel": "Default",
+          "kind": "added",
+          "fields": []
+        },
+        {
+          "id": "llama-3-1-instruct-8b",
+          "name": "Llama 3.1 Instruct 8B",
+          "effortLabel": "Non-reasoning",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 127.34110921069652,
+              "after": 132.240811808389
+            }
+          ]
+        },
+        {
+          "id": "llama-3-3-instruct-70b",
+          "name": "Llama 3.3 Instruct 70B",
+          "effortLabel": "Non-reasoning",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 68.1402314303001,
+              "after": 65.6443901484666
+            }
+          ]
+        },
+        {
+          "id": "llama-3-instruct-70b",
+          "name": "Llama 3 Instruct 70B",
+          "effortLabel": "Non-reasoning",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 46.6387519789039,
+              "after": 46.49648652027855
+            }
+          ]
+        },
+        {
+          "id": "llama-3-instruct-8b",
+          "name": "Llama 3 Instruct 8B",
+          "effortLabel": "Non-reasoning",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 69.837475112515,
+              "after": 71.3043178698151
+            }
+          ]
+        },
+        {
+          "id": "llama-4-maverick",
+          "name": "Llama 4 Maverick",
+          "effortLabel": "Non-reasoning",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 150.469286646358,
+              "after": 115.150441070361
+            }
+          ]
+        },
+        {
+          "id": "llama-4-scout",
+          "name": "Llama 4 Scout",
+          "effortLabel": "Non-reasoning",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 95.0677320469712,
+              "after": 96.1179554304455
+            }
+          ]
+        },
+        {
+          "id": "longcat-2-0",
+          "name": "LongCat 2.0",
+          "effortLabel": "Default",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 57.9756746496912,
+              "after": 55.3925921933561
+            }
+          ]
+        },
+        {
+          "id": "magistral-small-2509",
+          "name": "Magistral Small 1.2",
+          "effortLabel": "Default",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 54.7467435779468,
+              "after": 56.8367676079573
+            }
+          ]
+        },
+        {
+          "id": "mercury-2",
+          "name": "Mercury 2",
+          "effortLabel": "high",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 330.968360873979,
+              "after": 338.516147240926
+            }
+          ]
+        },
+        {
+          "id": "mercury-2-5",
+          "name": "Mercury 2.5",
+          "effortLabel": "Default",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 538.373041804203,
+              "after": 534.25280610071
+            }
+          ]
+        },
+        {
+          "id": "mimo-v2-6-flash",
+          "name": "MiMo-V2.6-Flash",
+          "effortLabel": "Default",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 47.2793106568534,
+              "after": 41.0811319819378
+            },
+            {
+              "field": "time",
+              "before": 2787.8203740587105,
+              "after": 3208.4370406000116
+            }
+          ]
+        },
+        {
+          "id": "mimo-v2-6-pro",
+          "name": "MiMo-V2.6-Pro",
+          "effortLabel": "Default",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 54.3242874001839,
+              "after": 44.6903335286232
+            },
+            {
+              "field": "time",
+              "before": 2228.710869952225,
+              "after": 2709.1569982053015
+            }
+          ]
+        },
+        {
+          "id": "minimax-m1-80k",
+          "name": "MiniMax M1 80k",
+          "effortLabel": "Default",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 49.390891293652,
+              "after": 54.1604078608208
+            }
+          ]
+        },
+        {
+          "id": "minimax-m2",
+          "name": "MiniMax-M2",
+          "effortLabel": "Default",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 87.8195619842035,
+              "after": 92.1255469213743
+            }
+          ]
+        },
+        {
+          "id": "minimax-m2-5",
+          "name": "MiniMax-M2.5",
+          "effortLabel": "Default",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 45.115439516328,
+              "after": 52.4699550258014
+            }
+          ]
+        },
+        {
+          "id": "minimax-m2-7",
+          "name": "MiniMax-M2.7",
+          "effortLabel": "Default",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 50.2670791595924,
+              "after": 54.939547070771
+            }
+          ]
+        },
+        {
+          "id": "minimax-m3",
+          "name": "MiniMax-M3",
+          "effortLabel": "Default",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 79.0697568953481,
+              "after": 93.6257062765608
+            },
+            {
+              "field": "time",
+              "before": 1156.5937336712166,
+              "after": 976.7785898236903
+            }
+          ]
+        },
+        {
+          "id": "minimax-m3-1-flash",
+          "name": "MiniMax-M3.1-Flash",
+          "effortLabel": "max",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 119.513357181687,
+              "after": 127.823021646065
+            },
+            {
+              "field": "time",
+              "before": 1156.1582868697078,
+              "after": 1080.9974331527662
+            }
+          ]
+        },
+        {
+          "id": "ministral-3-14b",
+          "name": "Ministral 3 14B",
+          "effortLabel": "Non-reasoning",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 76.5583983115239,
+              "after": 77.2389389987193
+            }
+          ]
+        },
+        {
+          "id": "ministral-3-3b",
+          "name": "Ministral 3 3B",
+          "effortLabel": "Non-reasoning",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 158.378938048165,
+              "after": 160.442260295635
+            }
+          ]
+        },
+        {
+          "id": "ministral-3-8b",
+          "name": "Ministral 3 8B",
+          "effortLabel": "Non-reasoning",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 88.0945115090983,
+              "after": 88.3566779807464
+            }
+          ]
+        },
+        {
+          "id": "mistral-7b-instruct",
+          "name": "Mistral 7B Instruct",
+          "effortLabel": "Non-reasoning",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 100.505221915469,
+              "after": 99.9407744610007
+            }
+          ]
+        },
+        {
+          "id": "mistral-large-3",
+          "name": "Mistral Large 3",
+          "effortLabel": "Non-reasoning",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 63.5736008948805,
+              "after": 84.8339723926409
+            }
+          ]
+        },
+        {
+          "id": "mistral-large-4",
+          "name": "Mistral Large 4",
+          "effortLabel": "high",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 57.2869254145573,
+              "after": 73.9605497240955
+            },
+            {
+              "field": "time",
+              "before": 1430.5313785431745,
+              "after": 1108.0331973125944
+            }
+          ]
+        },
+        {
+          "id": "mistral-large-4-medium",
+          "name": "Mistral Large 4",
+          "effortLabel": "medium",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 55.4688193518925,
+              "after": 72.9549610578434
+            },
+            {
+              "field": "time",
+              "before": 1015.4258232382813,
+              "after": 772.0444331372239
+            }
+          ]
+        },
+        {
+          "id": "mistral-large-4-preview",
+          "name": "Mistral Large 4 Preview",
+          "effortLabel": "Default",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 44.9370409108731,
+              "after": 60.8212028517974
+            },
+            {
+              "field": "time",
+              "before": 3011.286264372946,
+              "after": 2224.8539606526106
+            }
+          ]
+        },
+        {
+          "id": "mistral-medium-3",
+          "name": "Mistral Medium 3",
+          "effortLabel": "Non-reasoning",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 32.5200189514986,
+              "after": 34.9793815575196
+            }
+          ]
+        },
+        {
+          "id": "mistral-medium-3-5",
+          "name": "Mistral Medium 3.5",
+          "effortLabel": "high",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 144.286962063467,
+              "after": 141.526141218613
+            },
+            {
+              "field": "time",
+              "before": 273.9516264940802,
+              "after": 279.295737160803
+            }
+          ]
+        },
+        {
+          "id": "mistral-small-3",
+          "name": "Mistral Small 3",
+          "effortLabel": "Non-reasoning",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 52.9867846178087,
+              "after": 62.5647745526861
+            }
+          ]
+        },
+        {
+          "id": "mistral-small-3-2",
+          "name": "Mistral Small 3.2",
+          "effortLabel": "Non-reasoning",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 51.5515322491632,
+              "after": 46.8466579364896
+            }
+          ]
+        },
+        {
+          "id": "mistral-small-4",
+          "name": "Mistral Small 4",
+          "effortLabel": "Default",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 140.440534059205,
+              "after": 148.649726983544
+            },
+            {
+              "field": "time",
+              "before": 102.53728327345675,
+              "after": 96.87465369847885
+            }
+          ]
+        },
+        {
+          "id": "mistral-small-4-non-reasoning",
+          "name": "Mistral Small 4",
+          "effortLabel": "Non-reasoning",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 118.786141639682,
+              "after": 120.661498365783
+            }
+          ]
+        },
+        {
+          "id": "mixtral-8x7b-instruct",
+          "name": "Mixtral 8x7B Instruct",
+          "effortLabel": "Non-reasoning",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 68.9320110084833,
+              "after": 70.0240793428474
+            }
+          ]
+        },
+        {
+          "id": "muse-ember",
+          "name": "Muse Ember",
+          "effortLabel": "max",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 465.325033673761,
+              "after": 438.372780513333
+            },
+            {
+              "field": "time",
+              "before": 181.55409493124836,
+              "after": 192.7164940272172
+            }
+          ]
+        },
+        {
+          "id": "muse-ember-xhigh",
+          "name": "Muse Ember",
+          "effortLabel": "xhigh",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 438.193214205841,
+              "after": 410.156286396851
+            },
+            {
+              "field": "time",
+              "before": 165.1437596924405,
+              "after": 176.43244115890525
+            }
+          ]
+        },
+        {
+          "id": "muse-glimmer",
+          "name": "Muse Glimmer",
+          "effortLabel": "high",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 87.16751403779756,
+              "after": 102.93763930858509
+            },
+            {
+              "field": "time",
+              "before": 299.04774744103315,
+              "after": 253.23340323449563
+            }
+          ]
+        },
+        {
+          "id": "muse-spark-1-1",
+          "name": "Muse Spark 1.1",
+          "effortLabel": "xhigh",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 205.724218972042,
+              "after": 206.251561834519
+            }
+          ]
+        },
+        {
+          "id": "muse-spark-1-2",
+          "name": "Muse Spark 1.2",
+          "effortLabel": "xhigh",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 209.509741499486,
+              "after": 216.515990096269
+            }
+          ]
+        },
+        {
+          "id": "muse-spark-1-3",
+          "name": "Muse Spark 1.3",
+          "effortLabel": "max",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 96.8175300947538,
+              "after": 106.174389382474
+            },
+            {
+              "field": "time",
+              "before": 941.0881793243714,
+              "after": 858.1526454118168
+            }
+          ]
+        },
+        {
+          "id": "muse-spark-1-3-xhigh",
+          "name": "Muse Spark 1.3",
+          "effortLabel": "xhigh",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 245.203225297555,
+              "after": 245.900828215687
+            }
+          ]
+        },
+        {
+          "id": "muse-spark-open",
+          "name": "Muse Spark Open",
+          "effortLabel": "xhigh",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 158.906738696113,
+              "after": 170.269906297531
+            },
+            {
+              "field": "time",
+              "before": 418.10742288317863,
+              "after": 390.2045196342831
+            }
+          ]
+        },
+        {
+          "id": "muse-wonder",
+          "name": "Muse Wonder",
+          "effortLabel": "max",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 112.07614371842,
+              "after": 108.647277014905
+            },
+            {
+              "field": "time",
+              "before": 857.1235224966845,
+              "after": 884.1740145829717
+            }
+          ]
+        },
+        {
+          "id": "muse-wonder-high",
+          "name": "Muse Wonder",
+          "effortLabel": "high",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 115.100110642912,
+              "after": 103.545349515792
+            },
+            {
+              "field": "time",
+              "before": 590.1547629900256,
+              "after": 656.0109056972542
+            }
+          ]
+        },
+        {
+          "id": "nemotron-3-5-lightning",
+          "name": "Nemotron 3.5 Lightning",
+          "effortLabel": "Default",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 265.071523087048,
+              "after": 290.719652041148
+            },
+            {
+              "field": "time",
+              "before": 245.3155585045802,
+              "after": 223.67311006741025
+            }
+          ]
+        },
+        {
+          "id": "nemotron-3-5-super-vl",
+          "name": "Nemotron 3.5 Super VL",
+          "effortLabel": "high",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 296.107984487865,
+              "after": 324.453411351724
+            },
+            {
+              "field": "time",
+              "before": 275.01667864430124,
+              "after": 250.99022406527143
+            }
+          ]
+        },
+        {
+          "id": "north-mini-code",
+          "name": "North Mini Code",
+          "effortLabel": "Default",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 216.241039810378,
+              "after": 240.563605301543
+            },
+            {
+              "field": "time",
+              "before": 139.06024709211678,
+              "after": 125.00033988846508
+            }
+          ]
+        },
+        {
+          "id": "nova-2-0-lite",
+          "name": "Nova 2.0 Lite",
+          "effortLabel": "Non-reasoning",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 126.556572115003,
+              "after": 117.228325449267
+            }
+          ]
+        },
+        {
+          "id": "nova-2-0-lite-reasoning",
+          "name": "Nova 2.0 Lite",
+          "effortLabel": "high",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 143.538024561751,
+              "after": 143.55896685021
+            }
+          ]
+        },
+        {
+          "id": "nova-2-0-lite-reasoning-low",
+          "name": "Nova 2.0 Lite",
+          "effortLabel": "low",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 138.010535099224,
+              "after": 144.75010313791
+            }
+          ]
+        },
+        {
+          "id": "nova-2-0-lite-reasoning-medium",
+          "name": "Nova 2.0 Lite",
+          "effortLabel": "medium",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 137.450992486063,
+              "after": 134.895897175944
+            }
+          ]
+        },
+        {
+          "id": "nova-2-0-pro",
+          "name": "Nova 2.0 Pro Preview",
+          "effortLabel": "Non-reasoning",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 111.4986461417,
+              "after": 107.688844971251
+            }
+          ]
+        },
+        {
+          "id": "nova-2-0-pro-reasoning-low",
+          "name": "Nova 2.0 Pro Preview",
+          "effortLabel": "low",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 92.0480745312285,
+              "after": 92.1741961505352
+            }
+          ]
+        },
+        {
+          "id": "nova-2-0-pro-reasoning-medium",
+          "name": "Nova 2.0 Pro Preview",
+          "effortLabel": "medium",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 98.4664391233854,
+              "after": 97.9399994701298
+            }
+          ]
+        },
+        {
+          "id": "nova-lite",
+          "name": "Nova Lite",
+          "effortLabel": "Non-reasoning",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 118.121811618629,
+              "after": 123.315142941215
+            }
+          ]
+        },
+        {
+          "id": "nova-micro",
+          "name": "Nova Micro",
+          "effortLabel": "Non-reasoning",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 226.722489021059,
+              "after": 222.015009341229
+            }
+          ]
+        },
+        {
+          "id": "nova-pro",
+          "name": "Nova Pro",
+          "effortLabel": "Non-reasoning",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 98.2760081241134,
+              "after": 100.357789833976
+            }
+          ]
+        },
+        {
+          "id": "nvidia-nemotron-3-nano-30b-a3b",
+          "name": "NVIDIA Nemotron 3 Nano 30B A3B",
+          "effortLabel": "Non-reasoning",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 157.3571667141135,
+              "after": 153.0471359878015
+            }
+          ]
+        },
+        {
+          "id": "nvidia-nemotron-3-nano-30b-a3b-reasoning",
+          "name": "NVIDIA Nemotron 3 Nano 30B A3B",
+          "effortLabel": "Default",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 157.147837505997,
+              "after": 166.165046307554
+            }
+          ]
+        },
+        {
+          "id": "nvidia-nemotron-3-super-120b-a12b",
+          "name": "Nemotron 3 Super 120B A12B",
+          "effortLabel": "Default",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 96.1257940986003,
+              "after": 159.375396969887
+            }
+          ]
+        },
+        {
+          "id": "nvidia-nemotron-3-ultra-550b-a55b",
+          "name": "Nemotron 3 Ultra 550B A55B",
+          "effortLabel": "Default",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 227.1355912555095,
+              "after": 207.54456128658302
+            },
+            {
+              "field": "time",
+              "before": 226.59423087391832,
+              "after": 247.98344165505267
+            }
+          ]
+        },
+        {
+          "id": "nvidia-nemotron-nano-12b-v2-vl",
+          "name": "NVIDIA Nemotron Nano 12B v2 VL",
+          "effortLabel": "Non-reasoning",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 122.058194162894,
+              "after": 121.476665258609
+            }
+          ]
+        },
+        {
+          "id": "nvidia-nemotron-nano-9b-v2",
+          "name": "NVIDIA Nemotron Nano 9B V2",
+          "effortLabel": "Non-reasoning",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 133.299385013283,
+              "after": 132.988166393272
+            }
+          ]
+        },
+        {
+          "id": "o3",
+          "name": "o3",
+          "effortLabel": "Default",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 109.101522602693,
+              "after": 117.529892700325
+            }
+          ]
+        },
+        {
+          "id": "o3-mini",
+          "name": "o3-mini",
+          "effortLabel": "Default",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 185.975114857418,
+              "after": 185.717617306008
+            }
+          ]
+        },
+        {
+          "id": "o3-mini-high",
+          "name": "o3-mini",
+          "effortLabel": "high",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 214.917447494926,
+              "after": 221.412578520112
+            }
+          ]
+        },
+        {
+          "id": "o4-mini",
+          "name": "o4-mini",
+          "effortLabel": "high",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 109.565753420664,
+              "after": 113.11004242336
+            }
+          ]
+        },
+        {
+          "id": "phi-4",
+          "name": "Phi-4",
+          "effortLabel": "Non-reasoning",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 33.5779715558884,
+              "after": 38.6848394650811
+            }
+          ]
+        },
+        {
+          "id": "phi-4-mini",
+          "name": "Phi-4 Mini Instruct",
+          "effortLabel": "Non-reasoning",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 13.1593315336851,
+              "after": 17.8548746357951
+            }
+          ]
+        },
+        {
+          "id": "phi-4-multimodal",
+          "name": "Phi-4 Multimodal Instruct",
+          "effortLabel": "Non-reasoning",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 20.9204912051771,
+              "after": 21.7448696043916
+            }
+          ]
+        },
+        {
+          "id": "qwen2-5-72b-instruct",
+          "name": "Qwen2.5 Instruct 72B",
+          "effortLabel": "Non-reasoning",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 26.9316535877907,
+              "after": 28.0662423286714
+            }
+          ]
+        },
+        {
+          "id": "qwen3-14b-instruct",
+          "name": "Qwen3 14B",
+          "effortLabel": "Non-reasoning",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 39.8676019896929,
+              "after": 39.6456918257974
+            }
+          ]
+        },
+        {
+          "id": "qwen3-14b-instruct-reasoning",
+          "name": "Qwen3 14B",
+          "effortLabel": "Default",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 43.6203493883095,
+              "after": 42.7969071768407
+            }
+          ]
+        },
+        {
+          "id": "qwen3-235b-a22b-instruct-2507",
+          "name": "Qwen3 235B A22B 2507 Instruct",
+          "effortLabel": "Non-reasoning",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 42.6053427605048,
+              "after": 48.685325703572
+            }
+          ]
+        },
+        {
+          "id": "qwen3-30b-a3b-2507",
+          "name": "Qwen3 30B A3B 2507 Instruct",
+          "effortLabel": "Non-reasoning",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 50.5535554665881,
+              "after": 59.426243242109
+            }
+          ]
+        },
+        {
+          "id": "qwen3-30b-a3b-instruct",
+          "name": "Qwen3 30B A3B",
+          "effortLabel": "Non-reasoning",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 85.8461273078724,
+              "after": 94.3975915954866
+            }
+          ]
+        },
+        {
+          "id": "qwen3-30b-a3b-instruct-reasoning",
+          "name": "Qwen3 30B A3B",
+          "effortLabel": "Default",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 95.9509443702318,
+              "after": 86.4128139324416
+            }
+          ]
+        },
+        {
+          "id": "qwen3-32b-instruct",
+          "name": "Qwen3 32B",
+          "effortLabel": "Non-reasoning",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 122.96375843331045,
+              "after": 112.4764830771224
+            }
+          ]
+        },
+        {
+          "id": "qwen3-32b-instruct-reasoning",
+          "name": "Qwen3 32B",
+          "effortLabel": "Default",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 32.6762522130007,
+              "after": 35.5132124734618
+            }
+          ]
+        },
+        {
+          "id": "qwen3-5-122b-a10b",
+          "name": "Qwen3.5 122B A10B",
+          "effortLabel": "Default",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 106.713658081349,
+              "after": 114.296768692169
+            }
+          ]
+        },
+        {
+          "id": "qwen3-5-122b-a10b-non-reasoning",
+          "name": "Qwen3.5 122B A10B",
+          "effortLabel": "Non-reasoning",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 96.8727798434146,
+              "after": 100.971935303486
+            }
+          ]
+        },
+        {
+          "id": "qwen3-5-27b",
+          "name": "Qwen3.5 27B",
+          "effortLabel": "Default",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 24.6518353537329,
+              "after": 22.4408857602402
+            }
+          ]
+        },
+        {
+          "id": "qwen3-5-27b-non-reasoning",
+          "name": "Qwen3.5 27B",
+          "effortLabel": "Non-reasoning",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 18.4234993785628,
+              "after": 20.3479522046544
+            }
+          ]
+        },
+        {
+          "id": "qwen3-5-35b-a3b",
+          "name": "Qwen3.5 35B A3B",
+          "effortLabel": "Default",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 124.16556913647,
+              "after": 122.615630275502
+            }
+          ]
+        },
+        {
+          "id": "qwen3-5-35b-a3b-non-reasoning",
+          "name": "Qwen3.5 35B A3B",
+          "effortLabel": "Non-reasoning",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 104.610080993356,
+              "after": 127.663382506841
+            }
+          ]
+        },
+        {
+          "id": "qwen3-5-397b-a17b",
+          "name": "Qwen3.5 397B A17B",
+          "effortLabel": "Default",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 53.4913316901773,
+              "after": 55.3796752213049
+            }
+          ]
+        },
+        {
+          "id": "qwen3-5-397b-a17b-non-reasoning",
+          "name": "Qwen3.5 397B A17B",
+          "effortLabel": "Non-reasoning",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 48.3557944953981,
+              "after": 50.3412051956344
+            }
+          ]
+        },
+        {
+          "id": "qwen3-5-9b",
+          "name": "Qwen3.5 9B",
+          "effortLabel": "Default",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 79.58073069470164,
+              "after": 84.69284359308449
+            }
+          ]
+        },
+        {
+          "id": "qwen3-5-9b-non-reasoning",
+          "name": "Qwen3.5 9B",
+          "effortLabel": "Non-reasoning",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 110.195674166056,
+              "after": 112.756267621306
+            }
+          ]
+        },
+        {
+          "id": "qwen3-5-omni-flash",
+          "name": "Qwen3.5 Omni Flash",
+          "effortLabel": "Non-reasoning",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 103.111665514633,
+              "after": 130.143387451196
+            }
+          ]
+        },
+        {
+          "id": "qwen3-5-omni-plus",
+          "name": "Qwen3.5 Omni Plus",
+          "effortLabel": "Non-reasoning",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 66.9204809737928,
+              "after": 65.6419856391657
+            }
+          ]
+        },
+        {
+          "id": "qwen3-6-27b",
+          "name": "Qwen3.6 27B",
+          "effortLabel": "Default",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 59.2958104310934,
+              "after": 59.336165043998
+            }
+          ]
+        },
+        {
+          "id": "qwen3-6-27b-non-reasoning",
+          "name": "Qwen3.6 27B",
+          "effortLabel": "Non-reasoning",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 53.5435419593383,
+              "after": 51.2508968161364
+            }
+          ]
+        },
+        {
+          "id": "qwen3-6-35b-a3b",
+          "name": "Qwen3.6 35B A3B",
+          "effortLabel": "Default",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 103.213123496315,
+              "after": 98.6299455126889
+            }
+          ]
+        },
+        {
+          "id": "qwen3-6-35b-a3b-non-reasoning",
+          "name": "Qwen3.6 35B A3B",
+          "effortLabel": "Non-reasoning",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 88.2518388291545,
+              "after": 82.0830874880443
+            }
+          ]
+        },
+        {
+          "id": "qwen3-6-plus",
+          "name": "Qwen3.6 Plus",
+          "effortLabel": "Default",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 49.8243119837574,
+              "after": 52.2549347814507
+            }
+          ]
+        },
+        {
+          "id": "qwen3-7-max",
+          "name": "Qwen3.7 Max",
+          "effortLabel": "Default",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 143.259510857762,
+              "after": 149.220549954074
+            }
+          ]
+        },
+        {
+          "id": "qwen3-7-plus",
+          "name": "Qwen3.7 Plus",
+          "effortLabel": "Default",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 57.0496678752697,
+              "after": 55.4726425113493
+            }
+          ]
+        },
+        {
+          "id": "qwen3-8-2-4t-a95b",
+          "name": "Qwen3.8 2.4T A95B",
+          "effortLabel": "Default",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 42.4748653513136,
+              "after": 43.3021193954772
+            }
+          ]
+        },
+        {
+          "id": "qwen3-8-27b",
+          "name": "Qwen3.8 27B",
+          "effortLabel": "xhigh",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 53.6970331186008,
+              "after": 66.5691296839878
+            },
+            {
+              "field": "time",
+              "before": 2044.8453877600555,
+              "after": 1649.445186232937
+            }
+          ]
+        },
+        {
+          "id": "qwen3-8-27b-low",
+          "name": "Qwen3.8 27B",
+          "effortLabel": "low",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 61.0204071222366,
+              "after": 71.1846614229403
+            },
+            {
+              "field": "time",
+              "before": 1313.9130862969964,
+              "after": 1126.3031929409358
+            }
+          ]
+        },
+        {
+          "id": "qwen3-8-27b-medium",
+          "name": "Qwen3.8 27B",
+          "effortLabel": "medium",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 55.4372863025444,
+              "after": 65.8411465269872
+            },
+            {
+              "field": "time",
+              "before": 1558.6502528920164,
+              "after": 1312.360808900723
+            }
+          ]
+        },
+        {
+          "id": "qwen3-8-27b-non-reasoning",
+          "name": "Qwen3.8 27B",
+          "effortLabel": "Non-reasoning",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 46.6535181514026,
+              "after": 55.072444977082
+            },
+            {
+              "field": "time",
+              "before": 961.7088574406008,
+              "after": 814.6923866489103
+            }
+          ]
+        },
+        {
+          "id": "qwen3-8-flash-next",
+          "name": "Qwen3.8-Flash-Next",
+          "effortLabel": "Default",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 72.0093638375437,
+              "after": 64.6002016986526
+            },
+            {
+              "field": "time",
+              "before": 2051.208107155637,
+              "after": 2286.466404295614
+            }
+          ]
+        },
+        {
+          "id": "qwen3-8-max",
+          "name": "Qwen3.8 Max (0902)",
+          "effortLabel": "xhigh",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 59.2802333559215,
+              "after": 54.1212677519632
+            },
+            {
+              "field": "time",
+              "before": 2881.128360084052,
+              "after": 3155.7642421994196
+            }
+          ]
+        },
+        {
+          "id": "qwen3-8-max-0803",
+          "name": "Qwen3.8 Max",
+          "effortLabel": "Default",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 60.1748890161162,
+              "after": 59.2660677883676
+            }
+          ]
+        },
+        {
+          "id": "qwen3-coder-30b-a3b-instruct",
+          "name": "Qwen3 Coder 30B A3B Instruct",
+          "effortLabel": "Non-reasoning",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 147.674752656126,
+              "after": 173.8266782218545
+            }
+          ]
+        },
+        {
+          "id": "qwen3-coder-480b-a35b-instruct",
+          "name": "Qwen3 Coder 480B A35B Instruct",
+          "effortLabel": "Non-reasoning",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 76.64886124714965,
+              "after": 74.1038997059263
+            }
+          ]
+        },
+        {
+          "id": "qwen3-coder-next",
+          "name": "Qwen3 Coder Next",
+          "effortLabel": "Non-reasoning",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 66.51588539503621,
+              "after": 72.41264347024335
+            }
+          ]
+        },
+        {
+          "id": "qwen3-next-80b-a3b-instruct",
+          "name": "Qwen3 Next 80B A3B Instruct",
+          "effortLabel": "Non-reasoning",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 100.371581154773,
+              "after": 112.698315886505
+            }
+          ]
+        },
+        {
+          "id": "qwen3-omni-30b-a3b-instruct",
+          "name": "Qwen3 Omni 30B A3B Instruct",
+          "effortLabel": "Non-reasoning",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 77.7991472692387,
+              "after": 73.4771887799472
+            }
+          ]
+        },
+        {
+          "id": "qwen3-omni-30b-a3b-reasoning",
+          "name": "Qwen3 Omni 30B A3B (Reasoning)",
+          "effortLabel": "Default",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 83.3709443232802,
+              "after": 86.0783450356185
+            }
+          ]
+        },
+        {
+          "id": "qwen3-vl-235b-a22b-instruct",
+          "name": "Qwen3 VL 235B A22B Instruct",
+          "effortLabel": "Non-reasoning",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 29.1748616277704,
+              "after": 34.3621998984997
+            }
+          ]
+        },
+        {
+          "id": "qwen3-vl-30b-a3b-instruct",
+          "name": "Qwen3 VL 30B A3B Instruct",
+          "effortLabel": "Non-reasoning",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 39.0370494539252,
+              "after": 30.8907332634319
+            }
+          ]
+        },
+        {
+          "id": "qwen4-max",
+          "name": "Qwen4 Max",
+          "effortLabel": "xhigh",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 59.7619733001222,
+              "after": 63.565185853567
+            },
+            {
+              "field": "time",
+              "before": 1755.9623786207653,
+              "after": 1650.9001803109568
+            }
+          ]
+        },
+        {
+          "id": "reflection-beam",
+          "name": "Beam 1.0",
+          "effortLabel": "Default",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 257.775619567255,
+              "after": 299.889955994923
+            },
+            {
+              "field": "time",
+              "before": 132.83715694215942,
+              "after": 114.18248510095995
+            }
+          ]
+        },
+        {
+          "id": "reka-flash-3",
+          "name": "Reka Flash 3",
+          "effortLabel": "Default",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 59.645082558655,
+              "after": 58.1729474392657
+            }
+          ]
+        },
+        {
+          "id": "sarvam-105b",
+          "name": "Sarvam 105B",
+          "effortLabel": "high",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 280.944429487554,
+              "after": 271.103754571296
+            }
+          ]
+        },
+        {
+          "id": "seed-oss-36b-instruct",
+          "name": "Seed-OSS-36B-Instruct",
+          "effortLabel": "Default",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 34.6419623588347,
+              "after": 35.3779375438572
+            }
+          ]
+        },
+        {
+          "id": "solar-mini",
+          "name": "Solar Mini",
+          "effortLabel": "Non-reasoning",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 54.799082988388,
+              "after": 54.425984320198
+            }
+          ]
+        },
+        {
+          "id": "solar-mini4",
+          "name": "Solar Mini 4",
+          "effortLabel": "Default",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 125.796260801729,
+              "after": 123.525006005313
+            }
+          ]
+        },
+        {
+          "id": "solar-pro-3",
+          "name": "Solar Pro 3",
+          "effortLabel": "high",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 114.636001555826,
+              "after": 115.332312241134
+            }
+          ]
+        },
+        {
+          "id": "solar-pro4",
+          "name": "Solar Pro 4",
+          "effortLabel": "Default",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 73.2124854750454,
+              "after": 80.0157834573794
+            },
+            {
+              "field": "time",
+              "before": 4254.091321634112,
+              "after": 3892.3895466267622
+            }
+          ]
+        },
+        {
+          "id": "step-3-5-flash",
+          "name": "Step 3.5 Flash 2603",
+          "effortLabel": "Default",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 114.004206994184,
+              "after": 125.755427539061
+            }
+          ]
+        },
+        {
+          "id": "step-3-5-flash-0202",
+          "name": "Step 3.5 Flash",
+          "effortLabel": "Default",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 119.744726782125,
+              "after": 131.383613178314
+            }
+          ]
+        },
+        {
+          "id": "step-3-7-flash",
+          "name": "Step 3.7 Flash",
+          "effortLabel": "high",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 126.224255039977,
+              "after": 141.348657382281
+            }
+          ]
+        },
+        {
+          "id": "step-5",
+          "name": "Step 5 Preview",
+          "effortLabel": "Default",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 135.839147547702,
+              "after": 84.191588830428
+            },
+            {
+              "field": "time",
+              "before": 835.3473926353249,
+              "after": 1347.7935183088907
+            }
+          ]
+        },
+        {
+          "id": "tencent-hy4",
+          "name": "Tencent Hy4",
+          "effortLabel": "Default",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 91.8539995902526,
+              "after": 93.3855255945481
+            },
+            {
+              "field": "time",
+              "before": 849.8056512215521,
+              "after": 835.8688077422555
+            }
+          ]
+        },
+        {
+          "id": "tiny-aya-global",
+          "name": "Tiny Aya Global",
+          "effortLabel": "Non-reasoning",
+          "kind": "updated",
+          "fields": [
+            {
+              "field": "speed",
+              "before": 131.750842123278,
+              "after": 131.098507622704
+            }
+          ]
+        }
+      ]
+    },
+    {
       "checkedAt": "2026-11-21T08:48:36.906Z",
       "previousFetchedAt": "2026-11-20T14:49:02.902Z",
       "fetchedAt": "2026-11-21T08:48:37.331Z",
