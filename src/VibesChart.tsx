@@ -40,7 +40,7 @@ function costColor(norm: number) {
 }
 
 /** A panel-colored outline under label text, so drop stems and gridlines never cut through letters. */
-const halo = { stroke: 'var(--panel)', strokeWidth: 3, strokeLinejoin: 'round', paintOrder: 'stroke' } as const;
+const halo = { stroke: 'var(--panel)', strokeWidth: 4, strokeLinejoin: 'round', paintOrder: 'stroke' } as const;
 
 /** As a last resort before dropping a benchmark line, a label may run this far into the card's 16px padding. */
 const PADDING_OVERHANG = 12;
@@ -465,7 +465,9 @@ export function VibesChart({
   ] : [];
   // The "Sweet spot" caption in the box's corner is an obstacle too, whenever it shows.
   const sweetCaption = !compact && t < 0.9 ? [titleBox('Sweet spot', pad.left + plotWidth - 10, pad.top + 18, 11, 'end')] : [];
-  const labelLayouts = resolveLabels(labelItems, compact, size.width, [...axisTitles, ...sweetEdges, ...sweetCaption]);
+  // The Capability axis line is a thin obstacle too, so no name straddles it.
+  const capAxis = { left: Math.min(originBack.x, capTop.x) - 2, right: Math.max(originBack.x, capTop.x) + 2, top: capTop.y, bottom: originBack.y };
+  const labelLayouts = resolveLabels(labelItems, compact, size.width, [...axisTitles, capAxis, ...sweetEdges, ...sweetCaption]);
 
   // Thin cost tick labels whose text would touch the last shown one (e.g. shallow phone pitch).
   const visibleCostTicks: { tick: number; left: { x: number; y: number }; right: { x: number; y: number }; showLabel: boolean }[] = [];
@@ -740,7 +742,7 @@ export function VibesChart({
               fill="var(--accent)"
               fontSize={11}
               fontWeight={600}
-              opacity={0.75 * (1 - t)}
+              opacity={1 - t}
             >
               Sweet spot
             </text>

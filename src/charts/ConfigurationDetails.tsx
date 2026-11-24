@@ -50,7 +50,7 @@ export function ConfigurationDetails({
       </div>
       <div className="mt-1 flex items-baseline justify-between gap-3 text-[12px] text-fg-2">
         <span>{model.codingAgent?.configuration ?? model.cyber?.configuration ?? (model.effort === 'none' ? 'No reasoning' : `Reasoning: ${model.effortLabel.toLowerCase()}`)}</span>
-        {!pinned && <span className="text-fg-3">Click to pin</span>}
+        {!pinned && <span className="text-fg-3">Select to pin</span>}
       </div>
       {summary}
       {model.taskPricing?.basis === 'subscription' && (

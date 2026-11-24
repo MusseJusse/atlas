@@ -207,7 +207,8 @@ export function Vibes() {
   );
 
   return (
-    <div className="grid h-dvh grid-rows-[var(--header-height)_minmax(0,1fr)_auto] phone:block phone:h-auto">
+    // Short windows, such as a phone held sideways, keep a 640px layout and scroll, so the chart never crushes its captions.
+    <div className="grid h-dvh min-h-[640px] grid-rows-[var(--header-height)_minmax(0,1fr)_auto] phone:block phone:h-auto phone:min-h-0">
       <a
         href="#vibes-workspace"
         className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-40 focus:rounded-md focus:bg-panel focus:p-3"
