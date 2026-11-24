@@ -127,7 +127,13 @@ export function Vibes() {
       },
     );
 
+    // The 3D angle controls sit over the plot's top-right corner, so the card never covers them.
+    const controls = plot.querySelector('button[aria-label="Rotate 3D view left"]')?.parentElement?.getBoundingClientRect();
+    const blocked = controls
+      ? [{ left: controls.left - bounds.x, right: controls.right - bounds.x, top: controls.top - bounds.y, bottom: controls.bottom - bounds.y }]
+      : [];
     const next = placeCard({
+      blocked,
       corners: Object.values(corners),
       points,
       labels,

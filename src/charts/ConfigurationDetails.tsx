@@ -69,7 +69,7 @@ export function ConfigurationDetails({
           <span className="text-fg-2">Measured API cost per task</span><span className="font-[600] tabular-nums">{format(model.taskPricing.apiCost, 'cost')}</span>
         </div>
       )}
-      <PricingDetails model={model} />
+      <PricingDetails model={model} pinned={pinned} />
       {pinned && model.speedSource && (
         <p className="mt-3 mb-2 text-[11px] text-fg-2">
           Speed measured {formatUtcDate(model.speedSource.fetchedAt, 'short')}.
@@ -89,6 +89,8 @@ export function ConfigurationDetails({
         target="_blank"
         rel="noreferrer"
         aria-label={`View ${model.name} on Artificial Analysis`}
+        // A hover or focus preview vanishes when its point blurs, so its links join the tab order only once pinned.
+        tabIndex={pinned ? undefined : -1}
       >
         Artificial Analysis
       </a>

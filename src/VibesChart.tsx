@@ -87,8 +87,12 @@ const overlapArea = (a: Box, b: Box) => {
 };
 
 /** Where a model's name and benchmark line go for one placement, with their estimated boxes. */
-function labelLayout(item: LabelItem, placement: VibeLabelPlacement, compact: boolean, width: number, overhang: number) {
-  const { dx, dy, anchor } = labelOffset(placement, compact);
+function labelLayout(item: LabelItem, placement: VibeLabelPlacement, compact: boolean, width: number, overhang: number, far = false) {
+  const offset = labelOffset(placement, compact);
+  const { anchor } = offset;
+  // A far spot sits one line farther from the dot, for crowded clusters with no clear near spot.
+  const dx = far && anchor !== 'middle' && placement !== 'below-right' ? offset.dx + Math.sign(offset.dx) * 14 : offset.dx;
+  const dy = far && (placement === 'above' || placement === 'below' || placement === 'below-right') ? offset.dy + Math.sign(offset.dy) * 14 : offset.dy;
   // Right-running text near the right edge slides left until it fits the card.
   const textX = (text: string, fontSize: number) =>
     anchor === 'start' ? Math.min(item.x + dx, width + overhang - textWidth(text, fontSize)) : item.x + dx;
@@ -121,8 +125,10 @@ function resolveLabels(items: readonly LabelItem[], compact: boolean, width: num
     total + [...others, ...dots].reduce((sum, other) => sum + overlapArea(box, other), 0), 0);
   const inside = (layout: Layout, overhang: number) => layout.boxes.every((box) => box.left >= -overhang && box.right <= width + overhang);
   // Candidate spots, preferred first, inside the plot before the card padding.
-  const candidates = (item: LabelItem, first: VibeLabelPlacement) => [0, PADDING_OVERHANG].flatMap((overhang) =>
-    [first, ...placements.filter((placement) => placement !== first)].map((placement) => ({ placement, overhang, layout: labelLayout(item, placement, compact, width, overhang) })));
+  // Candidate spots, preferred first: near the dot inside the plot, then in the card padding, then one line farther out.
+  const candidates = (item: LabelItem, first: VibeLabelPlacement) => ([[0, false], [PADDING_OVERHANG, false], [0, true], [PADDING_OVERHANG, true]] as const)
+    .flatMap(([overhang, far]) => [first, ...placements.filter((placement) => placement !== first)]
+      .map((placement) => ({ placement, overhang, far, layout: labelLayout(item, placement, compact, width, overhang, far) })));
 
   const names = new Map(items.map((item) => {
     const bare = { ...item, subtext: null };
@@ -139,6 +145,8 @@ function resolveLabels(items: readonly LabelItem[], compact: boolean, width: num
     if (!item.subtext) return [item.family, name.layout] as const;
     const others = placed.filter((box) => !name.layout.boxes.includes(box));
     const full = candidates(item, name.placement).find(({ layout, overhang }) => inside(layout, overhang) && covered(layout, others) === 0);
+    // A line that only fits by moving its name farther out stays hidden; the name keeps its closer spot.
+    if (full?.far && !name.far) return [item.family, name.layout] as const;
     if (!full) return [item.family, name.layout] as const;
     placed.splice(0, placed.length, ...others, ...full.layout.boxes);
     return [item.family, full.layout] as const;
@@ -443,23 +451,25 @@ export function VibesChart({
   const costSize = compact ? 11 : 12;
   // Sit clear of the cost axis on desktop and below the floor's front edge on phones.
   const costLabelX = compact ? Math.max(8, originFront.x - 4) : Math.max(96, midCost.x - 30);
-  const costLabelY = compact ? Math.min(size.height - 10, originFront.y + 30) : midCost.y + 14;
-  const axisTitles = [
-    capBox,
-    titleBox(cohLabel, cohEnd.x, cohLabelY, capSize, 'end'),
-    ...(t > 0.04 ? [titleBox(costLabel, costLabelX, costLabelY, costSize, compact ? 'start' : 'end')] : []),
-  ];
+  const cohBox = titleBox(cohLabel, cohEnd.x, cohLabelY, capSize, 'end');
+  const costAt = (y: number) => titleBox(costLabel, costLabelX, y, costSize, compact ? 'start' : 'end');
+  const costBaseY = compact ? Math.min(size.height - 10, originFront.y + 30) : midCost.y + 14;
+  // Steep angles can bring the two floor titles together; Cost / task then steps below Coherency.
+  const costLabelY = overlapArea(costAt(costBaseY), cohBox) > 0 ? Math.min(size.height - 4, cohBox.bottom + costSize + 2) : costBaseY;
+  const axisTitles = [capBox, cohBox, ...(t > 0.04 ? [costAt(costLabelY)] : [])];
   // In 2D the sweet spot's left and top edges are thin obstacles, so a label sits fully inside the tint or fully outside it.
   // Phones skip them: their top cluster has no room, and a name crossing a faint edge beats two names touching.
   const sweetEdges = t < 0.5 && !compact ? [
     { left: flatSweetX - 2, right: flatSweetX + 2, top: flatSweetY, bottom: flatSweetY + flatSweetH },
     { left: flatSweetX, right: flatSweetX + flatSweetW, top: flatSweetY - 2, bottom: flatSweetY + 2 },
   ] : [];
-  const labelLayouts = resolveLabels(labelItems, compact, size.width, [...axisTitles, ...sweetEdges]);
+  // The "Sweet spot" caption in the box's corner is an obstacle too, whenever it shows.
+  const sweetCaption = !compact && t < 0.9 ? [titleBox('Sweet spot', pad.left + plotWidth - 10, pad.top + 18, 11, 'end')] : [];
+  const labelLayouts = resolveLabels(labelItems, compact, size.width, [...axisTitles, ...sweetEdges, ...sweetCaption]);
 
-  // Thin cost tick labels whenever projected points get closer than 16px (e.g. shallow phone pitch).
+  // Thin cost tick labels whose text would touch the last shown one (e.g. shallow phone pitch).
   const visibleCostTicks: { tick: number; left: { x: number; y: number }; right: { x: number; y: number }; showLabel: boolean }[] = [];
-  let lastLabelPos: { x: number; y: number } | null = null;
+  let lastTickBox: Box | null = null;
   for (const tick of costTicks) {
     const cn = normalizeCost(tick, costMax);
     const left = proj(0, 0, cn);
@@ -467,10 +477,9 @@ export function VibesChart({
     // A tick label under a model name hides; the names matter more than the scale.
     const text = `$${tick >= 1 ? tick : tick.toFixed(2)}`;
     const tickBox = { left: right.x + 8, right: right.x + 8 + textWidth(text, compact ? 10 : 11), top: right.y - 6, bottom: right.y + 6 };
-    const showLabel =
-      (lastLabelPos === null || Math.hypot(right.x - lastLabelPos.x, right.y - lastLabelPos.y) >= 16) &&
-      ![...labelLayouts.values()].some((layout) => layout.boxes.some((box) => overlapArea(box, tickBox) > 0));
-    if (showLabel) lastLabelPos = { x: right.x, y: right.y };
+    const spaced = lastTickBox === null || !(tickBox.left < lastTickBox.right + 2 && tickBox.right > lastTickBox.left - 2 && tickBox.top < lastTickBox.bottom + 1 && tickBox.bottom > lastTickBox.top - 1);
+    const showLabel = spaced && ![...labelLayouts.values()].some((layout) => layout.boxes.some((box) => overlapArea(box, tickBox) > 0));
+    if (showLabel) lastTickBox = tickBox;
     visibleCostTicks.push({ tick, left, right, showLabel });
   }
 

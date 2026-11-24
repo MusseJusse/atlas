@@ -214,9 +214,10 @@ export function barGeometry(
   // When any name can't fit its group in two lines, every caption runs diagonally from under its logo,
   // and the plot gives up enough height for the longest one.
   const names = groups.map((group) => shortName(group.rows[0]!));
-  // Subscription prices append " (API)" to models priced at API rates, so their captions budget for it.
+  // Subscription prices mark models priced at API rates. Horizontal captions set "API" on its own line, so only
+  // diagonal captions, which append " (API)", budget for its width.
   const suffixes = groups.map((group) => metric === 'cost' && group.rows[0]!.taskPricing?.basis === 'api-fallback' ? apiSuffixWidth : 0);
-  const diagonal = groups.some((group, index) => captionSpan(names[index]!) + suffixes[index]! > ((right - left) * weightOf(group)) / totalWeight - 6);
+  const diagonal = groups.some((group) => captionSpan(shortName(group.rows[0]!)) > ((right - left) * weightOf(group)) / totalWeight - 6);
   const radians = (diagonalCaption.angle * Math.PI) / 180;
   const values = rows.map((row) => row.value);
   // Leave room for negative value labels above the reasoning marks and model names.

@@ -16,7 +16,7 @@ export function allowanceDate(raw: string) {
 }
 
 /** Keep estimate provenance available in both the desktop inspector and phone ranges. */
-export function PricingDetails({ model }: { model: Model }) {
+export function PricingDetails({ model, pinned = true }: { model: Model; pinned?: boolean }) {
   const pricing = model.taskPricing;
   if (!pricing) return null;
   if (pricing.basis === 'api-fallback') return <p className="mt-2 mb-0 text-[11px] leading-5 text-fg-2">API fallback. {pricing.reason}</p>;
@@ -30,7 +30,7 @@ export function PricingDetails({ model }: { model: Model }) {
           : 'External coding token mix across reasoning levels. Model allowances are not additive.'}
         {pricing.sameAs && ` Allowance based on ${pricing.sameAs}.`}
       </p>
-      <a href="https://mypriors.com/benchmarks/subscription-token-price" target="_blank" rel="noreferrer" className="inline-block py-1 underline underline-offset-4 hover:text-accent">
+      <a href="https://mypriors.com/benchmarks/subscription-token-price" target="_blank" rel="noreferrer" tabIndex={pinned ? undefined : -1} className="inline-block py-1 underline underline-offset-4 hover:text-accent">
         MyPriors prices, {formatUtcDate(subscriptionSource.capturedAt, 'short')}
       </a>
     </div>
