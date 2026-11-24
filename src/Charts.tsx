@@ -301,7 +301,8 @@ export const Chart = memo(function Chart({
               className="-mx-1.5 flex min-h-8 min-w-0 items-center gap-[7px] rounded-md px-1.5 text-left text-[13px] leading-tight font-[550] text-fg aria-pressed:bg-accent-soft aria-pressed:text-accent"
               key={model.codingAgent ? model.id : model.family}
               aria-label={model.codingAgent?.configuration}
-              aria-pressed={model.codingAgent ? interactions.pinned?.id === model.id : interactions.pinned?.family === model.family}
+              // Pressed only when this entry's own configuration is pinned, so pressing it again always unpins.
+              aria-pressed={interactions.pinned?.id === model.id}
               onClick={() => interactions.togglePin(model)}
             >
               <Logo model={model} />

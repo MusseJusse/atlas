@@ -295,6 +295,11 @@
   .ladder-records li > b { grid-column: 3; grid-row: 1; }
 }
 
+/* Below 900px the header is sticky, so focus and anchor scrolling stop below it on every page. */
+@media (width <= 900px) {
+  html { scroll-padding-top: calc(var(--header-height) + 8px); }
+}
+
 @media (width <= 900px) {
   /* Keyboard focus must clear the sticky header, including links inside the card. */
   .efficiency-workspace :where(button, a, input, select, [tabindex]),

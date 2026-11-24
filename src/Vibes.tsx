@@ -87,12 +87,13 @@ export function Vibes() {
   const [placement, setPlacement] = useState<CSSProperties>(corners['bottom-right']);
 
   useEffect(() => {
-    // On phones, reveal a card pinned below the fold and follow focus from the chart or the picks into it,
-    // so focus never stays on a control that scrolled out of view.
-    if (!detailsBelow || !isPinned || !belowCardRef.current) return;
-    belowCardRef.current.scrollIntoView({ block: 'nearest' });
+    // Focus follows a pin from the chart or the picks into its card, which sits after them in tab order.
+    // On phones the card is below the fold, so it scrolls into view too.
+    const card = detailsBelow ? belowCardRef.current : overlayRef.current;
+    if (!isPinned || !card) return;
+    if (detailsBelow) card.scrollIntoView({ block: 'nearest' });
     const from = document.activeElement;
-    if ([chartRef, picksRef, pickMenuRef].some((ref) => ref.current?.contains(from))) belowCardRef.current.focus({ preventScroll: true });
+    if ([chartRef, picksRef, pickMenuRef].some((ref) => ref.current?.contains(from))) card.focus({ preventScroll: true });
   }, [detailsBelow, isPinned, pinned?.family, pinned?.useCaseId]);
 
   useLayoutEffect(() => {
@@ -114,7 +115,7 @@ export function Vibes() {
         },
       ];
     });
-    const labels = [...plot.querySelectorAll<SVGTextElement>('[data-vibe-label], [data-vibe-sublabel]')].map(
+    const labels = [...plot.querySelectorAll<SVGTextElement>('[data-vibe-label], [data-vibe-sublabel], [data-axis-label]')].map(
       (element) => {
         const box = element.getBoundingClientRect();
         return {

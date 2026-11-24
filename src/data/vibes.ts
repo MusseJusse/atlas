@@ -38,6 +38,8 @@ export const vibeModels: readonly VibeModelEntry[] = [
     coherency: 73,
     labelPlacement: 'above',
     labelPlacement3D: 'right',
+    // Right on phones, so the name stays inside the sweet spot instead of poking above it.
+    compactLabelPlacement: 'right',
     compactLabelPlacement3D: 'above',
     summary: 'Highest overall capability while staying coherent and grounded on complex work.',
   },
@@ -65,6 +67,8 @@ export const vibeModels: readonly VibeModelEntry[] = [
     coherency: 48,
     labelPlacement: 'right',
     labelPlacement3D: 'right',
+    // Left on phones, so the name stays outside the sweet spot like its dot.
+    compactLabelPlacement: 'left',
     summary: 'Tenacious and fast for digging deep into thorny issues and driving computer-use loops.',
   },
   {

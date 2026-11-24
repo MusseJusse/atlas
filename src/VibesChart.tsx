@@ -98,7 +98,7 @@ function labelLayout(item: LabelItem, placement: VibeLabelPlacement, compact: bo
   const box = (text: string, x: number, y: number, fontSize: number): Box => {
     const w = textWidth(text, fontSize);
     const left = anchor === 'start' ? x : anchor === 'end' ? x - w : x - w / 2;
-    return { left, right: left + w, top: y - fontSize * 0.95, bottom: y + fontSize * 0.3 };
+    return { left, right: left + w, top: y - fontSize * 1.0, bottom: y + fontSize * 0.35 };
   };
   const labelX = textX(item.label, item.labelSize);
   const sublabelX = item.subtext ? textX(item.subtext, item.sublabelSize) : labelX;
@@ -429,13 +429,33 @@ export function VibesChart({
   const capLabelY = Math.max(22, capTop.y - 12);
   const capLabel = t > 0.3 ? 'Capability ↑' : 'Capability';
   const capSize = compact ? 12 : 13;
-  const labelLayouts = resolveLabels(labelItems, compact, size.width, [{
-    left: capTop.x,
-    right: capTop.x + textWidth(capLabel, capSize),
-    top: capLabelY - capSize * 0.95,
-    bottom: capLabelY + capSize * 0.3,
-  }]);
   const costArrow = yaw > 0.08 ? '↖' : '↗';
+  // Axis titles, positioned here so model labels can steer clear of them.
+  const titleBox = (text: string, x: number, y: number, fontSize: number, anchor: 'start' | 'end') => {
+    const width = textWidth(text, fontSize);
+    const left = anchor === 'start' ? x : x - width;
+    return { left, right: left + width, top: y - fontSize, bottom: y + fontSize * 0.35 };
+  };
+  const capBox = titleBox(capLabel, capTop.x, capLabelY, capSize, 'start');
+  const cohLabel = t > 0.3 ? 'Coherency →' : 'Coherency';
+  const cohLabelY = cohEnd.y + (t > 0.3 ? 18 : 26);
+  const costLabel = `Cost / task ${costArrow}`;
+  const costSize = compact ? 11 : 12;
+  // Sit clear of the cost axis on desktop and below the floor's front edge on phones.
+  const costLabelX = compact ? Math.max(8, originFront.x - 4) : Math.max(96, midCost.x - 30);
+  const costLabelY = compact ? Math.min(size.height - 10, originFront.y + 30) : midCost.y + 14;
+  const axisTitles = [
+    capBox,
+    titleBox(cohLabel, cohEnd.x, cohLabelY, capSize, 'end'),
+    ...(t > 0.04 ? [titleBox(costLabel, costLabelX, costLabelY, costSize, compact ? 'start' : 'end')] : []),
+  ];
+  // In 2D the sweet spot's left and top edges are thin obstacles, so a label sits fully inside the tint or fully outside it.
+  // Phones skip them: their top cluster has no room, and a name crossing a faint edge beats two names touching.
+  const sweetEdges = t < 0.5 && !compact ? [
+    { left: flatSweetX - 2, right: flatSweetX + 2, top: flatSweetY, bottom: flatSweetY + flatSweetH },
+    { left: flatSweetX, right: flatSweetX + flatSweetW, top: flatSweetY - 2, bottom: flatSweetY + 2 },
+  ] : [];
+  const labelLayouts = resolveLabels(labelItems, compact, size.width, [...axisTitles, ...sweetEdges]);
 
   // Thin cost tick labels whenever projected points get closer than 16px (e.g. shallow phone pitch).
   const visibleCostTicks: { tick: number; left: { x: number; y: number }; right: { x: number; y: number }; showLabel: boolean }[] = [];
@@ -756,13 +776,13 @@ export function VibesChart({
             data-axis-label="coherency"
             {...halo}
             x={cohEnd.x}
-            y={cohEnd.y + (t > 0.3 ? 18 : 26)}
+            y={cohLabelY}
             textAnchor="end"
             fill="var(--fg)"
-            fontSize={compact ? 12 : 13}
+            fontSize={capSize}
             fontWeight={600}
           >
-            {t > 0.3 ? 'Coherency →' : 'Coherency'}
+            {cohLabel}
           </text>
 
           {/* 3rd Cost axis along the left depth edge */}
@@ -780,15 +800,14 @@ export function VibesChart({
               <text
                 data-axis-label="cost"
                 {...halo}
-                // Sit clear of the cost axis on desktop and below the floor's front edge on phones.
-                x={compact ? Math.max(8, originFront.x - 4) : Math.max(96, midCost.x - 30)}
-                y={compact ? Math.min(size.height - 10, originFront.y + 30) : midCost.y + 14}
+                x={costLabelX}
+                y={costLabelY}
                 textAnchor={compact ? 'start' : 'end'}
                 fill="var(--accent)"
-                fontSize={compact ? 11 : 12}
+                fontSize={costSize}
                 fontWeight={600}
               >
-                Cost / task {costArrow}
+                {costLabel}
               </text>
             </g>
           )}

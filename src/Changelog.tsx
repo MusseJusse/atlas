@@ -220,7 +220,7 @@ export function Changelog({ history = bundledHistory }: { history?: ChangeHistor
       <main
         id="changelog-workspace"
         tabIndex={-1}
-        className="mx-4 mt-6 max-w-[1000px] rounded-[14px] bg-panel px-8 pt-8 pb-10 [outline:none] min-[1032px]:mx-auto phone:px-4 phone:pt-6"
+        className="mx-4 mt-6 max-w-[1000px] rounded-[14px] bg-panel px-8 pt-8 pb-8 [outline:none] min-[1032px]:mx-auto phone:px-4 phone:pt-6 phone:pb-6"
       >
         <div className="flex flex-wrap items-baseline justify-between gap-x-5 gap-y-2">
           <h1 className="display m-0 text-[30px] leading-[1.1] phone:text-[24px]">Model changes</h1>
