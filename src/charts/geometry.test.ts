@@ -11,9 +11,9 @@ function model(id: string, family: string, cost: number | null, intelligence = 4
 }
 it('prepares only measured rows, preserving zero, signed scores and estimate provenance', () => {
   const estimate = speedEndpoints.find((row) => row.timeEstimate)!;
-  const signed = { ...base, omniscience: -88.6 };
+  const signed = { ...base, intelligence: -88.6 };
   expect(measureRows([model('null', 'a', null), model('free', 'a', 0)], 'cost').map((row) => row.value)).toEqual([0]);
-  expect(measureRows([signed], 'omniscience')[0]?.value).toBe(-88.6);
+  expect(measureRows([signed], 'intelligence')[0]?.value).toBe(-88.6);
   expect(measureRows([estimate], 'time')[0]?.timeEstimate).toBe(estimate.timeEstimate);
 });
 
@@ -52,12 +52,12 @@ it('keeps a zero-only linear scatter usable', () => {
   expect(geometry.path(rows)).not.toMatch(/NaN|Infinity/);
 });
 it('keeps negative bars below zero, reserves label space and avoids overlapping value labels', () => {
-  const rows = measureRows([-88.6, -88.6, 0, 46.4].map((omniscience, i) => ({
-    ...base, id: `signed-${i}`, family: 'signed', omniscience, effortOrder: i,
-  })), 'omniscience');
+  const rows = measureRows([-88.6, -88.6, 0, 46.4].map((intelligence, i) => ({
+    ...base, id: `signed-${i}`, family: 'signed', intelligence, effortOrder: i,
+  })), 'intelligence');
   const original = structuredClone(rows);
-  const geometry = barGeometry(rows, 'omniscience', 320, 640, true, false);
-  const reference = linearScale(barDomain(rows.map((row) => row.value), 0.15), [640 - 96 - 42, 50]);
+  const geometry = barGeometry(rows, 'intelligence', 320, 640, true, false);
+  const reference = linearScale(barDomain(rows.map((row) => row.value), 0.15), [640 - 96 - 42, 30]);
   for (const row of rows) {
     expect(geometry.y(row.value)).toBe(reference(row.value));
     if (row.value < 0) expect(geometry.y(row.value)).toBeGreaterThan(geometry.y(0));
@@ -84,8 +84,8 @@ it('preserves phone minimum ordering versus desktop maximum ordering and explici
   expect(ungrouped.positioned.map((group) => group.id)).toEqual(['a-low', 'b-low', 'b-high', 'a-high']);
 });
 it('places signed phone ranges within bounds and keeps a zero reference', () => {
-  const rows = measureRows([-88.6, 0, 46.4].map((omniscience, i) => ({ ...base, id: `${i}`, omniscience })), 'omniscience');
-  const geometry = rangeGeometry(rows, 'omniscience', true);
+  const rows = measureRows([-88.6, 0, 46.4].map((intelligence, i) => ({ ...base, id: `${i}`, intelligence })), 'intelligence');
+  const geometry = rangeGeometry(rows, 'intelligence', true);
   expect(geometry.position(0)).toBeGreaterThan(0);
   expect(geometry.position(0)).toBeLessThan(100);
   for (const row of rows) {
@@ -95,11 +95,11 @@ it('places signed phone ranges within bounds and keeps a zero reference', () => 
 });
 
 it('combines endpoints rather than summing and preserves signed, tied and non-monotonic configurations', () => {
-  const rows = measureRows([40, 60, 50, 60, -20, -45, 0].map((omniscience, index) => ({
-    ...base, id: `endpoint-${index}`, family: 'combined', omniscience, effortOrder: index,
-  })), 'omniscience');
+  const rows = measureRows([40, 60, 50, 60, -20, -45, 0].map((intelligence, index) => ({
+    ...base, id: `endpoint-${index}`, family: 'combined', intelligence, effortOrder: index,
+  })), 'intelligence');
   const original = structuredClone(rows);
-  const { positioned } = barGeometry(rows, 'omniscience', 960, 640, true, false, true);
+  const { positioned } = barGeometry(rows, 'intelligence', 960, 640, true, false, true);
   const bars = positioned[0]!.bars;
   expect(new Set(bars.map((bar) => bar.x)).size).toBe(1);
   expect(bars.map((bar) => [bar.baseline, bar.row.value])).toEqual([
@@ -109,7 +109,7 @@ it('combines endpoints rather than summing and preserves signed, tied and non-mo
   expect(bars.filter((bar) => bar.text).map((bar) => bar.row.value)).toEqual([60, -45]);
   expect(bars.map((bar) => bar.row.id).toSorted()).toEqual(rows.map((row) => row.id).toSorted());
   expect(rows).toEqual(original);
-  const separate = barGeometry(rows, 'omniscience', 960, 640, false, false);
+  const separate = barGeometry(rows, 'intelligence', 960, 640, false, false);
   expect(separate.positioned.every((group) => group.bars[0]!.baseline === 0)).toBe(true);
   expect(separate.positioned).toHaveLength(rows.length);
 });
@@ -146,9 +146,9 @@ it('scrolls separate bars only when captions would no longer fit, as with the Al
 
 it('keeps a short dense plot upright, with negative values below zero', () => {
   const rows = measureRows(Array.from({ length: 60 }, (_, index) => ({
-    ...base, id: `dense-${index}`, family: `dense-${index}`, name: `A very long model name number ${index}`, omniscience: index % 2 ? 50 : -50,
-  })), 'omniscience');
-  const { y, diagonal } = barGeometry(rows, 'omniscience', 640, 434, true, false);
+    ...base, id: `dense-${index}`, family: `dense-${index}`, name: `A very long model name number ${index}`, intelligence: index % 2 ? 50 : -50,
+  })), 'intelligence');
+  const { y, diagonal } = barGeometry(rows, 'intelligence', 640, 434, true, false);
   expect(diagonal).toBe(true);
   expect(y(-50)).toBeGreaterThan(y(0));
   expect(y(0) - y(50)).toBeGreaterThan(40);

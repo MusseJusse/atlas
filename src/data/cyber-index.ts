@@ -24,7 +24,6 @@ export const cyberModels: Model[] = source.configurations.map((configuration) =>
     effortLabel: configuration.effortLabel,
     effortOrder: configuration.effortOrder,
     intelligence: null,
-    omniscience: null,
     cyberScore: configuration.indexScore,
     cost: configuration.cost,
     inputPrice: null,

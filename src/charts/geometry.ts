@@ -207,7 +207,7 @@ export function barGeometry(
   const combined = grouped && combine;
   const left = width < 600 ? barLayout.narrowLeft : barLayout.left;
   const right = width - barLayout.right;
-  const top = metric === 'omniscience' ? 50 : 30;
+  const top = 30;
   const groups = barGroups(rows, metric, grouped, descending);
   const totalWeight = groups.reduce((total, group) => total + (combined ? 1 : Math.max(3, group.rows.length)), 0);
   const weightOf = (group: (typeof groups)[number]) => combined ? 1 : Math.max(3, group.rows.length);
@@ -285,7 +285,7 @@ type LaidOutGroup = { barWidth: number; bars: { row: MeasuredRow; x: number; lab
 /** Bar prices keep cents ("$3.10", not "$3.1") and scores keep a decimal ("57.0"), so neighbours share precision.
  * Sub-cent prices and other metrics use the compact form. */
 function valueLabel(row: MeasuredRow, metric: Metric) {
-  const compact = metric === 'cost' ? row.value < 0.001 : metric !== 'intelligence' && metric !== 'omniscience';
+  const compact = metric === 'cost' ? row.value < 0.001 : metric !== 'intelligence';
   return formatModelValue(row, metric, compact);
 }
 

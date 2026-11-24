@@ -24,7 +24,7 @@ it('validates the separate source snapshot and retains the published numeric pre
     expect(row.codingScore).toBe(source.indexScore === null ? null : source.indexScore * 100);
     expect(row.cost).toBe(source.cost);
     expect(row.codingAgent?.configuration).toBe(source.configuration);
-    for (const metric of ['intelligence', 'omniscience', 'tokens', 'tokensTotal', 'costTotal', 'time', 'speed'] as const)
+    for (const metric of ['intelligence', 'tokens', 'tokensTotal', 'costTotal', 'time', 'speed'] as const)
       expect(row[metric]).toBeNull();
     expect(models.some((model) => model.id === row.id)).toBe(false);
     expect(families.some((family) => family.family === row.family)).toBe(true);

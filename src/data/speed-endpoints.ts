@@ -30,7 +30,6 @@ export const speedEndpoints = [
     effortLabel: 'max',
     effortOrder: 60,
     intelligence: null,
-    omniscience: null,
     cost: null,
     inputPrice: null,
     outputPrice: null,

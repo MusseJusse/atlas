@@ -26,7 +26,6 @@ export const codingAgents: Model[] = source.configurations.map((configuration) =
     effortLabel: configuration.effort === 'default' ? 'default settings' : configuration.effort,
     effortOrder: effortOrder.get(configuration.effort) ?? 0,
     intelligence: null,
-    omniscience: null,
     codingScore: configuration.indexScore === null ? null : configuration.indexScore * 100,
     cost: configuration.cost,
     inputPrice: null,
