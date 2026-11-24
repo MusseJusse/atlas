@@ -39,6 +39,17 @@ function costColor(norm: number) {
   return 'light-dark(#b4372f, #f87171)';
 }
 
+/** A panel-colored outline under label text, so drop stems and gridlines never cut through letters. */
+const halo = { stroke: 'var(--panel)', strokeWidth: 3, strokeLinejoin: 'round', paintOrder: 'stroke' } as const;
+
+/** Labels may run into the card's 16px padding, but no further. */
+const LABEL_OVERHANG = 12;
+
+/** Rough DM Sans advance width, for keeping right-running labels inside the card. */
+function textWidth(text: string, fontSize: number) {
+  return text.length * fontSize * 0.55;
+}
+
 function labelOffset(placement: VibeLabelPlacement, compact: boolean) {
   switch (placement) {
     case 'left':
@@ -47,6 +58,8 @@ function labelOffset(placement: VibeLabelPlacement, compact: boolean) {
       return { dx: 0, dy: -13, anchor: 'middle' as const };
     case 'below':
       return { dx: 0, dy: compact ? 18 : 20, anchor: 'middle' as const };
+    case 'below-right':
+      return { dx: -4, dy: compact ? 18 : 20, anchor: 'start' as const };
     case 'right':
     default:
       return { dx: 11, dy: 4, anchor: 'start' as const };
@@ -646,8 +659,9 @@ export function VibesChart({
               />
               <text
                 data-axis-label="cost"
-                x={compact ? Math.max(8, originFront.x - 4) : Math.max(96, midCost.x - 12)}
-                y={compact ? Math.min(size.height - 10, originFront.y + 18) : midCost.y + 12}
+                // Sit clear of the cost axis on desktop and below the floor's front edge on phones.
+                x={compact ? Math.max(8, originFront.x - 4) : Math.max(96, midCost.x - 30)}
+                y={compact ? Math.min(size.height - 10, originFront.y + 30) : midCost.y + 14}
                 textAnchor={compact ? 'start' : 'end'}
                 fill="var(--accent)"
                 fontSize={compact ? 11 : 12}
@@ -689,6 +703,13 @@ export function VibesChart({
               ? (compact && entry.compactLabelPlacement3D) || entry.labelPlacement3D
               : (compact && entry.compactLabelPlacement) || entry.labelPlacement;
           const { dx, dy, anchor } = labelOffset(placement, compact);
+          // Right-running text near the right edge slides left until it fits the card.
+          const labelX = (text: string, fontSize: number) =>
+            anchor === 'start'
+              ? Math.min(point.x + dx, size.width + LABEL_OVERHANG - textWidth(text, fontSize))
+              : point.x + dx;
+          const labelSize = compact ? 11.5 : isActive ? 13.5 : 12.5;
+          const sublabelSize = compact ? 10 : 10.5;
           const handlers = pinHandlers(entry.family, onTogglePin);
 
           const benchmarkSubtext = [
@@ -698,8 +719,8 @@ export function VibesChart({
             .filter(Boolean)
             .join(', ');
           const costTag = entry.model.cost !== null ? format(entry.model.cost, 'cost', true) : null;
-          // On compact 3D viewports, show secondary tags only on the active model to prevent crowding.
-          const allowSubtext = !compact || t <= 0.35 || isActive;
+          // 3D on the narrowest phones has room for secondary tags on the active model only.
+          const allowSubtext = size.width >= 320 || t <= 0.35 || isActive;
           const showSubtext = !allowSubtext
             ? null
             : showBenchmarks
@@ -786,19 +807,20 @@ export function VibesChart({
               />
               <text
                 data-vibe-label={entry.family}
-                x={point.x + dx}
+                x={labelX(label, labelSize)}
                 y={point.y + dy - (placement === 'above' && showSubtext ? (compact ? 13 : 14) : 0)}
                 textAnchor={anchor}
                 fill={labelFill}
-                fontSize={compact ? 11.5 : isActive ? 13.5 : 12.5}
+                fontSize={labelSize}
                 fontWeight={isActive ? 650 : 550}
+                {...halo}
               >
                 {label}
               </text>
               {showSubtext && (
                 <text
                   data-vibe-sublabel={entry.family}
-                  x={point.x + dx}
+                  x={labelX(showSubtext, sublabelSize)}
                   y={
                     point.y +
                     dy +
@@ -806,8 +828,9 @@ export function VibesChart({
                   }
                   textAnchor={anchor}
                   fill={!showBenchmarks && t > 0.35 ? cColor : 'var(--fg-2)'}
-                  fontSize={compact ? 10 : 10.5}
+                  fontSize={sublabelSize}
                   fontWeight={!showBenchmarks && t > 0.35 ? 600 : 400}
+                  {...halo}
                   opacity={showBenchmarks ? 1 : Math.min(1, (t - 0.35) / 0.65)}
                 >
                   {showSubtext}

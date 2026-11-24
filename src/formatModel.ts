@@ -54,7 +54,9 @@ export function format(
           ? ([1e3, 'k'] as const)
           : null;
   if (unit) return `${+(value / unit[0]).toFixed(compact ? 0 : 1)}${unit[1]}`;
-  return formatNumber(value, metric === 'intelligence' || metric === 'omniscience' || !compact ? 1 : 0);
+  // Score values keep one decimal, so 57.0 lines up with 56.4 in a ranking; axis ticks stay whole.
+  const score = metric === 'intelligence' || metric === 'omniscience';
+  return formatNumber(value, score || !compact ? 1 : 0, score && !compact ? 1 : 0);
 }
 
 /** Distinguish local estimates wherever model measurements appear. */

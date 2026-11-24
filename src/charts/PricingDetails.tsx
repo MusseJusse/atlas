@@ -22,7 +22,7 @@ export function PricingDetails({ model }: { model: Model }) {
           : 'External coding token mix across reasoning levels. Model allowances are not additive.'}
         {pricing.sameAs && ` Allowance based on ${pricing.sameAs}.`}
       </p>
-      <a href="https://mypriors.com/benchmarks/subscription-token-price" className="inline-block py-1 underline underline-offset-4 hover:text-accent">
+      <a href="https://mypriors.com/benchmarks/subscription-token-price" target="_blank" rel="noreferrer" className="inline-block py-1 underline underline-offset-4 hover:text-accent">
         MyPriors prices, {formatUtcDate(subscriptionSource.capturedAt, 'short')}
       </a>
     </div>

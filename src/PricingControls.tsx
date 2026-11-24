@@ -16,10 +16,10 @@ export function PricingControls({ settings, update }: {
     <div className="w-full shrink-0 border-b border-line px-2 pt-2 pb-4 text-[13px]">
       <fieldset className="m-0 min-w-0 border-0 p-0">
         <legend className="p-0 text-[13px] font-[600] text-fg">Task cost</legend>
-        <p className="mt-0.5 mb-3 text-[12px] leading-5 text-fg-2">Applies to Cost per task and Cost vs intelligence. Subscription costs are estimates.</p>
+        <p className="mt-0.5 mb-3 text-[12px] leading-5 text-fg-2">Applies to cost charts. Subscription costs are estimates.</p>
         <div className="flex gap-0.5 rounded-lg bg-track p-0.5">
           {(['api', 'subscription'] as const).map((mode) => (
-            <label key={mode} className="flex min-h-9 flex-1 cursor-pointer items-center justify-center rounded-md px-2 font-[500] has-[:checked]:bg-thumb has-[:checked]:shadow-[var(--shadow-raised)] has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-accent has-[:focus-visible]:outline-offset-2">
+            <label key={mode} className="flex min-h-8 flex-1 text-[12px] cursor-pointer items-center justify-center rounded-md px-2 font-[500] has-[:checked]:bg-thumb has-[:checked]:shadow-[var(--shadow-raised)] has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-accent has-[:focus-visible]:outline-offset-2">
               <input className="sr-only" type="radio" name={`${id}-pricing`} checked={settings.pricingMode === mode}
                 onChange={() => update({ pricingMode: mode })} />
               <span className={`whitespace-nowrap ${settings.pricingMode === mode ? 'text-accent' : 'text-fg-2 hover:text-fg'}`}>
@@ -59,7 +59,7 @@ export function PricingControls({ settings, update }: {
             Counts confirmed resets in the 30 days before capture. Excludes banked and unconfirmed resets.
           </p>
           <p className="mt-2 mb-0 text-[12px] leading-5 text-fg-2">
-            <a className="underline underline-offset-4 hover:text-accent" href="https://mypriors.com/benchmarks/subscription-token-price">
+            <a className="underline underline-offset-4 hover:text-accent" href="https://mypriors.com/benchmarks/subscription-token-price" target="_blank" rel="noreferrer">
               MyPriors prices, {formatUtcDate(subscriptionSource.capturedAt, 'short')}
             </a>
           </p>

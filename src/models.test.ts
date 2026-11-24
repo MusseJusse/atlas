@@ -127,7 +127,7 @@ describe('benchmark comparisons', () => {
       'positive', 'zero', 'negative',
     ]);
     expect(formatModelValue(rows[0]!, 'omniscience', true)).toBe('-5.4');
-    expect(formatModelValue(rows[1]!, 'omniscience')).toBe('0');
+    expect(formatModelValue(rows[1]!, 'omniscience')).toBe('0.0');
     const settings = { ...readSettings(''), descending: true };
     const url = writeSettings(settings, 'omniscience');
     expect(readView(url)).toBe('omniscience');

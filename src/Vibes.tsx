@@ -7,10 +7,12 @@ import { placeCard } from './charts/card-placement';
 import { formatUtcDate } from './formatDate';
 import { Selection } from './Selection';
 import { SiteHeader } from './SiteHeader';
+import { usePage } from './usePage';
 import { useMediaQuery } from './useMediaQuery';
 import { VibesChart } from './VibesChart';
 import { axisDefinitions, reasoningGuidance, resolveVibes, type UseCaseIcon } from './data/vibes';
 import { modelColor, shortName } from './model-presentation';
+import { segment, segments } from './segments';
 import type { Model } from './models';
 
 type VibeSelection = {
@@ -18,9 +20,6 @@ type VibeSelection = {
   useCaseId: string | null;
 };
 
-const segments = 'flex gap-0.5 rounded-lg bg-track p-0.5';
-const segment =
-  'min-h-8 flex-1 rounded-md px-2.5 text-[12px] font-[500] whitespace-nowrap text-fg-2 hover:text-fg aria-pressed:bg-thumb aria-pressed:text-accent aria-pressed:shadow-[var(--shadow-raised)]';
 
 const iconMap: Record<UseCaseIcon, typeof Code2> = {
   coding: Code2,
@@ -44,9 +43,7 @@ export function Vibes() {
   const overlayRef = useRef<HTMLElement>(null);
   const belowCardRef = useRef<HTMLElement>(null);
 
-  useEffect(() => {
-    document.title = 'Atlas · Vibes';
-  }, []);
+  usePage('Atlas · Vibes');
 
   useLayoutEffect(() => {
     const element = chartRef.current;
@@ -90,10 +87,12 @@ export function Vibes() {
   const [placement, setPlacement] = useState<CSSProperties>(corners['bottom-right']);
 
   useEffect(() => {
-    // On phones, reveal a card pinned below the fold and follow chart focus into it so focus never hides behind the header.
+    // On phones, reveal a card pinned below the fold and follow focus from the chart or the picks into it,
+    // so focus never stays on a control that scrolled out of view.
     if (!detailsBelow || !isPinned || !belowCardRef.current) return;
     belowCardRef.current.scrollIntoView({ block: 'nearest' });
-    if (chartRef.current?.contains(document.activeElement)) belowCardRef.current.focus({ preventScroll: true });
+    const from = document.activeElement;
+    if ([chartRef, picksRef, pickMenuRef].some((ref) => ref.current?.contains(from))) belowCardRef.current.focus({ preventScroll: true });
   }, [detailsBelow, isPinned, pinned?.family, pinned?.useCaseId]);
 
   useLayoutEffect(() => {
@@ -150,7 +149,9 @@ export function Vibes() {
       if (previous.useCaseId) {
         // Phones pick use cases from a menu instead of the row, so focus returns to its button.
         const pick = picksRef.current?.querySelector<HTMLButtonElement>(`button[data-use-case="${previous.useCaseId}"]`);
-        (pick?.checkVisibility() ? pick : pickMenuRef.current?.querySelector('summary'))?.focus({ preventScroll: true });
+        const trigger = pick?.checkVisibility() ? pick : pickMenuRef.current?.querySelector('summary');
+        trigger?.focus({ preventScroll: true });
+        if (detailsBelow) trigger?.scrollIntoView({ block: 'nearest' });
       } else {
         const trigger = chartRef.current?.querySelector<SVGGElement>(`g[data-vibe-family="${previous.family}"]`);
         trigger?.focus({ preventScroll: true });
@@ -180,18 +181,15 @@ export function Vibes() {
       summary={
         <>
           {activeEntry.useCases.length > 0 && (
-            <div className="mt-2.5 flex flex-wrap gap-1.5">
-              {activeEntry.useCases.map((useCase) => (
-                <span
-                  key={useCase.id}
-                  className={`rounded-full px-2 py-0.5 text-[10.5px] font-[500] ${
-                    activeUseCase?.id === useCase.id ? 'bg-accent-soft text-accent' : 'bg-surface text-fg-2'
-                  }`}
-                >
-                  {useCase.label}
+            <p className="mt-2.5 mb-0 text-[12px] leading-5 text-fg-2">
+              Best for{' '}
+              {activeEntry.useCases.map((useCase, index) => (
+                <span key={useCase.id}>
+                  {index > 0 && ', '}
+                  <span className={activeUseCase?.id === useCase.id ? 'font-[600] text-accent' : 'text-fg'}>{useCase.label}</span>
                 </span>
               ))}
-            </div>
+            </p>
           )}
           <p className="mt-2.5 mb-0 text-[12px] leading-5 text-fg">
             {activeUseCase ? activeUseCase.note : activeEntry.summary}

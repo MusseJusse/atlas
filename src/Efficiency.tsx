@@ -1,7 +1,8 @@
-import { useEffect, useState, type CSSProperties } from 'react';
+import { useState, type CSSProperties } from 'react';
 import snapshot from 'virtual:benchmarks';
 import { ChevronDown } from 'lucide-react';
 import { SiteHeader } from './SiteHeader';
+import { usePage } from './usePage';
 import { costMultiplier, efficiencySeries, elapsedTimeSinceFirstRecord, type EfficiencyLine } from './efficiency-data';
 import { formatUtcDate } from './formatDate';
 import { format } from './formatModel';
@@ -36,10 +37,11 @@ const biggest = lines
 
 export function Efficiency() {
   const [open, setOpen] = useState<number | null>(null);
-  useEffect(() => { document.title = 'Atlas · Efficiency'; }, []);
+  usePage('Atlas · Efficiency');
 
   return (
-    <div className="grid h-dvh grid-rows-[var(--header-height)_minmax(0,1fr)_auto] phone:block phone:h-auto">
+    // The sheet is as tall as its rows, scrolling only when the window is shorter; the footer follows it.
+    <div className="grid h-dvh grid-rows-[var(--header-height)_minmax(0,auto)_1fr] phone:block phone:h-auto">
       <a href="#efficiency-workspace" className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-40 focus:rounded-md focus:bg-panel focus:p-3">Skip to efficiency</a>
       <SiteHeader current="efficiency" />
       <main
@@ -47,13 +49,13 @@ export function Efficiency() {
         tabIndex={-1}
         className="efficiency-workspace mx-7 mt-6 mb-2 min-h-0 min-w-0 overflow-y-auto rounded-[14px] bg-panel px-7 pt-6 pb-5 [outline:none] [scrollbar-width:thin] short:mt-4 compact:mx-5 mobile:mx-4 mobile:mt-4 mobile:mb-0 phone:overflow-visible phone:px-4 phone:pt-5"
       >
-        <h1 className="display m-0 max-w-[26ch] text-[30px] leading-[1.1] text-balance phone:text-[24px]">
+        <h1 className="display m-0 max-w-[30ch] text-[30px] leading-[1.1] text-balance phone:text-[24px]">
           {biggest
-            ? `Reaching ${biggest.threshold} on the Intelligence index costs ${times(costMultiplier(biggest, latest(biggest)))} less than in ${month(biggest.points[0]!.date)}.`
+            ? `The cheapest model to reach ${biggest.threshold} on the Intelligence index costs ${times(costMultiplier(biggest, latest(biggest)))} less than ${month(biggest.points[0]!.date)}'s first.`
             : 'The cheapest model at each Intelligence index score.'}
         </h1>
         <p className="mt-2 mb-0 max-w-[72ch] text-[13px] leading-5 text-pretty text-fg-2">
-          Each arrow runs from the first model to reach a score to the cheapest one today, in API cost per Intelligence index task. Prices are today's, ordered by release date. Open a row for every record.
+          Each arrow runs from the first model to reach a score to the cheapest one today, in API cost per Intelligence index task. All prices are today's. Records in between follow release date. Open a row for every record.
         </p>
         <p className="mt-3 mb-4 flex flex-wrap items-center gap-x-4 gap-y-1 text-[12px] text-fg-2" aria-hidden="true">
           <span className="inline-flex items-center gap-1.5"><span className="ladder-dot ladder-first" />First record</span>
@@ -73,10 +75,10 @@ export function Efficiency() {
           ))}
         </div>
       </main>
-      <footer className="flex flex-wrap items-center justify-between gap-x-5 gap-y-1 px-7 py-3 text-[12px] leading-5 text-fg-3 short:py-2 compact:px-5 mobile:px-4 phone:pt-5 phone:pb-[calc(20px+env(safe-area-inset-bottom))]">
+      <footer className="flex flex-wrap items-center justify-between gap-x-5 gap-y-1 self-start px-7 py-3 text-[12px] leading-5 text-fg-3 short:py-2 compact:px-5 mobile:px-4 phone:pt-5 phone:pb-[calc(20px+env(safe-area-inset-bottom))]">
         <span>
           Data from{' '}
-          <a href={source} className="underline-offset-4 hover:text-accent hover:underline">Artificial Analysis</a>
+          <a href={source} target="_blank" rel="noreferrer" className="underline-offset-4 hover:text-accent hover:underline">Artificial Analysis</a>
         </span>
         <span>Snapshot captured <time dateTime={snapshot.fetchedAt}>{formatUtcDate(snapshot.fetchedAt, 'short')}</time></span>
       </footer>

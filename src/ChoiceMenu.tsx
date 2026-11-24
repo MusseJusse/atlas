@@ -90,7 +90,7 @@ export function ChoiceMenu<Id extends string>({
       }}
     >
       <summary
-        className={`${full ? 'flex min-h-10 w-full' : 'inline-flex min-h-8'} cursor-pointer list-none items-center gap-1 rounded-md bg-surface py-1 pr-1.5 pl-2.5 text-[13px] font-[560] text-fg hover:bg-hover group-open:bg-accent-soft group-open:text-accent focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent [&::-webkit-details-marker]:hidden`}
+        className={`${full ? 'flex min-h-10 w-full' : 'inline-flex min-h-9 phone:min-h-10'} cursor-pointer list-none items-center gap-1 rounded-md bg-surface py-1 pr-1.5 pl-2.5 text-[13px] font-[560] text-fg hover:bg-hover group-open:bg-accent-soft group-open:text-accent focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent [&::-webkit-details-marker]:hidden`}
         aria-label={`${name}: ${label}`}
       >
         {full ? <span className="flex min-w-0 flex-1 items-center gap-1.5">{children ?? label}</span> : children ?? label}

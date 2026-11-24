@@ -141,7 +141,7 @@ export const Sidebar = memo(function Sidebar({
       role="dialog"
       aria-modal
     >
-      <div className="sticky top-0 z-[1] -mx-5 flex h-14 items-center gap-2 border-b border-line bg-bg px-5 phone:-mx-4 phone:px-4">
+      <div className="sticky top-0 z-[1] -mx-5 flex h-[var(--header-height)] items-center gap-2 border-b border-line bg-bg px-5 phone:-mx-4 phone:px-4">
         <h2 className="flex-1 text-[18px] font-[650] tracking-[-0.3px] mobile:text-[18px]">
           Models{' '}
           <span className="ml-1 text-[12px] font-normal tracking-normal text-fg-3 tabular-nums">

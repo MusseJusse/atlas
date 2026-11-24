@@ -3,7 +3,7 @@ import { PricingDetails, taskCostLabel } from './PricingDetails';
 import { X } from 'lucide-react';
 import { Logo } from '../Logo';
 import type { Model } from '../models';
-import { modelColor } from '../model-presentation';
+import { modelColor, shortName } from '../model-presentation';
 import { format, formatModelValue } from '../formatModel';
 import { metrics, type Metric } from '../chart-definitions';
 import { formatUtcDate } from '../formatDate';
@@ -36,7 +36,7 @@ export function ConfigurationDetails({
       <div className="flex items-start justify-between gap-2">
         <strong className="flex min-w-0 items-center gap-2 text-[14px] font-[600] tracking-[-0.1px]" style={{ color: `color-mix(in srgb, ${modelColor(model)} 80%, var(--fg))` }}>
           <Logo model={model} size={19} />
-          {model.name}
+          {shortName(model)}
         </strong>
         {pinned && (
           <button

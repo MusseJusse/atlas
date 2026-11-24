@@ -93,7 +93,18 @@ export function scatterGeometry(
   });
   // Use the densest tick set whose labels all fit, so wide cost ranges never run labels together.
   // Phones also stop at five 1-3 ticks, which keeps the narrow axis calm.
-  const tickSets = (mobile ? [[1, 3], [1]] : [[1, 2, 5], [1, 3], [1]]).map(tickSteps);
+  // Time ticks land on whole durations (1m, 5m, 30m), never at "8.3m", densest set first.
+  const [low, high] = domain;
+  const durations = [
+    [10, 20, 30, 60, 120, 300, 600, 1200, 1800, 3600, 7200, 14400],
+    [10, 30, 60, 300, 600, 1800, 3600, 14400],
+    [10, 60, 600, 3600],
+  ];
+  const tickSets = metric !== 'time'
+    ? (mobile ? [[1, 3], [1]] : [[1, 2, 5], [1, 3], [1]]).map(tickSteps)
+    : linear
+      ? [durationTicks(high).filter((value) => value >= low)]
+      : durations.map((set) => set.filter((value) => value >= low && value <= high));
   const logTicks = tickSets.find((ticks) =>
     (!mobile || ticks.length <= 5) && spacedAxisTicks(ticks, x, metric).length === ticks.length,
   ) ?? tickSets.at(-1)!;

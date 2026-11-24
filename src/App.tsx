@@ -13,10 +13,9 @@ import { metrics, resolveView, scoreLabels, viewDescriptions, views, type ViewId
 import { chartDescending, readSettings, readView, writeSettings, type Settings } from './state';
 import { formatUtcDate } from './formatDate';
 import { SiteHeader } from './SiteHeader';
+import { markNavigation, usePage } from './usePage';
+import { segment, segments } from './segments';
 
-const segments = 'flex gap-0.5 rounded-lg bg-track p-0.5';
-const segment =
-  'min-h-8 flex-1 rounded-md px-2.5 text-[12px] font-[500] whitespace-nowrap text-fg-2 hover:text-fg aria-pressed:bg-thumb aria-pressed:text-accent aria-pressed:shadow-[var(--shadow-raised)]';
 const menuItem = 'inline-flex min-h-10 w-full items-center gap-2.5 rounded-md px-2 text-[13px] text-fg hover:bg-hover';
 const menuLabel = 'px-2 pb-1 text-[13px] font-[600] text-fg';
 
@@ -46,6 +45,7 @@ export function App() {
       if (target.href === location.href) return;
       const previousPage = currentPage();
       history.pushState(null, '', target.href);
+      markNavigation();
       const nextPage = currentPage();
       if (previousPage === nextPage) window.dispatchEvent(new PopStateEvent('popstate'));
       else setPage(nextPage);
@@ -103,7 +103,7 @@ const horizontalOptions = [
 ] as const satisfies readonly ChoiceOption<ViewId | 'models'>[];
 
 function Benchmarks() {
-  useEffect(() => { document.title = 'Atlas · AI model benchmarks'; }, []);
+  usePage('Atlas · AI model benchmarks');
   const search = typeof location === 'undefined' ? '' : location.search;
   const [settings, setSettings] = useState(() => readSettings(search));
   const [active, setActive] = useState(() => readView(search));
@@ -187,7 +187,8 @@ function Benchmarks() {
           aria-label={view.label}
         >
           <h2 className="sr-only">{view.label}</h2>
-          <div className="flex shrink-0 flex-wrap items-center gap-x-4 gap-y-2">
+          {/* Above the chart, so focus rings on the toolbar paint over the plot instead of under it. */}
+          <div className="relative z-[1] flex shrink-0 flex-wrap items-center gap-x-4 gap-y-2">
             {/* Phones put both axis menus first, so switching charts never waits below a long ranking. */}
             <div className="flex flex-wrap gap-2 phone:w-full">
               <ChoiceMenu
@@ -232,7 +233,7 @@ function Benchmarks() {
             )}
             <div className={`flex items-center gap-3 phone:ml-auto phone:gap-2 ${scatter ? '' : 'ml-auto'}`}>
               <button
-                className="inline-flex min-h-10 items-center gap-2 rounded-lg border border-line pr-2 pl-3 text-[13px] text-fg-2 hover:border-line-2 hover:bg-hover hover:text-fg aria-expanded:border-accent aria-expanded:text-accent"
+                className="inline-flex min-h-9 items-center gap-2 rounded-lg border border-line pr-2 pl-3 text-[13px] phone:min-h-10 text-fg-2 hover:border-line-2 hover:bg-hover hover:text-fg aria-expanded:border-accent aria-expanded:text-accent"
                 onClick={() => setPickerOpen(true)}
                 aria-haspopup="dialog"
                 aria-controls="model-filters"
@@ -360,6 +361,10 @@ function ChartOptions({
     }} onClickCapture={(event) => {
       // Summary clicks run before the menu opens, so the first painted frame is already on the right side.
       if (!menu.current?.open && event.target instanceof Element && event.target.closest('summary')) fitMenu();
+    }} onBlur={(event) => {
+      // Close when keyboard focus leaves, as the axis menus do. A null target is a pointer press, which the outside listener handles.
+      const next = event.relatedTarget;
+      if (menu.current?.open && next instanceof Node && !menu.current.contains(next)) menu.current.open = false;
     }} onKeyDown={(event) => {
       if (event.key === 'Escape' && menu.current?.open) {
         menu.current.open = false;
@@ -368,7 +373,7 @@ function ChartOptions({
       }
     }}>
       <summary
-        className="flex size-10 cursor-pointer list-none items-center justify-center rounded-lg border border-line text-fg-2 group-open:border-accent group-open:text-accent hover:border-line-2 hover:bg-hover hover:text-fg focus-visible:outline-2 focus-visible:outline-accent focus-visible:outline-offset-2 [&::-webkit-details-marker]:hidden"
+        className="flex size-9 cursor-pointer list-none items-center justify-center rounded-lg border border-line phone:size-10 text-fg-2 group-open:border-accent group-open:text-accent hover:border-line-2 hover:bg-hover hover:text-fg focus-visible:outline-2 focus-visible:outline-accent focus-visible:outline-offset-2 [&::-webkit-details-marker]:hidden"
         aria-label="Chart settings"
         title="Chart settings"
       >

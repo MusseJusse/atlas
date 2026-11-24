@@ -53,7 +53,7 @@ it('lists each model from no reasoning up to max', () => {
     id: `neon-${effortLabel}`, name: 'Neon', effortLabel, kind: 'added' as const, fields: [],
   }));
   const markup = renderToStaticMarkup(<Changelog history={{ ...history, updates: [{ ...batch!, changes }] }} />);
-  expect([...markup.matchAll(/Neon<span[^>]*>([^<]+)</g)].map(([, effort]) => effort)).toEqual(['non-reasoning', 'low', 'high', 'xhigh']);
+  expect([...markup.matchAll(/Neon <span[^>]*>([^<]+)</g)].map(([, effort]) => effort)).toEqual(['non-reasoning', 'low', 'high', 'xhigh']);
 });
 
 it('explains the baseline without inventing historical additions', () => {

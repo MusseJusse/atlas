@@ -1,10 +1,12 @@
-import { useEffect, useId, useState } from 'react';
+import { useId, useState } from 'react';
 import { ChevronDown } from 'lucide-react';
-import { useMediaQuery } from './useMediaQuery';
 import bundledHistory from 'virtual:changelog';
 import { fieldLabels, type ChangeHistory, type ChangeKind, type FieldChange } from './data/changelog';
 import { formatUtcDate, formatUtcDateTime } from './formatDate';
 import { SiteHeader } from './SiteHeader';
+import { usePage } from './usePage';
+import { shortName } from './model-presentation';
+import { segment, segments } from './segments';
 
 const filters = [
   { id: 'all', label: 'All changes' },
@@ -14,9 +16,9 @@ const filters = [
 ] as const;
 const kindLabels: Record<ChangeKind, string> = { added: 'Added', updated: 'Updated', removed: 'Removed' };
 const kindStyles: Record<ChangeKind, string> = {
-  added: 'bg-positive-soft text-positive',
-  updated: 'bg-accent-soft text-accent',
-  removed: 'bg-negative-soft text-negative',
+  added: 'text-positive',
+  updated: 'text-accent',
+  removed: 'text-negative',
 };
 
 const dollarFields = new Set<FieldChange['field']>(['cost', 'costTotal', 'codingCost', 'codingCostTotal', 'inputPrice', 'outputPrice']);
@@ -29,14 +31,15 @@ function formatValue(value: FieldChange['before'], field: FieldChange['field'], 
   if (typeof value === 'boolean') return value ? 'Yes' : 'No';
   if (typeof value !== 'number') return value;
   // Whole counts stay exact: rounding them saves no width and hides real differences.
-  const number = String(exact || Number.isInteger(value) ? value : Number(value.toPrecision(6)));
+  // Otherwise four significant figures, and whole numbers from 1,000 up, so 191.235441826247 reads 191.2.
+  const number = String(exact || Number.isInteger(value) ? value : Math.abs(value) >= 1000 ? Math.round(value) : Number(value.toPrecision(4)));
   if (dollarFields.has(field)) return `$${number}`;
   if (field === 'speed') return `${number} tok/s`;
   if (secondFields.has(field)) return `${number}s`;
   return number;
 }
 
-/** Six significant figures fit phone columns; fall back to full precision when rounding would hide the change. */
+/** Rounded values fit every column; fall back to full precision when rounding would hide the change. */
 function formatChange({ field, before, after }: FieldChange) {
   const rounded = [formatValue(before, field, false), formatValue(after, field, false)] as const;
   const exact = [formatValue(before, field), formatValue(after, field)] as const;
@@ -51,13 +54,12 @@ function orderChanges<Change extends { name: string; effortLabel: string }>(chan
   return changes.toSorted((a, b) => firstSeen.get(a.name)! - firstSeen.get(b.name)! || rank(a) - rank(b));
 }
 
-/** Wide screens show exact values. On phones the field name opens a full-width row with the exact pair. */
-function FieldRow({ fieldChange, compact }: { fieldChange: FieldChange; compact: boolean }) {
+/** Values show rounded. When that rounds anything, the field name opens a full-width row with the exact pair. */
+function FieldRow({ fieldChange }: { fieldChange: FieldChange }) {
   const [open, setOpen] = useState(false);
   const exactRow = useId();
   const { rounded, exact } = formatChange(fieldChange);
-  const expandable = compact && (rounded[0] !== exact[0] || rounded[1] !== exact[1]);
-  const shown = compact ? rounded : exact;
+  const expandable = rounded[0] !== exact[0] || rounded[1] !== exact[1];
   const label = fieldLabels[fieldChange.field];
   // Numbers keep their unit on one line on phones; text values such as IDs wrap anywhere instead.
   const wrap = [fieldChange.before, fieldChange.after].some((value) => typeof value === 'string')
@@ -66,7 +68,7 @@ function FieldRow({ fieldChange, compact }: { fieldChange: FieldChange; compact:
   const value = (text: string) => expandable ? <span className="underline decoration-line-2 decoration-dotted underline-offset-4">{text}</span> : text;
   return (
     <>
-      {/* The whole row is a tap target on phones; the field button gives keyboard and screen reader access. */}
+      {/* The whole row is a click target; the field button gives keyboard and screen reader access. */}
       <tr className={`border-t border-line align-top${expandable ? ' cursor-pointer' : ''}`} onClick={expandable ? () => setOpen(!open) : undefined}>
         <th scope="row" className="px-3 py-1.5 font-normal text-fg-2 [overflow-wrap:anywhere] max-[360px]:px-2">
           {expandable ? (
@@ -86,9 +88,9 @@ function FieldRow({ fieldChange, compact }: { fieldChange: FieldChange; compact:
             </button>
           ) : label}
         </th>
-        <td className={`py-1.5 pr-3 text-right text-fg-2 tabular-nums ${wrap} max-[360px]:pr-2`}>{value(shown[0])}</td>
+        <td className={`py-1.5 pr-3 text-right text-fg-2 tabular-nums ${wrap} max-[360px]:pr-2`}>{value(rounded[0])}</td>
         <td className={`py-1.5 pr-3 text-right font-[550] tabular-nums ${wrap} max-[360px]:pr-2`}>
-          {value(shown[1])}
+          {value(rounded[1])}
         </td>
       </tr>
       {expandable && (
@@ -111,10 +113,7 @@ function FieldRow({ fieldChange, compact }: { fieldChange: FieldChange; compact:
 export function Changelog({ history = bundledHistory }: { history?: ChangeHistory }) {
   // Each snapshot updates hundreds of speed readings, so new models would sink below them under All changes.
   const [filter, setFilter] = useState<(typeof filters)[number]['id']>('added');
-  const compact = useMediaQuery('(width <= 600px)');
-  useEffect(() => {
-    document.title = 'Atlas · Changelog';
-  }, []);
+  usePage('Atlas · Changelog');
   const updates = history.updates
     .map((batch) => ({
       ...batch,
@@ -126,8 +125,18 @@ export function Changelog({ history = bundledHistory }: { history?: ChangeHistor
 
   return (
     <div className="min-h-dvh select-text">
+      <a
+        href="#changelog-workspace"
+        className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-40 focus:rounded-md focus:bg-panel focus:p-3"
+      >
+        Skip to changelog
+      </a>
       <SiteHeader current="changelog" />
-      <main className="mx-4 my-6 max-w-[1000px] rounded-[14px] bg-panel px-8 pt-8 pb-10 min-[1032px]:mx-auto phone:px-4 phone:pt-6">
+      <main
+        id="changelog-workspace"
+        tabIndex={-1}
+        className="mx-4 mt-6 max-w-[1000px] rounded-[14px] bg-panel px-8 pt-8 pb-10 [outline:none] min-[1032px]:mx-auto phone:px-4 phone:pt-6"
+      >
         <div className="flex flex-wrap items-baseline justify-between gap-x-5 gap-y-2">
           <h1 className="display m-0 text-[30px] leading-[1.1] phone:text-[24px]">Model changes</h1>
           <span className="text-[12px] text-fg-2">
@@ -139,14 +148,14 @@ export function Changelog({ history = bundledHistory }: { history?: ChangeHistor
         <div
           role="group"
           aria-label="Filter model changes"
-          className="mt-5 inline-flex gap-0.5 rounded-lg bg-track p-0.5 phone:flex max-[360px]:grid! max-[360px]:grid-cols-2"
+          className={`${segments} mt-5 w-fit phone:w-auto max-[360px]:grid! max-[360px]:grid-cols-2`}
         >
           {filters.map(({ id, label }) => (
             <button
               key={id}
               onClick={() => setFilter(id)}
               aria-pressed={filter === id}
-              className="min-h-9 rounded-md px-3.5 text-[13px] font-[500] whitespace-nowrap text-fg-2 aria-pressed:bg-thumb aria-pressed:text-accent aria-pressed:shadow-[var(--shadow-raised)] [&:hover]:text-fg phone:min-h-10 phone:flex-auto phone:px-2"
+              className={segment}
             >
               {label}
             </button>
@@ -185,15 +194,13 @@ export function Changelog({ history = bundledHistory }: { history?: ChangeHistor
                 className={`grid gap-5 border-t border-line py-3.5 phone:gap-0 phone:py-2.5 ${filter === 'all' ? 'grid-cols-[80px_minmax(0,1fr)] phone:grid-cols-1' : 'grid-cols-1'}`}
               >
                 {/* The filter already names the kind, so only "All changes" repeats it visually. */}
-                <span className={filter === 'all' ? 'mt-0.5 phone:mt-0 phone:mb-1' : 'sr-only'}>
-                  <span className={`inline-flex rounded-full px-2 py-0.5 text-[11px] font-[600] ${kindStyles[change.kind]}`}>
-                    {kindLabels[change.kind]}
-                  </span>
+                <span className={filter === 'all' ? `text-[12px] leading-6 font-[600] phone:leading-5 ${kindStyles[change.kind]}` : 'sr-only'}>
+                  {kindLabels[change.kind]}
                 </span>
                 <div className="min-w-0">
                   <h3 className="text-[14px] font-[550] leading-6">
-                    {change.name}
-                    <span className="ml-2 text-[12px] font-normal text-fg-2">{change.effortLabel.toLowerCase()}</span>
+                    {shortName(change)}{' '}
+                    <span className="ml-1 text-[12px] font-normal text-fg-2">{change.effortLabel.toLowerCase()}</span>
                   </h3>
                   {change.kind === 'removed' && (
                     <p className="mt-0.5 mb-0 text-[12px] text-fg-2">No longer listed on Artificial Analysis</p>
@@ -201,7 +208,7 @@ export function Changelog({ history = bundledHistory }: { history?: ChangeHistor
                   {change.fields.length > 0 && (
                     <table className="mt-3 w-full table-fixed border-collapse overflow-hidden rounded-md bg-surface text-left text-[12px] leading-5 max-[360px]:text-[11px]">
                       <caption className="sr-only">
-                        Changed values for {change.name}, {change.effortLabel}
+                        Changed values for {shortName(change)}, {change.effortLabel}
                       </caption>
                       <thead className="text-fg-2">
                         <tr>
@@ -217,7 +224,7 @@ export function Changelog({ history = bundledHistory }: { history?: ChangeHistor
                         </tr>
                       </thead>
                       <tbody>
-                        {change.fields.map((fieldChange) => <FieldRow key={fieldChange.field} fieldChange={fieldChange} compact={compact} />)}
+                        {change.fields.map((fieldChange) => <FieldRow key={fieldChange.field} fieldChange={fieldChange} />)}
                       </tbody>
                     </table>
                   )}
@@ -231,14 +238,14 @@ export function Changelog({ history = bundledHistory }: { history?: ChangeHistor
             )}
           </section>
         ))}
-        <footer className="mt-10 border-t border-line pt-4 text-[12px] leading-6 text-fg-2">
-          Data from{' '}
-          <a href={history.source} target="_blank" rel="noreferrer" className="underline underline-offset-4 hover:text-accent">
-            Artificial Analysis
-          </a>
-          . Lists changes between published snapshots.
-        </footer>
       </main>
+      <footer className="mx-4 max-w-[1000px] py-3 text-[12px] leading-5 text-fg-3 min-[1032px]:mx-auto phone:pt-5 phone:pb-[calc(20px+env(safe-area-inset-bottom))]">
+        Data from{' '}
+        <a href={history.source} target="_blank" rel="noreferrer" className="underline-offset-4 hover:text-accent hover:underline">
+          Artificial Analysis
+        </a>
+        . Lists changes between published snapshots.
+      </footer>
     </div>
   );
 }
