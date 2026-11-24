@@ -17,7 +17,7 @@ vi.mock('virtual:benchmarks', async () => {
 
 it('leads with the biggest price drop and keeps every row closed until opened', () => {
   const markup = renderToStaticMarkup(<Efficiency />);
-  expect(markup).toContain('Reaching 10 on the Intelligence index costs 16× less than in July.');
+  expect(markup).toContain("The cheapest model to reach 10 on the Intelligence index costs 16× less than July&#x27;s first.");
   expect(markup).toContain('Score ≥ 40: $8.00 to $0.50, 16× cheaper in 2 months');
   expect(markup).toContain('No model with a measured cost reaches this score yet.');
   expect(markup).not.toContain('aria-expanded="true"');

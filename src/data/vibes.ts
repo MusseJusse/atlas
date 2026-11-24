@@ -1,6 +1,7 @@
 import type { Model } from './schema';
 
-export type VibeLabelPlacement = 'right' | 'left' | 'below' | 'above';
+/** `below-right` starts under the dot and runs right, for a dot whose left side is taken. */
+export type VibeLabelPlacement = 'right' | 'left' | 'below' | 'above' | 'below-right';
 
 export type VibeModelEntry = {
   /** Model family id matching `benchmarks.json`. */
@@ -37,6 +38,8 @@ export const vibeModels: readonly VibeModelEntry[] = [
     coherency: 73,
     labelPlacement: 'above',
     labelPlacement3D: 'right',
+    // Right on phones, so the name stays inside the sweet spot instead of poking above it.
+    compactLabelPlacement: 'right',
     compactLabelPlacement3D: 'above',
     summary: 'Highest overall capability while staying coherent and grounded on complex work.',
   },
@@ -46,6 +49,8 @@ export const vibeModels: readonly VibeModelEntry[] = [
     coherency: 21,
     labelPlacement: 'right',
     labelPlacement3D: 'above',
+    // Below its dot on phones, clear of Opus's left-hand benchmark line.
+    compactLabelPlacement: 'below',
     summary: 'Frontier raw problem-solving ceiling, though it takes more steering to keep on track.',
   },
   {
@@ -54,8 +59,6 @@ export const vibeModels: readonly VibeModelEntry[] = [
     coherency: 73,
     labelPlacement: 'left',
     labelPlacement3D: 'left',
-    compactLabelPlacement: 'above',
-    compactLabelPlacement3D: 'above',
     summary: 'Dependable daily driver for coding with a strong ceiling and coherent execution.',
   },
   {
@@ -64,7 +67,8 @@ export const vibeModels: readonly VibeModelEntry[] = [
     coherency: 48,
     labelPlacement: 'right',
     labelPlacement3D: 'right',
-    compactLabelPlacement3D: 'left',
+    // Left on phones, so the name stays outside the sweet spot like its dot.
+    compactLabelPlacement: 'left',
     summary: 'Tenacious and fast for digging deep into thorny issues and driving computer-use loops.',
   },
   {
@@ -72,7 +76,10 @@ export const vibeModels: readonly VibeModelEntry[] = [
     capability: 91,
     coherency: 83,
     labelPlacement: 'below',
-    labelPlacement3D: 'below',
+    labelPlacement3D: 'right',
+    // Phones pack Fable, Opus, and Neon together, so Neon's label runs right to clear Opus's dot.
+    compactLabelPlacement: 'below-right',
+    compactLabelPlacement3D: 'below-right',
     summary: 'Most coherent feel on the map, with smooth prose, snappy iteration, and strong copywriting instincts.',
   },
   {

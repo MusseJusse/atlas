@@ -141,7 +141,7 @@ export const Sidebar = memo(function Sidebar({
       role="dialog"
       aria-modal
     >
-      <div className="sticky top-0 z-[1] -mx-5 flex h-14 items-center gap-2 border-b border-line bg-bg px-5 phone:-mx-4 phone:px-4">
+      <div className="sticky top-0 z-[1] -mx-5 flex h-[var(--header-height)] items-center gap-2 border-b border-line bg-bg px-5 phone:-mx-4 phone:px-4">
         <h2 className="flex-1 text-[18px] font-[650] tracking-[-0.3px] mobile:text-[18px]">
           Models{' '}
           <span className="ml-1 text-[12px] font-normal tracking-normal text-fg-3 tabular-nums">
@@ -160,7 +160,7 @@ export const Sidebar = memo(function Sidebar({
           <RotateCcw size={14} aria-hidden="true" />
         </button>
         <button
-          className="sheet-done inline-flex h-9 items-center justify-center rounded-md pr-1 pl-3 text-[14px] font-[550] text-accent hover:bg-hover mobile:h-10 mobile:text-[15px]"
+          className="sheet-done inline-flex h-9 items-center justify-center -mr-2.5 rounded-md px-2.5 text-[14px] font-[550] text-accent hover:bg-hover mobile:h-10 mobile:text-[15px]"
           onClick={() => setOpen(false)}
         >
           Done
@@ -218,6 +218,7 @@ export const Sidebar = memo(function Sidebar({
                 <button
                   className="-my-1 min-h-6 min-w-6 text-right text-[12px] text-fg-3 hover:text-accent mobile:my-0 mobile:min-h-8 mobile:text-[14px]"
                   onClick={() => toggleGroup(section.items.map((family) => family.family))}
+                  aria-label={`Toggle all ${section.name.toLowerCase()} models`}
                 >
                   All
                 </button>
@@ -255,7 +256,7 @@ export const Sidebar = memo(function Sidebar({
       </div>
       <div>
         <h3 className="text-[13px] font-[600] mobile:text-[15px]">Reasoning</h3>
-        <div className="mt-2 grid grid-cols-3 gap-1 mobile:flex mobile:flex-wrap">
+        <div className="mt-2 grid grid-cols-3 gap-1">
           {efforts.map((effort) => (
             <button
               className="min-h-8 rounded-md border border-dashed border-line-2 px-2 text-[12px] text-fg-3 hover:bg-hover hover:text-fg aria-pressed:border-solid aria-pressed:border-transparent aria-pressed:bg-accent-soft aria-pressed:font-[550] aria-pressed:text-accent mobile:min-h-11 mobile:px-3 mobile:text-[14px]"

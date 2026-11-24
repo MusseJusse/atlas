@@ -215,7 +215,8 @@ export function Scatter({
                 height={series.end.codingAgent ? 36 : 24}
                 fill="transparent"
               />
-              <SvgLogo model={series.end} x={right + 27} y={series.y - 8} size={18} />
+              {/* Dense rows shrink the logo with the text, so neighbouring logos never touch. */}
+              <SvgLogo model={series.end} x={right + (compact ? 30 : 27)} y={series.y - (compact ? 6 : 8)} size={compact ? 12 : 18} />
               <text
                 x={right + 53}
                 y={series.y + 4}

@@ -93,7 +93,18 @@ export function scatterGeometry(
   });
   // Use the densest tick set whose labels all fit, so wide cost ranges never run labels together.
   // Phones also stop at five 1-3 ticks, which keeps the narrow axis calm.
-  const tickSets = (mobile ? [[1, 3], [1]] : [[1, 2, 5], [1, 3], [1]]).map(tickSteps);
+  // Time ticks land on whole durations (1m, 5m, 30m), never at "8.3m", densest set first.
+  const [low, high] = domain;
+  const durations = [
+    [10, 20, 30, 60, 120, 300, 600, 1200, 1800, 3600, 7200, 14400],
+    [10, 30, 60, 300, 600, 1200, 3600, 14400],
+    [10, 60, 600, 3600],
+  ];
+  const tickSets = metric !== 'time'
+    ? (mobile ? [[1, 3], [1]] : [[1, 2, 5], [1, 3], [1]]).map(tickSteps)
+    : linear
+      ? [durationTicks(high).filter((value) => value >= low)]
+      : durations.map((set) => set.filter((value) => value >= low && value <= high));
   const logTicks = tickSets.find((ticks) =>
     (!mobile || ticks.length <= 5) && spacedAxisTicks(ticks, x, metric).length === ticks.length,
   ) ?? tickSets.at(-1)!;
@@ -203,9 +214,10 @@ export function barGeometry(
   // When any name can't fit its group in two lines, every caption runs diagonally from under its logo,
   // and the plot gives up enough height for the longest one.
   const names = groups.map((group) => shortName(group.rows[0]!));
-  // Subscription prices append " (API)" to models priced at API rates, so their captions budget for it.
+  // Subscription prices mark models priced at API rates. Horizontal captions set "API" on its own line, so only
+  // diagonal captions, which append " (API)", budget for its width.
   const suffixes = groups.map((group) => metric === 'cost' && group.rows[0]!.taskPricing?.basis === 'api-fallback' ? apiSuffixWidth : 0);
-  const diagonal = groups.some((group, index) => captionSpan(names[index]!) + suffixes[index]! > ((right - left) * weightOf(group)) / totalWeight - 6);
+  const diagonal = groups.some((group) => captionSpan(shortName(group.rows[0]!)) > ((right - left) * weightOf(group)) / totalWeight - 6);
   const radians = (diagonalCaption.angle * Math.PI) / 180;
   const values = rows.map((row) => row.value);
   // Leave room for negative value labels above the reasoning marks and model names.
@@ -270,9 +282,11 @@ export function barGeometry(
 type LaidOutGroup = { barWidth: number; bars: { row: MeasuredRow; x: number; labelX: number; labelY: number; text: string }[] };
 
 // Glyph side bearings already leave air between labels, so 1px of extra gap reads as separate.
-/** Bar prices keep cents ("$3.10", not "$3.1") so neighbours share precision; sub-cent prices need the compact form. */
+/** Bar prices keep cents ("$3.10", not "$3.1") and scores keep a decimal ("57.0"), so neighbours share precision.
+ * Sub-cent prices and other metrics use the compact form. */
 function valueLabel(row: MeasuredRow, metric: Metric) {
-  return formatModelValue(row, metric, metric !== 'cost' || row.value < 0.001);
+  const compact = metric === 'cost' ? row.value < 0.001 : metric !== 'intelligence' && metric !== 'omniscience';
+  return formatModelValue(row, metric, compact);
 }
 
 const valueLabelMetrics = { lineHeight: 17, gap: 1 };

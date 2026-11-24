@@ -24,9 +24,9 @@ export function SiteHeader({
   onCurrent?: () => void;
 }) {
   return (
-    <header className="flex h-[var(--header-height)] items-center gap-10 border-b border-line px-7 compact:gap-8 compact:px-5 mobile:sticky mobile:top-0 mobile:z-[8] mobile:gap-6 mobile:bg-bg mobile:px-4 phone:gap-3 phone:px-3 max-[360px]:gap-2">
+    <header className="flex h-[var(--header-height)] items-center gap-10 border-b border-line px-7 compact:gap-8 compact:px-5 mobile:sticky mobile:top-0 mobile:z-[8] mobile:gap-6 mobile:bg-bg mobile:px-4 phone:gap-3 phone:px-3 narrow:gap-2 narrow:px-2">
       <Brand />
-      <nav aria-label="Sections" className="flex h-full min-w-0 items-stretch gap-7 phone:gap-3.5 max-[360px]:gap-2.5">
+      <nav aria-label="Sections" className="flex h-full min-w-0 items-stretch gap-7 phone:gap-3.5 narrow:gap-2">
         {sections.map((section) =>
           section.id === current && onCurrent ? (
             <button key={section.id} className={item} aria-current="page" onClick={onCurrent}>

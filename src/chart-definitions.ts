@@ -49,7 +49,7 @@ export type ViewId = (typeof views)[number]['id'];
 
 /** One plain sentence on how to read each chart, shown under its title. */
 export const viewDescriptions = {
-  'cost-intelligence': 'Each point is a reasoning level. Lines join a model’s levels. Up and to the left is better.',
+  'cost-intelligence': "Each point is a reasoning level. Lines join a model's levels. Up and to the left is better.",
   intelligence: 'Artificial Analysis Intelligence index at each reasoning level. Higher is better.',
   omniscience: 'Rewards correct answers and penalises wrong ones. Declining to answer scores zero. Higher is better.',
   'tokens-task': 'Each point is a reasoning level. Up and to the left uses fewer tokens for more intelligence.',

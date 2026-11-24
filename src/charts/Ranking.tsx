@@ -81,14 +81,20 @@ export function Ranking({ rows, metric, grouped, descending, interactions, logar
           {open && <div id={`ranking-${metric}-${group.id}`} className="ranking-expanded">
             <div className="ranking-configurations" role="group" aria-label={`${best.name} reasoning configurations`}>
               {configurations.map((row) => <button key={row.id} aria-pressed={interactions.pinned?.id === row.id} onClick={(event) => {
+                  const pinning = interactions.pinned?.id !== row.id;
+                  // Keyboard activation has no pointer detail; its focus moves into the inspector, and closing returns it here.
+                  const keyboard = event.detail === 0;
                   interactions.togglePin(row);
                   const panel = event.currentTarget.closest('.ranking-expanded');
-                  requestAnimationFrame(() => panel?.scrollIntoView({ block: 'nearest', behavior: 'instant' }));
+                  requestAnimationFrame(() => {
+                    panel?.scrollIntoView({ block: 'nearest', behavior: 'instant' });
+                    if (pinning && keyboard) panel?.querySelector<HTMLElement>('.ranking-inspector')?.focus({ preventScroll: true });
+                  });
                 }}>
                 <span>{row.codingAgent?.configuration ?? lineStart(row.effortLabel)}</span><b>{formatModelValue(row, metric)}</b>
               </button>)}
             </div>
-            {selected && interactions.activeModel && <aside aria-label="Selected configuration" className="ranking-inspector"><ConfigurationDetails model={interactions.activeModel} metric={metric} pinned onClose={() => {
+            {selected && interactions.activeModel && <aside aria-label="Selected configuration" className="ranking-inspector" tabIndex={-1}><ConfigurationDetails model={interactions.activeModel} metric={metric} pinned onClose={() => {
                 root.current?.querySelector<HTMLButtonElement>('.ranking-configurations button[aria-pressed="true"]')?.focus();
                 if (interactions.activeModel) interactions.togglePin(interactions.activeModel);
               }} /></aside>}

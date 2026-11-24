@@ -3,7 +3,7 @@ import { PricingDetails, taskCostLabel } from './PricingDetails';
 import { X } from 'lucide-react';
 import { Logo } from '../Logo';
 import type { Model } from '../models';
-import { modelColor } from '../model-presentation';
+import { modelColor, shortName } from '../model-presentation';
 import { format, formatModelValue } from '../formatModel';
 import { metrics, type Metric } from '../chart-definitions';
 import { formatUtcDate } from '../formatDate';
@@ -36,7 +36,7 @@ export function ConfigurationDetails({
       <div className="flex items-start justify-between gap-2">
         <strong className="flex min-w-0 items-center gap-2 text-[14px] font-[600] tracking-[-0.1px]" style={{ color: `color-mix(in srgb, ${modelColor(model)} 80%, var(--fg))` }}>
           <Logo model={model} size={19} />
-          {model.name}
+          {shortName(model)}
         </strong>
         {pinned && (
           <button
@@ -50,7 +50,7 @@ export function ConfigurationDetails({
       </div>
       <div className="mt-1 flex items-baseline justify-between gap-3 text-[12px] text-fg-2">
         <span>{model.codingAgent?.configuration ?? model.cyber?.configuration ?? (model.effort === 'none' ? 'No reasoning' : `Reasoning: ${model.effortLabel.toLowerCase()}`)}</span>
-        {!pinned && <span className="text-fg-3">Click to pin</span>}
+        {!pinned && <span className="text-fg-3">Select to pin</span>}
       </div>
       {summary}
       {model.taskPricing?.basis === 'subscription' && (
@@ -69,7 +69,7 @@ export function ConfigurationDetails({
           <span className="text-fg-2">Measured API cost per task</span><span className="font-[600] tabular-nums">{format(model.taskPricing.apiCost, 'cost')}</span>
         </div>
       )}
-      <PricingDetails model={model} />
+      <PricingDetails model={model} pinned={pinned} />
       {pinned && model.speedSource && (
         <p className="mt-3 mb-2 text-[11px] text-fg-2">
           Speed measured {formatUtcDate(model.speedSource.fetchedAt, 'short')}.
@@ -77,7 +77,7 @@ export function ConfigurationDetails({
       )}
       {pinned && model.timeEstimate && (
         <p className="mt-3 mb-2 text-[11px] leading-5 text-fg-2">
-          Local time estimate. Divides GPT-6.1 Sol High output tokens by this endpoint’s Max output speed.
+          Local time estimate. Divides GPT-6.1 Sol High output tokens by this endpoint's Max output speed.
           <br />
           {model.timeEstimate.baselineTokens.toFixed(1)} tokens ÷ {format(model.speed, 'speed')} tokens/s.
           Token count from {formatUtcDate(model.timeEstimate.baselineFetchedAt, 'short')}.
@@ -89,6 +89,8 @@ export function ConfigurationDetails({
         target="_blank"
         rel="noreferrer"
         aria-label={`View ${model.name} on Artificial Analysis`}
+        // A hover or focus preview vanishes when its point blurs, so its links join the tab order only once pinned.
+        tabIndex={pinned ? undefined : -1}
       >
         Artificial Analysis
       </a>

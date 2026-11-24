@@ -90,22 +90,24 @@ export function ChoiceMenu<Id extends string>({
       }}
     >
       <summary
-        className={`${full ? 'flex min-h-10 w-full' : 'inline-flex min-h-8'} cursor-pointer list-none items-center gap-1 rounded-md bg-surface py-1 pr-1.5 pl-2.5 text-[13px] font-[560] text-fg hover:bg-hover group-open:bg-accent-soft group-open:text-accent focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent [&::-webkit-details-marker]:hidden`}
+        className={`${full ? 'flex min-h-10 w-full' : 'inline-flex min-h-9 phone:min-h-10'} cursor-pointer list-none items-center gap-1 rounded-md bg-surface py-1 pr-1.5 pl-2.5 text-[13px] font-[560] text-fg hover:bg-hover group-open:bg-accent-soft group-open:text-accent focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent [&::-webkit-details-marker]:hidden`}
         aria-label={`${name}: ${label}`}
       >
         {full ? <span className="flex min-w-0 flex-1 items-center gap-1.5">{children ?? label}</span> : children ?? label}
         <ChevronDown size={14} aria-hidden="true" className="shrink-0 text-fg-2 group-open:rotate-180 group-open:text-accent" />
       </summary>
       <div
-        className={`absolute ${side === 'below' ? 'top-[calc(100%+6px)]' : 'bottom-[calc(100%+6px)]'} ${full ? 'inset-x-0' : `w-[220px] ${edge === 'start' ? 'left-0' : 'right-0'}`} z-20 flex flex-col gap-0.5 rounded-xl bg-panel p-1.5 shadow-[var(--shadow-pop)]`}
+        className={`absolute ${side === 'below' ? 'top-[calc(100%+6px)]' : 'bottom-[calc(100%+6px)]'} ${full ? 'inset-x-0' : `w-[220px] ${edge === 'start' ? 'left-0' : 'right-0'}`} z-20 flex flex-col gap-0.5 rounded-xl bg-panel p-1.5 shadow-[var(--shadow-pop)] [outline:none]`}
         role="group"
         aria-label={name}
+        // Focusable, so a press on padding or a divider keeps focus in the menu and the blur closer leaves it open.
+        tabIndex={-1}
       >
         {options.map((option) => (
           <Fragment key={option.id}>
             {option.divider && <span role="separator" className="mx-1 my-1 h-px bg-line" />}
             <button
-              className="inline-flex min-h-9 w-full items-center gap-2 rounded-md px-2 text-left text-[13px] text-fg hover:bg-hover aria-pressed:font-[560] aria-pressed:text-accent"
+              className="group inline-flex min-h-9 w-full items-center gap-2 rounded-md px-2 text-left text-[13px] text-fg hover:bg-hover aria-pressed:font-[560] aria-pressed:text-accent"
               aria-pressed={option.id === current}
               onClick={() => {
                 close();

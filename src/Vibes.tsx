@@ -7,10 +7,12 @@ import { placeCard } from './charts/card-placement';
 import { formatUtcDate } from './formatDate';
 import { Selection } from './Selection';
 import { SiteHeader } from './SiteHeader';
+import { usePage } from './usePage';
 import { useMediaQuery } from './useMediaQuery';
 import { VibesChart } from './VibesChart';
 import { axisDefinitions, reasoningGuidance, resolveVibes, type UseCaseIcon } from './data/vibes';
 import { modelColor, shortName } from './model-presentation';
+import { segment, segments } from './segments';
 import type { Model } from './models';
 
 type VibeSelection = {
@@ -18,9 +20,6 @@ type VibeSelection = {
   useCaseId: string | null;
 };
 
-const segments = 'flex gap-0.5 rounded-lg bg-track p-0.5';
-const segment =
-  'min-h-8 flex-1 rounded-md px-2.5 text-[12px] font-[500] whitespace-nowrap text-fg-2 hover:text-fg aria-pressed:bg-thumb aria-pressed:text-accent aria-pressed:shadow-[var(--shadow-raised)]';
 
 const iconMap: Record<UseCaseIcon, typeof Code2> = {
   coding: Code2,
@@ -44,9 +43,7 @@ export function Vibes() {
   const overlayRef = useRef<HTMLElement>(null);
   const belowCardRef = useRef<HTMLElement>(null);
 
-  useEffect(() => {
-    document.title = 'Atlas · Vibes';
-  }, []);
+  usePage('Atlas · Vibes');
 
   useLayoutEffect(() => {
     const element = chartRef.current;
@@ -90,10 +87,13 @@ export function Vibes() {
   const [placement, setPlacement] = useState<CSSProperties>(corners['bottom-right']);
 
   useEffect(() => {
-    // On phones, reveal a card pinned below the fold and follow chart focus into it so focus never hides behind the header.
-    if (!detailsBelow || !isPinned || !belowCardRef.current) return;
-    belowCardRef.current.scrollIntoView({ block: 'nearest' });
-    if (chartRef.current?.contains(document.activeElement)) belowCardRef.current.focus({ preventScroll: true });
+    // Focus follows a pin from the chart or the picks into its card, which sits after them in tab order.
+    // On phones the card is below the fold, so it scrolls into view too.
+    const card = detailsBelow ? belowCardRef.current : overlayRef.current;
+    if (!isPinned || !card) return;
+    if (detailsBelow) card.scrollIntoView({ block: 'nearest' });
+    const from = document.activeElement;
+    if ([chartRef, picksRef, pickMenuRef].some((ref) => ref.current?.contains(from))) card.focus({ preventScroll: true });
   }, [detailsBelow, isPinned, pinned?.family, pinned?.useCaseId]);
 
   useLayoutEffect(() => {
@@ -115,7 +115,7 @@ export function Vibes() {
         },
       ];
     });
-    const labels = [...plot.querySelectorAll<SVGTextElement>('[data-vibe-label], [data-vibe-sublabel]')].map(
+    const labels = [...plot.querySelectorAll<SVGTextElement>('[data-vibe-label], [data-vibe-sublabel], [data-axis-label]')].map(
       (element) => {
         const box = element.getBoundingClientRect();
         return {
@@ -127,7 +127,13 @@ export function Vibes() {
       },
     );
 
+    // The 3D angle controls sit over the plot's top-right corner, so the card never covers them.
+    const controls = plot.querySelector('button[aria-label="Rotate 3D view left"]')?.parentElement?.getBoundingClientRect();
+    const blocked = controls
+      ? [{ left: controls.left - bounds.x, right: controls.right - bounds.x, top: controls.top - bounds.y, bottom: controls.bottom - bounds.y }]
+      : [];
     const next = placeCard({
+      blocked,
       corners: Object.values(corners),
       points,
       labels,
@@ -150,7 +156,9 @@ export function Vibes() {
       if (previous.useCaseId) {
         // Phones pick use cases from a menu instead of the row, so focus returns to its button.
         const pick = picksRef.current?.querySelector<HTMLButtonElement>(`button[data-use-case="${previous.useCaseId}"]`);
-        (pick?.checkVisibility() ? pick : pickMenuRef.current?.querySelector('summary'))?.focus({ preventScroll: true });
+        const trigger = pick?.checkVisibility() ? pick : pickMenuRef.current?.querySelector('summary');
+        trigger?.focus({ preventScroll: true });
+        if (detailsBelow) trigger?.scrollIntoView({ block: 'nearest' });
       } else {
         const trigger = chartRef.current?.querySelector<SVGGElement>(`g[data-vibe-family="${previous.family}"]`);
         trigger?.focus({ preventScroll: true });
@@ -180,18 +188,15 @@ export function Vibes() {
       summary={
         <>
           {activeEntry.useCases.length > 0 && (
-            <div className="mt-2.5 flex flex-wrap gap-1.5">
-              {activeEntry.useCases.map((useCase) => (
-                <span
-                  key={useCase.id}
-                  className={`rounded-full px-2 py-0.5 text-[10.5px] font-[500] ${
-                    activeUseCase?.id === useCase.id ? 'bg-accent-soft text-accent' : 'bg-surface text-fg-2'
-                  }`}
-                >
-                  {useCase.label}
+            <p className="mt-2.5 mb-0 text-[12px] leading-5 text-fg-2">
+              Best for{' '}
+              {activeEntry.useCases.map((useCase, index) => (
+                <span key={useCase.id}>
+                  {index > 0 && ', '}
+                  <span className={activeUseCase?.id === useCase.id ? 'font-[600] text-accent' : 'text-fg'}>{useCase.label}</span>
                 </span>
               ))}
-            </div>
+            </p>
           )}
           <p className="mt-2.5 mb-0 text-[12px] leading-5 text-fg">
             {activeUseCase ? activeUseCase.note : activeEntry.summary}
@@ -202,7 +207,8 @@ export function Vibes() {
   );
 
   return (
-    <div className="grid h-dvh grid-rows-[var(--header-height)_minmax(0,1fr)_auto] phone:block phone:h-auto">
+    // Short windows, such as a phone held sideways, keep a 640px layout and scroll, so the chart never crushes its captions.
+    <div className="grid h-dvh min-h-[640px] grid-rows-[var(--header-height)_minmax(0,1fr)_auto] phone:block phone:h-auto phone:min-h-0">
       <a
         href="#vibes-workspace"
         className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-40 focus:rounded-md focus:bg-panel focus:p-3"
@@ -227,11 +233,12 @@ export function Vibes() {
           className="flex h-full flex-col px-6 pt-4 pb-3 short:pt-3 short:pb-2 phone:h-auto mobile:px-4 mobile:pt-3 mobile:pb-2.5 phone:pt-4 phone:pb-5"
         >
           <div className="vibes-toolbar flex shrink-0 flex-wrap items-center gap-x-4 gap-y-2">
+            {/* The picks fit one row from 730px; narrower windows use the single Best for menu below instead of wrapping. */}
             <div
               ref={picksRef}
               role="group"
               aria-label="Best for"
-              className="flex min-w-0 items-center gap-1.5 mobile:max-w-full mobile:overflow-x-auto mobile:[scrollbar-width:none] phone:hidden"
+              className="flex min-w-0 items-center gap-1.5 max-[729px]:hidden"
             >
               {vibes.recommendations.map((item) => {
                 const Icon = iconMap[item.icon];
@@ -288,7 +295,7 @@ export function Vibes() {
             </div>
 
             {/* Five cards would push the plot down by about 170px on phones, so they collapse into one menu. */}
-            <div ref={pickMenuRef} className="hidden w-full phone:block">
+            <div ref={pickMenuRef} className="hidden w-full max-[729px]:block">
               <ChoiceMenu
                 name="Best for"
                 label={pinnedPick ? `${pinnedPick.label}, ${shortName(pinnedPick.entry.model)}` : 'Pick a use case'}
@@ -297,7 +304,7 @@ export function Vibes() {
                   return {
                     id: item.id,
                     label: item.label,
-                    icon: <Icon size={14} aria-hidden="true" className="shrink-0 text-fg-3" />,
+                    icon: <Icon size={14} aria-hidden="true" className="shrink-0 text-fg-3 group-aria-pressed:text-accent" />,
                     detail: <ModelName model={item.entry.model} />,
                   };
                 })}
@@ -305,14 +312,13 @@ export function Vibes() {
                 choose={(id) => {
                   const item = vibes.recommendations.find((pick) => pick.id === id);
                   if (!item) return;
-                  setHovered(null);
-                  setPinned({ family: item.family, useCaseId: id });
+                  togglePinUseCase(id, item.family);
                 }}
                 side="below"
                 align="start"
                 full
               >
-                <span className="text-[11px] font-[450] text-fg-2">Best for</span>
+                <span className="shrink-0 whitespace-nowrap text-[11px] font-[450] text-fg-2">Best for</span>
                 {pinnedPick ? (
                   <>
                     <span className="min-w-0 truncate text-accent">{pinnedPick.label}</span>
@@ -327,7 +333,7 @@ export function Vibes() {
             <div className="ml-auto flex shrink-0 items-center gap-4 phone:ml-0 phone:w-full phone:justify-between phone:gap-3">
               <button
                 type="button"
-                className="inline-flex min-h-9 items-center gap-2 rounded-md px-1 text-[13px] text-fg hover:text-accent aria-pressed:text-accent"
+                className="inline-flex min-h-9 items-center gap-2 rounded-md px-1 text-[13px] text-fg hover:text-accent aria-pressed:text-accent phone:min-h-10"
                 aria-pressed={showCost}
                 title="Tilt into a 3D view with a log-scaled high-effort API cost per task axis."
                 onClick={() => setShowCost((current) => !current)}

@@ -112,7 +112,9 @@
   }
   button:focus-visible,
   a:focus-visible,
-  input:focus-visible {
+  input:focus-visible,
+  .configuration-details:focus-visible,
+  .ranking-inspector:focus-visible {
     outline: 2px solid var(--accent);
     outline-offset: 3px;
   }
@@ -190,6 +192,8 @@
 @custom-variant compact (@media (width <= 1150px));
 @custom-variant mobile (@media (width <= 900px));
 @custom-variant phone (@media (width <= 600px));
+/* Declared after phone so its overrides win on the narrowest phones. */
+@custom-variant narrow (@media (width < 360px));
 /* Phone scatter plots are the viewport less 64px, so this matches the 480px plot width that swaps labels for a legend. */
 @custom-variant plot-mobile (@media (width < 544px));
 
@@ -242,6 +246,8 @@
 .ladder-axis > span { position: absolute; top: 2px; transform: translateX(-50%); white-space: nowrap; }
 .ladder > .ladder-grid:first-child { border-bottom: 1px solid var(--line); }
 .ladder-row { border-bottom: 1px solid var(--line); }
+/* The sheet's own edge closes the list, so the last rung needs no divider. */
+.ladder-row:last-child { border-bottom: 0; }
 .ladder-row.ladder-grid { min-height: 60px; }
 .ladder-toggle { width: 100%; min-height: 60px; padding: 4px 0; text-align: left; border-radius: 6px; }
 .ladder-toggle:hover, .ladder-open .ladder-toggle { background: var(--hover); }
@@ -271,7 +277,8 @@
 .ladder-records b { font-weight: 600; }
 .ladder-records li > b { text-align: right; }
 .ladder-after { color: var(--fg-3); font-size: 12px; white-space: nowrap; }
-@media (width <= 600px) {
+/* Below 840px the side columns would squeeze the track until ticks and prices collide, so rows stack instead. */
+@media (width <= 840px) {
   /* The change column takes the leftover width and wraps its time below, so it never runs into the score. */
   .ladder-grid { grid-template-columns: auto minmax(0, 1fr); row-gap: 2px; }
   .ladder > .ladder-grid:first-child > span:first-child { display: none; }
@@ -279,7 +286,8 @@
   .ladder-axis, .ladder-track { grid-column: 1 / -1; margin-inline: 18px; }
   .ladder-track { grid-row: 2; }
   .ladder-change { grid-row: 1; grid-column: 2; }
-  .ladder-toggle { padding: 10px 0 6px; }
+  /* The highlight overhangs the text by 8px on each side, so text stays aligned with the sheet while the hover box has room. */
+  .ladder-toggle { width: calc(100% + 16px); margin-inline: -8px; padding: 10px 8px 6px; }
   .ladder-score { padding-left: 0; }
   .ladder-change { padding-right: 0; }
   .ladder-records { margin: 0 0 12px; }
@@ -287,6 +295,11 @@
   .ladder-records li { grid-template-columns: 56px minmax(0, 1fr) auto; row-gap: 0; }
   .ladder-after { grid-column: 2; grid-row: 2; }
   .ladder-records li > b { grid-column: 3; grid-row: 1; }
+}
+
+/* Below 900px the header is sticky, so focus and anchor scrolling stop below it on every page. */
+@media (width <= 900px) {
+  html { scroll-padding-top: calc(var(--header-height) + 8px); }
 }
 
 @media (width <= 900px) {
