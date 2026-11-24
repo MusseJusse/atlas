@@ -1,9 +1,9 @@
 {
-  "capturedAt": "2026-11-23T10:30:12.844Z",
-  "sourceGeneratedAt": "2026-11-23T10:23:11.536Z",
+  "capturedAt": "2026-11-24T09:24:49.948Z",
+  "sourceGeneratedAt": "2026-11-24T08:35:18.369Z",
   "source": "https://mypriors.com/api/snapshot?view=core",
-  "sourceHash": "25f22131902c50debe0a6cf121d2e461235954f5ca5bd17210606eeaab75a00b",
-  "benchmarkSourceHash": "e9b9962496cd9bfbc6990fe0ff0a634bb4d789f887fedbb71c1128a628654ced",
+  "sourceHash": "7edb503795b8b81b234752d5ab013804f48896d953a70ce1ff6a71a37818b02b",
+  "benchmarkSourceHash": "4891cf7d94a3618de65638e867c4725013d756d7071a2ea615143ee8f4bd0f0a",
   "methodology": "https://github.com/Fei2411/real-api-pricing/blob/main/CONVENTIONS.md",
   "models": [
     {
@@ -384,7 +384,7 @@
       "provider": "google",
       "providerName": "Google",
       "defaultPlan": "Google AI Pro",
-      "dataDate": "2026-10-16",
+      "dataDate": "2026-11-23",
       "mix": {
         "cache": 0.85,
         "input": 0.145,
@@ -392,20 +392,21 @@
         "output": 0.005
       },
       "apiPrices": {
-        "cached": 0.1,
-        "input": 2,
-        "cacheWrite": 2.5,
-        "output": 10
+        "cached": 0.2,
+        "input": 4,
+        "cacheWrite": 5,
+        "output": 20
       },
       "plans": [
         {
           "id": "Google AI Pro",
           "feeUsd": 19.99,
-          "confidence": "low",
+          "confidence": "assumed",
           "periodDays": 28,
-          "usdPerMtok": 0.30287879
+          "usdPerMtok": 0.0077450601
         }
-      ]
+      ],
+      "sameAs": "Gemini 3.8 Flash"
     },
     {
       "family": "claude-opus-5",
@@ -1095,8 +1096,8 @@
       "sourceModel": "gemini-4-carbon",
       "provider": "google",
       "providerName": "Google",
-      "defaultPlan": "Google AI Ultra 20x",
-      "dataDate": "2026-11-16",
+      "defaultPlan": "Google AI Pro",
+      "dataDate": "2026-11-23",
       "sameAs": "Gemini 3.8 Flash",
       "mix": {
         "cache": 0.85,
@@ -1112,18 +1113,11 @@
       },
       "plans": [
         {
-          "id": "Google AI Ultra 20x",
-          "feeUsd": 199.99,
-          "usdPerMtok": 0.011622820499999999,
+          "id": "Google AI Pro",
+          "feeUsd": 19.99,
           "confidence": "assumed",
-          "periodDays": 28
-        },
-        {
-          "id": "Google AI Ultra 5x",
-          "feeUsd": 99.99,
-          "usdPerMtok": 0.023244478800000003,
-          "confidence": "assumed",
-          "periodDays": 28
+          "periodDays": 28,
+          "usdPerMtok": 0.0077450601
         }
       ]
     },
