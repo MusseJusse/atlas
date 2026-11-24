@@ -25,7 +25,7 @@ it('validates the Cyber snapshot and preserves its score and workload cost preci
     expect(row.cyber?.configuration).toBe(configuration.configuration);
     expect(families.some((family) => family.family === row.family)).toBe(true);
     expect(models.some((model) => model.id === row.id)).toBe(false);
-    for (const metric of ['intelligence', 'omniscience', 'tokens', 'tokensTotal', 'costTotal', 'time', 'speed'] as const)
+    for (const metric of ['intelligence', 'tokens', 'tokensTotal', 'costTotal', 'time', 'speed'] as const)
       expect(row[metric]).toBeNull();
   }
   const kimi = cyberModels.find((row) => row.family === 'kimi-k3-1-pro')!;

@@ -17,7 +17,6 @@ export const modelSchema = z.strictObject({
   effortLabel: text,
   effortOrder: z.number().nonnegative(),
   intelligence: z.number().nullable(),
-  omniscience: z.number().min(-100).max(100).nullable().default(null),
   cost: measurement,
   costTotal: measurement,
   tokens: measurement,
@@ -28,8 +27,9 @@ export const modelSchema = z.strictObject({
   outputPrice: measurement,
   context: measurement,
 });
-// Accept old captures without carrying retired coding workloads into new snapshots.
-const legacyCodingFields = {
+// Accept old captures without carrying retired workloads and metrics into new snapshots.
+const retiredFields = {
+  omniscience: z.number().min(-100).max(100).nullable().optional(),
   terminalBench40: z.number().min(0).max(1).nullable().optional(),
   frontierCode20: z.number().min(0).max(1).nullable().optional(),
   codingCost: measurement.optional(),
@@ -38,14 +38,14 @@ const legacyCodingFields = {
   codingTokensTotal: measurement.optional(),
   codingCostTotal: measurement.optional(),
 };
-const historicalField = z.union([modelSchema.keyof(), z.object(legacyCodingFields).keyof()]);
+const historicalField = z.union([modelSchema.keyof(), z.object(retiredFields).keyof()]);
 export const snapshotSchema = z
   .object({
     fetchedAt: z.iso.datetime(),
     source: z.url().optional(),
     sourceHash: text.optional(),
-    models: z.array(modelSchema.extend(legacyCodingFields).transform((model) => modelSchema.parse(Object.fromEntries(
-      Object.entries(model).filter(([key]) => !(key in legacyCodingFields)),
+    models: z.array(modelSchema.extend(retiredFields).transform((model) => modelSchema.parse(Object.fromEntries(
+      Object.entries(model).filter(([key]) => !(key in retiredFields)),
     )))).nonempty(),
   })
   .superRefine(({ models }, ctx) => {
@@ -103,7 +103,6 @@ export const modelFields = [
   'effortLabel',
   'effortOrder',
   'intelligence',
-  'omniscience',
   'cost',
   'inputPrice',
   'outputPrice',

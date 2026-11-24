@@ -47,7 +47,7 @@ it('shows the active chart metric and supporting values without duplicate rows',
   expect(totalTokens).toContain('Total tokens');
   expect(totalTokens).toContain(formatModelValue(sol, 'tokensTotal'));
   expect(totalTokens.match(/<dt /g)).toHaveLength(3);
-  for (const metric of ['cost', 'intelligence', 'omniscience'] as const) {
+  for (const metric of ['cost', 'intelligence'] as const) {
     const markup = render(sol, metric);
     expect(markup.match(/<dt /g)).toHaveLength(3);
     expect(markup.match(/Cost per task/g)).toHaveLength(1);

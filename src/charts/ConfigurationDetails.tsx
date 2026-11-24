@@ -23,9 +23,8 @@ export function ConfigurationDetails({
   /** The page's headline finding for this configuration, shown before the measurements. */
   summary?: ReactNode;
 }) {
-  const scoreMetric = metric === 'omniscience' ? 'omniscience' : 'intelligence';
   // Keep the active chart metric and two supporting values without duplicate rows.
-  const displayMetrics = [...new Set<Metric>([scoreMetric, metric, 'cost', 'tokensTotal'])].slice(0, model.taskPricing?.basis === 'subscription' ? 2 : 3);
+  const displayMetrics = [...new Set<Metric>(['intelligence', metric, 'cost', 'tokensTotal'])].slice(0, model.taskPricing?.basis === 'subscription' ? 2 : 3);
   const measurements = model.codingAgent
     ? [['Coding Agent Index v2.0', format(model.codingScore ?? null, 'intelligence')], ['Cost per task', format(model.cost, 'cost')]]
     : model.cyber
