@@ -80,6 +80,11 @@ type LabelItem = {
 
 const placements: readonly VibeLabelPlacement[] = ['right', 'left', 'above', 'below', 'below-right'];
 // Estimated boxes are approximate, so touching by 2px or less still counts as clear.
+const textOverlap = (a: Box, b: Box) => {
+  const x = Math.min(a.right, b.right) - Math.max(a.left, b.left) + 1;
+  const y = Math.min(a.bottom, b.bottom) - Math.max(a.top, b.top) + 1;
+  return x > 0 && y > 0 ? x * y : 0;
+};
 const overlapArea = (a: Box, b: Box) => {
   const x = Math.min(a.right, b.right) - Math.max(a.left, b.left);
   const y = Math.min(a.bottom, b.bottom) - Math.max(a.top, b.top);
@@ -121,8 +126,9 @@ function resolveLabels(items: readonly LabelItem[], compact: boolean, width: num
   type Layout = ReturnType<typeof labelLayout>;
   const dots = items.map((item) => ({ left: item.x - 6, right: item.x + 6, top: item.y - 6, bottom: item.y + 6 }));
   const placed: Box[] = [...obstacles];
+  // Text keeps a 1px gap from other text and titles; dots allow the estimate's 2px slack.
   const covered = (layout: Layout, others: readonly Box[]) => layout.boxes.reduce((total, box) =>
-    total + [...others, ...dots].reduce((sum, other) => sum + overlapArea(box, other), 0), 0);
+    total + others.reduce((sum, other) => sum + textOverlap(box, other), 0) + dots.reduce((sum, dot) => sum + overlapArea(box, dot), 0), 0);
   const inside = (layout: Layout, overhang: number) => layout.boxes.every((box) => box.left >= -overhang && box.right <= width + overhang);
   // Candidate spots, preferred first, inside the plot before the card padding.
   // Candidate spots, preferred first: near the dot inside the plot, then in the card padding, then one line farther out.

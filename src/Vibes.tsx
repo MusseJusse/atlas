@@ -233,11 +233,12 @@ export function Vibes() {
           className="flex h-full flex-col px-6 pt-4 pb-3 short:pt-3 short:pb-2 phone:h-auto mobile:px-4 mobile:pt-3 mobile:pb-2.5 phone:pt-4 phone:pb-5"
         >
           <div className="vibes-toolbar flex shrink-0 flex-wrap items-center gap-x-4 gap-y-2">
+            {/* The picks fit one row from 730px; narrower windows use the single Best for menu below instead of wrapping. */}
             <div
               ref={picksRef}
               role="group"
               aria-label="Best for"
-              className="flex min-w-0 flex-wrap items-center gap-1.5 phone:hidden"
+              className="flex min-w-0 items-center gap-1.5 max-[729px]:hidden"
             >
               {vibes.recommendations.map((item) => {
                 const Icon = iconMap[item.icon];
@@ -294,7 +295,7 @@ export function Vibes() {
             </div>
 
             {/* Five cards would push the plot down by about 170px on phones, so they collapse into one menu. */}
-            <div ref={pickMenuRef} className="hidden w-full phone:block">
+            <div ref={pickMenuRef} className="hidden w-full max-[729px]:block">
               <ChoiceMenu
                 name="Best for"
                 label={pinnedPick ? `${pinnedPick.label}, ${shortName(pinnedPick.entry.model)}` : 'Pick a use case'}
