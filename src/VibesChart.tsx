@@ -42,8 +42,8 @@ function costColor(norm: number) {
 /** A panel-colored outline under label text, so drop stems and gridlines never cut through letters. */
 const halo = { stroke: 'var(--panel)', strokeWidth: 3, strokeLinejoin: 'round', paintOrder: 'stroke' } as const;
 
-/** Labels may run into the card's 16px padding, but no further. */
-const LABEL_OVERHANG = 12;
+/** As a last resort before dropping a benchmark line, a label may run this far into the card's 16px padding. */
+const PADDING_OVERHANG = 12;
 
 /** Rough DM Sans advance width, for keeping right-running labels inside the card. */
 function textWidth(text: string, fontSize: number) {
@@ -64,6 +64,69 @@ function labelOffset(placement: VibeLabelPlacement, compact: boolean) {
     default:
       return { dx: 11, dy: 4, anchor: 'start' as const };
   }
+}
+
+type Box = { left: number; right: number; top: number; bottom: number };
+type LabelItem = {
+  family: string;
+  x: number;
+  y: number;
+  preferred: VibeLabelPlacement;
+  label: string;
+  labelSize: number;
+  subtext: string | null;
+  sublabelSize: number;
+};
+
+const placements: readonly VibeLabelPlacement[] = ['right', 'left', 'above', 'below', 'below-right'];
+// Estimated boxes are approximate, so touching by 2px or less still counts as clear.
+const overlaps = (a: Box, b: Box) =>
+  Math.min(a.right, b.right) - Math.max(a.left, b.left) > 2 && Math.min(a.bottom, b.bottom) - Math.max(a.top, b.top) > 2;
+
+/** Where a model's name and benchmark line go for one placement, with their estimated boxes. */
+function labelLayout(item: LabelItem, placement: VibeLabelPlacement, compact: boolean, width: number, overhang: number) {
+  const { dx, dy, anchor } = labelOffset(placement, compact);
+  // Right-running text near the right edge slides left until it fits the card.
+  const textX = (text: string, fontSize: number) =>
+    anchor === 'start' ? Math.min(item.x + dx, width + overhang - textWidth(text, fontSize)) : item.x + dx;
+  const gap = compact ? 13 : 14;
+  const labelY = item.y + dy - (placement === 'above' && item.subtext ? gap : 0);
+  const sublabelY = item.y + dy + (placement === 'above' ? 0 : gap);
+  const box = (text: string, x: number, y: number, fontSize: number): Box => {
+    const w = textWidth(text, fontSize);
+    const left = anchor === 'start' ? x : anchor === 'end' ? x - w : x - w / 2;
+    return { left, right: left + w, top: y - fontSize * 0.95, bottom: y + fontSize * 0.3 };
+  };
+  const labelX = textX(item.label, item.labelSize);
+  const sublabelX = item.subtext ? textX(item.subtext, item.sublabelSize) : labelX;
+  const boxes = [box(item.label, labelX, labelY, item.labelSize)];
+  if (item.subtext) boxes.push(box(item.subtext, sublabelX, sublabelY, item.sublabelSize));
+  return { anchor, labelX, labelY, sublabelX, sublabelY, subtext: item.subtext, boxes };
+}
+
+/**
+ * Keeps each model's preferred label spot unless it would cover an earlier label, another dot, or leave the card.
+ * Then it takes the first clear spot, so rotating the 3D view never stacks names on top of each other.
+ * Labels stay inside the plot where they can, then may use the card's padding, and only then drop the benchmark line.
+ */
+function resolveLabels(items: readonly LabelItem[], compact: boolean, width: number) {
+  const dots = items.map((item) => ({ family: item.family, left: item.x - 6, right: item.x + 6, top: item.y - 6, bottom: item.y + 6 }));
+  const placed: Box[] = [];
+  return new Map(items.map((item) => {
+    const clear = (overhang: number) => (layout: ReturnType<typeof labelLayout>) => layout.boxes.every((box) =>
+      box.left >= -overhang && box.right <= width + overhang &&
+      !placed.some((other) => overlaps(box, other)) &&
+      !dots.some((dot) => dot.family !== item.family && overlaps(box, dot)));
+    const order = [item.preferred, ...placements.filter((placement) => placement !== item.preferred)];
+    const bare = { ...item, subtext: null };
+    const attempts = [[item, 0], [item, PADDING_OVERHANG], [bare, 0], [bare, PADDING_OVERHANG]] as const;
+    const layout = attempts
+      .flatMap(([candidate, overhang]) => order.map((placement) => ({ layout: labelLayout(candidate, placement, compact, width, overhang), overhang })))
+      .find(({ layout, overhang }) => clear(overhang)(layout))?.layout
+      ?? labelLayout(bare, item.preferred, compact, width, PADDING_OVERHANG);
+    placed.push(...layout.boxes);
+    return [item.family, layout] as const;
+  }));
 }
 
 export function VibesChart({
@@ -277,6 +340,34 @@ export function VibesChart({
     x: item.point.x,
     y: item.point.y,
   }));
+
+  // Label text and spots for every model, resolved together so they never overlap.
+  const labelItems = models.map((entry): LabelItem => {
+    const point = projectedModels.find((item) => item.entry.family === entry.family)!.point;
+    const isActive = activeFamily === entry.family;
+    const benchmarkSubtext = [
+      entry.model.intelligence !== null ? `Intel ${format(entry.model.intelligence, 'intelligence')}` : null,
+      entry.model.cost !== null ? format(entry.model.cost, 'cost', true) : null,
+    ]
+      .filter(Boolean)
+      .join(', ');
+    const costTag = entry.model.cost !== null ? format(entry.model.cost, 'cost', true) : null;
+    // 3D on the narrowest phones has room for secondary tags on the active model only.
+    const allowSubtext = size.width >= 320 || t <= 0.35 || isActive;
+    return {
+      family: entry.family,
+      x: point.x,
+      y: point.y,
+      preferred: t > 0.45
+        ? (compact && entry.compactLabelPlacement3D) || entry.labelPlacement3D
+        : (compact && entry.compactLabelPlacement) || entry.labelPlacement,
+      label: shortName(entry.model),
+      labelSize: compact ? 11.5 : isActive ? 13.5 : 12.5,
+      subtext: !allowSubtext ? null : showBenchmarks ? benchmarkSubtext : t > 0.35 && costTag ? costTag : null,
+      sublabelSize: compact ? 10 : 10.5,
+    };
+  });
+  const labelLayouts = resolveLabels(labelItems, compact, size.width);
 
   function resolvePointerFamily(svg: SVGSVGElement, target: EventTarget | null, clientX: number, clientY: number) {
     if (target instanceof Element) {
@@ -688,46 +779,51 @@ export function VibesChart({
           </g>
         )}
 
+        {/* Drop stems to the Coherency x Cost floor, all painted before any dot or label so label halos cover them. */}
+        {t > 0.04 && (
+          <g pointerEvents="none" aria-hidden="true">
+            {projectedModels.map(({ entry, cost01, point, floor }) => {
+              const color = modelColor(entry.model);
+              const cColor = costColor(cost01);
+              const isActive = activeFamily === entry.family;
+              const muted = activeFamily !== null && !isActive;
+              return (
+                <g key={entry.family}>
+                  <line
+                    x1={point.x}
+                    y1={point.y}
+                    x2={floor.x}
+                    y2={floor.y}
+                    stroke={isActive ? cColor : color}
+                    strokeWidth={isActive ? 1.8 : 1.15}
+                    strokeDasharray={isActive ? undefined : '3 3'}
+                    opacity={(isActive ? 0.9 : muted ? 0.32 : 0.5) * t}
+                  />
+                  <ellipse
+                    cx={floor.x}
+                    cy={floor.y}
+                    rx={isActive ? 5.5 : 3.5}
+                    ry={isActive ? 2.6 : 1.7}
+                    fill={cColor}
+                    opacity={(isActive ? 0.9 : muted ? 0.38 : 0.55) * t}
+                  />
+                </g>
+              );
+            })}
+          </g>
+        )}
+
         {/* Plotted models (sorted back-to-front in 3D) */}
-        {projectedModels.map(({ entry, cost01, point, floor }) => {
+        {projectedModels.map(({ entry, cost01, point }) => {
           const color = modelColor(entry.model);
           const labelFill = `color-mix(in srgb, ${color} 80%, var(--fg))`;
           const cColor = costColor(cost01);
-          const label = shortName(entry.model);
           const isActive = activeFamily === entry.family;
           const isPinned = pinnedFamily === entry.family;
           const muted = activeFamily !== null && !isActive;
-
-          const placement: VibeLabelPlacement =
-            t > 0.45
-              ? (compact && entry.compactLabelPlacement3D) || entry.labelPlacement3D
-              : (compact && entry.compactLabelPlacement) || entry.labelPlacement;
-          const { dx, dy, anchor } = labelOffset(placement, compact);
-          // Right-running text near the right edge slides left until it fits the card.
-          const labelX = (text: string, fontSize: number) =>
-            anchor === 'start'
-              ? Math.min(point.x + dx, size.width + LABEL_OVERHANG - textWidth(text, fontSize))
-              : point.x + dx;
-          const labelSize = compact ? 11.5 : isActive ? 13.5 : 12.5;
-          const sublabelSize = compact ? 10 : 10.5;
+          const { label, labelSize, sublabelSize } = labelItems.find((item) => item.family === entry.family)!;
+          const { anchor, labelX, labelY, sublabelX, sublabelY, subtext: showSubtext } = labelLayouts.get(entry.family)!;
           const handlers = pinHandlers(entry.family, onTogglePin);
-
-          const benchmarkSubtext = [
-            entry.model.intelligence !== null ? `Intel ${format(entry.model.intelligence, 'intelligence', true)}` : null,
-            entry.model.cost !== null ? format(entry.model.cost, 'cost', true) : null,
-          ]
-            .filter(Boolean)
-            .join(', ');
-          const costTag = entry.model.cost !== null ? format(entry.model.cost, 'cost', true) : null;
-          // 3D on the narrowest phones has room for secondary tags on the active model only.
-          const allowSubtext = size.width >= 320 || t <= 0.35 || isActive;
-          const showSubtext = !allowSubtext
-            ? null
-            : showBenchmarks
-              ? benchmarkSubtext
-              : t > 0.35 && costTag
-                ? costTag
-                : null;
 
           return (
             <g
@@ -749,30 +845,6 @@ export function VibesChart({
               }}
               onKeyDown={handlers.onKeyDown}
             >
-              {/* Vertical drop stem to Coherency x Cost floor */}
-              {t > 0.04 && (
-                <g pointerEvents="none" aria-hidden="true">
-                  <line
-                    x1={point.x}
-                    y1={point.y}
-                    x2={floor.x}
-                    y2={floor.y}
-                    stroke={isActive ? cColor : color}
-                    strokeWidth={isActive ? 1.8 : 1.15}
-                    strokeDasharray={isActive ? undefined : '3 3'}
-                    opacity={(isActive ? 0.9 : muted ? 0.32 : 0.5) * t}
-                  />
-                  <ellipse
-                    cx={floor.x}
-                    cy={floor.y}
-                    rx={isActive ? 5.5 : 3.5}
-                    ry={isActive ? 2.6 : 1.7}
-                    fill={cColor}
-                    opacity={(isActive ? 0.9 : muted ? 0.38 : 0.55) * t}
-                  />
-                </g>
-              )}
-
               <circle cx={point.x} cy={point.y} r={18} fill="transparent" />
               <circle
                 className="vibe-focus"
@@ -807,8 +879,8 @@ export function VibesChart({
               />
               <text
                 data-vibe-label={entry.family}
-                x={labelX(label, labelSize)}
-                y={point.y + dy - (placement === 'above' && showSubtext ? (compact ? 13 : 14) : 0)}
+                x={labelX}
+                y={labelY}
                 textAnchor={anchor}
                 fill={labelFill}
                 fontSize={labelSize}
@@ -820,12 +892,8 @@ export function VibesChart({
               {showSubtext && (
                 <text
                   data-vibe-sublabel={entry.family}
-                  x={labelX(showSubtext, sublabelSize)}
-                  y={
-                    point.y +
-                    dy +
-                    (placement === 'above' ? 0 : compact ? 13 : 14)
-                  }
+                  x={sublabelX}
+                  y={sublabelY}
                   textAnchor={anchor}
                   fill={!showBenchmarks && t > 0.35 ? cColor : 'var(--fg-2)'}
                   fontSize={sublabelSize}

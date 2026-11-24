@@ -6,6 +6,7 @@ import { formatUtcDate, formatUtcDateTime } from './formatDate';
 import { SiteHeader } from './SiteHeader';
 import { usePage } from './usePage';
 import { shortName } from './model-presentation';
+import { format } from './formatModel';
 import { segment, segments } from './segments';
 
 const filters = [
@@ -26,24 +27,36 @@ const secondFields = new Set<FieldChange['field']>(['time', 'codingTime']);
 // Rows for one model read from no reasoning up to max, not in source ID order.
 const effortRank = ['non-reasoning', 'none', 'minimal', 'low', 'medium', 'default', 'high', 'xhigh', 'max'];
 
-function formatValue(value: FieldChange['before'], field: FieldChange['field'], exact = true) {
+/**
+ * `extra` adds digits beyond the default rounding; omit it for the exact value.
+ * By default times read as durations like the charts ("24m 13s"), speeds keep one decimal,
+ * and other numbers keep four significant figures, or whole numbers from 1,000 up.
+ */
+function formatValue(value: FieldChange['before'], field: FieldChange['field'], extra?: number) {
   if (value === null) return 'Not available';
   if (typeof value === 'boolean') return value ? 'Yes' : 'No';
   if (typeof value !== 'number') return value;
+  if (extra === 0 && secondFields.has(field)) return format(value, 'time');
   // Whole counts stay exact: rounding them saves no width and hides real differences.
-  // Otherwise four significant figures, and whole numbers from 1,000 up, so 191.235441826247 reads 191.2.
-  const number = String(exact || Number.isInteger(value) ? value : Math.abs(value) >= 1000 ? Math.round(value) : Number(value.toPrecision(4)));
+  const number = extra === undefined || Number.isInteger(value)
+    ? String(value)
+    : secondFields.has(field) || field === 'speed'
+      ? value.toFixed(extra + (field === 'speed' ? 1 : 0))
+      : String(Math.abs(value) >= 1000 && extra === 0 ? Math.round(value) : Number(value.toPrecision(4 + extra)));
   if (dollarFields.has(field)) return `$${number}`;
   if (field === 'speed') return `${number} tok/s`;
   if (secondFields.has(field)) return `${number}s`;
   return number;
 }
 
-/** Rounded values fit every column; fall back to full precision when rounding would hide the change. */
+/** Rounded values fit every column. When rounding hides the change, add digits until it shows, up to four more. */
 function formatChange({ field, before, after }: FieldChange) {
-  const rounded = [formatValue(before, field, false), formatValue(after, field, false)] as const;
   const exact = [formatValue(before, field), formatValue(after, field)] as const;
-  return rounded[0] === rounded[1] && exact[0] !== exact[1] ? { rounded: exact, exact } : { rounded, exact };
+  for (let extra = 0; extra <= 4; extra++) {
+    const rounded = [formatValue(before, field, extra), formatValue(after, field, extra)] as const;
+    if (rounded[0] !== rounded[1] || exact[0] === exact[1]) return { rounded, exact };
+  }
+  return { rounded: exact, exact };
 }
 
 /** Group each model's rows together, in first-seen order, then sort them by reasoning effort. */
@@ -69,7 +82,7 @@ function FieldRow({ fieldChange }: { fieldChange: FieldChange }) {
   return (
     <>
       {/* The whole row is a click target; the field button gives keyboard and screen reader access. */}
-      <tr className={`border-t border-line align-top${expandable ? ' cursor-pointer' : ''}`} onClick={expandable ? () => setOpen(!open) : undefined}>
+      <tr className={`border-t border-line align-top${expandable ? ' cursor-pointer hover:bg-hover' : ''}`} onClick={expandable ? () => setOpen(!open) : undefined}>
         <th scope="row" className="px-3 py-1.5 font-normal text-fg-2 [overflow-wrap:anywhere] max-[360px]:px-2">
           {expandable ? (
             <button
@@ -97,7 +110,7 @@ function FieldRow({ fieldChange }: { fieldChange: FieldChange }) {
         <tr id={exactRow} hidden={!open}>
           <td colSpan={3} className="px-3 pb-2 max-[360px]:px-2">
             {/* Each exact value keeps its unit on its own line, with the same before and after labels as the header. */}
-            <dl className="m-0 grid grid-cols-[max-content_minmax(0,1fr)] gap-x-3">
+            <dl className="m-0 grid grid-cols-[max-content_minmax(0,1fr)] gap-x-3 tabular-nums">
               <dt className="text-fg-2">Before</dt>
               <dd className="m-0 text-fg-2 [overflow-wrap:anywhere]">{exact[0]}</dd>
               <dt className="text-fg-2">After</dt>
@@ -212,10 +225,10 @@ export function Changelog({ history = bundledHistory }: { history?: ChangeHistor
                       </caption>
                       <thead className="text-fg-2">
                         <tr>
-                          <th scope="col" className="w-[30%] px-3 pt-2 pb-1.5 font-normal phone:w-[38%] max-[360px]:w-[28%]">
+                          <th scope="col" className="w-[30%] px-3 pt-2 pb-1.5 font-normal phone:w-[38%] narrow:w-[28%]">
                             Field
                           </th>
-                          <th scope="col" className="w-[35%] pt-2 pr-3 pb-1.5 text-right font-normal phone:w-[31%] max-[360px]:w-[37%] max-[360px]:pr-2">
+                          <th scope="col" className="w-[35%] pt-2 pr-3 pb-1.5 text-right font-normal phone:w-[31%] narrow:w-[37%] max-[360px]:pr-2">
                             Before
                           </th>
                           <th scope="col" className="pt-2 pr-3 pb-1.5 text-right font-normal max-[360px]:pr-2">

@@ -80,7 +80,7 @@ export function Efficiency() {
           Data from{' '}
           <a href={source} target="_blank" rel="noreferrer" className="underline-offset-4 hover:text-accent hover:underline">Artificial Analysis</a>
         </span>
-        <span>Snapshot captured <time dateTime={snapshot.fetchedAt}>{formatUtcDate(snapshot.fetchedAt, 'short')}</time></span>
+        <span title={`Snapshot captured ${snapshot.fetchedAt}`}>Snapshot captured <time dateTime={snapshot.fetchedAt}>{formatUtcDate(snapshot.fetchedAt, 'short')}</time></span>
       </footer>
     </div>
   );
@@ -117,7 +117,8 @@ function Rung({ line, open, toggle }: { line: EfficiencyLine; open: boolean; tog
         <span className="ladder-score">{score}</span>
         <span className="ladder-track" aria-hidden="true">
           {line.points.length > 1 && <span className="ladder-arrow" style={{ left: `calc(${position(now.value)} + 8px)`, right: `calc(100% - ${position(first.value)})` } as CSSProperties} />}
-          {line.points.slice(1, -1).map((point) => <span key={point.model.id} className="ladder-dot ladder-between" style={{ left: position(point.value) }} />)}
+          {/* A record priced just above today's cheapest would hide under the arrowhead on narrow tracks, so it sits just past it. */}
+          {line.points.slice(1, -1).map((point) => <span key={point.model.id} className="ladder-dot ladder-between" style={{ left: `max(${position(point.value)}, calc(${position(now.value)} + 20px))` }} />)}
           {line.points.length > 1 && <span className="ladder-dot ladder-first" style={{ left: position(first.value) }} />}
           <span className="ladder-dot ladder-now" style={{ left: position(now.value) }} />
           <span className="ladder-price ladder-price-now" style={{ left: position(now.value) }}>{format(now.value, 'cost')}</span>

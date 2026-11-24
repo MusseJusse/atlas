@@ -77,7 +77,7 @@ export function ConfigurationDetails({
       )}
       {pinned && model.timeEstimate && (
         <p className="mt-3 mb-2 text-[11px] leading-5 text-fg-2">
-          Local time estimate. Divides GPT-6.1 Sol High output tokens by this endpoint’s Max output speed.
+          Local time estimate. Divides GPT-6.1 Sol High output tokens by this endpoint's Max output speed.
           <br />
           {model.timeEstimate.baselineTokens.toFixed(1)} tokens ÷ {format(model.speed, 'speed')} tokens/s.
           Token count from {formatUtcDate(model.timeEstimate.baselineFetchedAt, 'short')}.

@@ -325,7 +325,7 @@ export function Vibes() {
             <div className="ml-auto flex shrink-0 items-center gap-4 phone:ml-0 phone:w-full phone:justify-between phone:gap-3">
               <button
                 type="button"
-                className="inline-flex min-h-9 items-center gap-2 rounded-md px-1 text-[13px] text-fg hover:text-accent aria-pressed:text-accent"
+                className="inline-flex min-h-9 items-center gap-2 rounded-md px-1 text-[13px] text-fg hover:text-accent aria-pressed:text-accent phone:min-h-10"
                 aria-pressed={showCost}
                 title="Tilt into a 3D view with a log-scaled high-effort API cost per task axis."
                 onClick={() => setShowCost((current) => !current)}

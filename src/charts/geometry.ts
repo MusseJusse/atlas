@@ -97,7 +97,7 @@ export function scatterGeometry(
   const [low, high] = domain;
   const durations = [
     [10, 20, 30, 60, 120, 300, 600, 1200, 1800, 3600, 7200, 14400],
-    [10, 30, 60, 300, 600, 1800, 3600, 14400],
+    [10, 30, 60, 300, 600, 1200, 3600, 14400],
     [10, 60, 600, 3600],
   ];
   const tickSets = metric !== 'time'
@@ -281,9 +281,11 @@ export function barGeometry(
 type LaidOutGroup = { barWidth: number; bars: { row: MeasuredRow; x: number; labelX: number; labelY: number; text: string }[] };
 
 // Glyph side bearings already leave air between labels, so 1px of extra gap reads as separate.
-/** Bar prices keep cents ("$3.10", not "$3.1") so neighbours share precision; sub-cent prices need the compact form. */
+/** Bar prices keep cents ("$3.10", not "$3.1") and scores keep a decimal ("57.0"), so neighbours share precision.
+ * Sub-cent prices and other metrics use the compact form. */
 function valueLabel(row: MeasuredRow, metric: Metric) {
-  return formatModelValue(row, metric, metric !== 'cost' || row.value < 0.001);
+  const compact = metric === 'cost' ? row.value < 0.001 : metric !== 'intelligence' && metric !== 'omniscience';
+  return formatModelValue(row, metric, compact);
 }
 
 const valueLabelMetrics = { lineHeight: 17, gap: 1 };

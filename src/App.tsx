@@ -205,7 +205,7 @@ function Benchmarks() {
             {scatter && (
               <div className="ml-auto flex items-center gap-4 phone:ml-0 phone:gap-3">
                 <button
-                  className="inline-flex min-h-9 items-center gap-2 rounded-md px-1 text-[13px] text-fg hover:text-accent aria-pressed:text-accent"
+                  className="inline-flex min-h-9 items-center gap-2 rounded-md px-1 text-[13px] text-fg hover:text-accent aria-pressed:text-accent phone:min-h-10"
                   aria-pressed={settings.frontier}
                   title="Highlight configurations that no other beats on both axes."
                   onClick={() => update({ frontier: !settings.frontier })}
@@ -380,9 +380,11 @@ function ChartOptions({
         <Settings2 size={17} aria-hidden="true" />
       </summary>
       <div
-        className={`absolute ${side === 'below' ? 'top-[calc(100%+6px)]' : 'bottom-[calc(100%+6px)]'} right-0 z-20 flex ${pricing ? 'w-[344px]' : 'w-[240px]'} max-w-[calc(100vw-64px)] scroll-fade flex-col items-start gap-0.5 overflow-y-auto overscroll-contain rounded-xl p-2 shadow-[var(--shadow-pop)]`}
+        className={`absolute ${side === 'below' ? 'top-[calc(100%+6px)]' : 'bottom-[calc(100%+6px)]'} right-0 z-20 flex ${pricing ? 'w-[344px]' : 'w-[240px]'} max-w-[calc(100vw-64px)] scroll-fade flex-col [outline:none] items-start gap-0.5 overflow-y-auto overscroll-contain rounded-xl p-2 shadow-[var(--shadow-pop)]`}
         style={{ maxHeight: 'var(--chart-menu-height, 60dvh)' }}
         aria-label="Chart settings"
+        // Focusable, so pressing a label or text inside keeps focus in the menu and the blur closer leaves it open.
+        tabIndex={-1}
       >
         {pricing && <PricingControls settings={settings} update={update} />}
         {scatter ? (

@@ -97,9 +97,11 @@ export function ChoiceMenu<Id extends string>({
         <ChevronDown size={14} aria-hidden="true" className="shrink-0 text-fg-2 group-open:rotate-180 group-open:text-accent" />
       </summary>
       <div
-        className={`absolute ${side === 'below' ? 'top-[calc(100%+6px)]' : 'bottom-[calc(100%+6px)]'} ${full ? 'inset-x-0' : `w-[220px] ${edge === 'start' ? 'left-0' : 'right-0'}`} z-20 flex flex-col gap-0.5 rounded-xl bg-panel p-1.5 shadow-[var(--shadow-pop)]`}
+        className={`absolute ${side === 'below' ? 'top-[calc(100%+6px)]' : 'bottom-[calc(100%+6px)]'} ${full ? 'inset-x-0' : `w-[220px] ${edge === 'start' ? 'left-0' : 'right-0'}`} z-20 flex flex-col gap-0.5 rounded-xl bg-panel p-1.5 shadow-[var(--shadow-pop)] [outline:none]`}
         role="group"
         aria-label={name}
+        // Focusable, so a press on padding or a divider keeps focus in the menu and the blur closer leaves it open.
+        tabIndex={-1}
       >
         {options.map((option) => (
           <Fragment key={option.id}>

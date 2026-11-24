@@ -62,3 +62,19 @@ it('explains the baseline without inventing historical additions', () => {
   expect(markup).toContain('13 October 2026');
   expect(markup).not.toContain('<article');
 });
+
+it('adds digits only until close readings differ', () => {
+  const [batch] = history.updates;
+  const changes = [{
+    id: 'close', name: 'Close model', effortLabel: 'High', kind: 'added' as const,
+    fields: [
+      { field: 'speed' as const, before: 107.848063389964, after: 107.818559423986 },
+      { field: 'time' as const, before: 1453.0161325794907, after: 1683.25 },
+    ],
+  }];
+  const markup = renderToStaticMarkup(<Changelog history={{ ...history, updates: [{ ...batch!, changes }] }} />);
+  expect(markup).toContain('107.85 tok/s');
+  expect(markup).toContain('107.82 tok/s');
+  expect(markup).toContain('24m 13s');
+  expect(markup).not.toContain('107.848063389964 tok/s</span>');
+});

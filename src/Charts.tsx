@@ -112,6 +112,9 @@ export const Chart = memo(function Chart({
   const detailsBelow = scatter && ready && phone;
   const belowCard = useRef<HTMLElement>(null);
   const overlay = useRef<HTMLElement>(null);
+  const legendRef = useRef<HTMLDivElement>(null);
+  // The phone legend button that pinned the card, so closing it returns focus there instead of to a plot point.
+  const pinOrigin = useRef<HTMLElement | null>(null);
   const gutter = scatterLabelGutter(width, settings.labels) || 24;
   // Each corner caps the card to the height it actually has, and narrow plots use the compact card.
   const compactCard = width < 760 ? { width: 200, padding: 12 } : {};
@@ -125,10 +128,13 @@ export const Chart = memo(function Chart({
   useEffect(() => {
     // Reveal a card that opened below the fold, without moving the plot when it's already in view.
     // Focus follows into the card, so it never stays on a point the scroll moved behind the sticky bar;
-    // Escape or the close button returns it to the point.
+    // Escape or the close button returns it to the point or legend button that pinned it.
     if (!detailsBelow || !pinned || !belowCard.current) return;
     belowCard.current.scrollIntoView({ block: 'nearest' });
-    if (ref.current?.contains(document.activeElement)) belowCard.current.focus({ preventScroll: true });
+    const from = document.activeElement;
+    const fromLegend = legendRef.current?.contains(from) ?? false;
+    pinOrigin.current = fromLegend && from instanceof HTMLElement ? from : null;
+    if (fromLegend || ref.current?.contains(from)) belowCard.current.focus({ preventScroll: true });
   }, [detailsBelow, pinned?.id]);
   useLayoutEffect(() => {
     const card = overlay.current;
@@ -142,7 +148,10 @@ export const Chart = memo(function Chart({
     const next = placeCard({ corners: Object.values(corners), points, plot: bounds, card: { width: card.offsetWidth, height: card.offsetHeight }, compact: compactCard });
     setPlacement((current) => JSON.stringify(current) === JSON.stringify(next) ? current : next);
   }, [scatter, activeModel?.id, width, height, settings.labels]);
-  const legend = [...new Map(validRows.map((row) => [row.codingAgent ? row.id : row.family, row])).values()];
+  // Highest score first, matching the desktop end labels. A Map keeps each key where it was first set.
+  const legend = [...new Map(prepared.scatter
+    ? prepared.rows.toSorted((a, b) => b.score - a.score).map((row) => [row.codingAgent ? row.id : row.family, row])
+    : validRows.map((row) => [row.codingAgent ? row.id : row.family, row])).values()];
 
   function closeOnBackground(event: MouseEvent<SVGSVGElement>) {
     if (
@@ -155,7 +164,9 @@ export const Chart = memo(function Chart({
   function clearSelection() {
     // Keep keyboard users in the chart when removing the inspector's focused control:
     // the pinned plot point, or the pressed configuration in a phone ranking.
-    const trigger = container.current?.querySelector<HTMLElement | SVGGElement>('g[aria-pressed="true"], .ranking-configurations button[aria-pressed="true"]');
+    const origin = pinOrigin.current?.isConnected ? pinOrigin.current : null;
+    pinOrigin.current = null;
+    const trigger = origin ?? container.current?.querySelector<HTMLElement | SVGGElement>('g[aria-pressed="true"], .ranking-configurations button[aria-pressed="true"]');
     trigger?.focus({ preventScroll: true });
     // A card below the plot may have scrolled the point away, so bring it back clear of the sticky bar.
     if (detailsBelow) trigger?.scrollIntoView({ block: 'center' });
@@ -280,7 +291,7 @@ export const Chart = memo(function Chart({
       {/* Narrow plots drop direct labels, so the legend follows the measured plot width.
           Before measuring, the viewport breakpoint reserves its height in the initial HTML. */}
       {scatter && settings.labels && (
-        <div className={`${ready ? (scatterLabelGutter(width, true) ? 'hidden' : 'grid') : 'hidden plot-mobile:grid'} grid-cols-2 gap-x-3 gap-y-0.5 pt-2.5`}>
+        <div ref={legendRef} className={`${ready ? (scatterLabelGutter(width, true) ? 'hidden' : 'grid') : 'hidden plot-mobile:grid'} grid-cols-2 gap-x-3 gap-y-0.5 pt-2.5`}>
           {legend.map((model) => (
             <button
               className="flex min-h-8 min-w-0 items-center gap-[7px] text-left text-[13px] leading-tight font-[550] text-fg"

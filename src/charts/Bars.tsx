@@ -106,6 +106,11 @@ export function Bars({
                   onBlur={() => interactions.hover(null)}
                   {...pinHandlers(row, interactions.togglePin)}
                 >
+                  {/* Short separate bars get a 24px hit area from the baseline, so a $0.005 bar stays easy to hover and click.
+                      Stacked columns skip it, since it would cover the segments above. */}
+                  {!combined && segmentHeight < 24 && (
+                    <rect x={barX} y={barY <= baseY ? baseY - 24 : baseY} width={group.barWidth} height={24} fill="transparent" pointerEvents="all" />
+                  )}
                   <rect
                     data-focus-target
                     data-bar-segment

@@ -19,7 +19,7 @@ export function PricingControls({ settings, update }: {
         <p className="mt-0.5 mb-3 text-[12px] leading-5 text-fg-2">Applies to cost charts. Subscription costs are estimates.</p>
         <div className="flex gap-0.5 rounded-lg bg-track p-0.5">
           {(['api', 'subscription'] as const).map((mode) => (
-            <label key={mode} className="flex min-h-8 flex-1 text-[12px] cursor-pointer items-center justify-center rounded-md px-2 font-[500] has-[:checked]:bg-thumb has-[:checked]:shadow-[var(--shadow-raised)] has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-accent has-[:focus-visible]:outline-offset-2">
+            <label key={mode} className="flex min-h-8 flex-1 text-[12px] phone:min-h-9 cursor-pointer items-center justify-center rounded-md px-2 font-[500] has-[:checked]:bg-thumb has-[:checked]:shadow-[var(--shadow-raised)] has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-accent has-[:focus-visible]:outline-offset-2">
               <input className="sr-only" type="radio" name={`${id}-pricing`} checked={settings.pricingMode === mode}
                 onChange={() => update({ pricingMode: mode })} />
               <span className={`whitespace-nowrap ${settings.pricingMode === mode ? 'text-accent' : 'text-fg-2 hover:text-fg'}`}>
