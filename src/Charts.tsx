@@ -112,9 +112,8 @@ export const Chart = memo(function Chart({
   const detailsBelow = scatter && ready && phone;
   const belowCard = useRef<HTMLElement>(null);
   const overlay = useRef<HTMLElement>(null);
-  const legendRef = useRef<HTMLDivElement>(null);
-  // The phone legend button that pinned the card, so closing it returns focus there instead of to a plot point.
-  const pinOrigin = useRef<HTMLElement | null>(null);
+  // The point, label, or legend button that pinned the card, so closing it returns focus to that exact control.
+  const pinOrigin = useRef<HTMLElement | SVGElement | null>(null);
   const gutter = scatterLabelGutter(width, settings.labels) || 24;
   // Each corner caps the card to the height it actually has, and narrow plots use the compact card.
   const compactCard = width < 760 ? { width: 200, padding: 12 } : {};
@@ -126,15 +125,18 @@ export const Chart = memo(function Chart({
   } satisfies Record<string, CSSProperties>;
   const [placement, setPlacement] = useState<CSSProperties>(corners['bottom-right']);
   useEffect(() => {
+    // Focus follows a pin into its card, which sits after every point in tab order, and on phones below the fold.
+    // Escape or the close button returns focus to the control that pinned it.
+    const card = detailsBelow ? belowCard.current : overlay.current;
+    if (!pinned || !card) return;
     // Reveal a card that opened below the fold, without moving the plot when it's already in view.
-    // Focus follows into the card, so it never stays on a point the scroll moved behind the sticky bar;
-    // Escape or the close button returns it to the point or legend button that pinned it.
-    if (!detailsBelow || !pinned || !belowCard.current) return;
-    belowCard.current.scrollIntoView({ block: 'nearest' });
+    if (detailsBelow) card.scrollIntoView({ block: 'nearest' });
     const from = document.activeElement;
-    const fromLegend = legendRef.current?.contains(from) ?? false;
-    pinOrigin.current = fromLegend && from instanceof HTMLElement ? from : null;
-    if (fromLegend || ref.current?.contains(from)) belowCard.current.focus({ preventScroll: true });
+    if (!(from instanceof HTMLElement || from instanceof SVGElement) || !container.current?.contains(from) || card.contains(from)) return;
+    // Phone rankings keep their own inspector and hide the bar plot's card.
+    if (!card.checkVisibility()) return;
+    pinOrigin.current = from;
+    card.focus({ preventScroll: true });
   }, [detailsBelow, pinned?.id]);
   useLayoutEffect(() => {
     const card = overlay.current;
@@ -148,10 +150,12 @@ export const Chart = memo(function Chart({
     const next = placeCard({ corners: Object.values(corners), points, plot: bounds, card: { width: card.offsetWidth, height: card.offsetHeight }, compact: compactCard });
     setPlacement((current) => JSON.stringify(current) === JSON.stringify(next) ? current : next);
   }, [scatter, activeModel?.id, width, height, settings.labels]);
-  // Highest score first, matching the desktop end labels. A Map keeps each key where it was first set.
-  const legend = [...new Map(prepared.scatter
-    ? prepared.rows.toSorted((a, b) => b.score - a.score).map((row) => [row.codingAgent ? row.id : row.family, row])
-    : validRows.map((row) => [row.codingAgent ? row.id : row.family, row])).values()];
+  // One entry per series, highest score first like the desktop end labels, and each keeps its best row,
+  // so tapping a name pins the same configuration its end label would.
+  const legendKey = (row: (typeof validRows)[number]) => row.codingAgent ? row.id : row.family;
+  const legend = [...(prepared.scatter ? prepared.rows.toSorted((a, b) => b.score - a.score) : validRows)
+    .reduce((entries, row) => entries.has(legendKey(row)) ? entries : entries.set(legendKey(row), row), new Map<string, (typeof validRows)[number]>())
+    .values()];
 
   function closeOnBackground(event: MouseEvent<SVGSVGElement>) {
     if (
@@ -291,10 +295,10 @@ export const Chart = memo(function Chart({
       {/* Narrow plots drop direct labels, so the legend follows the measured plot width.
           Before measuring, the viewport breakpoint reserves its height in the initial HTML. */}
       {scatter && settings.labels && (
-        <div ref={legendRef} className={`${ready ? (scatterLabelGutter(width, true) ? 'hidden' : 'grid') : 'hidden plot-mobile:grid'} grid-cols-2 gap-x-3 gap-y-0.5 pt-2.5`}>
+        <div className={`${ready ? (scatterLabelGutter(width, true) ? 'hidden' : 'grid') : 'hidden plot-mobile:grid'} grid-cols-2 gap-x-3 gap-y-0.5 pt-2.5`}>
           {legend.map((model) => (
             <button
-              className="flex min-h-8 min-w-0 items-center gap-[7px] text-left text-[13px] leading-tight font-[550] text-fg"
+              className="-mx-1.5 flex min-h-8 min-w-0 items-center gap-[7px] rounded-md px-1.5 text-left text-[13px] leading-tight font-[550] text-fg aria-pressed:bg-accent-soft aria-pressed:text-accent"
               key={model.codingAgent ? model.id : model.family}
               aria-label={model.codingAgent?.configuration}
               aria-pressed={model.codingAgent ? interactions.pinned?.id === model.id : interactions.pinned?.family === model.family}

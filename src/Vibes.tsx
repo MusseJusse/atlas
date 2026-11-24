@@ -229,7 +229,7 @@ export function Vibes() {
               ref={picksRef}
               role="group"
               aria-label="Best for"
-              className="flex min-w-0 items-center gap-1.5 mobile:max-w-full mobile:overflow-x-auto mobile:[scrollbar-width:none] phone:hidden"
+              className="flex min-w-0 flex-wrap items-center gap-1.5 phone:hidden"
             >
               {vibes.recommendations.map((item) => {
                 const Icon = iconMap[item.icon];
@@ -295,7 +295,7 @@ export function Vibes() {
                   return {
                     id: item.id,
                     label: item.label,
-                    icon: <Icon size={14} aria-hidden="true" className="shrink-0 text-fg-3" />,
+                    icon: <Icon size={14} aria-hidden="true" className="shrink-0 text-fg-3 group-aria-pressed:text-accent" />,
                     detail: <ModelName model={item.entry.model} />,
                   };
                 })}
@@ -303,14 +303,13 @@ export function Vibes() {
                 choose={(id) => {
                   const item = vibes.recommendations.find((pick) => pick.id === id);
                   if (!item) return;
-                  setHovered(null);
-                  setPinned({ family: item.family, useCaseId: id });
+                  togglePinUseCase(id, item.family);
                 }}
                 side="below"
                 align="start"
                 full
               >
-                <span className="text-[11px] font-[450] text-fg-2">Best for</span>
+                <span className="shrink-0 whitespace-nowrap text-[11px] font-[450] text-fg-2">Best for</span>
                 {pinnedPick ? (
                   <>
                     <span className="min-w-0 truncate text-accent">{pinnedPick.label}</span>

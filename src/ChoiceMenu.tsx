@@ -107,7 +107,7 @@ export function ChoiceMenu<Id extends string>({
           <Fragment key={option.id}>
             {option.divider && <span role="separator" className="mx-1 my-1 h-px bg-line" />}
             <button
-              className="inline-flex min-h-9 w-full items-center gap-2 rounded-md px-2 text-left text-[13px] text-fg hover:bg-hover aria-pressed:font-[560] aria-pressed:text-accent"
+              className="group inline-flex min-h-9 w-full items-center gap-2 rounded-md px-2 text-left text-[13px] text-fg hover:bg-hover aria-pressed:font-[560] aria-pressed:text-accent"
               aria-pressed={option.id === current}
               onClick={() => {
                 close();

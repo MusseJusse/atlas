@@ -80,8 +80,11 @@ type LabelItem = {
 
 const placements: readonly VibeLabelPlacement[] = ['right', 'left', 'above', 'below', 'below-right'];
 // Estimated boxes are approximate, so touching by 2px or less still counts as clear.
-const overlaps = (a: Box, b: Box) =>
-  Math.min(a.right, b.right) - Math.max(a.left, b.left) > 2 && Math.min(a.bottom, b.bottom) - Math.max(a.top, b.top) > 2;
+const overlapArea = (a: Box, b: Box) => {
+  const x = Math.min(a.right, b.right) - Math.max(a.left, b.left);
+  const y = Math.min(a.bottom, b.bottom) - Math.max(a.top, b.top);
+  return x > 2 && y > 2 ? x * y : 0;
+};
 
 /** Where a model's name and benchmark line go for one placement, with their estimated boxes. */
 function labelLayout(item: LabelItem, placement: VibeLabelPlacement, compact: boolean, width: number, overhang: number) {
@@ -105,27 +108,40 @@ function labelLayout(item: LabelItem, placement: VibeLabelPlacement, compact: bo
 }
 
 /**
- * Keeps each model's preferred label spot unless it would cover an earlier label, another dot, or leave the card.
- * Then it takes the first clear spot, so rotating the 3D view never stacks names on top of each other.
- * Labels stay inside the plot where they can, then may use the card's padding, and only then drop the benchmark line.
+ * Places every model's name first, then adds benchmark lines where they fit, so a line never pushes a name aside.
+ * Each name keeps its preferred spot unless that would cover another name, an axis title, a dot (its own included),
+ * or leave the plot; then it takes the first clear spot, using the card's padding only as a last resort.
+ * With no clear spot at all, the name takes the spot it covers least. A benchmark line that fits nowhere drops.
  */
-function resolveLabels(items: readonly LabelItem[], compact: boolean, width: number) {
-  const dots = items.map((item) => ({ family: item.family, left: item.x - 6, right: item.x + 6, top: item.y - 6, bottom: item.y + 6 }));
-  const placed: Box[] = [];
-  return new Map(items.map((item) => {
-    const clear = (overhang: number) => (layout: ReturnType<typeof labelLayout>) => layout.boxes.every((box) =>
-      box.left >= -overhang && box.right <= width + overhang &&
-      !placed.some((other) => overlaps(box, other)) &&
-      !dots.some((dot) => dot.family !== item.family && overlaps(box, dot)));
-    const order = [item.preferred, ...placements.filter((placement) => placement !== item.preferred)];
+function resolveLabels(items: readonly LabelItem[], compact: boolean, width: number, obstacles: readonly Box[]) {
+  type Layout = ReturnType<typeof labelLayout>;
+  const dots = items.map((item) => ({ left: item.x - 6, right: item.x + 6, top: item.y - 6, bottom: item.y + 6 }));
+  const placed: Box[] = [...obstacles];
+  const covered = (layout: Layout, others: readonly Box[]) => layout.boxes.reduce((total, box) =>
+    total + [...others, ...dots].reduce((sum, other) => sum + overlapArea(box, other), 0), 0);
+  const inside = (layout: Layout, overhang: number) => layout.boxes.every((box) => box.left >= -overhang && box.right <= width + overhang);
+  // Candidate spots, preferred first, inside the plot before the card padding.
+  const candidates = (item: LabelItem, first: VibeLabelPlacement) => [0, PADDING_OVERHANG].flatMap((overhang) =>
+    [first, ...placements.filter((placement) => placement !== first)].map((placement) => ({ placement, overhang, layout: labelLayout(item, placement, compact, width, overhang) })));
+
+  const names = new Map(items.map((item) => {
     const bare = { ...item, subtext: null };
-    const attempts = [[item, 0], [item, PADDING_OVERHANG], [bare, 0], [bare, PADDING_OVERHANG]] as const;
-    const layout = attempts
-      .flatMap(([candidate, overhang]) => order.map((placement) => ({ layout: labelLayout(candidate, placement, compact, width, overhang), overhang })))
-      .find(({ layout, overhang }) => clear(overhang)(layout))?.layout
-      ?? labelLayout(bare, item.preferred, compact, width, PADDING_OVERHANG);
-    placed.push(...layout.boxes);
-    return [item.family, layout] as const;
+    const options = candidates(bare, item.preferred);
+    const chosen = options.find(({ layout, overhang }) => inside(layout, overhang) && covered(layout, placed) === 0)
+      ?? options.filter(({ layout }) => inside(layout, PADDING_OVERHANG))
+        .reduce((best, option) => (covered(option.layout, placed) < covered(best.layout, placed) ? option : best));
+    placed.push(...chosen.layout.boxes);
+    return [item.family, chosen] as const;
+  }));
+
+  return new Map(items.map((item) => {
+    const name = names.get(item.family)!;
+    if (!item.subtext) return [item.family, name.layout] as const;
+    const others = placed.filter((box) => !name.layout.boxes.includes(box));
+    const full = candidates(item, name.placement).find(({ layout, overhang }) => inside(layout, overhang) && covered(layout, others) === 0);
+    if (!full) return [item.family, name.layout] as const;
+    placed.splice(0, placed.length, ...others, ...full.layout.boxes);
+    return [item.family, full.layout] as const;
   }));
 }
 
@@ -297,7 +313,8 @@ export function VibesChart({
 
   const safeLeft = compact ? 32 : 112;
   const safeRight = compact ? 44 : 72;
-  const safeTop = compact ? 44 : 52;
+  // Phones keep the 3D box below the angle controls, so the Capability title never slides under them.
+  const safeTop = compact ? (showCost ? 76 : 44) : 52;
   const safeBottom = compact ? 44 : 50;
   const safeW = Math.max(80, size.width - safeLeft - safeRight);
   const safeH = Math.max(80, size.height - safeTop - safeBottom);
@@ -352,8 +369,7 @@ export function VibesChart({
       .filter(Boolean)
       .join(', ');
     const costTag = entry.model.cost !== null ? format(entry.model.cost, 'cost', true) : null;
-    // 3D on the narrowest phones has room for secondary tags on the active model only.
-    const allowSubtext = size.width >= 320 || t <= 0.35 || isActive;
+    // Every model offers its benchmark line; the resolver drops any that has no clear spot.
     return {
       family: entry.family,
       x: point.x,
@@ -363,11 +379,10 @@ export function VibesChart({
         : (compact && entry.compactLabelPlacement) || entry.labelPlacement,
       label: shortName(entry.model),
       labelSize: compact ? 11.5 : isActive ? 13.5 : 12.5,
-      subtext: !allowSubtext ? null : showBenchmarks ? benchmarkSubtext : t > 0.35 && costTag ? costTag : null,
+      subtext: showBenchmarks ? benchmarkSubtext : t > 0.35 && costTag ? costTag : null,
       sublabelSize: compact ? 10 : 10.5,
     };
   });
-  const labelLayouts = resolveLabels(labelItems, compact, size.width);
 
   function resolvePointerFamily(svg: SVGSVGElement, target: EventTarget | null, clientX: number, clientY: number) {
     if (target instanceof Element) {
@@ -412,6 +427,14 @@ export function VibesChart({
   const isCustomAngle = Math.abs(yaw - DEFAULT_YAW) > 0.01 || Math.abs(pitch - DEFAULT_PITCH) > 0.01;
   const midCost = proj(0, 0, 0.52);
   const capLabelY = Math.max(22, capTop.y - 12);
+  const capLabel = t > 0.3 ? 'Capability ↑' : 'Capability';
+  const capSize = compact ? 12 : 13;
+  const labelLayouts = resolveLabels(labelItems, compact, size.width, [{
+    left: capTop.x,
+    right: capTop.x + textWidth(capLabel, capSize),
+    top: capLabelY - capSize * 0.95,
+    bottom: capLabelY + capSize * 0.3,
+  }]);
   const costArrow = yaw > 0.08 ? '↖' : '↗';
 
   // Thin cost tick labels whenever projected points get closer than 16px (e.g. shallow phone pitch).
@@ -421,8 +444,12 @@ export function VibesChart({
     const cn = normalizeCost(tick, costMax);
     const left = proj(0, 0, cn);
     const right = proj(100, 0, cn);
+    // A tick label under a model name hides; the names matter more than the scale.
+    const text = `$${tick >= 1 ? tick : tick.toFixed(2)}`;
+    const tickBox = { left: right.x + 8, right: right.x + 8 + textWidth(text, compact ? 10 : 11), top: right.y - 6, bottom: right.y + 6 };
     const showLabel =
-      lastLabelPos === null || Math.hypot(right.x - lastLabelPos.x, right.y - lastLabelPos.y) >= 16;
+      (lastLabelPos === null || Math.hypot(right.x - lastLabelPos.x, right.y - lastLabelPos.y) >= 16) &&
+      ![...labelLayouts.values()].some((layout) => layout.boxes.some((box) => overlapArea(box, tickBox) > 0));
     if (showLabel) lastLabelPos = { x: right.x, y: right.y };
     visibleCostTicks.push({ tick, left, right, showLabel });
   }
@@ -466,7 +493,7 @@ export function VibesChart({
                 setYaw(DEFAULT_YAW);
                 setPitch(DEFAULT_PITCH);
               }}
-              className="inline-flex h-8 items-center gap-1 rounded-md bg-thumb px-2 text-[11px] font-[500] text-fg shadow-[var(--shadow-raised)] hover:text-accent"
+              className="inline-flex h-8 items-center gap-1 rounded-md px-2 text-[12px] font-[500] text-fg-2 hover:bg-thumb hover:text-fg"
               aria-label="Reset 3D view angle"
             >
               <RotateCcw size={12} aria-hidden="true" />
@@ -716,16 +743,18 @@ export function VibesChart({
 
           <text
             data-axis-label="capability"
+            {...halo}
             x={capTop.x}
             y={capLabelY}
             fill="var(--fg)"
-            fontSize={compact ? 12 : 13}
+            fontSize={capSize}
             fontWeight={600}
           >
-            {t > 0.3 ? 'Capability ↑' : 'Capability'}
+            {capLabel}
           </text>
           <text
             data-axis-label="coherency"
+            {...halo}
             x={cohEnd.x}
             y={cohEnd.y + (t > 0.3 ? 18 : 26)}
             textAnchor="end"
@@ -750,6 +779,7 @@ export function VibesChart({
               />
               <text
                 data-axis-label="cost"
+                {...halo}
                 // Sit clear of the cost axis on desktop and below the floor's front edge on phones.
                 x={compact ? Math.max(8, originFront.x - 4) : Math.max(96, midCost.x - 30)}
                 y={compact ? Math.min(size.height - 10, originFront.y + 30) : midCost.y + 14}

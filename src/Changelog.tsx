@@ -1,7 +1,7 @@
-import { useId, useState } from 'react';
+import { memo, startTransition, useEffect, useId, useMemo, useState } from 'react';
 import { ChevronDown } from 'lucide-react';
 import bundledHistory from 'virtual:changelog';
-import { fieldLabels, type ChangeHistory, type ChangeKind, type FieldChange } from './data/changelog';
+import { fieldLabels, type ChangeHistory, type ChangeKind, type FieldChange, type ModelChange } from './data/changelog';
 import { formatUtcDate, formatUtcDateTime } from './formatDate';
 import { SiteHeader } from './SiteHeader';
 import { usePage } from './usePage';
@@ -15,6 +15,9 @@ const filters = [
   { id: 'updated', label: 'Updated' },
   { id: 'removed', label: 'Removed' },
 ] as const;
+type Filter = (typeof filters)[number]['id'];
+const FIRST_ROWS = 300;
+const MORE_ROWS = 500;
 const kindLabels: Record<ChangeKind, string> = { added: 'Added', updated: 'Updated', removed: 'Removed' };
 const kindStyles: Record<ChangeKind, string> = {
   added: 'text-positive',
@@ -37,11 +40,19 @@ function formatValue(value: FieldChange['before'], field: FieldChange['field'], 
   if (typeof value === 'boolean') return value ? 'Yes' : 'No';
   if (typeof value !== 'number') return value;
   if (extra === 0 && secondFields.has(field)) return format(value, 'time');
+  if (extra !== undefined && secondFields.has(field)) {
+    // Extra digits go on the seconds, so the column keeps one duration format ("5m 32.5s").
+    const total = Number(value.toFixed(extra));
+    const hours = Math.floor(total / 3600);
+    const minutes = Math.floor((total % 3600) / 60);
+    const seconds = (total - hours * 3600 - minutes * 60).toFixed(extra);
+    return [hours && `${hours}h`, (hours || minutes) && `${minutes}m`, `${seconds}s`].filter(Boolean).join(' ');
+  }
   // Whole counts stay exact: rounding them saves no width and hides real differences.
   const number = extra === undefined || Number.isInteger(value)
     ? String(value)
-    : secondFields.has(field) || field === 'speed'
-      ? value.toFixed(extra + (field === 'speed' ? 1 : 0))
+    : field === 'speed'
+      ? value.toFixed(extra + 1)
       : String(Math.abs(value) >= 1000 && extra === 0 ? Math.round(value) : Number(value.toPrecision(4 + extra)));
   if (dollarFields.has(field)) return `$${number}`;
   if (field === 'speed') return `${number} tok/s`;
@@ -123,18 +134,79 @@ function FieldRow({ fieldChange }: { fieldChange: FieldChange }) {
   );
 }
 
+/** One model's change. Memoized, so mounting more rows never re-renders the ones already shown. */
+const ChangeRow = memo(function ChangeRow({ change, filter }: { change: ModelChange; filter: Filter }) {
+  return (
+    <article
+      className={`grid gap-5 border-t border-line phone:gap-0 ${filter === 'all' ? 'grid-cols-[80px_minmax(0,1fr)] py-3.5 phone:grid-cols-1 phone:py-2.5' : 'grid-cols-1 py-2'}`}
+    >
+      {/* The filter already names the kind, so only "All changes" repeats it visually. */}
+      <span className={filter === 'all' ? `text-[12px] leading-6 font-[600] phone:leading-5 ${kindStyles[change.kind]}` : 'sr-only'}>
+        {kindLabels[change.kind]}
+      </span>
+      <div className="min-w-0">
+        <h3 className="text-[14px] font-[550] leading-6">
+          {shortName(change)}{' '}
+          <span className="ml-1 text-[12px] font-normal text-fg-2">{change.effortLabel.toLowerCase()}</span>
+        </h3>
+        {change.kind === 'removed' && (
+          <p className="mt-0.5 mb-0 text-[12px] text-fg-2">No longer listed on Artificial Analysis</p>
+        )}
+        {change.fields.length > 0 && (
+          <table className="mt-3 w-full table-fixed border-collapse overflow-hidden rounded-md bg-surface text-left text-[12px] leading-5 max-[360px]:text-[11px]">
+            <caption className="sr-only">
+              Changed values for {shortName(change)}, {change.effortLabel}
+            </caption>
+            <thead className="text-fg-2">
+              <tr>
+                <th scope="col" className="w-[30%] px-3 pt-2 pb-1.5 font-normal phone:w-[38%] narrow:w-[28%]">
+                  Field
+                </th>
+                <th scope="col" className="w-[35%] pt-2 pr-3 pb-1.5 text-right font-normal phone:w-[31%] narrow:w-[37%] max-[360px]:pr-2">
+                  Before
+                </th>
+                <th scope="col" className="pt-2 pr-3 pb-1.5 text-right font-normal max-[360px]:pr-2">
+                  After
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {change.fields.map((fieldChange) => <FieldRow key={fieldChange.field} fieldChange={fieldChange} />)}
+            </tbody>
+          </table>
+        )}
+      </div>
+    </article>
+  );
+});
+
 export function Changelog({ history = bundledHistory }: { history?: ChangeHistory }) {
   // Each snapshot updates hundreds of speed readings, so new models would sink below them under All changes.
-  const [filter, setFilter] = useState<(typeof filters)[number]['id']>('added');
+  const [filter, setFilter] = useState<Filter>('added');
+  // All changes and Updated hold thousands of tables. The first rows paint with the filter,
+  // and the rest mount in background steps so the click never waits on all of them.
+  const [shown, setShown] = useState(FIRST_ROWS);
   usePage('Atlas · Changelog');
-  const updates = history.updates
+  const updates = useMemo(() => history.updates
     .map((batch) => ({
       ...batch,
       changes: orderChanges(batch.changes.filter((change) => filter === 'all' || change.kind === filter)),
     }))
-    .filter((batch) => batch.changes.length > 0);
+    .filter((batch) => batch.changes.length > 0), [history, filter]);
   const latest = history.updates[0];
   const changeCount = updates.reduce((total, batch) => total + batch.changes.length, 0);
+  useEffect(() => {
+    if (shown >= changeCount) return;
+    const timer = setTimeout(() => startTransition(() => setShown((count) => count + MORE_ROWS)), 0);
+    return () => clearTimeout(timer);
+  }, [shown, changeCount]);
+  // Newest sections fill first; a section waits until earlier ones are fully shown.
+  let budget = shown;
+  const visibleUpdates = updates.flatMap((batch) => {
+    const visible = batch.changes.slice(0, Math.max(0, budget));
+    budget -= visible.length;
+    return visible.length ? [{ ...batch, visible }] : [];
+  });
 
   return (
     <div className="min-h-dvh select-text">
@@ -166,7 +238,10 @@ export function Changelog({ history = bundledHistory }: { history?: ChangeHistor
           {filters.map(({ id, label }) => (
             <button
               key={id}
-              onClick={() => setFilter(id)}
+              onClick={() => {
+                setFilter(id);
+                setShown(FIRST_ROWS);
+              }}
               aria-pressed={filter === id}
               className={segment}
             >
@@ -184,7 +259,7 @@ export function Changelog({ history = bundledHistory }: { history?: ChangeHistor
               : `No changes recorded yet. History starts with the ${formatUtcDate(history.baselineFetchedAt)} snapshot. Entries appear after the next data update.`}
           </p>
         )}
-        {updates.map((batch) => (
+        {visibleUpdates.map((batch) => (
           <section
             key={batch.checkedAt}
             className="mt-9"
@@ -201,49 +276,7 @@ export function Changelog({ history = bundledHistory }: { history?: ChangeHistor
                   .join(', ')}
               </span>
             </h2>
-            {batch.changes.map((change) => (
-              <article
-                key={change.id}
-                className={`grid gap-5 border-t border-line py-3.5 phone:gap-0 phone:py-2.5 ${filter === 'all' ? 'grid-cols-[80px_minmax(0,1fr)] phone:grid-cols-1' : 'grid-cols-1'}`}
-              >
-                {/* The filter already names the kind, so only "All changes" repeats it visually. */}
-                <span className={filter === 'all' ? `text-[12px] leading-6 font-[600] phone:leading-5 ${kindStyles[change.kind]}` : 'sr-only'}>
-                  {kindLabels[change.kind]}
-                </span>
-                <div className="min-w-0">
-                  <h3 className="text-[14px] font-[550] leading-6">
-                    {shortName(change)}{' '}
-                    <span className="ml-1 text-[12px] font-normal text-fg-2">{change.effortLabel.toLowerCase()}</span>
-                  </h3>
-                  {change.kind === 'removed' && (
-                    <p className="mt-0.5 mb-0 text-[12px] text-fg-2">No longer listed on Artificial Analysis</p>
-                  )}
-                  {change.fields.length > 0 && (
-                    <table className="mt-3 w-full table-fixed border-collapse overflow-hidden rounded-md bg-surface text-left text-[12px] leading-5 max-[360px]:text-[11px]">
-                      <caption className="sr-only">
-                        Changed values for {shortName(change)}, {change.effortLabel}
-                      </caption>
-                      <thead className="text-fg-2">
-                        <tr>
-                          <th scope="col" className="w-[30%] px-3 pt-2 pb-1.5 font-normal phone:w-[38%] narrow:w-[28%]">
-                            Field
-                          </th>
-                          <th scope="col" className="w-[35%] pt-2 pr-3 pb-1.5 text-right font-normal phone:w-[31%] narrow:w-[37%] max-[360px]:pr-2">
-                            Before
-                          </th>
-                          <th scope="col" className="pt-2 pr-3 pb-1.5 text-right font-normal max-[360px]:pr-2">
-                            After
-                          </th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {change.fields.map((fieldChange) => <FieldRow key={fieldChange.field} fieldChange={fieldChange} />)}
-                      </tbody>
-                    </table>
-                  )}
-                </div>
-              </article>
-            ))}
+            {batch.visible.map((change) => <ChangeRow key={change.id} change={change} filter={filter} />)}
             {formatUtcDateTime(batch.fetchedAt) !== formatUtcDateTime(batch.checkedAt) && (
               <p className="mt-2 mb-0 text-[12px] leading-5 text-fg-3">
                 Source snapshot {formatUtcDateTime(batch.fetchedAt, 'short')}

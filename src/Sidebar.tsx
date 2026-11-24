@@ -160,7 +160,7 @@ export const Sidebar = memo(function Sidebar({
           <RotateCcw size={14} aria-hidden="true" />
         </button>
         <button
-          className="sheet-done inline-flex h-9 items-center justify-center rounded-md pr-1 pl-3 text-[14px] font-[550] text-accent hover:bg-hover mobile:h-10 mobile:text-[15px]"
+          className="sheet-done inline-flex h-9 items-center justify-center -mr-2.5 rounded-md px-2.5 text-[14px] font-[550] text-accent hover:bg-hover mobile:h-10 mobile:text-[15px]"
           onClick={() => setOpen(false)}
         >
           Done
@@ -218,6 +218,7 @@ export const Sidebar = memo(function Sidebar({
                 <button
                   className="-my-1 min-h-6 min-w-6 text-right text-[12px] text-fg-3 hover:text-accent mobile:my-0 mobile:min-h-8 mobile:text-[14px]"
                   onClick={() => toggleGroup(section.items.map((family) => family.family))}
+                  aria-label={`Toggle all ${section.name.toLowerCase()} models`}
                 >
                   All
                 </button>

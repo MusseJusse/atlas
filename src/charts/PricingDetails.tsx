@@ -15,7 +15,7 @@ export function PricingDetails({ model }: { model: Model }) {
   return (
     <div className="mt-2 text-[11px] leading-5 text-fg-2">
       <p className="m-0">{pricing.plan}, ${pricing.feeUsd}/mo. Estimate confidence: {pricing.confidence}.</p>
-      <p className="m-0">Allowance data: {pricing.dataDate}. {pricing.resetBoost > 1 ? `Bonus resets boost allowance ×${pricing.resetBoost.toFixed(2)}.` : 'No bonus reset boost.'}</p>
+      <p className="m-0">Allowance data: {formatUtcDate(`${pricing.dataDate}T00:00:00Z`, 'short')}. {pricing.resetBoost > 1 ? `Bonus resets boost allowance ×${pricing.resetBoost.toFixed(2)}.` : 'No bonus reset boost.'}</p>
       <p className="mt-1 mb-0">
         {pricing.reading
           ? `API-cost ratio from MyPriors: ${pricing.reading}.`

@@ -244,6 +244,8 @@
 .ladder-axis > span { position: absolute; top: 2px; transform: translateX(-50%); white-space: nowrap; }
 .ladder > .ladder-grid:first-child { border-bottom: 1px solid var(--line); }
 .ladder-row { border-bottom: 1px solid var(--line); }
+/* The sheet's own edge closes the list, so the last rung needs no divider. */
+.ladder-row:last-child { border-bottom: 0; }
 .ladder-row.ladder-grid { min-height: 60px; }
 .ladder-toggle { width: 100%; min-height: 60px; padding: 4px 0; text-align: left; border-radius: 6px; }
 .ladder-toggle:hover, .ladder-open .ladder-toggle { background: var(--hover); }

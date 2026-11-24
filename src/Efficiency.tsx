@@ -103,6 +103,7 @@ function Rung({ line, open, toggle }: { line: EfficiencyLine; open: boolean; tog
     ? <><span><b>{times(multiplier)}</b> cheaper</span> <span>in {elapsedTimeSinceFirstRecord(line, now)}</span></>
     : <span>First record</span>;
   const id = `efficiency-records-${line.threshold}`;
+  const between = line.points.slice(1, -1);
   return (
     <div className={`ladder-row${open ? ' ladder-open' : ''}`}>
       <button
@@ -117,8 +118,9 @@ function Rung({ line, open, toggle }: { line: EfficiencyLine; open: boolean; tog
         <span className="ladder-score">{score}</span>
         <span className="ladder-track" aria-hidden="true">
           {line.points.length > 1 && <span className="ladder-arrow" style={{ left: `calc(${position(now.value)} + 8px)`, right: `calc(100% - ${position(first.value)})` } as CSSProperties} />}
-          {/* A record priced just above today's cheapest would hide under the arrowhead on narrow tracks, so it sits just past it. */}
-          {line.points.slice(1, -1).map((point) => <span key={point.model.id} className="ladder-dot ladder-between" style={{ left: `max(${position(point.value)}, calc(${position(now.value)} + 20px))` }} />)}
+          {/* A record priced just above today's cheapest would hide under the arrowhead on narrow tracks, so it sits just past it.
+              Records pushed there step 8px apart in price order, so two never land on one pixel. */}
+          {between.map((point) => <span key={point.model.id} className="ladder-dot ladder-between" style={{ left: `max(${position(point.value)}, calc(${position(now.value)} + ${20 + 8 * between.filter((other) => other.value < point.value).length}px))` }} />)}
           {line.points.length > 1 && <span className="ladder-dot ladder-first" style={{ left: position(first.value) }} />}
           <span className="ladder-dot ladder-now" style={{ left: position(now.value) }} />
           <span className="ladder-price ladder-price-now" style={{ left: position(now.value) }}>{format(now.value, 'cost')}</span>
