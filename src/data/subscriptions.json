@@ -1,9 +1,9 @@
 {
-  "capturedAt": "2026-11-24T09:24:49.948Z",
-  "sourceGeneratedAt": "2026-11-24T08:35:18.369Z",
+  "capturedAt": "2026-11-25T09:41:20.876Z",
+  "sourceGeneratedAt": "2026-11-25T09:28:33.737Z",
   "source": "https://mypriors.com/api/snapshot?view=core",
-  "sourceHash": "7edb503795b8b81b234752d5ab013804f48896d953a70ce1ff6a71a37818b02b",
-  "benchmarkSourceHash": "4891cf7d94a3618de65638e867c4725013d756d7071a2ea615143ee8f4bd0f0a",
+  "sourceHash": "232ba21d7006fa27cae634cb9eefeaffa398d2e81caa1081112ef63e33ca853f",
+  "benchmarkSourceHash": "5c1533a95097e26b11c4752317819da082df1cb019fcc82b4f89a5b670aad682",
   "methodology": "https://github.com/Fei2411/real-api-pricing/blob/main/CONVENTIONS.md",
   "models": [
     {
@@ -314,8 +314,8 @@
       "defaultPlan": "Google AI Ultra 20x",
       "dataDate": "2026-09-12~2026-09-27",
       "mix": {
-        "cache": 0.85,
-        "input": 0.145,
+        "cache": 0.97,
+        "input": 0.025,
         "cacheWrite": 0,
         "output": 0.005
       },
@@ -331,21 +331,21 @@
           "feeUsd": 199.99,
           "confidence": "low",
           "periodDays": 28,
-          "usdPerMtok": 0.0038742735
+          "usdPerMtok": 0.0031906509
         },
         {
           "id": "Google AI Pro",
           "feeUsd": 19.99,
           "confidence": "high",
           "periodDays": 28,
-          "usdPerMtok": 0.0077450601
+          "usdPerMtok": 0.0063784301
         },
         {
           "id": "Google AI Ultra 5x",
           "feeUsd": 99.99,
           "confidence": "low",
           "periodDays": 28,
-          "usdPerMtok": 0.0077481596
+          "usdPerMtok": 0.0063809828
         }
       ]
     },
@@ -386,8 +386,8 @@
       "defaultPlan": "Google AI Pro",
       "dataDate": "2026-11-23",
       "mix": {
-        "cache": 0.85,
-        "input": 0.145,
+        "cache": 0.97,
+        "input": 0.025,
         "cacheWrite": 0,
         "output": 0.005
       },
@@ -403,7 +403,7 @@
           "feeUsd": 19.99,
           "confidence": "assumed",
           "periodDays": 28,
-          "usdPerMtok": 0.0077450601
+          "usdPerMtok": 0.0063784301
         }
       ],
       "sameAs": "Gemini 3.8 Flash"
@@ -542,12 +542,12 @@
       "sourceModel": "grok-4.6",
       "provider": "xai",
       "providerName": "SpaceXAI",
-      "defaultPlan": "SuperGrok Plus",
-      "dataDate": "2026-09-29",
+      "defaultPlan": "X Ultra",
+      "dataDate": "2026-08-23~2026-09-20",
       "mix": {
         "cache": 0.97,
-        "input": 0,
-        "cacheWrite": 0.025,
+        "input": 0.025,
+        "cacheWrite": 0,
         "output": 0.005
       },
       "apiPrices": {
@@ -557,6 +557,34 @@
         "output": 6
       },
       "plans": [
+        {
+          "id": "X Ultra",
+          "feeUsd": 200,
+          "confidence": "medium",
+          "periodDays": 28,
+          "usdPerMtok": 0.031007752000000003
+        },
+        {
+          "id": "X Super",
+          "feeUsd": 100,
+          "confidence": "medium",
+          "periodDays": 28,
+          "usdPerMtok": 0.05167958666666667
+        },
+        {
+          "id": "X Premium",
+          "feeUsd": 30,
+          "confidence": "medium",
+          "periodDays": 28,
+          "usdPerMtok": 0.058139535
+        },
+        {
+          "id": "X Plus",
+          "feeUsd": 8,
+          "confidence": "medium",
+          "periodDays": 28,
+          "usdPerMtok": 0.062015504
+        },
         {
           "id": "SuperGrok Plus",
           "feeUsd": 100,
@@ -592,12 +620,12 @@
       "sourceModel": "grok-4.7",
       "provider": "xai",
       "providerName": "SpaceXAI",
-      "defaultPlan": "SuperGrok Plus",
-      "dataDate": "2026-09-29",
+      "defaultPlan": "X Ultra",
+      "dataDate": "2026-09-22",
       "mix": {
         "cache": 0.97,
-        "input": 0,
-        "cacheWrite": 0.025,
+        "input": 0.025,
+        "cacheWrite": 0,
         "output": 0.005
       },
       "apiPrices": {
@@ -607,6 +635,34 @@
         "output": 6
       },
       "plans": [
+        {
+          "id": "X Ultra",
+          "feeUsd": 200,
+          "confidence": "low",
+          "periodDays": 28,
+          "usdPerMtok": 0.027972027733333335
+        },
+        {
+          "id": "X Super",
+          "feeUsd": 100,
+          "confidence": "low",
+          "periodDays": 28,
+          "usdPerMtok": 0.046620046222222225
+        },
+        {
+          "id": "X Premium",
+          "feeUsd": 30,
+          "confidence": "low",
+          "periodDays": 28,
+          "usdPerMtok": 0.052447552
+        },
+        {
+          "id": "X Plus",
+          "feeUsd": 8,
+          "confidence": "low",
+          "periodDays": 28,
+          "usdPerMtok": 0.05594405546666667
+        },
         {
           "id": "SuperGrok Plus",
           "feeUsd": 100,
@@ -936,7 +992,7 @@
       "sourceModel": "grok-4.5",
       "provider": "xai",
       "providerName": "SpaceXAI",
-      "defaultPlan": "SuperGrok",
+      "defaultPlan": "X Ultra",
       "dataDate": "2026-08-23~2026-09-20",
       "mix": {
         "cache": 0.97,
@@ -951,6 +1007,34 @@
         "output": 6
       },
       "plans": [
+        {
+          "id": "X Ultra",
+          "feeUsd": 200,
+          "confidence": "low",
+          "periodDays": 28,
+          "usdPerMtok": 0.031007752000000003
+        },
+        {
+          "id": "X Super",
+          "feeUsd": 100,
+          "confidence": "low",
+          "periodDays": 28,
+          "usdPerMtok": 0.05167958666666667
+        },
+        {
+          "id": "X Premium",
+          "feeUsd": 30,
+          "confidence": "low",
+          "periodDays": 28,
+          "usdPerMtok": 0.058139535
+        },
+        {
+          "id": "X Plus",
+          "feeUsd": 8,
+          "confidence": "low",
+          "periodDays": 28,
+          "usdPerMtok": 0.062015504
+        },
         {
           "id": "SuperGrok Heavy",
           "feeUsd": 300,
@@ -1100,8 +1184,8 @@
       "dataDate": "2026-11-23",
       "sameAs": "Gemini 3.8 Flash",
       "mix": {
-        "cache": 0.85,
-        "input": 0.145,
+        "cache": 0.97,
+        "input": 0.025,
         "output": 0.005,
         "cacheWrite": 0
       },
@@ -1117,7 +1201,7 @@
           "feeUsd": 19.99,
           "confidence": "assumed",
           "periodDays": 28,
-          "usdPerMtok": 0.0077450601
+          "usdPerMtok": 0.0063784301
         }
       ]
     },
@@ -1130,8 +1214,8 @@
       "dataDate": "2026-11-16",
       "sameAs": "Gemini 3.8 Flash",
       "mix": {
-        "cache": 0.85,
-        "input": 0.145,
+        "cache": 0.97,
+        "input": 0.025,
         "output": 0.005,
         "cacheWrite": 0
       },
@@ -1145,7 +1229,7 @@
         {
           "id": "Google AI Pro",
           "feeUsd": 19.99,
-          "usdPerMtok": 0.0077450601,
+          "usdPerMtok": 0.0063784301,
           "confidence": "assumed",
           "periodDays": 28
         }
@@ -1159,8 +1243,8 @@
       "defaultPlan": "Google AI Ultra 20x",
       "dataDate": "2026-11-18",
       "mix": {
-        "cache": 0.85,
-        "input": 0.145,
+        "cache": 0.97,
+        "input": 0.025,
         "cacheWrite": 0,
         "output": 0.005
       },
@@ -1176,21 +1260,21 @@
           "feeUsd": 199.99,
           "confidence": "preliminary",
           "periodDays": 28,
-          "usdPerMtok": 0.013271010573822593
+          "usdPerMtok": 0.006151503724807179
         },
         {
           "id": "Google AI Ultra 5x",
           "feeUsd": 99.99,
           "confidence": "preliminary",
           "periodDays": 28,
-          "usdPerMtok": 0.02654069398022943
+          "usdPerMtok": 0.012302392268482818
         },
         {
           "id": "Google AI Pro",
           "feeUsd": 19.99,
           "confidence": "preliminary",
           "periodDays": 28,
-          "usdPerMtok": 0.030684915396304413
+          "usdPerMtok": 0.014223360783698753
         }
       ]
     }
@@ -1822,6 +1906,13 @@
           "kind": "banked",
           "scope": "all",
           "source": "https://x.com/thsottiaux/status/observed-20261113T0310Z",
+          "providerConfirmed": false
+        },
+        {
+          "at": "2026-11-24T18:43:21.717Z",
+          "kind": "banked",
+          "scope": "all",
+          "source": "https://x.com/thsottiaux/status/2125299248782778588",
           "providerConfirmed": false
         }
       ]
