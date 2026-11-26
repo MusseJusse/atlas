@@ -1,9 +1,9 @@
 {
-  "capturedAt": "2026-11-25T09:41:20.876Z",
-  "sourceGeneratedAt": "2026-11-25T09:28:33.737Z",
+  "capturedAt": "2026-11-26T15:05:40Z",
+  "sourceGeneratedAt": "2026-11-26T15:05:12.177Z",
   "source": "https://mypriors.com/api/snapshot?view=core",
-  "sourceHash": "232ba21d7006fa27cae634cb9eefeaffa398d2e81caa1081112ef63e33ca853f",
-  "benchmarkSourceHash": "5c1533a95097e26b11c4752317819da082df1cb019fcc82b4f89a5b670aad682",
+  "sourceHash": "fa83835017db183a1df561420914e67fde1cd277874dbba35c2e6d59c10af3df",
+  "benchmarkSourceHash": "d7df342b03b69769f59cceefa3eaf68105f979d9f849cec59da24299f3149163",
   "methodology": "https://github.com/Fei2411/real-api-pricing/blob/main/CONVENTIONS.md",
   "models": [
     {
@@ -1913,6 +1913,13 @@
           "kind": "banked",
           "scope": "all",
           "source": "https://x.com/thsottiaux/status/2125299248782778588",
+          "providerConfirmed": false
+        },
+        {
+          "at": "2026-11-26T07:26:16.082Z",
+          "kind": "banked",
+          "scope": "all",
+          "source": "https://x.com/thsottiaux/status/2125853628250599730",
           "providerConfirmed": false
         }
       ]
