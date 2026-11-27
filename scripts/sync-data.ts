@@ -31,7 +31,7 @@ export function runCommand(command: string, args: string[], cwd: string, inherit
 export async function syncData({ cwd = process.cwd(), run = runCommand, fetcher = fetch } = {}) {
   const root = run('git', ['rev-parse', '--show-toplevel'], cwd);
   run('git', ['fetch', 'origin'], root, true);
-  const temporary = await mkdtemp(join(tmpdir(), 'slopalytics-data-sync-'));
+  const temporary = await mkdtemp(join(tmpdir(), 'atlas-data-sync-'));
   const workspace = join(temporary, 'checkout');
   let attached = false;
   try {
