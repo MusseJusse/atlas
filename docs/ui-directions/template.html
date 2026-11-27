@@ -1,0 +1,298 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Atlas UI directions</title>
+<style>
+@font-face { font-family: 'DM Sans'; font-weight: 100 1000; src: url(data:font/woff2;base64,{{FONT}}) format('woff2'); }
+:root { color-scheme: light dark; }
+* { box-sizing: border-box; }
+body { margin: 0; font: 15px/1.55 'DM Sans', system-ui, sans-serif; color: var(--foreground, CanvasText); }
+.doc { max-width: 1240px; margin: 0 auto; padding: 28px 16px 64px; }
+.doc h1 { font-size: 28px; line-height: 1.15; letter-spacing: -0.02em; margin: 0 0 10px; font-variation-settings: 'opsz' 40; font-weight: 720; }
+.doc h2 { font-size: 21px; letter-spacing: -0.015em; margin: 56px 0 6px; font-weight: 700; }
+.doc p, .doc li { max-width: 74ch; }
+.doc p { margin: 0 0 10px; }
+.muted { color: var(--muted-foreground, GrayText); }
+.jump { display: flex; flex-wrap: wrap; gap: 4px 18px; margin: 14px 0 0; padding: 0; list-style: none; }
+.jump a { color: inherit; }
+.pair { display: grid; grid-template-columns: minmax(0, 1fr); gap: 20px; margin-top: 16px; }
+@media (min-width: 900px) { .pair { grid-template-columns: 300px minmax(0, 1fr); align-items: start; } }
+.notes ul { margin: 0; padding-left: 18px; }
+.notes li { margin-bottom: 6px; }
+.frame { overflow-x: auto; border: 1px solid var(--border, color-mix(in srgb, CanvasText 18%, transparent)); border-radius: 12px; }
+.frame.phone-frame { max-width: 392px; }
+.frame + .frame { margin-top: 16px; }
+.cmp { width: 100%; border-collapse: collapse; margin-top: 12px; font-size: 14px; }
+.cmp th, .cmp td { text-align: left; vertical-align: top; padding: 8px 12px 8px 0; border-bottom: 1px solid var(--border, color-mix(in srgb, CanvasText 18%, transparent)); }
+.cmp th { font-weight: 600; }
+.tablewrap { overflow-x: auto; }
+
+/* Product mocks keep Atlas's own light palette. */
+.mock { width: var(--w); font-family: 'DM Sans', sans-serif; color: #17213a; background: #f1f4fa; font-variant-numeric: tabular-nums; -webkit-font-smoothing: antialiased; line-height: 1.35; }
+.mock .display { font-variation-settings: 'opsz' 40; font-weight: 720; letter-spacing: -0.028em; }
+.mock img.invert { filter: invert(1); }
+.mock img { display: block; flex: none; }
+.bar { height: 56px; display: flex; align-items: center; gap: 22px; padding: 0 24px; background: #fff; border-bottom: 1px solid #dfe5ee; }
+.word { display: flex; align-items: center; gap: 7px; font-size: 21px; }
+.bar nav { display: flex; gap: 22px; align-self: stretch; }
+.nav { display: flex; align-items: center; font-size: 14.5px; color: #596982; }
+.nav.on { color: #17213a; font-weight: 560; box-shadow: inset 0 -2px #3456d8; }
+.grow { flex: 1; }
+.iconbtn { width: 32px; height: 32px; display: grid; place-items: center; color: #596982; }
+.seg { display: inline-flex; padding: 2px; border-radius: 8px; background: #e6ebf3; font-size: 13px; font-weight: 500; letter-spacing: 0; }
+.seg span { padding: 4px 10px; border-radius: 6px; color: #596982; }
+.seg span.on { background: #fff; color: #3456d8; box-shadow: 0 1px 2px rgb(23 33 58 / .1); }
+.seg.multi span.on { background: #e0e7fd; box-shadow: none; }
+.switch { display: inline-flex; align-items: center; gap: 8px; font-size: 13.5px; }
+.switch i { width: 28px; height: 16px; border-radius: 8px; background: #3456d8; position: relative; }
+.switch i::after { content: ''; position: absolute; top: 2px; left: 14px; width: 12px; height: 12px; border-radius: 6px; background: #fff; }
+.search { display: inline-flex; align-items: center; gap: 8px; width: 210px; padding: 6px 8px 6px 10px; border: 1px solid #dfe5ee; border-radius: 8px; font-size: 13.5px; color: #606d85; background: #fff; }
+.search kbd { margin-left: auto; font: 11px 'DM Sans'; border: 1px solid #c3cdde; border-radius: 4px; padding: 0 5px; }
+.plot { display: block; }
+.plot .grid { stroke: #dbe2ec; stroke-dasharray: 2 4; }
+.plot .tick { fill: #606d85; }
+.plot .front { stroke: #3456d8; stroke-width: 2; fill: none; opacity: .75; }
+.plot .offlabel { fill: #8592a8; }
+
+/* A */
+.canvas { position: relative; background: #fff; height: 660px; }
+.canvas > .leader { position: absolute; inset: 0; pointer-events: none; }
+.axisbtn { display: inline-flex; align-items: center; gap: 4px; padding: 4px 6px 4px 9px; border-radius: 6px; background: #eef2f9; font-size: 13.5px; font-weight: 560; }
+.canvas .axisbtn { position: absolute; }
+.canvas .axisbtn.y { left: 60px; top: 22px; }
+.canvas .axisbtn.x { right: 200px; top: 628px; background: #e0e7fd; color: #3456d8; }
+.menu { position: absolute; width: 210px; margin: 0; padding: 4px; list-style: none; background: #fff; border-radius: 10px; font-size: 13.5px; box-shadow: 0 0 0 1px rgb(23 33 58 / .06), 0 4px 8px -2px rgb(23 33 58 / .06), 0 18px 40px -12px rgb(23 33 58 / .22); }
+.menu li { display: flex; align-items: center; gap: 8px; padding: 6px 8px; border-radius: 6px; }
+.menu li i { width: 14px; }
+.menu li.sel { background: #f1f4fa; color: #3456d8; font-weight: 560; }
+.menu li:last-child { border-top: 1px solid #eef1f6; border-radius: 0 0 6px 6px; margin-top: 2px; }
+.pin { position: absolute; width: 230px; padding: 10px 12px 12px; background: #fff; border-radius: 10px; box-shadow: 0 0 0 1px rgb(23 33 58 / .06), 0 4px 8px -2px rgb(23 33 58 / .06), 0 18px 40px -12px rgb(23 33 58 / .22); }
+.pinhead { display: flex; align-items: center; gap: 7px; font-size: 14.5px; }
+.pinhead span { color: #606d85; font-size: 13px; }
+.pinhead i { margin-left: auto; color: #8592a8; display: grid; }
+.pin dl, .sheet dl { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 12px; margin: 10px 0 0; }
+.sheet dl.row4 { grid-template-columns: repeat(4, 1fr); }
+dl dt { font-size: 12px; color: #606d85; }
+dl dd { margin: 0; font-size: 17px; font-weight: 620; }
+.phone .bar { padding: 0 12px 0 16px; gap: 4px; height: 52px; }
+.axisrow { display: flex; align-items: center; gap: 8px; padding: 12px 16px 4px; background: #fff; }
+.axisrow .vs { font-size: 13px; color: #606d85; }
+.phone .plot { background: #fff; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; padding: 4px 16px 16px; background: #fff; }
+.chips span { font-size: 13px; font-weight: 560; color: var(--c); padding: 3px 8px; border: 1px solid #dfe5ee; border-radius: 6px; }
+.chips span.off { color: #8592a8; font-weight: 450; border-style: dashed; }
+.sheet { background: #fff; border-radius: 14px 14px 0 0; padding: 8px 16px 20px; margin-top: 10px; box-shadow: 0 0 0 1px rgb(23 33 58 / .06), 0 -10px 30px -12px rgb(23 33 58 / .25); }
+.grab { width: 36px; height: 4px; border-radius: 2px; background: #c3cdde; margin: 0 auto 10px; }
+
+/* B */
+.matrixhead { display: flex; align-items: baseline; justify-content: space-between; gap: 24px; padding: 26px 32px 14px; }
+.matrixhead h3 { margin: 0; font-size: 28px; display: flex; align-items: center; gap: 10px; }
+.matrixhead .seg { font-size: 14px; }
+.hint { font-size: 13px; color: #606d85; }
+.matrix { margin: 0 24px 24px; background: #fff; border: 1px solid #dfe5ee; border-radius: 10px; overflow: hidden; }
+.tr { display: grid; grid-template-columns: 170px repeat(6, 1fr); align-items: center; gap: 12px; padding: 9px 18px; border-bottom: 1px solid #eef1f6; }
+.tr.hover { background: #f5f7fc; }
+.thead { padding-top: 12px; padding-bottom: 8px; }
+.th span { display: inline-flex; align-items: center; gap: 3px; font-size: 13px; font-weight: 600; }
+.th.sorted span { color: #3456d8; }
+.th small { display: flex; justify-content: space-between; width: 140px; margin-top: 3px; font-size: 11px; color: #8592a8; }
+.th small i { font-style: normal; }
+.td { display: grid; gap: 2px; }
+.val { font-size: 14px; font-weight: 560; }
+.val.best { color: #3456d8; }
+.matrix .name, .prow .name { display: flex; align-items: center; gap: 8px; font-size: 14.5px; font-weight: 600; }
+svg .base { stroke: #e3e9f3; }
+.addrow { display: flex; gap: 18px; padding: 12px 18px; font-size: 13.5px; color: #8592a8; }
+.ptabs { display: flex; gap: 2px; padding: 0 8px; overflow: hidden; background: #fff; border-bottom: 1px solid #dfe5ee; white-space: nowrap; -webkit-mask-image: linear-gradient(90deg, #000 85%, transparent); mask-image: linear-gradient(90deg, #000 85%, transparent); }
+.ptabs span { padding: 11px 8px; font-size: 13.5px; color: #596982; }
+.ptabs span.on { color: #17213a; font-weight: 560; box-shadow: inset 0 -2px #3456d8; }
+.pseg { padding: 12px 16px; }
+.plist { background: #fff; border-top: 1px solid #dfe5ee; }
+.prow { padding: 10px 24px 8px; border-bottom: 1px solid #eef1f6; }
+.prow .name b { margin-left: auto; font-size: 14px; font-weight: 600; color: #17213a; }
+.prow svg { margin-top: 4px; }
+
+/* C */
+.budget { display: grid; grid-template-columns: 470px 1fr; gap: 40px; padding: 40px 40px 32px; background: #fff; min-height: 640px; }
+.answer { font-size: 40px; line-height: 1.08; margin: 0 0 14px; }
+.gap { margin: 0; font-size: 15px; color: #596982; max-width: 44ch; }
+.slider { display: grid; grid-template-columns: 1fr auto; gap: 6px 12px; margin: 26px 0 22px; }
+.slider span { font-size: 13px; color: #606d85; }
+.slider output { font-size: 15px; font-weight: 640; grid-row: 1; grid-column: 2; }
+.slider input { grid-column: 1 / -1; width: 100%; margin: 0; accent-color: #3456d8; }
+.rank { display: grid; grid-template-columns: 16px 118px 48px 1fr 40px 76px; align-items: center; gap: 8px; padding: 6px 0; border-bottom: 1px solid #eef1f6; font-size: 13.5px; }
+.rank b { font-weight: 600; }
+.rank .lvl { color: #606d85; font-size: 12.5px; }
+.rank .bar2 { height: 6px; border-radius: 3px; background: #eef2f9; overflow: hidden; }
+.rank .bar2 i { display: block; height: 100%; }
+.rank .num { text-align: right; font-weight: 600; }
+.rank .cost { text-align: right; color: #596982; white-space: nowrap; }
+.rank.none { color: #8592a8; }
+.rank.none b { font-weight: 500; }
+.budget.compact { grid-template-columns: 1fr; padding: 24px 16px; min-height: 0; }
+.budget.compact .answer { font-size: 29px; }
+.budget.compact .rank { grid-template-columns: 16px 1fr 44px 34px 76px; }
+.budget.compact .rank .bar2 { display: none; }
+.bplot .plot .over { fill: #f1f4fa; }
+.bplot .plot .line { stroke: #3456d8; stroke-width: 1.5; }
+.bplot .plot .linelabel { fill: #3456d8; font-weight: 640; }
+</style>
+</head>
+<body>
+<main class="doc">
+  <h1>Three ways to rethink Atlas</h1>
+  <p>Right now Atlas is three layers stacked around a chart: a sidebar of 13 checkboxes and 6 reasoning chips, a strip of 7 metric tabs, and a settings button. Each tab shows one metric, so checking a model's score, cost, and speed together means clicking through three views and remembering the numbers. Each direction below removes one of those layers instead of polishing it. All three keep cobalt and DM Sans and use the {{SNAPSHOT}} snapshot, so every point and number is real.</p>
+  <ul class="jump"><li><a href="#a">A. Canvas</a></li><li><a href="#b">B. Matrix</a></li><li><a href="#c">C. Budget</a></li><li><a href="#pick">Comparison</a></li></ul>
+
+  <h2 id="a">A. Canvas</h2>
+  <p>The chart becomes the whole page. The axis titles turn into menus, so the 7 tabs collapse into two questions: what goes up, and what goes across. Choosing "Nothing" for the x axis gives a ranked bar chart, which covers today's Intelligence and Omniscience views. The labels at the end of each line toggle models, and the search field adds new ones, so the sidebar goes away.</p>
+  <div class="frame" data-fit>{{MOCK_A}}</div>
+  <div class="pair">
+    <div class="notes">
+      <ul>
+        <li>The Frontier switch fades every configuration that some cheaper one beats, instead of just drawing a line over them.</li>
+        <li>Clicking a point pins its card next to the point, with a leader line. Phones use a bottom sheet.</li>
+        <li>The reasoning filter moves into the top bar as a multi-select.</li>
+        <li>Build size: medium. The scatter and bar code stay. State changes from one <code>view</code> to an <code>{x, y}</code> pair, and old URLs need a mapping.</li>
+      </ul>
+    </div>
+    <div class="frame phone-frame" data-fit>{{MOCK_A_PHONE}}</div>
+  </div>
+
+  <h2 id="b">B. Matrix</h2>
+  <p>This one shows every metric at once. Each row is a model, and each cell plots all five reasoning levels on that column's scale, with the number for the level you picked. You can see that GPT-6.2 Sol at high lands 7 points under Fable 5.2 for a sixteenth of the cost, finishes 3 times faster, and burns a fifth of the tokens. That comparison takes four tab switches today.</p>
+  <div class="frame" data-fit>{{MOCK_B}}</div>
+  <div class="pair">
+    <div class="notes">
+      <ul>
+        <li>The reasoning picker sits inside the headline, so the sentence says what you're looking at.</li>
+        <li>Headers sort. Each column shares one scale, so you compare dot positions down a column.</li>
+        <li>On phones, one metric shows at a time with full-width strips. The tabs live on as a column picker.</li>
+        <li>Build size: medium. It's new code, but small SVG strips are simpler than the scatter.</li>
+      </ul>
+    </div>
+    <div class="frame phone-frame" data-fit>{{MOCK_B_PHONE}}</div>
+  </div>
+
+  <h2 id="c">C. Budget</h2>
+  <p>Start from the question people actually bring: what's the smartest thing I can run for this much per task? Set a price and the page answers with each model's best configuration under it, plus how far that is from the top score at any price. The slider works in this mock. Try $0.10 and $5.</p>
+  <div class="frame" data-fit>{{MOCK_C}}</div>
+  <div class="pair">
+    <div class="notes">
+      <ul>
+        <li>The answer is a sentence set in the display cut, and it rewrites as you drag.</li>
+        <li>Models that can't fit the budget stay listed with their cheapest price, so they don't silently disappear.</li>
+        <li>The chart shades everything over budget instead of hiding it.</li>
+        <li>Build size: small. It reuses the scatter, adds one derived list, and fits the URL state as <code>?budget=1</code>.</li>
+      </ul>
+    </div>
+    <div class="frame phone-frame" data-fit>{{MOCK_C_PHONE}}</div>
+  </div>
+
+  <h2 id="pick">Comparison</h2>
+  <div class="tablewrap">
+  <table class="cmp">
+    <thead><tr><th></th><th>Removes</th><th>Best at</th><th>Weak at</th><th>Build</th></tr></thead>
+    <tbody>
+      <tr><th>A. Canvas</th><td>Sidebar, metric tabs</td><td>Exploring any pair of metrics</td><td>Axis menus are less discoverable than tabs</td><td>Medium</td></tr>
+      <tr><th>B. Matrix</th><td>Metric tabs, hover-to-read</td><td>Reading exact numbers across every metric</td><td>No two-metric tradeoff picture</td><td>Medium</td></tr>
+      <tr><th>C. Budget</th><td>The blank first screen</td><td>Answering "what should I use"</td><td>Only one constraint, cost</td><td>Small</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <p style="margin-top:16px">My pick is A with B as a second view on the same page. A deletes the most UI, and the chart code already does most of the work. B is the only one that shows every metric at once, so it earns a "Table" toggle next to the chart. C makes a great opening for the Benchmarks page, but it's too narrow to be the whole app.</p>
+</main>
+<script type="application/json" id="data">{{DATA}}</script>
+<script>
+(function () {
+  var data = JSON.parse(document.getElementById('data').textContent);
+  var models = data.models;
+  var lo = Math.log10(0.01), hi = Math.log10(30);
+  var top = null;
+  models.forEach(function (m) { m.levels.forEach(function (l) { if (!top || l.intelligence > top.l.intelligence) top = { m: m, l: l }; }); });
+
+  function money(c) { return c < 0.1 ? '$' + c.toFixed(3) : c < 10 ? '$' + c.toFixed(2) : '$' + c.toFixed(1); }
+  function nice(c) { var p = Math.pow(10, Math.floor(Math.log10(c)) - 1); return Math.round(c / p) * p; }
+  function budgetFrom(v) { return nice(Math.pow(10, lo + v / 1000 * (hi - lo))); }
+
+  function picks(budget) {
+    return models.map(function (m) {
+      var fit = m.levels.filter(function (l) { return l.cost <= budget; });
+      var best = fit.reduce(function (a, l) { return !a || l.intelligence > a.intelligence ? l : a; }, null);
+      return { m: m, best: best, cheapest: m.levels.reduce(function (a, l) { return l.cost < a ? l.cost : a; }, Infinity) };
+    }).sort(function (a, b) {
+      if (a.best && b.best) return b.best.intelligence - a.best.intelligence;
+      return a.best ? -1 : b.best ? 1 : a.cheapest - b.cheapest;
+    });
+  }
+
+  function plot(budget, chosen) {
+    var w = 610, h = 560, x0 = 44, x1 = 596, y0 = 16, y1 = 520;
+    var plo = Math.log10(0.004), phi = Math.log10(40);
+    function X(c) { return x0 + (Math.log10(c) - plo) / (phi - plo) * (x1 - x0); }
+    function Y(s) { return y1 - s / 70 * (y1 - y0); }
+    var bx = Math.min(x1, X(budget));
+    var s = '<svg class="plot" viewBox="0 0 ' + w + ' ' + h + '" width="' + w + '" height="' + h + '" role="img" aria-label="Configurations over budget are shaded">';
+    s += '<rect class="over" x="' + bx + '" y="' + y0 + '" width="' + (x1 - bx) + '" height="' + (y1 - y0) + '"/>';
+    for (var v = 0; v <= 70; v += 10) s += '<path class="grid" d="M' + x0 + ' ' + Y(v) + 'H' + x1 + '"/><text class="tick" font-size="12" text-anchor="end" x="' + (x0 - 8) + '" y="' + (Y(v) + 4) + '">' + v + '</text>';
+    [0.01, 0.1, 1, 10].forEach(function (c) { s += '<text class="tick" font-size="12" text-anchor="middle" x="' + X(c) + '" y="' + (y1 + 20) + '">$' + c + '</text>'; });
+    s += '<text class="tick" font-size="12" text-anchor="middle" x="' + ((x0 + x1) / 2) + '" y="' + (y1 + 38) + '">Cost per task, log scale</text>';
+    models.forEach(function (m) {
+      s += '<polyline fill="none" stroke="' + m.color + '" stroke-width="1.6" opacity=".35" points="' + m.levels.map(function (l) { return X(l.cost) + ',' + Y(l.intelligence); }).join(' ') + '"/>';
+      m.levels.forEach(function (l) {
+        var over = l.cost > budget, pick = chosen.indexOf(l) >= 0;
+        s += '<circle cx="' + X(l.cost) + '" cy="' + Y(l.intelligence) + '" r="' + (pick ? 6 : 3.6) + '" fill="' + m.color + '" stroke="#fff" stroke-width="1.6" opacity="' + (over ? 0.22 : pick ? 1 : 0.6) + '"/>';
+      });
+    });
+    s += '<path class="line" d="M' + bx + ' ' + y0 + 'V' + y1 + '"/><text class="linelabel" font-size="13" x="' + (bx - 6) + '" y="' + (y0 + 14) + '" text-anchor="end">' + money(budget) + '</text>';
+    return s + '</svg>';
+  }
+
+  function render(root, budget) {
+    var list = picks(budget);
+    var lead = list[0].best ? list[0] : null;
+    root.querySelector('[data-out]').textContent = money(budget);
+    if (lead) {
+      root.querySelector('[data-answer]').textContent = money(budget) + ' a task buys ' + lead.m.name.replace(/ /g, '\u00a0').replace(/-/g, '\u2011') + ' at ' + lead.best.level + '.';
+      var gap = top.l.intelligence - lead.best.intelligence;
+      root.querySelector('[data-gap]').textContent = gap < 0.05
+        ? 'It scores ' + lead.best.intelligence.toFixed(1) + ', the top result in this snapshot.'
+        : 'It scores ' + lead.best.intelligence.toFixed(1) + ', ' + gap.toFixed(1) + ' points under the best result at any price, ' + top.m.name + ' at ' + top.l.level + ' for ' + money(top.l.cost) + '.';
+    } else {
+      root.querySelector('[data-answer]').textContent = 'Nothing runs for ' + money(budget) + ' a task.';
+      root.querySelector('[data-gap]').textContent = 'The cheapest configuration here costs ' + money(list[0].cheapest) + '.';
+    }
+    root.querySelector('[data-ranks]').innerHTML = list.map(function (p) {
+      var name = '<span>' + data.logos[p.m.lab] + '</span><b style="color:' + (p.best ? p.m.color : 'inherit') + '">' + p.m.name + '</b>';
+      if (!p.best) return '<div class="rank none">' + name + '<span class="lvl"></span><span class="bar2"></span><span class="num"></span><span class="cost">from ' + money(p.cheapest) + '</span></div>';
+      return '<div class="rank">' + name + '<span class="lvl">' + p.best.level + '</span><span class="bar2"><i style="width:' + (p.best.intelligence / 70 * 100) + '%;background:' + p.m.color + '"></i></span><span class="num">' + p.best.intelligence.toFixed(1) + '</span><span class="cost">' + money(p.best.cost) + '</span></div>';
+    }).join('');
+    var host = root.querySelector('[data-plot]');
+    if (host) host.innerHTML = plot(budget, list.map(function (p) { return p.best; }));
+  }
+
+  document.querySelectorAll('.budget').forEach(function (root) {
+    var input = root.querySelector('[data-budget]');
+    input.value = String(Math.round((Math.log10(1) - lo) / (hi - lo) * 1000));
+    input.setAttribute('aria-label', 'Budget per task');
+    input.addEventListener('input', function () { render(root, budgetFrom(Number(input.value))); });
+    render(root, 1);
+  });
+
+  // Scale each fixed-width mock down to its frame.
+  function fit() {
+    document.querySelectorAll('[data-fit]').forEach(function (frame) {
+      var mock = frame.firstElementChild;
+      var natural = parseFloat(getComputedStyle(mock).getPropertyValue('--w'));
+      mock.style.zoom = String(Math.min(1, frame.clientWidth / natural));
+      frame.style.overflowX = 'hidden';
+    });
+  }
+  fit();
+  window.addEventListener('resize', fit);
+})();
+</script>
+</body>
+</html>
