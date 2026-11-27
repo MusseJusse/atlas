@@ -1,9 +1,9 @@
 {
-  "capturedAt": "2026-11-26T15:05:40Z",
-  "sourceGeneratedAt": "2026-11-26T15:05:12.177Z",
+  "capturedAt": "2026-11-27T09:03:54Z",
+  "sourceGeneratedAt": "2026-11-27T08:53:51.684Z",
   "source": "https://mypriors.com/api/snapshot?view=core",
-  "sourceHash": "fa83835017db183a1df561420914e67fde1cd277874dbba35c2e6d59c10af3df",
-  "benchmarkSourceHash": "d7df342b03b69769f59cceefa3eaf68105f979d9f849cec59da24299f3149163",
+  "sourceHash": "7e6e843c194aff4cb709178867e805bf8fdb3393e68c55116175cbf41bf9e906",
+  "benchmarkSourceHash": "ae50bc29f902bbe2073b35c1bb0ad84b2698e59a4acefedc5efb345ef60f9f31",
   "methodology": "https://github.com/Fei2411/real-api-pricing/blob/main/CONVENTIONS.md",
   "models": [
     {
@@ -1057,7 +1057,7 @@
       "provider": "openai",
       "providerName": "OpenAI",
       "defaultPlan": "ChatGPT Pro 20x",
-      "dataDate": "2026-11-17",
+      "dataDate": "2026-11-26",
       "sameAs": "GPT-6 Astra",
       "mix": {
         "cache": 0.97,
@@ -1108,7 +1108,7 @@
       "provider": "openai",
       "providerName": "OpenAI",
       "defaultPlan": "ChatGPT Pro 10x",
-      "dataDate": "2026-11-17",
+      "dataDate": "2026-11-26",
       "sameAs": "GPT-6.1 Sol",
       "mix": {
         "cache": 0.97,
