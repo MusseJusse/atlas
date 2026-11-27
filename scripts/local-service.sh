@@ -2,7 +2,7 @@
 set -eu
 
 project_dir="$(cd "$(dirname "$0")/.." && pwd)"
-service_label="com.musse.slopalytics-benchmarks"
+service_label="com.musse.atlas"
 service_target="gui/$(id -u)/$service_label"
 agent_path="$HOME/Library/LaunchAgents/$service_label.plist"
 
